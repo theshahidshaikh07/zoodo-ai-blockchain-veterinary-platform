@@ -1,36 +1,58 @@
 package com.zoodo.backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
+@Table(name = "pets")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pet {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @NotBlank(message = "Pet name is required")
+    @Column(nullable = false)
     private String name;
+
+    @NotBlank(message = "Species is required")
+    @Column(nullable = false)
     private String species;
-    private int age;
 
-    // Constructors
-    public Pet() {}
+    private String breed;
 
-    public Pet(String name, String species, int age) {
-        this.name = name;
-        this.species = species;
-        this.age = age;
-    }
+    @Positive(message = "Age must be positive")
+    private Integer age;
 
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Positive(message = "Weight must be positive")
+    private Double weight;
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    private String color;
 
-    public String getSpecies() { return species; }
-    public void setSpecies(String species) { this.species = species; }
+    @Column(name = "photo_url")
+    private String photoUrl;
 
-    public int getAge() { return age; }
-    public void setAge(int age) { this.age = age; }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }
