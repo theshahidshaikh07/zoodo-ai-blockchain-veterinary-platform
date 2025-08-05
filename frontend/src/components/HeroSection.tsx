@@ -105,7 +105,7 @@ const HeroSection = () => {
             {/* AI Assistant Badge */}
             <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group hover:shadow-glow transition-all duration-300">
               <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-primary animate-pulse" />
-                              <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet's Health Guardian</span>
+                              <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet&apos;s Health Guardian</span>
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 ml-2 text-primary group-hover:scale-110 transition-transform" />
             </div>
 

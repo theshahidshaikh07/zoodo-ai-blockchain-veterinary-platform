@@ -9,11 +9,6 @@ import { Label } from '@/components/ui/label';
 import { 
   Eye, 
   EyeOff, 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  MapPin,
   ArrowLeft,
   ChevronDown
 } from 'lucide-react';

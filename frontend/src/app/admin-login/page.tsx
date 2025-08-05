@@ -52,18 +52,28 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError('');
     try {
-      // Placeholder: implement this in your apiService
-      const response = await apiService.loginAdmin({
+      // Use the loginUser method from apiService
+      const response = await apiService.loginUser({
         usernameOrEmail: formData.usernameOrEmail,
         password: formData.password
       });
+      
+      // After successful login, check if the user is an admin
       if (response.success) {
-        router.push('/admin-dashboard');
+        const userResponse = await apiService.getCurrentUser();
+        if (userResponse.success && userResponse.data?.userType === 'admin') {
+          router.push('/admin-dashboard');
+        } else {
+          // If not an admin, log them out and show error
+          apiService.logout();
+          setError('Access denied. Admin privileges required.');
+        }
       } else {
-        setError(response.message || 'Admin login failed');
+        setError(response.error || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
-      setError('An error occurred during admin login');
+      console.error('Login error:', error);
+      setError('An error occurred during login');
     } finally {
       setIsLoading(false);
     }
@@ -74,14 +84,16 @@ export default function AdminLoginPage() {
       {/* Header */}
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
-          <Image
-            src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
-            alt="Zoodo"
-            width={120}
-            height={40}
-            className="h-3 md:h-4 lg:h-5 w-auto"
-            priority
-          />
+          <div className="relative w-[120px] h-[40px]">
+            <Image
+              src={mounted && resolvedTheme === 'dark' ? '/images/Z-light.png' : '/images/Z.png'}
+              alt="Zoodo"
+              fill
+              sizes="(max-width: 768px) 90px, 120px"
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
         <Link 
           href="/" 

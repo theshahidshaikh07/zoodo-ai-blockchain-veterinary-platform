@@ -9,10 +9,7 @@ import { Label } from '@/components/ui/label';
 import { 
   Eye, 
   EyeOff, 
-  Mail, 
-  Lock, 
-  ArrowLeft,
-  Phone
+  ArrowLeft
 } from 'lucide-react';
 import { apiService } from '@/lib/api';
 import Image from 'next/image';
@@ -210,7 +207,7 @@ export default function LoginPage() {
             {/* Sign Up Link */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link 
                   href="/register" 
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
