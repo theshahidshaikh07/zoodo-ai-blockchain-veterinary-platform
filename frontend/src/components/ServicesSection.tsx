@@ -4,7 +4,7 @@ import {
   Stethoscope, Building2, Video, Heart, MapPin, Clock, Star, ArrowRight, Zap, Search, UserCheck, Users, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap
 } from "lucide-react";
 import serviceFindVet from "@/assets/service-find-vet.jpg";
-import serviceClinicHospital from "@/assets/service-clinic-hospital.jpg";
+import serviceClinicHospital from "@/assets/vetic.jpg";
 import serviceTeleconsultation from "@/assets/service-teleconsultation.jpg";
 import servicePetTrainer from "@/assets/service-pet-trainer.jpg";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";

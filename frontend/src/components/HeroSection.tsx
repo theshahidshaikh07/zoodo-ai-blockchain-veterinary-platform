@@ -154,16 +154,18 @@ const HeroSection = () => {
                 variant="outline" 
                 size="xl" 
                 className="group relative hover:scale-105 transition-all duration-300 text-base lg:text-lg px-8 lg:px-12 py-3 lg:py-4 border-2 border-primary/40 hover:border-primary/80 hover:bg-primary/10 bg-background/80 hover:bg-primary/10 hover:text-foreground !hover:bg-primary/10 !hover:text-foreground"
-                asChild
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Add your custom click handler here
+                  console.log('Get Instant Care button clicked');
+                }}
               >
-                <Link href="/ai-assistant">
-                  <Lightning className="w-5 h-5 lg:w-7 lg:h-7 mr-2 relative z-10 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
-                  <span className="relative z-10 font-semibold text-foreground">Get Instant Care</span>
-                  <div className="relative ml-2 z-10">
-                    <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse group-hover:scale-125 transition-transform"></div>
-                    <div className="absolute inset-0 w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-ping"></div>
-                  </div>
-                </Link>
+                <Lightning className="w-5 h-5 lg:w-7 lg:h-7 mr-2 relative z-10 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
+                <span className="relative z-10 font-semibold text-foreground">Get Instant Care</span>
+                <div className="relative ml-2 z-10">
+                  <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse group-hover:scale-125 transition-transform"></div>
+                  <div className="absolute inset-0 w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-ping"></div>
+                </div>
               </Button>
             </div>
 
