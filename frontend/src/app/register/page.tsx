@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,8 @@ import {
   Phone, 
   MapPin,
   ArrowLeft,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { apiService } from '@/lib/api';
 import Image from 'next/image';
@@ -35,11 +36,11 @@ interface FormData {
   experience?: string;
 }
 
-export default function RegisterPage() {
-  const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+function RegisterForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     username: '',
     firstName: '',
@@ -534,5 +535,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 } 
