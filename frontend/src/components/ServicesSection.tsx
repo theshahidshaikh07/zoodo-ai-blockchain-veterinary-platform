@@ -79,7 +79,7 @@ const ServicesSection = () => {
             <span className="mt-1 sm:mt-2 lg:mt-0 lg:inline block">at your fingertips</span>
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
-            From finding the right veterinarian to emergency care and training, we&apos;ve got all your pet&apos;s needs covered.
+            From finding the right veterinarian to emergency care and training, we've got all your pet's needs covered.
           </p>
         </div>
 

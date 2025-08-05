@@ -148,10 +148,10 @@ const CommunitySection = () => {
               <h3 className="text-3xl lg:text-4xl font-bold">
                 More than a platform—
                 <br />
-                <span className="gradient-text">it&apos;s a movement</span>
+                <span className="gradient-text">it's a movement</span>
               </h3>
               <p className="text-lg text-muted-foreground">
-                Zoodo isn&apos;t just about connecting pets with care. It&apos;s about building a supportive ecosystem where every pet has access to love, care, and a safe home.
+                Zoodo isn't just about connecting pets with care. It's about building a supportive ecosystem where every pet has access to love, care, and a safe home.
               </p>
             </div>
 
