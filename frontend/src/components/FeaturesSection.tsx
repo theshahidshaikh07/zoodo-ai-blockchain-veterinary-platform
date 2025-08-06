@@ -79,7 +79,7 @@ const FeaturesSection = () => {
             <span className="gradient-text">smartest</span> features.
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            We're revolutionizing pet healthcare with cutting-edge technology that puts your pet's wellbeing first.
+            We&#39;re revolutionizing pet healthcare with cutting-edge technology that puts your pet&#39;s wellbeing first.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ const FeaturesSection = () => {
               Ready to experience the <span className="gradient-text">future</span> of pet care?
             </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of pet owners who trust Zoodo for their pet's health and wellbeing.
+              Join thousands of pet owners who trust Zoodo for their pet&#39;s health and wellbeing.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

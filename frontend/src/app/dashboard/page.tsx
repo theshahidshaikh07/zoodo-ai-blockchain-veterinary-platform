@@ -35,7 +35,7 @@ interface Appointment {
 }
 
 export default function Dashboard() {
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
@@ -335,7 +335,7 @@ function VeterinarianDashboard({ appointments }: { appointments: Appointment[] }
       
       {/* Add veterinarian-specific content */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Appointments</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today&#39;s Appointments</h3>
         <div className="space-y-4">
           {appointments.map((appointment) => (
             <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">

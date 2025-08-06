@@ -204,6 +204,25 @@ class ApiService {
     return response;
   }
 
+  async loginAdmin(credentials: {
+    usernameOrEmail: string;
+    password: string;
+  }): Promise<ApiResponse<string>> {
+    const response = await this.request<string>('/users/login/admin', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    
+    // Store JWT token if login is successful
+    if (response.success && response.data) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('jwt_token', response.data);
+      }
+    }
+    
+    return response;
+  }
+
   logout(): void {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');

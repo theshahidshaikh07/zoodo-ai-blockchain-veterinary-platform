@@ -148,15 +148,15 @@ const CommunitySection = () => {
               <h3 className="text-3xl lg:text-4xl font-bold">
                 More than a platform—
                 <br />
-                <span className="gradient-text">it's a movement</span>
+                <span className="gradient-text">it&#39;s a movement</span>
               </h3>
               <p className="text-lg text-muted-foreground">
-                Zoodo isn't just about connecting pets with care. It's about building a supportive ecosystem where every pet has access to love, care, and a safe home.
+                Zoodo isn&#39;t just about connecting pets with care. It&#39;s about building a supportive ecosystem where every pet has access to love, care, and a safe home.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {communityFeatures.map((feature, index) => (
+              {communityFeatures.map((feature) => (
                 <div
                   key={feature.title}
                   className="p-6 glass-card rounded-2xl hover:shadow-elegant transition-all duration-300 scale-on-hover border border-primary/20 hover:border-primary/40"
@@ -206,12 +206,12 @@ const CommunitySection = () => {
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="flex items-center space-x-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-zoodo-orange fill-current" />
+                  {Array.from({ length: testimonial.rating }).map((_, index) => (
+                    <Star key={index} className="w-4 h-4 text-zoodo-orange fill-current" />
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-6 italic">
-                  "{testimonial.content}"
+                  &quot;{testimonial.content}&quot;
                 </p>
                 <div className="flex items-center space-x-3">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20">
@@ -240,7 +240,7 @@ const CommunitySection = () => {
               Ready to join the <span className="gradient-text">Zoodo family</span>?
             </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Be part of a community that's transforming pet healthcare and welfare, one paw at a time.
+              Be part of a community that&#39;s transforming pet healthcare and welfare, one paw at a time.
             </p>
           </div>
           <Button variant="default" size="xl" className="group">

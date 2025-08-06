@@ -11,23 +11,15 @@ import {
   Zap as Lightning 
 } from "lucide-react";
 import diversePets from "@/assets/diverse-pets.jpg";
-import AIDemo from "./AIDemo";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 const HeroSection = () => {
   const [mounted, setMounted] = useState(false);
-  const [isAIDemoOpen, setIsAIDemoOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
 
   // Don't render theme toggle until mounted
   if (!mounted) {
@@ -105,7 +97,7 @@ const HeroSection = () => {
             {/* AI Assistant Badge */}
             <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group hover:shadow-glow transition-all duration-300">
               <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-primary animate-pulse" />
-                              <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet's Health Guardian</span>
+                            <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet&#39;s Health Guardian</span>
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 ml-2 text-primary group-hover:scale-110 transition-transform" />
             </div>
 
@@ -125,8 +117,9 @@ const HeroSection = () => {
                 variant="default" 
                 size="xl"
                 className="group relative bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-base lg:text-lg px-8 lg:px-12 py-3 lg:py-4 shadow-lg hover:shadow-2xl border-0 overflow-hidden"
-                onClick={() => setIsAIDemoOpen(true)}
+                asChild
               >
+                <Link href="/ai-assistant">
                 {/* Animated background effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 
@@ -149,6 +142,7 @@ const HeroSection = () => {
                 
                 {/* Ripple effect */}
                 <div className="absolute inset-0 rounded-lg group-hover:animate-ping group-hover:bg-white/20 transition-all duration-300"></div>
+                </Link>
               </Button>
               <Button 
                 variant="outline" 
@@ -192,8 +186,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* AI Demo Modal */}
-      <AIDemo isOpen={isAIDemoOpen} onClose={() => setIsAIDemoOpen(false)} />
     </section>
   );
 };

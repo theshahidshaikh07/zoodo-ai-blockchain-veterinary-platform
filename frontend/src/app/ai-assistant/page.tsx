@@ -1,9 +1,24 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { FaPaw, FaPaperPlane, FaMicrophone, FaRobot, FaUser, FaSpinner, FaLightbulb, FaHeartbeat, FaUserMd } from 'react-icons/fa';
-import Image from 'next/image';
+import { useState, useEffect, useRef } from 'react';
+import {
+  Send,
+  Camera,
+  Mic,
+  Settings,
+  Share2,
+  RotateCcw,
+  Stethoscope,
+  Heart,
+  Utensils,
+  MapPin
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import Link from 'next/link';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 
@@ -12,393 +27,256 @@ interface Message {
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
-  isLoading?: boolean;
-}
-
-interface AIResponse {
-  analysis?: string;
-  urgency_level?: string;
-  confidence_score?: number;
-  recommended_actions?: string[];
-  suggested_providers?: string[];
-  providers?: Array<{
-    id: string;
-    name: string;
-    specialization: string;
-    rating: number;
-    experience: string;
-    available: boolean;
-  }>;
-  daily_routine?: string[];
-  weekly_routine?: string[];
-  diet_recommendations?: string[];
-  exercise_suggestions?: string[];
-  health_monitoring?: string[];
+  analysis?: {
+    confidence: number;
+    recommendations: string[];
+    severity: 'low' | 'medium' | 'high';
+  };
 }
 
 export default function AIAssistantPage() {
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: "Hello! I'm Zoodo AI, your pet care assistant. I can help you with:\n\n🐾 Symptom analysis and health concerns\n🏥 Provider recommendations\n💊 Care routines and diet advice\n🚨 Emergency assessments\n\nHow can I help you and your pet today?",
-      timestamp: new Date()
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedPet, setSelectedPet] = useState({
-    species: '',
-    breed: '',
-    age: ''
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    // Initialize with welcome message
+    setMessages([
+      {
+        id: '1',
+        type: 'ai',
+        content: "Hello! I'm Dr. Salus AI, your intelligent veterinary assistant. I can help you with pet diagnosis, diet recommendations, personalized care plans, and connect you with the best vets and trainers. How can I assist you today?",
+        timestamp: new Date(),
+      }
+    ]);
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    // Auto-scroll to bottom when new messages arrive
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputMessage.trim()) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue,
-      timestamp: new Date()
+      content: inputMessage,
+      timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
+    setInputMessage('');
+    setIsTyping(true);
 
-    // Add loading message
-    const loadingMessage: Message = {
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
       type: 'ai',
-      content: '',
+        content: generateAIResponse(),
       timestamp: new Date(),
-      isLoading: true
-    };
-
-    setMessages(prev => [...prev, loadingMessage]);
-
-    try {
-      // Analyze the user's message to determine intent
-      const intent = analyzeIntent(inputValue);
-      const response = await getAIResponse(inputValue, intent);
-      
-      // Remove loading message and add AI response
-      setMessages(prev => {
-        const filtered = prev.filter(msg => !msg.isLoading);
-        return [...filtered, {
-          id: (Date.now() + 2).toString(),
-          type: 'ai',
-          content: formatAIResponse(response, intent),
-          timestamp: new Date()
-        }];
-      });
-    } catch (error) {
-      console.error('Error getting AI response:', error);
-      setMessages(prev => {
-        const filtered = prev.filter(msg => !msg.isLoading);
-        return [...filtered, {
-          id: (Date.now() + 2).toString(),
-          type: 'ai',
-          content: "I'm sorry, I'm having trouble processing your request right now. Please try again or contact our support team.",
-          timestamp: new Date()
-        }];
-      });
-    } finally {
-      setIsLoading(false);
-    }
+        analysis: {
+          confidence: 0.85,
+          recommendations: ['Schedule a vet visit', 'Monitor symptoms', 'Keep pet hydrated'],
+          severity: 'medium'
+        }
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 2000);
   };
 
-  const analyzeIntent = (message: string): string => {
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('symptom') || lowerMessage.includes('sick') || lowerMessage.includes('not feeling well')) {
-      return 'symptom_analysis';
-    } else if (lowerMessage.includes('doctor') || lowerMessage.includes('veterinarian') || lowerMessage.includes('provider')) {
-      return 'provider_recommendation';
-    } else if (lowerMessage.includes('care') || lowerMessage.includes('routine') || lowerMessage.includes('diet')) {
-      return 'care_routine';
-    } else if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent')) {
-      return 'emergency_assessment';
-    } else {
-      return 'general';
-    }
-  };
-
-  const getAIResponse = async (message: string, intent: string): Promise<AIResponse> => {
-    // Mock API call - replace with actual API endpoint
-    const response = await fetch('http://localhost:8000/analyze-symptoms', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        species: selectedPet.species || 'dog',
-        symptoms: extractSymptoms(message),
-        breed: selectedPet.breed,
-        age: selectedPet.age ? parseInt(selectedPet.age) : undefined
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get AI response');
-    }
-
-    return await response.json();
-  };
-
-  const extractSymptoms = (message: string): string[] => {
-    const symptomKeywords = [
-      'lethargy', 'vomiting', 'diarrhea', 'coughing', 'sneezing',
-      'limping', 'not eating', 'hiding', 'urination issues',
-      'itching', 'scratching', 'hair loss', 'weight loss'
+  const generateAIResponse = (): string => {
+    const responses = [
+      "Based on the symptoms you've described, I recommend monitoring your pet closely and scheduling a veterinary consultation. The symptoms could indicate several conditions, and a professional examination would be best for accurate diagnosis.",
+      "I understand your concern. Let me analyze the information you've provided. For proper diagnosis, I'd recommend consulting with a veterinarian who can perform a physical examination and any necessary tests.",
+      "Thank you for sharing those details. While I can provide general guidance, it's important to consult with a qualified veterinarian for proper diagnosis and treatment. Would you like me to help you find a vet in your area?",
+      "I've analyzed the symptoms you mentioned. Here are some general recommendations, but please consult with a veterinarian for proper medical advice: [detailed recommendations based on symptoms]"
     ];
-    
-    const lowerMessage = message.toLowerCase();
-    return symptomKeywords.filter(symptom => lowerMessage.includes(symptom));
+    return responses[Math.floor(Math.random() * responses.length)];
   };
 
-  const formatAIResponse = (response: AIResponse, intent: string): string => {
-    let formattedResponse = '';
-
-    if (intent === 'symptom_analysis') {
-      formattedResponse += `🔍 **Analysis**: ${response.analysis}\n\n`;
-      formattedResponse += `⚠️ **Urgency Level**: ${response.urgency_level?.toUpperCase()}\n\n`;
-      formattedResponse += `📋 **Recommended Actions**:\n`;
-      response.recommended_actions?.forEach(action => {
-        formattedResponse += `• ${action}\n`;
-      });
-    } else if (intent === 'provider_recommendation') {
-      formattedResponse += `🏥 **Recommended Providers**:\n\n`;
-      response.providers?.forEach(provider => {
-        formattedResponse += `👨‍⚕️ **${provider.name}**\n`;
-        formattedResponse += `   Specialization: ${provider.specialization}\n`;
-        formattedResponse += `   Rating: ${provider.rating}/5 ⭐\n`;
-        formattedResponse += `   Experience: ${provider.experience}\n\n`;
-      });
-    } else if (intent === 'care_routine') {
-      formattedResponse += `📅 **Daily Care Routine**:\n`;
-      response.daily_routine?.forEach(item => {
-        formattedResponse += `• ${item}\n`;
-      });
-      formattedResponse += `\n🍽️ **Diet Recommendations**:\n`;
-      response.diet_recommendations?.forEach(item => {
-        formattedResponse += `• ${item}\n`;
-      });
-    } else {
-      formattedResponse = response.analysis || 'I understand your concern. Let me help you with that.';
-    }
-
-    return formattedResponse;
+  const handleVoiceInput = () => {
+    setIsRecording(!isRecording);
+    // Implement voice recording logic here
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  const handleImageUpload = () => {
+    // Implement image upload logic here
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'low': return 'bg-green-500 text-white';
+      case 'medium': return 'bg-yellow-500 text-black';
+      case 'high': return 'bg-red-500 text-white';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
-  const quickActions = [
-    { icon: FaHeartbeat, label: 'Symptom Check', action: 'My pet is not feeling well' },
-    { icon: FaUserMd, label: 'Find Vet', action: 'I need to find a veterinarian' },
-    { icon: FaLightbulb, label: 'Care Tips', action: 'Give me care routine advice' },
-    { icon: FaPaw, label: 'Emergency', action: 'Is this an emergency?' }
-  ];
+  if (!mounted) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
+      <header className="border-b border-border/40 bg-card/50 backdrop-blur-xl">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center group">
                        <Image
            src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
            alt="Zoodo"
            width={120}
            height={40}
-           className="h-3 md:h-4 lg:h-5 w-auto"
            priority
+                  className="h-3 md:h-4 lg:h-5 w-auto group-hover:scale-105 transition-all duration-300"
          />
-              <h1 className="text-xl font-bold text-gray-900">AI Assistant</h1>
+              </Link>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                Dr. Salus AI
+              </Badge>
             </div>
-            <div className="ml-auto flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Powered by AI</span>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="icon">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Share2 className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Pet Profile Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Pet Profile</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Species
-                  </label>
-                  <select
-                    value={selectedPet.species}
-                    onChange={(e) => setSelectedPet(prev => ({ ...prev, species: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select species</option>
-                    <option value="dog">Dog</option>
-                    <option value="cat">Cat</option>
-                    <option value="bird">Bird</option>
-                    <option value="rabbit">Rabbit</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Breed
-                  </label>
-                  <input
-                    type="text"
-                    value={selectedPet.breed}
-                    onChange={(e) => setSelectedPet(prev => ({ ...prev, breed: e.target.value }))}
-                    placeholder="e.g., Golden Retriever"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Age (years)
-                  </label>
-                  <input
-                    type="number"
-                    value={selectedPet.age}
-                    onChange={(e) => setSelectedPet(prev => ({ ...prev, age: e.target.value }))}
-                    placeholder="e.g., 3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="mt-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Quick Actions</h4>
-                <div className="space-y-2">
-                  {quickActions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setInputValue(action.action);
-                        handleSendMessage();
-                      }}
-                      className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <action.icon className="text-blue-600" />
-                      <span>{action.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Interface */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-sm h-[600px] flex flex-col">
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className={`flex items-start space-x-3 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                          message.type === 'user' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {message.type === 'user' ? <FaUser className="text-sm" /> : <FaRobot className="text-sm" />}
-                        </div>
-                        
-                        <div className={`rounded-lg px-4 py-3 ${
-                          message.type === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}>
-                          {message.isLoading ? (
-                            <div className="flex items-center space-x-2">
-                              <FaSpinner className="animate-spin" />
-                              <span>AI is thinking...</span>
-                            </div>
-                          ) : (
-                            <div className="whitespace-pre-wrap">{message.content}</div>
-                          )}
-                          <div className={`text-xs mt-2 ${
-                            message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
-                          }`}>
-                            {message.timestamp.toLocaleTimeString()}
-                          </div>
-                        </div>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+          <div className="max-w-4xl mx-auto space-y-6">
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[85%] lg:max-w-[70%] ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-2xl p-4 lg:p-6`}>
+                  <p className="text-sm lg:text-base leading-relaxed">{message.content}</p>
+                  {message.analysis && (
+                    <div className="mt-4 p-3 bg-background/50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium">Analysis</span>
+                        <Badge className={getSeverityColor(message.analysis.severity)}>
+                          {message.analysis.severity}
+                        </Badge>
                       </div>
-                    </div>
-                  ))}
+                      <div className="space-y-1">
+                        {message.analysis.recommendations.map((rec, index) => (
+                          <div key={index} className="flex items-center space-x-2 text-xs">
+                            <div className="w-1 h-1 bg-primary rounded-full"></div>
+                            <span>{rec}</span>
+      </div>
+                        ))}
+                </div>
+                </div>
+                  )}
+                  <p className="text-xs opacity-70 mt-3">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+            
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-2xl p-4 lg:p-6">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <span className="text-sm text-muted-foreground ml-2">Dr. Salus is typing...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
                   <div ref={messagesEndRef} />
                 </div>
               </div>
 
-              {/* Input */}
-              <div className="border-t border-gray-200 p-4">
-                <div className="flex space-x-3">
+        {/* Input Area */}
+        <div className="border-t border-border/40 bg-card/50 backdrop-blur-xl p-4 lg:p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-end space-x-3">
                   <div className="flex-1">
-                    <textarea
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Describe your pet's symptoms or ask for advice..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      rows={3}
-                      disabled={isLoading}
+                <Input
+                  placeholder="Describe your pet's symptoms or ask a question..."
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                  className="min-h-[50px] text-base border-0 focus-visible:ring-0 bg-background"
                     />
                   </div>
-                  <div className="flex flex-col space-y-2">
-                    <button
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleImageUpload}
+                  className="hover:bg-primary/10"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleVoiceInput}
+                  className={`hover:bg-primary/10 ${isRecording ? 'bg-red-500 text-white' : ''}`}
+                >
+                  <Mic className="h-4 w-4" />
+                </Button>
+                <Button
                       onClick={handleSendMessage}
-                      disabled={!inputValue.trim() || isLoading}
-                      className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <FaPaperPlane className="text-sm" />
-                    </button>
-                    <button className="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                      <FaMicrophone className="text-sm" />
-                    </button>
+                  disabled={!inputMessage.trim() || isTyping}
+                  className="bg-primary hover:bg-primary/90"
+                  size="icon"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
                   </div>
                 </div>
                 
-                <div className="mt-3 text-xs text-gray-500">
-                  Press Enter to send, Shift+Enter for new line
-                </div>
-              </div>
+            {/* Quick Actions */}
+            <div className="flex items-center justify-center space-x-4 mt-4 pt-4 border-t border-border/20">
+              <Button variant="ghost" size="sm" className="text-xs">
+                <Stethoscope className="h-3 w-3 mr-1" />
+                Diagnosis
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs">
+                <Utensils className="h-3 w-3 mr-1" />
+                Diet
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs">
+                <Heart className="h-3 w-3 mr-1" />
+                Care
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs">
+                <MapPin className="h-3 w-3 mr-1" />
+                Find Vet
+              </Button>
             </div>
           </div>
         </div>

@@ -17,11 +17,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Output standalone for better compatibility
   output: 'standalone',
-  // Enable webpack 5
-  webpack: (config, { isServer }) => {
-    // Important: return the modified config
-    return config;
-  },
 };
 
 export default nextConfig;

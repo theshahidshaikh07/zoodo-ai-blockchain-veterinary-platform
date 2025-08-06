@@ -62,11 +62,11 @@ export default function AdminLoginPage() {
       } else {
         setError(response.message || 'Admin login failed');
       }
-    } catch (error) {
-      setError('An error occurred during admin login');
-    } finally {
-      setIsLoading(false);
-    }
+    } catch {
+     setError('An error occurred during admin login');
+   } finally {
+     setIsLoading(false);
+   }
   };
 
   return (

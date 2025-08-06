@@ -2,18 +2,13 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  MapPin,
+import {
+  Eye,
+  EyeOff,
   ArrowLeft,
   ChevronDown,
   Loader2
@@ -37,9 +32,8 @@ interface FormData {
 }
 
 function RegisterForm() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -167,9 +161,9 @@ function RegisterForm() {
       } else {
         setError(response.message || 'Registration failed');
       }
-    } catch (error) {
-      setError('An error occurred during registration');
-    } finally {
+    } catch {
+     setError('An error occurred during registration');
+   } finally {
       setIsLoading(false);
     }
   };

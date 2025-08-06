@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
-  Stethoscope, Building2, Video, Heart, MapPin, Clock, Star, ArrowRight, Zap, Search, UserCheck, Users, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap
+  Stethoscope, Building2, Video, Heart, MapPin, Clock, ArrowRight, Zap, Search, UserCheck, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap
 } from "lucide-react";
 import serviceFindVet from "@/assets/service-find-vet.jpg";
 import serviceClinicHospital from "@/assets/vetic.jpg";
@@ -79,7 +78,7 @@ const ServicesSection = () => {
             <span className="mt-1 sm:mt-2 lg:mt-0 lg:inline block">at your fingertips</span>
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
-            From finding the right veterinarian to emergency care and training, we've got all your pet's needs covered.
+            From finding the right veterinarian to emergency care and training, we&#39;ve got all your pet&#39;s needs covered.
           </p>
         </div>
 

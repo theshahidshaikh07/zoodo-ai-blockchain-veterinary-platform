@@ -6,13 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
-  ArrowLeft,
-  Phone
+import {
+  Eye,
+  EyeOff,
+  ArrowLeft
 } from 'lucide-react';
 import { apiService } from '@/lib/api';
 import Image from 'next/image';
@@ -34,7 +31,7 @@ export default function LoginPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -74,9 +71,9 @@ export default function LoginPage() {
       } else {
         setError(response.message || 'Login failed');
       }
-    } catch (error) {
-      setError('An error occurred during login');
-    } finally {
+    } catch {
+     setError('An error occurred during login');
+   } finally {
       setIsLoading(false);
     }
   };
@@ -210,7 +207,7 @@ export default function LoginPage() {
             {/* Sign Up Link */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{' '}
+                Don&#39;t have an account?{' '}
                 <Link 
                   href="/register" 
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
