@@ -7,7 +7,7 @@ import zoodoLogo from "@/assets/zoodo.png";
 import zoodoLightLogo from "@/assets/Zoodo-light.png";
 
 const Footer = () => {
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import zoodoLogo from "@/assets/zoodo.png";
 import zoodoLightLogo from "@/assets/Zoodo-light.png";
 
 const Header = () => {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
