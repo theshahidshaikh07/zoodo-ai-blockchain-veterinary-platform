@@ -1,4 +1,5 @@
-# 🐾 Zoodo - AI & Blockchain-Powered Veterinary Platform
+# 🐾 Zoodo - AI & Blockchain-Powered Veterinary Platform 
+## 🚧 This project is currently **in progress** and under active development. Features, structure, and documentation may change frequently.
 
 A comprehensive digital ecosystem for pet healthcare that unites pet owners, veterinarians, trainers, and welfare communities under a single, intelligent system.
 
