@@ -201,7 +201,7 @@ function RegisterForm() {
           {/* Title */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground">
-              Create an account
+              Create your account
             </h1>
             <p className="text-muted-foreground mt-2">
               Join Zoodo to get started
@@ -395,55 +395,11 @@ function RegisterForm() {
                     </button>
                   </div>
 
-             {/* Role Selection */}
-             <div className="relative role-dropdown">
-               <Label 
-                 htmlFor="userType" 
-                 className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                   isRoleFocused || formData.userType
-                     ? 'text-xs text-primary -top-2 px-1 bg-background' 
-                     : 'text-sm text-muted-foreground/70 top-3'
-                 }`}
-               >
-                 Role
-               </Label>
-               <button
-                 type="button"
-                 onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                 onFocus={() => setIsRoleFocused(true)}
-                 onBlur={() => setIsRoleFocused(false)}
-                 className="h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-900 text-foreground focus:border-primary focus-visible:ring-0 pt-4 px-3 w-full text-left cursor-pointer text-sm flex items-center justify-between"
-               >
-                 <span className={formData.userType ? "text-foreground" : "text-muted-foreground"}>
-                   {userTypes.find(type => type.id === formData.userType)?.name || 'Select Your Role'}
-                 </span>
-                 <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200" />
-               </button>
-               
-               {isRoleDropdownOpen && (
-                 <div className="absolute top-full left-0 right-0 mt-1 bg-background dark:bg-gray-900 border border-border rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
-                   {userTypes.map((type) => (
-                     <button
-                       key={type.id}
-                       type="button"
-                       onClick={() => {
-                         setFormData(prev => ({ ...prev, userType: type.id }));
-                         setIsRoleDropdownOpen(false);
-                       }}
-                       className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground dark:hover:bg-gray-800 transition-colors first:rounded-t-lg last:rounded-b-lg"
-                     >
-                       {type.name}
-                     </button>
-                   ))}
-                 </div>
-               )}
-                </div>
-
              {/* Continue Button */}
                 <Button
               type="button"
               onClick={handleSubmit}
-                             disabled={isLoading || !formData.username || !formData.email || !formData.password || !formData.confirmPassword || !formData.userType}
+                             disabled={isLoading || !formData.username || !formData.email || !formData.password || !formData.confirmPassword }
               className="w-full h-12 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
@@ -542,4 +498,4 @@ export default function RegisterPage() {
       <RegisterForm />
     </Suspense>
   );
-} 
+}

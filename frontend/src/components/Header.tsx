@@ -143,7 +143,7 @@ const Header = () => {
                 className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                 asChild
               >
-                <Link href="/register">Get Started</Link>
+                <Link href="/role-selection">Get Started</Link>
               </Button>
             </div>
 
@@ -194,7 +194,7 @@ const Header = () => {
                     className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300"
                     asChild
                   >
-                    <Link href="/register">Get Started</Link>
+                    <Link href="/role-selection">Get Started</Link>
                   </Button>
                 </div>
               </div>
