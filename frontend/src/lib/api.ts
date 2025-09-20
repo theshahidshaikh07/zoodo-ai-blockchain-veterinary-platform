@@ -81,6 +81,10 @@ class ApiService {
       ...options.headers as Record<string, string>,
     };
 
+    if (options.body instanceof FormData) {
+      delete headers['Content-Type'];
+    }
+
     // Add JWT token if available
     const token = this.getAuthToken();
     if (token) {
@@ -167,21 +171,10 @@ class ApiService {
     });
   }
 
-  async registerUser(userData: {
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    userType: string;
-    phone?: string;
-    address?: string;
-    specialization?: string;
-    experience?: string;
-  }): Promise<ApiResponse<User>> {
+  async registerUser(userData: FormData): Promise<ApiResponse<User>> {
     return this.request<User>('/users/register', {
       method: 'POST',
-      body: JSON.stringify(userData),
+      body: userData,
     });
   }
 

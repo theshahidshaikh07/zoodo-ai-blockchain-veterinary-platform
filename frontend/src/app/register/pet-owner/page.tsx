@@ -9,7 +9,11 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, ArrowLeft, Loader2, ChevronDown } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Eye, EyeOff, ArrowLeft, Loader2, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import { apiService } from '@/lib/api';
 
 interface PetInfo {
@@ -350,16 +354,20 @@ function PetOwnerWizard() {
                     </div>
                   </div>
                   <div className="relative">
-                    <Label htmlFor="country" className="sr-only">Country</Label>
-                    <select id="country" name="country" value={formData.country} onChange={handleInputChange} className="w-full h-14 rounded-full border border-border bg-background pl-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
-                      <option value="India">India</option>
-                      <option value="United States">United States</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Canada">Canada</option>
-                      <option value="Australia">Australia</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Label className="sr-only">Country</Label>
+                    <Select value={formData.country} onValueChange={(v)=>setFormData(prev=>({ ...prev, country: v }))}>
+                      <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
+                        <SelectValue placeholder="Country" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="India">India</SelectItem>
+                        <SelectItem value="United States">United States</SelectItem>
+                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                        <SelectItem value="Canada">Canada</SelectItem>
+                        <SelectItem value="Australia">Australia</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="flex gap-3 items-center">
@@ -377,7 +385,7 @@ function PetOwnerWizard() {
                     <button
                       type="button"
                       onClick={skipStep}
-                      className="inline-flex items-center gap-2 text-sm rounded-full border border-border bg-card/50 px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                      className="inline-flex items-center gap-2 text-sm rounded-full border border-primary bg-primary/10 px-5 py-2 text-primary hover:bg-primary/15 transition-colors"
                     >
                       Skip for now
                     </button>
@@ -405,19 +413,22 @@ function PetOwnerWizard() {
                       {/* Row 2: Species + Breed */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative">
-                        <select value={pet.species} onChange={(e)=>{
-                          const pets = [...formData.pets];
-                          pets[idx] = { ...pets[idx], species: e.target.value };
-                          setFormData(prev=>({ ...prev, pets }));
-                        }} className="w-full h-14 rounded-full border border-border bg-background pl-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
-                          <option value="">Pet Species</option>
-                          <option value="Dog">Dog</option>
-                          <option value="Cat">Cat</option>
-                          <option value="Bird">Bird</option>
-                          <option value="Rabbit">Rabbit</option>
-                          <option value="Other">Other</option>
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <Select value={pet.species} onValueChange={(v)=>{
+                            const pets = [...formData.pets];
+                            pets[idx] = { ...pets[idx], species: v };
+                            setFormData(prev=>({ ...prev, pets }));
+                          }}>
+                            <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
+                              <SelectValue placeholder="Pet Species" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="Dog">Dog</SelectItem>
+                              <SelectItem value="Cat">Cat</SelectItem>
+                              <SelectItem value="Bird">Bird</SelectItem>
+                              <SelectItem value="Rabbit">Rabbit</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <Input placeholder="Breed (Optional)" value={pet.breed || ''} onChange={(e)=>{
                           const pets = [...formData.pets];
@@ -426,21 +437,40 @@ function PetOwnerWizard() {
                         }} className="h-14 rounded-full" />
                       </div>
 
-                      {/* Row 3: Birthday + Age + Weight */}
+                      {/* Row 3: Birthdate + Age + Weight */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex flex-col md:col-span-2">
-                        <Label className="text-xs text-muted-foreground mb-1">Birthdate (optional)</Label>
-                        <Input type="date" value={pet.birthday || ''} onChange={(e)=>{
-                          const pets = [...formData.pets];
-                          const val = e.target.value;
-                          let agePatch: Partial<PetInfo> = {};
-                          if (val) {
-                            const { value, unit } = computeAgeFromBirthday(val);
-                            agePatch = { age: value, ageUnit: unit };
-                          }
-                          pets[idx] = { ...pets[idx], birthday: val, ...agePatch };
-                          setFormData(prev=>({ ...prev, pets }));
-                        }} className="h-14 rounded-full" />
+                        <div className="md:col-span-2">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                className="w-full h-14 rounded-full border border-border bg-background px-4 flex items-center justify-between text-left hover:bg-accent"
+                              >
+                                <span className={pet.birthday ? 'text-foreground' : 'text-muted-foreground'}>
+                                  {pet.birthday ? format(new Date(pet.birthday), 'PPP') : 'Birthdate (optional)'}
+                                </span>
+                                <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="p-0 rounded-xl">
+                              <Calendar
+                                mode="single"
+                                selected={pet.birthday ? new Date(pet.birthday) : undefined}
+                                onSelect={(date)=>{
+                                  const pets = [...formData.pets];
+                                  const val = date ? format(date, 'yyyy-MM-dd') : '';
+                                  let agePatch: Partial<PetInfo> = {};
+                                  if (val) {
+                                    const { value, unit } = computeAgeFromBirthday(val);
+                                    agePatch = { age: value, ageUnit: unit };
+                                  }
+                                  pets[idx] = { ...pets[idx], birthday: val, ...agePatch };
+                                  setFormData(prev=>({ ...prev, pets }));
+                                }}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="relative flex gap-2">
                           <Input type="number" placeholder="Pet Age" value={pet.age || ''} onChange={(e)=>{
@@ -449,16 +479,20 @@ function PetOwnerWizard() {
                             setFormData(prev=>({ ...prev, pets }));
                           }} className="h-14 rounded-full flex-1" />
                           <div className="relative">
-                          <select value={pet.ageUnit || 'Years'} onChange={(e)=>{
-                            const pets = [...formData.pets];
-                            pets[idx] = { ...pets[idx], ageUnit: e.target.value as PetInfo['ageUnit'] };
-                            setFormData(prev=>({ ...prev, pets }));
-                          }} className="w-36 h-14 rounded-full border border-border bg-background pl-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
-                            <option>Years</option>
-                            <option>Months</option>
-                            <option>Days</option>
-                          </select>
-                          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Select value={pet.ageUnit || 'Years'} onValueChange={(v)=>{
+                              const pets = [...formData.pets];
+                              pets[idx] = { ...pets[idx], ageUnit: v as PetInfo['ageUnit'] };
+                              setFormData(prev=>({ ...prev, pets }));
+                            }}>
+                              <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectItem value="Years">Years</SelectItem>
+                                <SelectItem value="Months">Months</SelectItem>
+                                <SelectItem value="Days">Days</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                         <div className="relative flex gap-2">
@@ -468,15 +502,19 @@ function PetOwnerWizard() {
                             setFormData(prev=>({ ...prev, pets }));
                           }} className="h-14 rounded-full flex-1" />
                           <div className="relative">
-                          <select value={pet.weightUnit || 'Kgs'} onChange={(e)=>{
-                            const pets = [...formData.pets];
-                            pets[idx] = { ...pets[idx], weightUnit: e.target.value as PetInfo['weightUnit'] };
-                            setFormData(prev=>({ ...prev, pets }));
-                          }} className="w-36 h-14 rounded-full border border-border bg-background pl-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
-                            <option>Kgs</option>
-                            <option>Gms</option>
-                          </select>
-                          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Select value={pet.weightUnit || 'Kgs'} onValueChange={(v)=>{
+                              const pets = [...formData.pets];
+                              pets[idx] = { ...pets[idx], weightUnit: v as PetInfo['weightUnit'] };
+                              setFormData(prev=>({ ...prev, pets }));
+                            }}>
+                              <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectItem value="Kgs">Kgs</SelectItem>
+                                <SelectItem value="Gms">Gms</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       </div>
