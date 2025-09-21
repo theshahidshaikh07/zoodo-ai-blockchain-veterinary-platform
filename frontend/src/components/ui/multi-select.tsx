@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Check, X, ChevronsUpDown } from 'lucide-react';
+import { Check, X, ChevronsUpDown, Plus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +48,8 @@ interface MultiSelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   allowOther?: boolean;
   otherValue?: string;
   onOtherValueChange?: (value: string) => void;
+  allowCustom?: boolean;
+  customPlaceholder?: string;
 }
 
 const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
@@ -64,12 +66,15 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
     allowOther = false,
     otherValue = '',
     onOtherValueChange,
+    allowCustom = false,
+    customPlaceholder = 'Add custom option...',
     ...props
   },
   ref,
 ) => {
   const [selectedValues, setSelectedValues] = React.useState<string[]>(defaultValue);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+  const [customInputValue, setCustomInputValue] = React.useState('');
 
   React.useEffect(() => {
     setSelectedValues(defaultValue);
@@ -83,6 +88,50 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
     onValueChange(newSelectedValues);
   };
 
+  const handleRemove = (valueToRemove: string) => {
+    console.log('handleRemove called with:', valueToRemove); // Debug log
+    console.log('Current selectedValues:', selectedValues); // Debug log
+    const newSelectedValues = selectedValues.filter((v) => v !== valueToRemove);
+    console.log('New selectedValues:', newSelectedValues); // Debug log
+    setSelectedValues(newSelectedValues);
+    onValueChange(newSelectedValues);
+  };
+
+  const handleCustomAdd = () => {
+    if (customInputValue.trim() && !selectedValues.includes(customInputValue.trim())) {
+      let newSelectedValues = [...selectedValues];
+      
+      // If "Other" is selected, replace it with the custom value
+      if (newSelectedValues.includes('Other')) {
+        newSelectedValues = newSelectedValues.filter(v => v !== 'Other');
+      }
+      
+      newSelectedValues.push(customInputValue.trim());
+      setSelectedValues(newSelectedValues);
+      onValueChange(newSelectedValues);
+      setCustomInputValue('');
+    }
+  };
+
+  const handleCustomInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCustomAdd();
+    }
+  };
+
+  const handleOtherInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && otherValue.trim()) {
+      e.preventDefault();
+      // Replace "Other" with the custom value
+      const newSelectedValues = selectedValues.filter(v => v !== 'Other');
+      newSelectedValues.push(otherValue.trim());
+      setSelectedValues(newSelectedValues);
+      onValueChange(newSelectedValues);
+      onOtherValueChange?.('');
+    }
+  };
+
   const togglePopover = () => {
     setIsPopoverOpen((prev) => !prev);
   };
@@ -94,8 +143,9 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
           ref={ref}
           {...props}
           onClick={togglePopover}
+          variant="outline"
           className={cn(
-            'flex w-full p-2 rounded-lg bg-background border border-input min-h-[44px]',
+            'flex w-full p-2 rounded-lg bg-background border border-input min-h-[44px] hover:bg-background hover:text-foreground',
             className,
           )}
         >
@@ -105,19 +155,26 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
                 {selectedValues.slice(0, maxCount).map((value) => {
                   const option = options.find((o) => o.value === value);
                   return (
-                    <Badge
-                      key={value}
-                      className={cn(multiSelectVariants({ variant }))}
-                    >
-                      {option?.label}
-                      <X
-                        className="ml-2 h-4 w-4 cursor-pointer"
+                    <div key={value} className="relative inline-flex items-center">
+                      <Badge
+                        className={cn(multiSelectVariants({ variant }))}
+                      >
+                        {option?.label || value}
+                      </Badge>
+                      <button
+                        type="button"
+                        className="ml-1 h-4 w-4 cursor-pointer hover:text-destructive z-10 relative flex items-center justify-center"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleSelect(value);
+                          e.preventDefault();
+                          console.log('X clicked for:', value); // Debug log
+                          handleRemove(value);
                         }}
-                      />
-                    </Badge>
+                        style={{ pointerEvents: 'auto' }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
                   );
                 })}
                 {selectedValues.length > maxCount && (
@@ -141,7 +198,32 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
           <CommandInput placeholder="Search..." />
-          <CommandEmpty>No options found.</CommandEmpty>
+          <CommandEmpty>
+            {allowCustom ? (
+              <div className="p-2">
+                <div className="text-sm text-muted-foreground mb-2">No options found. Add a custom option:</div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={customPlaceholder}
+                    value={customInputValue}
+                    onChange={(e) => setCustomInputValue(e.target.value)}
+                    onKeyDown={handleCustomInputKeyDown}
+                    className="flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleCustomAdd}
+                    disabled={!customInputValue.trim()}
+                    className="px-3"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              "No options found."
+            )}
+          </CommandEmpty>
           <CommandGroup>
             {options.map((option) => (
               <CommandItem
@@ -159,14 +241,56 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
               </CommandItem>
             ))}
           </CommandGroup>
+          {allowCustom && !allowOther && (
+            <div className="p-2 border-t">
+              <div className="text-sm text-muted-foreground mb-2">Add custom option:</div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder={customPlaceholder}
+                  value={customInputValue}
+                  onChange={(e) => setCustomInputValue(e.target.value)}
+                  onKeyDown={handleCustomInputKeyDown}
+                  className="flex-1"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleCustomAdd}
+                  disabled={!customInputValue.trim()}
+                  className="px-3"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
           {allowOther && selectedValues.includes('Other') && (
-            <div className="p-2">
-              <Input
-                placeholder="Specify other..."
-                value={otherValue}
-                onChange={(e) => onOtherValueChange?.(e.target.value)}
-                className="w-full"
-              />
+            <div className="p-2 border-t">
+              <div className="text-sm text-muted-foreground mb-2">Specify other:</div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter your custom option..."
+                  value={otherValue}
+                  onChange={(e) => onOtherValueChange?.(e.target.value)}
+                  onKeyDown={handleOtherInputKeyDown}
+                  className="flex-1"
+                />
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (otherValue.trim()) {
+                      const newSelectedValues = selectedValues.filter(v => v !== 'Other');
+                      newSelectedValues.push(otherValue.trim());
+                      setSelectedValues(newSelectedValues);
+                      onValueChange(newSelectedValues);
+                      onOtherValueChange?.('');
+                    }
+                  }}
+                  disabled={!otherValue.trim()}
+                  className="px-3"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </Command>
