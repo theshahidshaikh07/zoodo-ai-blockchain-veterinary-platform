@@ -57,6 +57,7 @@ interface FormData {
   confirmPassword: string;
   phoneNumber: string;
   address: string;
+  experience: number | string;
   licenseNumber: string;
   specialization: string[];
   otherSpecialization: string;
@@ -121,6 +122,7 @@ function VeterinarianWizard() {
     confirmPassword: '',
     phoneNumber: '',
     address: '',
+    experience: '',
     licenseNumber: '',
     specialization: [],
     otherSpecialization: '',
