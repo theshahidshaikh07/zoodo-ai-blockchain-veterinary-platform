@@ -1,3 +1,5 @@
+'use client';
+
 import { Heart, Mail, MapPin, Phone, Github, Twitter, Linkedin, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

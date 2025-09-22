@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
@@ -7,12 +9,15 @@ import Link from "next/link";
 import Image from "next/image";
 import zoodoLogo from "@/assets/zoodo.png";
 import zoodoLightLogo from "@/assets/Zoodo-light.png";
+import { usePathname, useRouter } from "next/navigation";
 
 const Header = () => {
   const { setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +40,10 @@ const Header = () => {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    if (pathname !== '/') {
+      router.push('/' + href);
+      return;
+    }
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     
