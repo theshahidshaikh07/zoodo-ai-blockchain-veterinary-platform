@@ -74,11 +74,11 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm">
                 <Mail className="w-4 h-4 text-zoodo-blue" />
-                <span>hello@zoodo.pet</span>
+                <span>zoodo.care@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <Phone className="w-4 h-4 text-zoodo-green" />
-                <span>+1 (555) 123-PETS</span>
+                <span>+91 7620944018</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <MapPin className="w-4 h-4 text-primary" />
@@ -187,7 +187,7 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             {/* Copyright */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>© 2024 Zoodo. Made with</span>
+              <span>© 2025 Zoodo. Made with</span>
               <Heart className="w-4 h-4 text-red-500 fill-current" />
               <span>for pets everywhere.</span>
             </div>

@@ -17,7 +17,7 @@ export default {
     },
     extend: {
       colors: {
-        border: 'hsl(var(--border) / <alpha-value>)', // Fix border color syntax
+        border: "hsl(var(--border))",
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',

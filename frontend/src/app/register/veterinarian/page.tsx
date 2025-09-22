@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import chatgptHero from '@/assets/ChatGPT Image Sep 18, 2025, 11_39_46 AM.png';
+import chatgptHero from '@/assets/hero-vet.jpg';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

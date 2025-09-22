@@ -79,7 +79,7 @@
     --shadow-elegant: 0 20px 60px -20px hsl(280 100% 70% / 0.4);
 
     /* Hero Background - Dark mode */
-    --hero-bg: #000000;
+    --hero-bg: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.5));
   }
 }
 

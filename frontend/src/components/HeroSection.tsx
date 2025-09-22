@@ -33,9 +33,9 @@ const HeroSection = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-start justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-zoodo-purple/10 via-zoodo-blue/10 to-zoodo-pink/10 dark:hidden" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,hsl(var(--zoodo-purple))_0%,transparent_50%)] opacity-20 dark:hidden" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,hsl(var(--zoodo-blue))_0%,transparent_50%)] opacity-20 dark:hidden" />
+      <div className="absolute inset-0 bg-gradient-to-r from-zoodo-purple/10 via-zoodo-blue/10 to-zoodo-pink/10" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,hsl(var(--zoodo-purple))_0%,transparent_50%)] opacity-20 dark:opacity-10" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,hsl(var(--zoodo-blue))_0%,transparent_50%)] opacity-20 dark:opacity-10" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10 min-h-full flex items-start py-8">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center w-full">

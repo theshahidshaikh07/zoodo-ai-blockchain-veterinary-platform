@@ -53,11 +53,11 @@ const Header = () => {
   };
 
   const navItems = [
-    { name: "Home", href: "#hero" },
-    { name: "Services", href: "#services" },
-    { name: "Community", href: "#community" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "#hero", type: "anchor" as const },
+    { name: "Services", href: "#services", type: "anchor" as const },
+    { name: "Community", href: "#community", type: "anchor" as const },
+    { name: "About", href: "/about", type: "route" as const },
+    { name: "Contact", href: "#contact", type: "anchor" as const },
   ];
 
   return (
@@ -85,19 +85,32 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navItems.map((item, index) => (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <span className="relative z-10 block">
-                  {item.name}
-                </span>
-                {/* Background highlight like Sign In button */}
-                <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
-              </a>
+              item.type === 'route' ? (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <span className="relative z-10 block">
+                    {item.name}
+                  </span>
+                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
+                </Link>
+              ) : (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <span className="relative z-10 block">
+                    {item.name}
+                  </span>
+                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
+                </a>
+              )
             ))}
           </nav>
 
@@ -108,7 +121,7 @@ const Header = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 hover:scale-105 transition-all duration-300 relative group"
+                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
               >
                 <div className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
               </Button>
@@ -117,12 +130,12 @@ const Header = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 hover:scale-105 transition-all duration-300 relative group"
+                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
               >
                 {mounted && resolvedTheme === 'dark' ? (
-                  <Sun className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 group-hover:rotate-180 transition-all duration-300" />
+                  <Sun className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
                 ) : (
-                  <Moon className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 group-hover:rotate-180 transition-all duration-300" />
+                  <Moon className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
                 )}
               </Button>
             </NoSSR>
@@ -168,15 +181,27 @@ const Header = () => {
           <div className="lg:hidden glass-card border border-border/30 rounded-2xl mt-4 p-6 shadow-elegant backdrop-blur-xl">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item, index) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className="text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {item.name}
-                </a>
+                item.type === 'route' ? (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {item.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className="text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {item.name}
+                  </a>
+                )
               ))}
               <div className="pt-4 border-t border-border/30">
                 <div className="flex flex-col space-y-3">
