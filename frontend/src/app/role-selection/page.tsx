@@ -9,7 +9,7 @@ import { useTheme } from 'next-themes';
 
 const roles = [
   {
-    name: 'Pet Owner',
+    name: 'Pet Parent',
     icon: PawPrint,
     description: 'Manage your pet’s health, appointments, and records.',
     href: '/register/pet-owner',
@@ -30,7 +30,7 @@ const roles = [
     color: 'hsl(var(--primary))',
   },
   {
-    name: 'Hospital/Clinic',
+    name: 'Hospital & Clinic',
     icon: Hospital,
     description: 'Manage your facility, staff, and patient records.',
     href: '/register/hospital',

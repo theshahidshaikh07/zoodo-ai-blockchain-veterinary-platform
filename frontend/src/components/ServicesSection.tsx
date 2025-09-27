@@ -141,7 +141,7 @@ const ServicesSection = () => {
                 </div>
                 
                 <button 
-                  className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-white font-medium rounded-md flex items-center justify-center relative z-10"
+                  className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-primary-foreground font-medium rounded-md flex items-center justify-center relative z-10"
                   style={{ cursor: 'pointer !important', willChange: 'transform' }}
                   onClick={() => {
                     // TODO: Add navigation to specific service pages

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import Image from "next/image";
 import { 
   Users, 
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import communityPets from "@/assets/community-pets.jpg";
 import pexelsKooldark1 from "@/assets/pexels-kooldark-14438788.jpg";
-import pexelsGustavo1 from "@/assets/pexels-gustavo-fring-4173248.jpg";
+import pexelsGustavo1 from "@/assets/pexels-edmond-dantes-4342352.jpg";
 import pexelsGustavo2 from "@/assets/pexels-gustavo-fring-4173251.jpg";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -237,16 +238,18 @@ const CommunitySection = () => {
         <div className="text-center space-y-8 pt-20">
           <div className="space-y-4">
             <h3 className="text-3xl lg:text-4xl font-bold">
-              Ready to join the <span className="gradient-text">Zoodo family</span>?
+              Ready to join the <span className="gradient-text">Zoodo family ?</span>
             </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Be part of a community that&#39;s transforming pet healthcare and welfare, one paw at a time.
             </p>
           </div>
-          <Button variant="default" size="xl" className="group">
-            <Heart className="w-5 h-5 mr-2" />
-            Get Started Today
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          <Button asChild variant="default" size="xl" className="group">
+            <Link href="/role-selection">
+              <Heart className="w-5 h-5 mr-2" />
+              Get Started Today
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
         </div>
       </div>

@@ -66,7 +66,7 @@ const Header = () => {
     { name: "Services", href: "#services", type: "anchor" as const },
     { name: "Community", href: "#community", type: "anchor" as const },
     { name: "About", href: "/about", type: "route" as const },
-    { name: "Contact", href: "#contact", type: "anchor" as const },
+    { name: "Contact", href: "/contact", type: "route" as const },
   ];
 
   return (

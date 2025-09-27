@@ -5,9 +5,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { HeartPulse, Award, Users2, BrainCircuit, Mail, Linkedin, Github, ArrowRight, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
+import { HeartPulse, Award, Users2, BrainCircuit, Mail, Linkedin, Github, ArrowRight, Zap, AlertTriangle, Lightbulb, ChartNoAxesCombined, Instagram } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import shahidImage from '@/assets/Shahid-Passport-copy.png';
 import aayusheeImage from '@/assets/Aayushee .jpg';
 import khushiImage from '@/assets/khushi.jpg';
@@ -85,7 +86,7 @@ const AboutUs: React.FC = () => {
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mr-4">
-                      <AlertTriangle className="w-6 h-6 text-white" />
+                      <ChartNoAxesCombined className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground">The Challenge</h3>
                   </div>
@@ -224,19 +225,25 @@ const AboutUs: React.FC = () => {
                     </div>
                     <CardContent className="p-6 text-center">
                       <h3 className="text-xl font-bold text-foreground mb-2">Shahid Shaikh</h3>
-                      <p className="text-primary font-medium mb-3">Founder & CEO</p>
+                      <p className="text-primary font-medium mb-3">Founder</p>
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                        Visionary leader with 8+ years in healthcare technology, passionate about revolutionizing pet care through AI innovation.
+                        Visionary leader passionate about revolutionizing pet care through AI innovation.
                       </p>
                       <div className="flex justify-center gap-3">
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Mail className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="mailto:theshahidshaikh7@gmail.com" target="_blank" rel="noopener noreferrer">
+                            <Mail className="w-4 h-4" />
+                          </a>
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Linkedin className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.linkedin.com/in/shahid-shaikh-" target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="w-4 h-4" />
+                          </a>
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Github className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.instagram.com/chiaroscuro.mind" target="_blank" rel="noopener noreferrer">
+                            <Instagram className="w-4 h-4" />
+                          </a>
                         </Button>
                       </div>
                     </CardContent>
@@ -256,19 +263,23 @@ const AboutUs: React.FC = () => {
                     </div>
                     <CardContent className="p-6 text-center">
                       <h3 className="text-xl font-bold text-foreground mb-2">Aayushee Dhanokar</h3>
-                      <p className="text-primary font-medium mb-3">CTO & Co-Founder</p>
+                      <p className="text-primary font-medium mb-3">Co-founder</p>
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                        AI/ML expert driving our cutting-edge diagnostic technology, passionate about creating intelligent solutions for veterinary care.
+                        With a love for animals and a knack for problem-solving, driving force behind our platform's intelligent features.
                       </p>
                       <div className="flex justify-center gap-3">
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                           <Mail className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Linkedin className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.linkedin.com/in/aayushee-dhanokar-95733b267" target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="w-4 h-4" />
+                          </a>
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Github className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.instagram.com/_aayushee_1205" target="_blank" rel="noopener noreferrer">
+                            <Instagram className="w-4 h-4" />
+                          </a>
                         </Button>
                       </div>
                     </CardContent>
@@ -288,19 +299,23 @@ const AboutUs: React.FC = () => {
                     </div>
                     <CardContent className="p-6 text-center">
                       <h3 className="text-xl font-bold text-foreground mb-2">Khushi Mishra</h3>
-                      <p className="text-primary font-medium mb-3">Head of Operations</p>
+                      <p className="text-primary font-medium mb-3">Co-founder</p>
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                        Operations strategist ensuring seamless user experiences, expert in scaling healthcare platforms and community building.
+                        Ensures a seamless user experience while building a strong and supportive community.
                       </p>
                       <div className="flex justify-center gap-3">
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                           <Mail className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Linkedin className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.linkedin.com/in/khushi-mishra-196959263" target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="w-4 h-4" />
+                          </a>
                         </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Github className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="https://www.instagram.com/khuusshehe" target="_blank" rel="noopener noreferrer">
+                            <Instagram className="w-4 h-4" />
+                          </a>
                         </Button>
                       </div>
                     </CardContent>
@@ -323,7 +338,11 @@ const AboutUs: React.FC = () => {
               Ready to give your pet the best healthcare experience? Join thousands of pet parents who trust Zoodo for their furry family members.
             </p>
             <div className="mt-8 flex justify-center space-x-4">
-              <Button size="lg" className="group">Get Started Today <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" /></Button>
+              <Button asChild size="lg" className="group">
+                <Link href="/role-selection">
+                  Get Started Today <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
               <Button size="lg" variant="outline">Contact Us</Button>
             </div>
           </div>
