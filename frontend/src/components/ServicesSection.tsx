@@ -86,11 +86,13 @@ const ServicesSection = () => {
         <div 
           ref={servicesRef}
           className={`grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 mb-20 max-w-7xl mx-auto scroll-fade-in ${servicesVisible ? 'animate' : ''}`}
+          style={{ perspective: '1000px' }}
         >
           {services.map((service, index) => (
             <div
               key={service.title}
-              className={`group relative glass-card rounded-3xl hover:shadow-2xl transition-all duration-700 hover:scale-105 overflow-hidden border border-border/20 hover:border-primary/30 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
+              className={`group relative glass-card rounded-3xl hover:shadow-elegant hover:shadow-2xl scale-on-hover overflow-hidden border border-border/20 hover:border-primary/30 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
+              style={{ willChange: 'transform' }}
             >
               {/* Service Image */}
               <div className="relative h-48 lg:h-56 overflow-hidden">
@@ -98,28 +100,29 @@ const ServicesSection = () => {
                   src={service.image}
                   alt={service.title}
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  style={{ willChange: 'transform' }}
                 />
                 {/* Main Icon */}
-                <div className="absolute top-4 left-4 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-elegant group-hover:scale-110 transition-all duration-300">
+                <div className="absolute top-4 left-4 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-elegant group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }}>
                   <service.icon className="w-6 h-6 text-white" />
                 </div>
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-3 group-hover:gradient-text transition-all duration-300 flex items-center">
+                <h3 className="text-xl font-bold mb-3 group-hover:gradient-text transition-colors duration-300 flex items-center">
                   {service.title === "Find Vet" && (
-                    <MagnifyingGlass className="w-5 h-5 mr-2 text-primary group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
+                    <MagnifyingGlass className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
                   )}
                   {service.title === "Clinic & Hospital" && (
-                    <Location className="w-5 h-5 mr-2 text-primary group-hover:scale-110 group-hover:animate-bounce transition-all duration-300" />
+                    <Location className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
                   )}
                   {service.title === "Teleconsultation" && (
-                    <TeleIcon className="w-5 h-5 mr-2 text-primary group-hover:scale-110 group-hover:animate-ping transition-all duration-300" />
+                    <TeleIcon className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
                   )}
                   {service.title === "Pet Trainer" && (
-                    <GraduationCap className="w-5 h-5 mr-2 text-primary group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+                    <GraduationCap className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
                   )}
                   {service.title}
                 </h3>
@@ -138,40 +141,40 @@ const ServicesSection = () => {
                 </div>
                 
                 <button 
-                  className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 cursor-pointer hover:cursor-pointer text-white font-medium rounded-md flex items-center justify-center relative z-10"
-                  style={{ cursor: 'pointer !important' }}
+                  className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-white font-medium rounded-md flex items-center justify-center relative z-10"
+                  style={{ cursor: 'pointer !important', willChange: 'transform' }}
                   onClick={() => {
                     // TODO: Add navigation to specific service pages
                     console.log(`Navigate to ${service.title} service`);
                   }}
                 >
                   Explore Service
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" />
                 </button>
               </div>
 
               {/* Hover Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+              <div className="absolute inset-0 bg-gradient-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out rounded-3xl" />
             </div>
           ))}
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up hover:scale-105 transition-all duration-300 group">
-            <div className="text-3xl lg:text-4xl font-bold text-zoodo-purple group-hover:scale-110 transition-transform">500+</div>
+          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up scale-on-hover group" style={{ willChange: 'transform' }}>
+            <div className="text-3xl lg:text-4xl font-bold text-zoodo-purple group-hover:scale-105 transition-transform duration-300 ease-out">500+</div>
             <div className="text-sm text-muted-foreground">Verified Vets</div>
           </div>
-          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up hover:scale-105 transition-all duration-300 group" style={{ animationDelay: '100ms' }}>
-            <div className="text-3xl lg:text-4xl font-bold text-zoodo-blue group-hover:scale-110 transition-transform">100+</div>
+          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up scale-on-hover group" style={{ animationDelay: '100ms', willChange: 'transform' }}>
+            <div className="text-3xl lg:text-4xl font-bold text-zoodo-blue group-hover:scale-105 transition-transform duration-300 ease-out">100+</div>
             <div className="text-sm text-muted-foreground">Partner Clinics</div>
           </div>
-          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up hover:scale-105 transition-all duration-300 group" style={{ animationDelay: '200ms' }}>
-            <div className="text-3xl lg:text-4xl font-bold text-zoodo-pink group-hover:scale-110 transition-transform">24/7</div>
+          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up scale-on-hover group" style={{ animationDelay: '200ms', willChange: 'transform' }}>
+            <div className="text-3xl lg:text-4xl font-bold text-zoodo-pink group-hover:scale-105 transition-transform duration-300 ease-out">24/7</div>
             <div className="text-sm text-muted-foreground">Teleconsultation</div>
           </div>
-          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up hover:scale-105 transition-all duration-300 group" style={{ animationDelay: '300ms' }}>
-            <div className="text-3xl lg:text-4xl font-bold text-zoodo-orange group-hover:scale-110 transition-transform">200+</div>
+          <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up scale-on-hover group" style={{ animationDelay: '300ms', willChange: 'transform' }}>
+            <div className="text-3xl lg:text-4xl font-bold text-zoodo-orange group-hover:scale-105 transition-transform duration-300 ease-out">200+</div>
             <div className="text-sm text-muted-foreground">Certified Trainers</div>
           </div>
         </div>
