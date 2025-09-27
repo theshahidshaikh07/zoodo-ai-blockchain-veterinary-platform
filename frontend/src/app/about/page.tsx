@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { HeartPulse, Award, Users2, BrainCircuit, Mail, Linkedin, Twitter, ArrowRight, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
+import { HeartPulse, Award, Users2, BrainCircuit, Mail, Linkedin, Github, ArrowRight, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useRouter } from 'next/navigation';
 import shahidImage from '@/assets/Shahid-Passport-copy.png';
@@ -91,8 +91,7 @@ const AboutUs: React.FC = () => {
                   </div>
                   <div className="space-y-4">
                     <p className="text-muted-foreground leading-relaxed">
-                      Too many pet parents struggle to access timely, affordable veterinary care. Emergency visits, long wait times, and high costs create barriers to proper pet healthcare.
-                    </p>
+                    Many pet parents find it hard to get timely and affordable veterinary care. Emergency visits are stressful, regular check-ups are costly, and long wait times often delay treatment. Without round-the-clock expert guidance, pets don’t always get the care they deserve, leaving families worried and helpless.                    </p>
                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                       <ul className="text-sm text-primary space-y-2">
                         <li className="flex items-center">
@@ -128,8 +127,7 @@ const AboutUs: React.FC = () => {
                   </div>
                   <div className="space-y-4">
                     <p className="text-muted-foreground leading-relaxed">
-                      Zoodo leverages advanced AI technology to provide instant health assessments, connects pet parents with certified veterinarians, and builds a supportive community where knowledge and care are shared.
-                    </p>
+                    Zoodo makes pet healthcare simple, accessible, and supportive. With instant AI health checks, 24/7 access to trusted vets, and affordable online consultations, pet parents can make quick, informed decisions. A friendly community platform also ensures knowledge and care are always within reach.                    </p>
                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                       <ul className="text-sm text-primary space-y-2">
                         <li className="flex items-center">
@@ -200,92 +198,37 @@ const AboutUs: React.FC = () => {
         {/* Team Section */}
         <section ref={teamRef} className={`py-20 scroll-fade-in ${teamVisible ? 'animate' : ''}`}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border-2 border-primary/30 text-sm font-medium text-primary mb-4">
                 <Users2 className="w-4 h-4 mr-2" />
                 Our Team
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Meet the Visionaries</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Meet Our Team</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                The passionate individuals behind Zoodo's mission to revolutionize pet healthcare
+                The passionate individuals behind Zoodo's mission
               </p>
             </div>
 
-            <div className="max-w-7xl mx-auto">
-              {/* Founder Spotlight */}
-              <div className="mb-20">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-3xl"></div>
-                  <Card className="relative glass-card border-2 border-primary/20 overflow-hidden">
-                    <div className="grid lg:grid-cols-3 gap-0">
-                      <div className="relative h-80 lg:h-[500px] overflow-hidden">
-                        <Image
-                          src={shahidImage}
-                          alt="Shahid Shaikh"
-                          className="w-full h-full object-cover"
-                          layout="fill"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                            <p className="text-white text-sm font-medium">Founder & CEO</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="lg:col-span-2 p-8 lg:p-12 flex flex-col justify-center">
-                        <div className="mb-6">
-                          <h3 className="text-4xl font-bold text-foreground mb-2">Shahid Shaikh</h3>
-                          <p className="text-primary text-lg font-medium">Visionary Leader & Healthcare Innovator</p>
-                        </div>
-                        <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                          With over 8 years of experience in healthcare technology, Shahid leads Zoodo's mission to make quality veterinary care accessible to every pet parent. His vision combines cutting-edge AI with compassionate care.
-                        </p>
-                        <div className="flex flex-wrap gap-4">
-                          <Button variant="outline" size="lg" className="group">
-                            <Mail className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            Connect
-                          </Button>
-                          <Button variant="outline" size="lg" className="group">
-                            <Linkedin className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            LinkedIn
-                          </Button>
-                          <Button variant="outline" size="lg" className="group">
-                            <Twitter className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            Twitter
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Team Grid */}
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Aayushee Dhanokar */}
-                <Card className="glass-card hover:glow-effect transition-all duration-500 group border-2 border-primary/10 hover:border-primary/30">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-3 gap-8">
+                {/* Shahid Shaikh */}
+                <Card className="glass-card hover:glow-effect transition-all duration-300 group border-2 border-primary/10 hover:border-primary/30">
                   <div className="relative overflow-hidden">
-                    <div className="relative h-64 overflow-hidden">
+                    <div className="relative h-80 sm:h-72 md:h-64 overflow-hidden">
                       <Image
-                        src={aayusheeImage}
-                        alt="Aayushee Dhanokar"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        src={shahidImage}
+                        alt="Shahid Shaikh"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         layout="fill"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     </div>
-                    <div className="absolute top-4 right-4">
-                      <div className="bg-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm font-medium">
-                        CTO
-                      </div>
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-2xl font-bold text-foreground mb-2">Aayushee Dhanokar</h3>
-                      <p className="text-primary font-medium mb-4">Chief Technology Officer & Co-Founder</p>
-                      <p className="text-muted-foreground leading-relaxed mb-6">
-                        AI/ML expert driving our cutting-edge diagnostic technology. Passionate about creating intelligent solutions that make veterinary care more accessible and accurate.
+                    <CardContent className="p-6 text-center">
+                      <h3 className="text-xl font-bold text-foreground mb-2">Shahid Shaikh</h3>
+                      <p className="text-primary font-medium mb-3">Founder & CEO</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        Visionary leader with 8+ years in healthcare technology, passionate about revolutionizing pet care through AI innovation.
                       </p>
-                      <div className="flex gap-3">
+                      <div className="flex justify-center gap-3">
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                           <Mail className="w-4 h-4" />
                         </Button>
@@ -293,7 +236,39 @@ const AboutUs: React.FC = () => {
                           <Linkedin className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Twitter className="w-4 h-4" />
+                          <Github className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </div>
+                </Card>
+
+                {/* Aayushee Dhanokar */}
+                <Card className="glass-card hover:glow-effect transition-all duration-300 group border-2 border-primary/10 hover:border-primary/30">
+                  <div className="relative overflow-hidden">
+                    <div className="relative h-80 sm:h-72 md:h-64 overflow-hidden">
+                      <Image
+                        src={aayusheeImage}
+                        alt="Aayushee Dhanokar"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        layout="fill"
+                      />
+                    </div>
+                    <CardContent className="p-6 text-center">
+                      <h3 className="text-xl font-bold text-foreground mb-2">Aayushee Dhanokar</h3>
+                      <p className="text-primary font-medium mb-3">CTO & Co-Founder</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        AI/ML expert driving our cutting-edge diagnostic technology, passionate about creating intelligent solutions for veterinary care.
+                      </p>
+                      <div className="flex justify-center gap-3">
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                          <Mail className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                          <Linkedin className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                          <Github className="w-4 h-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -301,29 +276,23 @@ const AboutUs: React.FC = () => {
                 </Card>
 
                 {/* Khushi Mishra */}
-                <Card className="glass-card hover:glow-effect transition-all duration-500 group border-2 border-primary/10 hover:border-primary/30">
+                <Card className="glass-card hover:glow-effect transition-all duration-300 group border-2 border-primary/10 hover:border-primary/30">
                   <div className="relative overflow-hidden">
-                    <div className="relative h-64 overflow-hidden">
+                    <div className="relative h-80 sm:h-72 md:h-64 overflow-hidden">
                       <Image
                         src={khushiImage}
                         alt="Khushi Mishra"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         layout="fill"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     </div>
-                    <div className="absolute top-4 right-4">
-                      <div className="bg-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm font-medium">
-                        Operations
-                      </div>
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-2xl font-bold text-foreground mb-2">Khushi Mishra</h3>
-                      <p className="text-primary font-medium mb-4">Head of Operations</p>
-                      <p className="text-muted-foreground leading-relaxed mb-6">
-                        Operations strategist ensuring seamless user experiences. Expert in scaling healthcare platforms and building supportive communities for pet parents.
+                    <CardContent className="p-6 text-center">
+                      <h3 className="text-xl font-bold text-foreground mb-2">Khushi Mishra</h3>
+                      <p className="text-primary font-medium mb-3">Head of Operations</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        Operations strategist ensuring seamless user experiences, expert in scaling healthcare platforms and community building.
                       </p>
-                      <div className="flex gap-3">
+                      <div className="flex justify-center gap-3">
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                           <Mail className="w-4 h-4" />
                         </Button>
@@ -331,44 +300,12 @@ const AboutUs: React.FC = () => {
                           <Linkedin className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Twitter className="w-4 h-4" />
+                          <Github className="w-4 h-4" />
                         </Button>
                       </div>
                     </CardContent>
                   </div>
                 </Card>
-              </div>
-
-              {/* Team Values */}
-              <div className="mt-20 text-center">
-                <div className="inline-flex items-center px-6 py-3 rounded-full bg-primary/10 border-2 border-primary/20 text-primary font-medium mb-6">
-                  <HeartPulse className="w-5 h-5 mr-2" />
-                  Our Shared Values
-                </div>
-                <h3 className="text-2xl font-bold text-foreground mb-8">What Drives Us Forward</h3>
-                <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                  <div className="glass-card p-6 rounded-2xl text-center">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Users2 className="w-6 h-6 text-primary" />
-                    </div>
-                    <h4 className="font-bold text-foreground mb-2">Collaboration</h4>
-                    <p className="text-sm text-muted-foreground">Working together to achieve our mission</p>
-                  </div>
-                  <div className="glass-card p-6 rounded-2xl text-center">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Lightbulb className="w-6 h-6 text-primary" />
-                    </div>
-                    <h4 className="font-bold text-foreground mb-2">Innovation</h4>
-                    <p className="text-sm text-muted-foreground">Constantly pushing boundaries in pet care</p>
-                  </div>
-                  <div className="glass-card p-6 rounded-2xl text-center">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <HeartPulse className="w-6 h-6 text-primary" />
-                    </div>
-                    <h4 className="font-bold text-foreground mb-2">Passion</h4>
-                    <p className="text-sm text-muted-foreground">Dedicated to improving pet healthcare</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
