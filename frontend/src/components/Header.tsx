@@ -89,6 +89,9 @@ const Header = () => {
                 priority
               />
             </div>
+            <span className="ml-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+              BETA
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -150,11 +153,11 @@ const Header = () => {
             </NoSSR>
 
             {/* CTA Buttons */}
-            <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
+            <div className="flex items-center space-x-2 lg:space-x-3">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                 asChild
               >
                 <Link href="/login">Log In</Link>
