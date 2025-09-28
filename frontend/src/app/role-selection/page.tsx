@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, MouseEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, PawPrint, Stethoscope, Bone, Hospital, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PawPrint, Stethoscope, Bone, Hospital, Users } from 'lucide-react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 
@@ -45,7 +45,35 @@ const roles = [
   },
 ];
 
-const RoleCard = ({ role, index }: { role: typeof roles[0], index: number }) => {
+// Mobile quiz-style card
+const MobileRoleCard = ({ role, index }: { role: typeof roles[0], index: number }) => {
+  return (
+    <Link href={role.href} aria-label={`Select role ${role.name}`} className="block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60" style={{ animationDelay: `${index * 100}ms` }}>
+      <div className="group bg-white dark:bg-gray-800 rounded-lg p-4 transition-all duration-200 ease-out flex items-center gap-4 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 hover:border-primary/40">
+        <div className="flex-shrink-0">
+          <role.icon className="w-6 h-6 text-primary" />
+        </div>
+        <div className="flex-1 text-left">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">{role.name}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{role.description}</p>
+          {role.name === 'Organization' && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">NGO</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Company</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Trusts</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-shrink-0">
+          <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+// Desktop 3D card
+const DesktopRoleCard = ({ role, index }: { role: typeof roles[0], index: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [allowMotion, setAllowMotion] = useState(true);
 
@@ -67,8 +95,8 @@ const RoleCard = ({ role, index }: { role: typeof roles[0], index: number }) => 
     const x = e.clientX - left;
     const y = e.clientY - top;
 
-    const rotateX = (y / height - 0.5) * -20; // -10 to 10 degrees
-    const rotateY = (x / width - 0.5) * 20; // -10 to 10 degrees
+    const rotateX = (y / height - 0.5) * -20;
+    const rotateY = (x / width - 0.5) * 20;
 
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
   };
@@ -147,17 +175,25 @@ export default function RoleSelectionPage() {
 
         <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
           <div className="max-w-6xl w-full text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in-down">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 animate-fade-in-down">
               How are you joining us?
             </h1>
             <p className="text-muted-foreground text-lg md:text-xl mb-12 animate-fade-in-up">
               Select your role to get started with a tailored experience.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
+            <div className="max-w-2xl mx-auto space-y-4 sm:hidden">
               {roles.map((role, index) => (
                 <div key={role.name} className={`animate-fade-in-up`} style={{ animationDelay: `${index * 150}ms` }}>
-                  <RoleCard role={role} index={index} />
+                  <MobileRoleCard role={role} index={index} />
+                </div>
+              ))}
+            </div>
+            
+            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
+              {roles.map((role, index) => (
+                <div key={role.name} className={`animate-fade-in-up`} style={{ animationDelay: `${index * 150}ms` }}>
+                  <DesktopRoleCard role={role} index={index} />
                 </div>
               ))}
             </div>
