@@ -2,10 +2,10 @@ import Image from "next/image";
 import {
   Stethoscope, Building2, Video, Heart, MapPin, Clock, ArrowRight, Zap, Search, UserCheck, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap
 } from "lucide-react";
-import serviceFindVet from "@/assets/service-find-vet.jpg";
-import serviceClinicHospital from "@/assets/vetic.jpg";
-import serviceTeleconsultation from "@/assets/service-teleconsultation.jpg";
-import servicePetTrainer from "@/assets/service-pet-trainer.jpg";
+import serviceFindVet from "@/assets/find-vet.png";
+import serviceClinicHospital from "@/assets/hospital.jpg";
+import serviceTeleconsultation from "@/assets/tele.png";
+import servicePetTrainer from "@/assets/pet_trainer.png";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const services = [

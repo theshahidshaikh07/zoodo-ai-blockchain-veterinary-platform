@@ -268,8 +268,10 @@ const AboutUs: React.FC = () => {
                         With a love for animals and a knack for problem-solving, driving force behind our platform's intelligent features.
                       </p>
                       <div className="flex justify-center gap-3">
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Mail className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="mailto:daayushee11@gmail.com" target="_blank" rel="noopener noreferrer">
+                            <Mail className="w-4 h-4" />
+                          </a>
                         </Button>
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
                           <a href="https://www.linkedin.com/in/aayushee-dhanokar-95733b267" target="_blank" rel="noopener noreferrer">
@@ -304,8 +306,10 @@ const AboutUs: React.FC = () => {
                         Ensures a seamless user experience while building a strong and supportive community.
                       </p>
                       <div className="flex justify-center gap-3">
-                        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                          <Mail className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                          <a href="mailto:kmishra2026@gmail.com" target="_blank" rel="noopener noreferrer">
+                            <Mail className="w-4 h-4" />
+                          </a>
                         </Button>
                         <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
                           <a href="https://www.linkedin.com/in/khushi-mishra-196959263" target="_blank" rel="noopener noreferrer">
@@ -343,7 +347,9 @@ const AboutUs: React.FC = () => {
                   Get Started Today <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline">Contact Us</Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/contact">Contact Us</Link>
+              </Button>
             </div>
           </div>
         </section>

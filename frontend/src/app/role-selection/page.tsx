@@ -32,7 +32,7 @@ const roles = [
   {
     name: 'Hospital & Clinic',
     icon: Hospital,
-    description: 'Manage your facility, staff, and patient records.',
+    description: 'Manage your facility, staff, and records.',
     href: '/register/hospital',
     color: 'hsl(var(--primary))',
   },
