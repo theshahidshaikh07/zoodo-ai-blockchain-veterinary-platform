@@ -144,6 +144,7 @@ interface FormData {
   affiliatedDetails: {
     facilityName: string;
     affiliationType: string;
+    otherFacilityName?: string;
   };
   // Step 5 fields - Service-based Availability Schedule
   availabilitySchedule: {
@@ -430,7 +431,7 @@ function VeterinarianWizard() {
     }
     if (step === 4) {
       const { homeConsultation, onlineConsultation, serviceAddress, homeVisitRadius } = formData.independentServices;
-      if (!homeConsultation && !onlineConsultation) {
+        if (!homeConsultation && !onlineConsultation) {
         setError('Please select at least one service: Online or Home Visit');
           return false;
         }
@@ -454,12 +455,12 @@ function VeterinarianWizard() {
 
   const nextStep = () => {
     if (!validateStep(currentStep)) return;
-    setCurrentStep((s) => Math.min(4, s + 1));
+    setCurrentStep((s) => Math.min(5, s + 1));
   };
   const prevStep = () => setCurrentStep((s) => Math.max(1, s - 1));
 
   const handleSubmit = async () => {
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) return;
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4) || !validateStep(5)) return;
     setIsLoading(true);
     setError('');
 
@@ -541,9 +542,9 @@ function VeterinarianWizard() {
 
             {/* Form Panel */}
             <div className="max-w-xl w-full mx-auto">
-              <div className="text-center mb-6">
+            <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border border-border text-foreground/80 bg-card/40">
-                  Step {currentStep} of 4
+                  Step {currentStep} of 5
                 </div>
                 {currentStep === 1 && (
                   <>
@@ -774,21 +775,40 @@ function VeterinarianWizard() {
                       >
                         No
                       </Button>
-                    </div>
+                        </div>
 
                     {formData.isAffiliated && (
                       <div className="grid gap-4 mt-2">
                         <div className="space-y-2">
                           <Label>Hospital / Clinic Name</Label>
-                          <Input
+                          <Select
                             value={formData.affiliatedDetails.facilityName}
-                            onChange={(e) => setFormData(prev => ({
+                            onValueChange={(value) => setFormData(prev => ({
                               ...prev,
-                              affiliatedDetails: { ...prev.affiliatedDetails, facilityName: e.target.value }
+                              affiliatedDetails: { ...prev.affiliatedDetails, facilityName: value, otherFacilityName: value === 'Other' ? (prev.affiliatedDetails.otherFacilityName || '') : '' }
                             }))}
-                            placeholder="Enter facility name"
-                            className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0"
-                          />
+                          >
+                            <SelectTrigger className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0">
+                              <SelectValue placeholder="Select a facility" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background border-border/50">
+                              <SelectItem value="Zoodo Animal Care Clinic" className="focus:bg-accent/50">Zoodo Animal Care Clinic</SelectItem>
+                              <SelectItem value="Modern Vet Hospital" className="focus:bg-accent/50">Modern Vet Hospital</SelectItem>
+                              <SelectItem value="Paws & Claws Pet Clinic" className="focus:bg-accent/50">Paws & Claws Pet Clinic</SelectItem>
+                              <SelectItem value="Other" className="focus:bg-accent/50">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {formData.affiliatedDetails.facilityName === 'Other' && (
+                            <Input
+                              value={formData.affiliatedDetails.otherFacilityName || ''}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                affiliatedDetails: { ...prev.affiliatedDetails, otherFacilityName: e.target.value }
+                              }))}
+                              placeholder="Enter facility name"
+                              className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0"
+                            />
+                          )}
                         </div>
 
                         <div className="space-y-2">
@@ -796,7 +816,7 @@ function VeterinarianWizard() {
                           <Select
                             value={formData.affiliatedDetails.affiliationType}
                             onValueChange={(value) => setFormData(prev => ({
-                              ...prev,
+                            ...prev,
                               affiliatedDetails: { ...prev.affiliatedDetails, affiliationType: value }
                             }))}
                           >
@@ -810,9 +830,9 @@ function VeterinarianWizard() {
                             </SelectContent>
                           </Select>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                                        </div>
+                                    )}
+                    </div>
 
                   
 
@@ -885,7 +905,7 @@ function VeterinarianWizard() {
                     </div>
                 )}
 
-                {/* Step 4: Service Details */}
+              {/* Step 4: Service Details */}
                 {currentStep === 4 && (
                     <div className="space-y-8">
                         <div className="text-center mb-8">
@@ -950,7 +970,7 @@ function VeterinarianWizard() {
                                                 <p className="text-sm text-muted-foreground">Offer remote consultations via video, audio, or chat.</p>
                                             </div>
                                         </div>
-
+                                        
                                         <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
                                             formData.independentServices.homeConsultation 
                                                 ? 'border-primary bg-primary/10' 
@@ -992,97 +1012,149 @@ function VeterinarianWizard() {
 
                                 {formData.independentServices.homeConsultation && (
                                     <>
-                                        <div className="space-y-4 mt-6">
-                                            <Label className="text-base font-semibold text-foreground">Service Address</Label>
-                                            <div className="p-4 bg-card/20 rounded-lg border border-border/30">
-                                                <label className="flex items-center space-x-3 cursor-pointer">
-                                                    <div className={`flex items-center justify-center h-5 w-5 rounded border ${formData.independentServices.serviceAddress.sameAsPersonal ? 'bg-primary border-primary' : 'bg-background border-border'}`}>
-                                                        {formData.independentServices.serviceAddress.sameAsPersonal && (
-                                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-sm font-medium text-foreground select-none">
-                                                        Use same address as personal address
-                                                    </span>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        id="independent.sameAsPersonal" 
-                                                        name="independentServices.serviceAddress.sameAsPersonal" 
-                                                        checked={formData.independentServices.serviceAddress.sameAsPersonal} 
-                                                        onChange={handleInputChange} 
-                                                        className="sr-only" 
-                                                    />
-                                                </label>
-                                                
-                                                {!formData.independentServices.serviceAddress.sameAsPersonal && (
-                                                    <div className="grid grid-cols-1 gap-4 mt-4">
-                                                        <Input 
-                                                            name="independentServices.serviceAddress.street" 
-                                                            value={formData.independentServices.serviceAddress.street} 
-                                                            onChange={handleInputChange} 
-                                                            placeholder="Street Address" 
-                                                            className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                        />
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <Input 
-                                                                name="independentServices.serviceAddress.city" 
-                                                                value={formData.independentServices.serviceAddress.city} 
-                                                                onChange={handleInputChange} 
-                                                                placeholder="City" 
-                                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                            />
-                                                            <Input 
-                                                                name="independentServices.serviceAddress.zip" 
-                                                                value={formData.independentServices.serviceAddress.zip} 
-                                                                onChange={handleInputChange} 
-                                                                placeholder="ZIP Code" 
-                                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                            />
-                                                        </div>
-                                                    </div>
+                                <div className="space-y-4 mt-6">
+                                    <Label className="text-base font-semibold text-foreground">Service Address</Label>
+                                    <div className="p-4 bg-card/20 rounded-lg border border-border/30">
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <div className={`flex items-center justify-center h-5 w-5 rounded border ${formData.independentServices.serviceAddress.sameAsPersonal ? 'bg-primary border-primary' : 'bg-background border-border'}`}>
+                                                {formData.independentServices.serviceAddress.sameAsPersonal && (
+                                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    </svg>
                                                 )}
                                             </div>
-                                        </div>
+                                            <span className="text-sm font-medium text-foreground select-none">
+                                                Use same address as personal address
+                                            </span>
+                                            <input 
+                                                type="checkbox" 
+                                                id="independent.sameAsPersonal" 
+                                                name="independentServices.serviceAddress.sameAsPersonal" 
+                                                checked={formData.independentServices.serviceAddress.sameAsPersonal} 
+                                                onChange={handleInputChange} 
+                                                className="sr-only" 
+                                            />
+                                        </label>
+                                        
+                                        {!formData.independentServices.serviceAddress.sameAsPersonal && (
+                                            <div className="grid grid-cols-1 gap-4 mt-4">
+                                                <Input 
+                                                    name="independentServices.serviceAddress.street" 
+                                                    value={formData.independentServices.serviceAddress.street} 
+                                                    onChange={handleInputChange} 
+                                                    placeholder="Street Address" 
+                                                    className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                />
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <Input 
+                                                        name="independentServices.serviceAddress.city" 
+                                                        value={formData.independentServices.serviceAddress.city} 
+                                                        onChange={handleInputChange} 
+                                                        placeholder="City" 
+                                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                    />
+                                                    <Input 
+                                                        name="independentServices.serviceAddress.zip" 
+                                                        value={formData.independentServices.serviceAddress.zip} 
+                                                        onChange={handleInputChange} 
+                                                        placeholder="ZIP Code" 
+                                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                        <div className="space-y-3 mt-6">
-                                            <div className="space-y-2">
+                                <div className="space-y-3 mt-6">
+                                    <div className="space-y-2">
                                                 <Label htmlFor="independent.homeVisitRadius" className="text-base font-semibold text-foreground">Home Visit Radius (km)</Label>
                                                 <p className="text-sm text-muted-foreground">Required when Home Visit is selected</p>
-                                            </div>
-                                            <Input 
-                                                id="independent.homeVisitRadius" 
-                                                name="independentServices.homeVisitRadius" 
-                                                type="number"
-                                                step="0.1"
-                                                value={formData.independentServices.homeVisitRadius} 
-                                                onChange={handleInputChange} 
+                                    </div>
+                                    <Input 
+                                        id="independent.homeVisitRadius" 
+                                        name="independentServices.homeVisitRadius" 
+                                        type="number"
+                                        step="0.1"
+                                        value={formData.independentServices.homeVisitRadius} 
+                                        onChange={handleInputChange} 
                                                 placeholder="e.g., 10" 
-                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
+                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                    />
+                                </div>
                                     </>
                                 )}
-                                </div>
-                            </div>
-
+                                        </div>
+                                    </div>
+                                
                         {/* (removed Personal Clinic section for simplified Step 4) */}
 
                         {/* (removed Affiliated section for simplified Step 4) */}
                         
                         <div className="flex gap-4 items-center pt-6">
                             <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
-                            <Button type="button" onClick={handleSubmit} disabled={isLoading} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50">
-                            {isLoading ? (
-                                    <div className="flex items-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>Submitting...</div>
-                                ) : 'Finish registration'}
-                            </Button>
+                            <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50">Next</Button>
                         </div>
                     </div>
                 )}
 
-                {/* (removed review step) */}
+                {/* Step 5: Review & Submit */}
+                {currentStep === 5 && (
+                  <div className="space-y-8">
+                    <div className="text-center mb-2">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
+                        <svg className="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </div>
+                      <h2 className="text-2xl font-bold mb-1">Review & Submit</h2>
+                      <p className="text-muted-foreground">Confirm your details. Availability can be configured later in your dashboard.</p>
+                    </div>
+
+                    <div className="grid gap-4 p-5 rounded-2xl border border-border bg-card/40">
+                      <h3 className="font-semibold">Account</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-muted-foreground">Name:</span> {formData.firstName} {formData.lastName}</div>
+                        <div><span className="text-muted-foreground">Email:</span> {formData.email}</div>
+                        <div><span className="text-muted-foreground">Username:</span> {formData.username}</div>
+                        <div><span className="text-muted-foreground">Phone:</span> {formData.phoneNumber}</div>
+                        <div className="sm:col-span-2"><span className="text-muted-foreground">Address:</span> {formData.address}</div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 p-5 rounded-2xl border border-border bg-card/40">
+                      <h3 className="font-semibold">Professional</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-muted-foreground">License:</span> {formData.licenseNumber}</div>
+                        <div><span className="text-muted-foreground">Experience:</span> {String(formData.experience)} years</div>
+                        <div className="sm:col-span-2"><span className="text-muted-foreground">Specializations:</span> {formData.specialization.join(', ') || '—'}</div>
+                        <div className="sm:col-span-2"><span className="text-muted-foreground">Qualifications:</span> {formData.qualifications.join(', ') || '—'}</div>
+                        <div><span className="text-muted-foreground">Affiliated:</span> {formData.isAffiliated ? 'Yes' : 'No'}</div>
+                        {formData.isAffiliated && (
+                          <div className="sm:col-span-2"><span className="text-muted-foreground">Facility:</span> {formData.affiliatedDetails.facilityName} ({formData.affiliatedDetails.affiliationType})</div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 p-5 rounded-2xl border border-border bg-card/40">
+                      <h3 className="font-semibold">Services</h3>
+                      <div className="text-sm">
+                        <div>Online Consultation: {formData.independentServices.onlineConsultation ? 'Yes' : 'No'}</div>
+                        <div>Home Visit: {formData.independentServices.homeConsultation ? `Yes (Radius ${formData.independentServices.homeVisitRadius || '—'} km)` : 'No'}</div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">You can fine-tune availability, buffer times, and slots in your dashboard after registration.</p>
+                    </div>
+
+                    <div className="flex gap-4 items-center pt-2">
+                      <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
+                      <Button type="button" onClick={handleSubmit} disabled={isLoading} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50">
+                        {isLoading ? (
+                          <div className="flex items-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>Submitting...</div>
+                        ) : 'Submit'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
 
             </div>
