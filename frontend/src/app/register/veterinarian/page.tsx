@@ -118,11 +118,8 @@ interface FormData {
   idProof: File | null;
   degreeProof: File | null;
   profilePhoto: File | null;
-  practiceType: {
-    independent: boolean;
-    personalClinic: boolean;
-    affiliated: boolean;
-  };
+  isAffiliated: boolean;
+  // practiceType removed
   services: string[];
   // Step 4 fields
   independentServices: {
@@ -226,11 +223,8 @@ function VeterinarianWizard() {
     idProof: null,
     degreeProof: null,
     profilePhoto: null,
-    practiceType: {
-      independent: false,
-      personalClinic: false,
-      affiliated: false,
-    },
+    isAffiliated: false,
+    // practiceType removed
     services: [],
     // Step 4 fields
     independentServices: {
@@ -352,13 +346,7 @@ function VeterinarianWizard() {
             },
           }));
         } else {
-          setFormData((prev) => ({
-            ...prev,
-            practiceType: {
-              ...prev.practiceType,
-              [name]: checked,
-            },
-          }));
+          setFormData((prev) => ({ ...prev, [name]: checked }));
         }
     } else {
         // Handle nested input structures
@@ -433,96 +421,31 @@ function VeterinarianWizard() {
         setError('Please specify your other qualification');
         return false;
       }
+    }
+    if (step === 3) {
       if (!formData.licenseProof || !formData.idProof || !formData.degreeProof) {
         setError('License proof, ID proof, and Degree proof are required');
         return false;
       }
     }
-    if (step === 3) {
-      const { independent, personalClinic, affiliated } = formData.practiceType;
-      if (!independent && !personalClinic && !affiliated) {
-        setError('Please select at least one practice type');
-        return false;
-      }
-    }
     if (step === 4) {
-      const { independent, personalClinic, affiliated } = formData.practiceType;
-      
-      if (independent) {
-        const { homeConsultation, onlineConsultation, serviceAddress } = formData.independentServices;
-        if (!homeConsultation && !onlineConsultation) {
-          setError('Please select at least one service for independent practice');
+      const { homeConsultation, onlineConsultation, serviceAddress, homeVisitRadius } = formData.independentServices;
+      if (!homeConsultation && !onlineConsultation) {
+        setError('Please select at least one service: Online or Home Visit');
           return false;
         }
+      if (homeConsultation) {
         if (!serviceAddress.sameAsPersonal) {
           if (!serviceAddress.street || !serviceAddress.city || !serviceAddress.zip) {
-            setError('Please fill in all service address fields');
+            setError('Please provide the home service address (street, city, ZIP)');
             return false;
           }
         }
-      }
-      
-      if (personalClinic) {
-        const { clinicName, clinicAddress, services } = formData.personalClinicDetails;
-        if (!clinicName.trim() || !clinicAddress.trim()) {
-          setError('Please fill in clinic name and address');
+        const radius = parseFloat(String(homeVisitRadius || ''));
+        if (!(radius > 0)) {
+          setError('Please specify a valid home visit radius in km');
           return false;
         }
-        if (!services.inPersonConsultation && !services.onlineConsultation) {
-          setError('Please select at least one service for your clinic');
-          return false;
-        }
-      }
-      
-      if (affiliated) {
-        const { facilityName, affiliationType } = formData.affiliatedDetails;
-        if (!facilityName.trim() || !affiliationType.trim()) {
-          setError('Please fill in facility name and affiliation type');
-          return false;
-        }
-      }
-    }
-    if (step === 5) {
-      const { homeVisitAvailability, clinicAvailability, onlineAvailability } = formData.availabilitySchedule;
-      const { independent, personalClinic, affiliated } = formData.practiceType;
-      
-      let hasValidAvailability = false;
-      
-      // Check home visit availability if independent practice with home consultation
-      if (independent && formData.independentServices.homeConsultation) {
-        const hasEnabledDay = Object.values(homeVisitAvailability.workingDays).some(day => day.enabled);
-        if (!hasEnabledDay) {
-          setError('Please enable at least one working day for home visits');
-          return false;
-        }
-        hasValidAvailability = true;
-      }
-      
-      // Check clinic availability if personal clinic or affiliated
-      if ((personalClinic && formData.personalClinicDetails.services.inPersonConsultation) || 
-          (affiliated && formData.affiliatedDetails.affiliationType)) {
-        const hasEnabledDay = Object.values(clinicAvailability.workingDays).some(day => day.enabled);
-        if (!hasEnabledDay) {
-          setError('Please enable at least one working day for clinic consultations');
-          return false;
-        }
-        hasValidAvailability = true;
-      }
-      
-      // Check online availability if any service offers online consultation
-      if ((independent && formData.independentServices.onlineConsultation) || 
-          (personalClinic && formData.personalClinicDetails.services.onlineConsultation)) {
-        const hasEnabledDay = Object.values(onlineAvailability.workingDays).some(day => day.enabled);
-        if (!hasEnabledDay) {
-          setError('Please enable at least one working day for online consultations');
-          return false;
-        }
-        hasValidAvailability = true;
-      }
-      
-      if (!hasValidAvailability) {
-        setError('Please configure availability for at least one of your selected services');
-        return false;
       }
     }
     setError('');
@@ -531,12 +454,12 @@ function VeterinarianWizard() {
 
   const nextStep = () => {
     if (!validateStep(currentStep)) return;
-    setCurrentStep((s) => Math.min(6, s + 1));
+    setCurrentStep((s) => Math.min(4, s + 1));
   };
   const prevStep = () => setCurrentStep((s) => Math.max(1, s - 1));
 
   const handleSubmit = async () => {
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4) || !validateStep(5)) return;
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) return;
     setIsLoading(true);
     setError('');
 
@@ -620,10 +543,14 @@ function VeterinarianWizard() {
             <div className="max-w-xl w-full mx-auto">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border border-border text-foreground/80 bg-card/40">
-                  Step {currentStep} of 6
+                  Step {currentStep} of 4
                 </div>
-                <h1 className="text-3xl font-bold text-foreground mt-3">Create your account</h1>
-                <p className="text-muted-foreground mt-1">For Veterinarians</p>
+                {currentStep === 1 && (
+                  <>
+                    <h1 className="text-3xl font-bold text-foreground mt-3">Create your account</h1>
+                    <p className="text-muted-foreground mt-1">For Veterinarians</p>
+                  </>
+                )}
               </div>
 
               {error && (
@@ -769,9 +696,20 @@ function VeterinarianWizard() {
                 </div>
               )}
 
-              {/* Step 2: Professional Details */}
+              {/* Step 2: Professional Details + Affiliation */}
               {currentStep === 2 && (
                 <div className="space-y-6">
+                  <div className="text-center mb-2">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
+                      <svg className="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />
+                        <path d="M22 10v6" />
+                        <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-1">Professional Information</h2>
+                    <p className="text-muted-foreground">Your license, specialization, qualifications, experience, and affiliation.</p>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="licenseNumber">Medical License / Registration Number</Label>
                     <Input id="licenseNumber" name="licenseNumber" value={formData.licenseNumber} onChange={handleInputChange} placeholder="Enter your license or registration number" required />
@@ -816,184 +754,136 @@ function VeterinarianWizard() {
                     <Input id="experience" name="experience" type="number" value={formData.experience} onChange={handleInputChange} placeholder="Enter total years of experience" />
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="space-y-4">
-                      <FileUploadField
-                          label="License / Registration Proof"
-                          name="licenseProof"
-                          value={formData.licenseProof}
-                          onChange={handleFileUploadChange}
-                          required
-                          helperText="We verify your credentials before enabling services."
-                          accept="application/pdf,image/jpeg,image/png"
-                      />
-                      <FileUploadField
-                          label="Identity Proof (Passport / Aadhar / Govt ID)"
-                          name="idProof"
-                          value={formData.idProof}
-                          onChange={handleFileUploadChange}
-                          required
-                          accept="application/pdf,image/jpeg,image/png"
-                      />
-                      <FileUploadField
-                          label="Degree Proof"
-                          name="degreeProof"
-                          value={formData.degreeProof}
-                          onChange={handleFileUploadChange}
-                          required
-                          helperText="Upload your highest degree certificate."
-                          accept="application/pdf,image/jpeg,image/png"
-                      />
-                      <FileUploadField
-                          label="Profile Photo (Optional)"
-                          name="profilePhoto"
-                          value={formData.profilePhoto}
-                          onChange={handleFileUploadChange}
-                          helperText="Optional; helps patients recognize you on the platform."
-                          accept="image/jpeg,image/png"
-                      />
+                  {/* Optional Affiliation */}
+                  <div className="space-y-3 pt-2">
+                    <Label className="block font-semibold mb-1">Are you affiliated with a clinic/hospital? (optional)</Label>
+                    <div className="inline-flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={formData.isAffiliated ? "default" : "outline"}
+                        onClick={() => setFormData(prev => ({ ...prev, isAffiliated: true }))}
+                        className="h-9 px-3 rounded-full text-sm shadow-none border-2"
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={!formData.isAffiliated ? "default" : "outline"}
+                        onClick={() => setFormData(prev => ({ ...prev, isAffiliated: false, affiliatedDetails: { facilityName: '', affiliationType: '' } }))}
+                        className="h-9 px-3 rounded-full text-sm shadow-none border-2"
+                      >
+                        No
+                      </Button>
                     </div>
+
+                    {formData.isAffiliated && (
+                      <div className="grid gap-4 mt-2">
+                        <div className="space-y-2">
+                          <Label>Hospital / Clinic Name</Label>
+                          <Input
+                            value={formData.affiliatedDetails.facilityName}
+                            onChange={(e) => setFormData(prev => ({
+                              ...prev,
+                              affiliatedDetails: { ...prev.affiliatedDetails, facilityName: e.target.value }
+                            }))}
+                            placeholder="Enter facility name"
+                            className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Affiliation Type</Label>
+                          <Select
+                            value={formData.affiliatedDetails.affiliationType}
+                            onValueChange={(value) => setFormData(prev => ({
+                              ...prev,
+                              affiliatedDetails: { ...prev.affiliatedDetails, affiliationType: value }
+                            }))}
+                          >
+                            <SelectTrigger className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0">
+                              <SelectValue placeholder="Select affiliation type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background border-border/50">
+                              <SelectItem value="Full-time" className="focus:bg-accent/50">Full-time</SelectItem>
+                              <SelectItem value="Part-time" className="focus:bg-accent/50">Part-time</SelectItem>
+                              <SelectItem value="Visiting" className="focus:bg-accent/50">Visiting</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
+                  
+
+                    
                   <div className="flex gap-3 items-center">
                     <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1">Back</Button>
                     <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground">Next</Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Practice Type */}
-              {currentStep === 3 && (
-                <div className="space-y-8">
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
-                            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold mb-2">How do you practice?</h2>
-                        <p className="text-muted-foreground">Select the practice types that apply to you. You can choose multiple options.</p>
-                    </div>
-                    
-                    <div className="grid gap-6">
-                        {/* Independent Practice Card */}
-                        <div className={`group relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                            formData.practiceType.independent 
-                                ? 'border-primary bg-primary/5 shadow-md scale-[1.02]' 
-                                : 'border-border hover:border-primary/50 bg-card/50'
-                        }`} onClick={() => setFormData(prev => ({
-                            ...prev,
-                            practiceType: { ...prev.practiceType, independent: !prev.practiceType.independent }
-                        }))}>
-                            <div className="flex items-start space-x-4">
-                                <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                    formData.practiceType.independent 
-                                        ? 'border-primary bg-primary' 
-                                        : 'border-muted-foreground group-hover:border-primary'
-                                }`}>
-                                    {formData.practiceType.independent && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-foreground">Independent Practice</h3>
-                                    </div>
-                                    <p className="text-muted-foreground leading-relaxed">I provide home or online consultations independently, offering flexible veterinary services directly to pet owners.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Personal Clinic Card */}
-                        <div className={`group relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                            formData.practiceType.personalClinic 
-                                ? 'border-primary bg-primary/5 shadow-md scale-[1.02]' 
-                                : 'border-border hover:border-primary/50 bg-card/50'
-                        }`} onClick={() => setFormData(prev => ({
-                            ...prev,
-                            practiceType: { ...prev.practiceType, personalClinic: !prev.practiceType.personalClinic }
-                        }))}>
-                            <div className="flex items-start space-x-4">
-                                <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                    formData.practiceType.personalClinic 
-                                        ? 'border-primary bg-primary' 
-                                        : 'border-muted-foreground group-hover:border-primary'
-                                }`}>
-                                    {formData.practiceType.personalClinic && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-foreground">Personal Clinic</h3>
-                                    </div>
-                                    <p className="text-muted-foreground leading-relaxed">I operate my own clinic where patients visit, providing comprehensive veterinary care in a dedicated facility.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Affiliated Hospital/Clinic Card */}
-                        <div className={`group relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                            formData.practiceType.affiliated 
-                                ? 'border-primary bg-primary/5 shadow-md scale-[1.02]' 
-                                : 'border-border hover:border-primary/50 bg-card/50'
-                        }`} onClick={() => setFormData(prev => ({
-                            ...prev,
-                            practiceType: { ...prev.practiceType, affiliated: !prev.practiceType.affiliated }
-                        }))}>
-                            <div className="flex items-start space-x-4">
-                                <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                    formData.practiceType.affiliated 
-                                        ? 'border-primary bg-primary' 
-                                        : 'border-muted-foreground group-hover:border-primary'
-                                }`}>
-                                    {formData.practiceType.affiliated && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-foreground">Affiliated Hospital / Clinic</h3>
-                                    </div>
-                                    <p className="text-muted-foreground leading-relaxed">I work part-time or full-time at a hospital or clinic, providing veterinary services as part of a larger healthcare team.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="flex gap-3 items-center pt-4">
-                        <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
-                        <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-200 shadow-lg hover:shadow-xl">Next</Button>
                     </div>
                 </div>
               )}
+
+                {/* Step 3: Document Uploads */}
+                {currentStep === 3 && (
+                    <div className="space-y-8">
+                        <div className="text-center mb-2">
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
+                                <svg className="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+                                    <path d="M12 10v6"/>
+                                    <path d="m9 13 3-3 3 3"/>
+                                </svg>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-2">Upload Your Documents</h2>
+                            <p className="text-muted-foreground">Provide required verification documents to complete your profile.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="space-y-4">
+                                <FileUploadField
+                                    label="License / Registration Proof"
+                                    name="licenseProof"
+                                    value={formData.licenseProof}
+                                    onChange={handleFileUploadChange}
+                                    required
+                                    helperText="We verify your credentials before enabling services."
+                                    accept="application/pdf,image/jpeg,image/png"
+                                />
+                                <FileUploadField
+                                    label="Identity Proof (Passport / Aadhar / Govt ID)"
+                                    name="idProof"
+                                    value={formData.idProof}
+                                    onChange={handleFileUploadChange}
+                                    required
+                                    accept="application/pdf,image/jpeg,image/png"
+                                />
+                                <FileUploadField
+                                    label="Degree Proof"
+                                    name="degreeProof"
+                                    value={formData.degreeProof}
+                                    onChange={handleFileUploadChange}
+                                    required
+                                    helperText="Upload your highest degree certificate."
+                                    accept="application/pdf,image/jpeg,image/png"
+                                />
+                                <FileUploadField
+                                    label="Profile Photo (Optional)"
+                                    name="profilePhoto"
+                                    value={formData.profilePhoto}
+                                    onChange={handleFileUploadChange}
+                                    helperText="Optional; helps patients recognize you on the platform."
+                                    accept="image/jpeg,image/png"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 items-center">
+                            <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1">Back</Button>
+                            <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground">Next</Button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Step 4: Service Details */}
                 {currentStep === 4 && (
@@ -1004,27 +894,63 @@ function VeterinarianWizard() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <h2 className="text-2xl font-bold mb-2">Service Details</h2>
-                            <p className="text-muted-foreground">Define the services you offer based on your selected practice types.</p>
+                            <h2 className="text-2xl font-bold mb-2">Services</h2>
+                            <p className="text-muted-foreground">Select the services you provide</p>
                         </div>
                         
-                        {/* Independent Practice Section */}
-                        {formData.practiceType.independent && (
+                        {/* Services Section */}
                             <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
                                 <div className="relative">
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="p-3 bg-primary/20 rounded-xl">
                                             <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
-                                        <h3 className="text-xl font-bold text-foreground">Independent Practice</h3>
+                                        <h3 className="text-xl font-bold text-foreground">Choose Services</h3>
                                     </div>
                                 
                                 <div className="space-y-4 mt-6">
                                     <Label className="text-base font-semibold text-foreground">Services Offered</Label>
                                     <div className="grid gap-4">
+                                        <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                                            formData.independentServices.onlineConsultation 
+                                                ? 'border-primary bg-primary/10' 
+                                                : 'border-border hover:border-primary/50 bg-card/50'
+                                        }`} onClick={() => setFormData(prev => ({
+                                            ...prev,
+                                            independentServices: {
+                                                ...prev.independentServices,
+                                                onlineConsultation: !prev.independentServices.onlineConsultation
+                                            }
+                                        }))}>
+                                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
+                                                formData.independentServices.onlineConsultation 
+                                                    ? 'border-primary bg-primary' 
+                                                    : 'border-muted-foreground group-hover:border-primary'
+                                            }`}>
+                                                {formData.independentServices.onlineConsultation && (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                                                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </div>
+                                                    <Label htmlFor="independent.onlineConsultation" className="font-semibold text-foreground">Online Consultation</Label>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">Offer remote consultations via video, audio, or chat.</p>
+                                            </div>
+                                        </div>
+
                                         <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
                                             formData.independentServices.homeConsultation 
                                                 ? 'border-primary bg-primary/10' 
@@ -1061,972 +987,102 @@ function VeterinarianWizard() {
                                                 <p className="text-sm text-muted-foreground">I travel to the patient's home for in-person veterinary care.</p>
                                             </div>
                                         </div>
-                                        
-                                        <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                                            formData.independentServices.onlineConsultation 
-                                                ? 'border-primary bg-primary/10' 
-                                                : 'border-border hover:border-primary/50 bg-card/50'
-                                        }`} onClick={() => setFormData(prev => ({
-                                            ...prev,
-                                            independentServices: {
-                                                ...prev.independentServices,
-                                                onlineConsultation: !prev.independentServices.onlineConsultation
-                                            }
-                                        }))}>
-                                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                                                formData.independentServices.onlineConsultation 
-                                                    ? 'border-primary bg-primary' 
-                                                    : 'border-muted-foreground group-hover:border-primary'
-                                            }`}>
-                                                {formData.independentServices.onlineConsultation && (
-                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                        <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                                                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                        </svg>
-                                                    </div>
-                                                    <Label htmlFor="independent.onlineConsultation" className="font-semibold text-foreground">Online Consultation</Label>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground">I consult via video, phone, or chat for remote veterinary care.</p>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 mt-6">
-                                    <Label className="text-base font-semibold text-foreground">Service Address</Label>
-                                    <div className="p-4 bg-card/20 rounded-lg border border-border/30">
-                                        <label className="flex items-center space-x-3 cursor-pointer">
-                                            <div className={`flex items-center justify-center h-5 w-5 rounded border ${formData.independentServices.serviceAddress.sameAsPersonal ? 'bg-primary border-primary' : 'bg-background border-border'}`}>
-                                                {formData.independentServices.serviceAddress.sameAsPersonal && (
-                                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
+                                {formData.independentServices.homeConsultation && (
+                                    <>
+                                        <div className="space-y-4 mt-6">
+                                            <Label className="text-base font-semibold text-foreground">Service Address</Label>
+                                            <div className="p-4 bg-card/20 rounded-lg border border-border/30">
+                                                <label className="flex items-center space-x-3 cursor-pointer">
+                                                    <div className={`flex items-center justify-center h-5 w-5 rounded border ${formData.independentServices.serviceAddress.sameAsPersonal ? 'bg-primary border-primary' : 'bg-background border-border'}`}>
+                                                        {formData.independentServices.serviceAddress.sameAsPersonal && (
+                                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-sm font-medium text-foreground select-none">
+                                                        Use same address as personal address
+                                                    </span>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="independent.sameAsPersonal" 
+                                                        name="independentServices.serviceAddress.sameAsPersonal" 
+                                                        checked={formData.independentServices.serviceAddress.sameAsPersonal} 
+                                                        onChange={handleInputChange} 
+                                                        className="sr-only" 
+                                                    />
+                                                </label>
+                                                
+                                                {!formData.independentServices.serviceAddress.sameAsPersonal && (
+                                                    <div className="grid grid-cols-1 gap-4 mt-4">
+                                                        <Input 
+                                                            name="independentServices.serviceAddress.street" 
+                                                            value={formData.independentServices.serviceAddress.street} 
+                                                            onChange={handleInputChange} 
+                                                            placeholder="Street Address" 
+                                                            className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                        />
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <Input 
+                                                                name="independentServices.serviceAddress.city" 
+                                                                value={formData.independentServices.serviceAddress.city} 
+                                                                onChange={handleInputChange} 
+                                                                placeholder="City" 
+                                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                            />
+                                                            <Input 
+                                                                name="independentServices.serviceAddress.zip" 
+                                                                value={formData.independentServices.serviceAddress.zip} 
+                                                                onChange={handleInputChange} 
+                                                                placeholder="ZIP Code" 
+                                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 )}
                                             </div>
-                                            <span className="text-sm font-medium text-foreground select-none">
-                                                Use same address as personal address
-                                            </span>
-                                            <input 
-                                                type="checkbox" 
-                                                id="independent.sameAsPersonal" 
-                                                name="independentServices.serviceAddress.sameAsPersonal" 
-                                                checked={formData.independentServices.serviceAddress.sameAsPersonal} 
+                                        </div>
+
+                                        <div className="space-y-3 mt-6">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="independent.homeVisitRadius" className="text-base font-semibold text-foreground">Home Visit Radius (km)</Label>
+                                                <p className="text-sm text-muted-foreground">Required when Home Visit is selected</p>
+                                            </div>
+                                            <Input 
+                                                id="independent.homeVisitRadius" 
+                                                name="independentServices.homeVisitRadius" 
+                                                type="number"
+                                                step="0.1"
+                                                value={formData.independentServices.homeVisitRadius} 
                                                 onChange={handleInputChange} 
-                                                className="sr-only" 
+                                                placeholder="e.g., 10" 
+                                                className="rounded-lg border-border focus:border-primary focus:ring-primary"
                                             />
-                                        </label>
-                                        
-                                        {!formData.independentServices.serviceAddress.sameAsPersonal && (
-                                            <div className="grid grid-cols-1 gap-4 mt-4">
-                                                <Input 
-                                                    name="independentServices.serviceAddress.street" 
-                                                    value={formData.independentServices.serviceAddress.street} 
-                                                    onChange={handleInputChange} 
-                                                    placeholder="Street Address" 
-                                                    className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                />
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <Input 
-                                                        name="independentServices.serviceAddress.city" 
-                                                        value={formData.independentServices.serviceAddress.city} 
-                                                        onChange={handleInputChange} 
-                                                        placeholder="City" 
-                                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                    />
-                                                    <Input 
-                                                        name="independentServices.serviceAddress.zip" 
-                                                        value={formData.independentServices.serviceAddress.zip} 
-                                                        onChange={handleInputChange} 
-                                                        placeholder="ZIP Code" 
-                                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-
-                                <div className="space-y-3 mt-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="independent.homeVisitRadius" className="text-base font-semibold text-foreground">Home Visit Radius (Optional)</Label>
-                                        <p className="text-sm text-muted-foreground">Maximum distance you're willing to travel for home visits</p>
-                                    </div>
-                                    <Input 
-                                        id="independent.homeVisitRadius" 
-                                        name="independentServices.homeVisitRadius" 
-                                        type="number"
-                                        step="0.1"
-                                        value={formData.independentServices.homeVisitRadius} 
-                                        onChange={handleInputChange} 
-                                        placeholder="e.g., 15.5 km radius" 
-                                        className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                    />
-                                </div>
+                                        </div>
+                                    </>
+                                )}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Personal Clinic Section */}
-                        {formData.practiceType.personalClinic && (
-                            <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                                <div className="relative">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-3 bg-primary/20 rounded-xl">
-                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-foreground">Personal Clinic</h3>
-                                    </div>
-                                
-                                <div className="grid grid-cols-1 gap-6">
-                                    <div className="space-y-3">
-                                        <Label htmlFor="clinic.name" className="text-base font-semibold text-foreground">Clinic Name</Label>
-                                        <Input 
-                                            id="clinic.name" 
-                                            name="personalClinicDetails.clinicName" 
-                                            value={formData.personalClinicDetails.clinicName} 
-                                            onChange={handleInputChange} 
-                                            placeholder="Enter your clinic name" 
-                                            className="rounded-lg border-border focus:border-primary focus:ring-primary"
-                                        />
-                                    </div>
+                        {/* (removed Personal Clinic section for simplified Step 4) */}
 
-                                    <div className="space-y-3">
-                                        <Label htmlFor="clinic.address" className="text-base font-semibold text-foreground">Clinic Address</Label>
-                                        <Textarea 
-                                            id="clinic.address" 
-                                            name="personalClinicDetails.clinicAddress" 
-                                            value={formData.personalClinicDetails.clinicAddress} 
-                                            onChange={handleInputChange} 
-                                            placeholder="Enter your clinic address" 
-                                            className="min-h-[100px] rounded-lg border-border focus:border-primary focus:ring-primary"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <Label className="text-base font-semibold text-foreground">Services Offered</Label>
-                                        <div className="grid gap-4">
-                                            <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                                                formData.personalClinicDetails.services.inPersonConsultation 
-                                                    ? 'border-primary bg-primary/10' 
-                                                    : 'border-border hover:border-primary/50 bg-card/50'
-                                            }`} onClick={() => setFormData(prev => ({
-                                                ...prev,
-                                                personalClinicDetails: {
-                                                    ...prev.personalClinicDetails,
-                                                    services: {
-                                                        ...prev.personalClinicDetails.services,
-                                                        inPersonConsultation: !prev.personalClinicDetails.services.inPersonConsultation
-                                                    }
-                                                }
-                                            }))}>
-                                                <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                                                    formData.personalClinicDetails.services.inPersonConsultation 
-                                                        ? 'border-primary bg-primary' 
-                                                        : 'border-muted-foreground group-hover:border-primary'
-                                                }`}>
-                                                    {formData.personalClinicDetails.services.inPersonConsultation && (
-                                                        <div className="absolute inset-0 flex items-center justify-center">
-                                                            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <div className={`p-1.5 rounded-lg ${
-                                                            formData.personalClinicDetails.services.inPersonConsultation 
-                                                                ? 'bg-primary/20' 
-                                                                : 'bg-muted/50 group-hover:bg-primary/10'
-                                                        }`}>
-                                                            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                            </svg>
-                                                        </div>
-                                                        <Label htmlFor="clinic.inPersonConsultation" className="font-semibold text-foreground">Clinic Consultation</Label>
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground">Patients visit your clinic for comprehensive veterinary care.</p>
-                                                </div>
-                                            </div>
-                                            
-                                            
-                                            <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                                                formData.personalClinicDetails.services.onlineConsultation 
-                                                    ? 'border-primary bg-primary/10' 
-                                                    : 'border-border hover:border-primary/50 bg-card/50'
-                                            }`} onClick={() => setFormData(prev => ({
-                                                ...prev,
-                                                personalClinicDetails: {
-                                                    ...prev.personalClinicDetails,
-                                                    services: {
-                                                        ...prev.personalClinicDetails.services,
-                                                        onlineConsultation: !prev.personalClinicDetails.services.onlineConsultation
-                                                    }
-                                                }
-                                            }))}>
-                                                <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                                                    formData.personalClinicDetails.services.onlineConsultation 
-                                                        ? 'border-primary bg-primary' 
-                                                        : 'border-muted-foreground group-hover:border-primary'
-                                                }`}>
-                                                    {formData.personalClinicDetails.services.onlineConsultation && (
-                                                        <div className="absolute inset-0 flex items-center justify-center">
-                                                            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <div className={`p-1.5 rounded-lg ${
-                                                    formData.personalClinicDetails.services.onlineConsultation 
-                                                        ? 'bg-primary/20' 
-                                                        : 'bg-muted/50 group-hover:bg-primary/10'
-                                                }`}>
-                                                            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                            </svg>
-                                                        </div>
-                                                        <Label htmlFor="clinic.onlineConsultation" className="font-semibold text-foreground">Online Consultation</Label>
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground">Virtual consultations via video, phone, or chat.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Affiliated Hospital/Clinic Section */}
-                        {formData.practiceType.affiliated && (
-                            <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                                <div className="relative space-y-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2.5 bg-primary/10 rounded-lg text-primary">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-foreground">Hospital / Clinic Affiliation</h3>
-                                    </div>
-                                
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="affiliated.facilityName" className="text-sm font-medium text-foreground/80">Facility Name</Label>
-                                        <Input 
-                                            id="affiliated.facilityName" 
-                                            name="affiliatedDetails.facilityName" 
-                                            value={formData.affiliatedDetails.facilityName} 
-                                            onChange={handleInputChange} 
-                                            placeholder="Enter hospital/clinic name" 
-                                            className="h-10 rounded-lg bg-background/50 border-border/50 focus-visible:ring-primary/50 focus-visible:ring-offset-0"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="affiliated.affiliationType" className="text-sm font-medium text-foreground/80">Affiliation Type</Label>
-                                        <Select 
-                                            value={formData.affiliatedDetails.affiliationType} 
-                                            onValueChange={(value) => setFormData(prev => ({
-                                                ...prev,
-                                                affiliatedDetails: {
-                                                    ...prev.affiliatedDetails,
-                                                    affiliationType: value
-                                                }
-                                            }))}
-                                        >
-                                            <SelectTrigger className="h-10 rounded-lg bg-background/50 border-border/50 focus:ring-primary/50 focus:ring-offset-0">
-                                                <SelectValue placeholder="Select affiliation type" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-background border-border/50">
-                                                <SelectItem value="Full-time" className="focus:bg-accent/50">Full-time</SelectItem>
-                                                <SelectItem value="Part-time" className="focus:bg-accent/50">Part-time</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-
-                                </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* (removed Affiliated section for simplified Step 4) */}
                         
                         <div className="flex gap-4 items-center pt-6">
                             <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
-                            <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-200 shadow-lg hover:shadow-xl">Next</Button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 5: Service-based Availability Schedule */}
-                {currentStep === 5 && (
-                    <div className="space-y-8">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
-                                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h2 className="text-2xl font-bold mb-2">Set Your Service Availability</h2>
-                            <p className="text-muted-foreground">Configure availability for each service you offer based on your practice type.</p>
-                        </div>
-
-                        {/* Timezone Selection */}
-                        <div className="space-y-4">
-                            <Label className="text-base font-semibold text-foreground">Timezone</Label>
-                            <Select 
-                                value={formData.availabilitySchedule.timezone} 
-                                onValueChange={(value) => setFormData(prev => ({
-                                    ...prev,
-                                    availabilitySchedule: {
-                                        ...prev.availabilitySchedule,
-                                        timezone: value
-                                    }
-                                }))}
-                            >
-                                <SelectTrigger className="h-12 rounded-lg border-border focus:ring-primary/50 focus:ring-offset-0">
-                                    <SelectValue placeholder="Select your timezone" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-background border-border/50">
-                                    <SelectItem value="UTC">UTC (Coordinated Universal Time)</SelectItem>
-                                    <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
-                                    <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
-                                    <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
-                                    <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
-                                    <SelectItem value="Europe/London">London (GMT/BST)</SelectItem>
-                                    <SelectItem value="Europe/Paris">Paris (CET/CEST)</SelectItem>
-                                    <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-                                    <SelectItem value="Asia/Shanghai">Shanghai (CST)</SelectItem>
-                                    <SelectItem value="Asia/Kolkata">India (IST)</SelectItem>
-                                    <SelectItem value="Australia/Sydney">Sydney (AEST/AEDT)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Home Visit Availability */}
-                        {formData.practiceType.independent && formData.independentServices.homeConsultation && (
-                            <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                                <div className="relative">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-3 bg-primary/20 rounded-xl">
-                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-foreground">Home Visit Availability</h3>
-                                    </div>
-
-                                    {/* Home Visit Working Days */}
-                                    <div className="space-y-4 mb-6">
-                                        <Label className="text-base font-semibold text-foreground">Working Days</Label>
-                                        <div className="space-y-3">
-                                            {Object.entries(formData.availabilitySchedule.homeVisitAvailability.workingDays).map(([day, dayData]) => (
-                                                <div key={day} className="p-4 border-2 border-border rounded-xl bg-card/30 hover:bg-card/50 transition-all duration-200">
-                                                    <div className="flex items-center justify-between mb-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                                                dayData.enabled 
-                                                                    ? 'border-primary bg-primary' 
-                                                                    : 'border-muted-foreground'
-                                                            }`}>
-                                                                {dayData.enabled && (
-                                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                                        <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                        </svg>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <h4 className="text-lg font-semibold text-foreground capitalize">{day}</h4>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setFormData(prev => ({
-                                                                ...prev,
-                                                                availabilitySchedule: {
-                                                                    ...prev.availabilitySchedule,
-                                                                    homeVisitAvailability: {
-                                                                        ...prev.availabilitySchedule.homeVisitAvailability,
-                                                                        workingDays: {
-                                                                            ...prev.availabilitySchedule.homeVisitAvailability.workingDays,
-                                                                            [day]: {
-                                                                                ...prev.availabilitySchedule.homeVisitAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.homeVisitAvailability.workingDays],
-                                                                                enabled: !prev.availabilitySchedule.homeVisitAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.homeVisitAvailability.workingDays].enabled
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }))}
-                                                            className="text-sm text-primary hover:text-primary/80 font-medium"
-                                                        >
-                                                            {dayData.enabled ? 'Disable' : 'Enable'}
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    {dayData.enabled && (
-                                                        <div className="grid grid-cols-3 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">Start Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.startTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            homeVisitAvailability: {
-                                                                                ...prev.availabilitySchedule.homeVisitAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.homeVisitAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.homeVisitAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.homeVisitAvailability.workingDays],
-                                                                                        startTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select start time"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">End Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.endTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            homeVisitAvailability: {
-                                                                                ...prev.availabilitySchedule.homeVisitAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.homeVisitAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.homeVisitAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.homeVisitAvailability.workingDays],
-                                                                                        endTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select end time"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">Max Distance (km)</Label>
-                                                                <Input 
-                                                                    type="number"
-                                                                    min="1"
-                                                                    max="100"
-                                                                    value={dayData.maxDistance}
-                                                                    onChange={(e) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            homeVisitAvailability: {
-                                                                                ...prev.availabilitySchedule.homeVisitAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.homeVisitAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.homeVisitAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.homeVisitAvailability.workingDays],
-                                                                                        maxDistance: parseInt(e.target.value) || 20
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Home Visit Settings */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Duration (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="30"
-                                                max="120"
-                                                step="15"
-                                                value={formData.availabilitySchedule.homeVisitAvailability.consultationDuration}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        homeVisitAvailability: {
-                                                            ...prev.availabilitySchedule.homeVisitAvailability,
-                                                            consultationDuration: parseInt(e.target.value) || 45
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Buffer Time (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="15"
-                                                max="60"
-                                                step="5"
-                                                value={formData.availabilitySchedule.homeVisitAvailability.bufferTime}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        homeVisitAvailability: {
-                                                            ...prev.availabilitySchedule.homeVisitAvailability,
-                                                            bufferTime: parseInt(e.target.value) || 30
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Advance Booking (days)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="1"
-                                                max="30"
-                                                value={formData.availabilitySchedule.homeVisitAvailability.advanceBookingDays}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        homeVisitAvailability: {
-                                                            ...prev.availabilitySchedule.homeVisitAvailability,
-                                                            advanceBookingDays: parseInt(e.target.value) || 14
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Clinic Availability */}
-                        {((formData.practiceType.personalClinic && formData.personalClinicDetails.services.inPersonConsultation) || 
-                          (formData.practiceType.affiliated && formData.affiliatedDetails.affiliationType)) && (
-                            <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                                <div className="relative">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-3 bg-primary/20 rounded-xl">
-                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-foreground">Clinic Consultation Availability</h3>
-                                    </div>
-
-                                    {/* Clinic Working Days */}
-                                    <div className="space-y-4 mb-6">
-                                        <Label className="text-base font-semibold text-foreground">Working Days</Label>
-                                        <div className="space-y-3">
-                                            {Object.entries(formData.availabilitySchedule.clinicAvailability.workingDays).map(([day, dayData]) => (
-                                                <div key={day} className="p-4 border-2 border-border rounded-xl bg-card/30 hover:bg-card/50 transition-all duration-200">
-                                                    <div className="flex items-center justify-between mb-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                                                dayData.enabled 
-                                                                    ? 'border-primary bg-primary' 
-                                                                    : 'border-muted-foreground'
-                                                            }`}>
-                                                                {dayData.enabled && (
-                                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                                        <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                        </svg>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <h4 className="text-lg font-semibold text-foreground capitalize">{day}</h4>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setFormData(prev => ({
-                                                                ...prev,
-                                                                availabilitySchedule: {
-                                                                    ...prev.availabilitySchedule,
-                                                                    clinicAvailability: {
-                                                                        ...prev.availabilitySchedule.clinicAvailability,
-                                                                        workingDays: {
-                                                                            ...prev.availabilitySchedule.clinicAvailability.workingDays,
-                                                                            [day]: {
-                                                                                ...prev.availabilitySchedule.clinicAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.clinicAvailability.workingDays],
-                                                                                enabled: !prev.availabilitySchedule.clinicAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.clinicAvailability.workingDays].enabled
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }))}
-                                                            className="text-sm text-primary hover:text-primary/80 font-medium"
-                                                        >
-                                                            {dayData.enabled ? 'Disable' : 'Enable'}
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    {dayData.enabled && (
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">Start Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.startTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            clinicAvailability: {
-                                                                                ...prev.availabilitySchedule.clinicAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.clinicAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.clinicAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.clinicAvailability.workingDays],
-                                                                                        startTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select start time"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">End Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.endTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            clinicAvailability: {
-                                                                                ...prev.availabilitySchedule.clinicAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.clinicAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.clinicAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.clinicAvailability.workingDays],
-                                                                                        endTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select end time"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Clinic Settings */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Duration (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="15"
-                                                max="60"
-                                                step="15"
-                                                value={formData.availabilitySchedule.clinicAvailability.consultationDuration}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        clinicAvailability: {
-                                                            ...prev.availabilitySchedule.clinicAvailability,
-                                                            consultationDuration: parseInt(e.target.value) || 30
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Buffer Time (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="5"
-                                                max="30"
-                                                step="5"
-                                                value={formData.availabilitySchedule.clinicAvailability.bufferTime}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        clinicAvailability: {
-                                                            ...prev.availabilitySchedule.clinicAvailability,
-                                                            bufferTime: parseInt(e.target.value) || 15
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Advance Booking (days)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="1"
-                                                max="90"
-                                                value={formData.availabilitySchedule.clinicAvailability.advanceBookingDays}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        clinicAvailability: {
-                                                            ...prev.availabilitySchedule.clinicAvailability,
-                                                            advanceBookingDays: parseInt(e.target.value) || 30
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Online Consultation Availability */}
-                        {((formData.practiceType.independent && formData.independentServices.onlineConsultation) || 
-                          (formData.practiceType.personalClinic && formData.personalClinicDetails.services.onlineConsultation)) && (
-                            <div className="relative overflow-hidden p-6 border-2 border-primary/20 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 dark:from-card/80 dark:to-card/60 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                                <div className="relative">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-3 bg-primary/20 rounded-xl">
-                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-foreground">Online Consultation Availability</h3>
-                                    </div>
-
-                                    {/* Online Working Days */}
-                                    <div className="space-y-4 mb-6">
-                                        <Label className="text-base font-semibold text-foreground">Working Days</Label>
-                                        <div className="space-y-3">
-                                            {Object.entries(formData.availabilitySchedule.onlineAvailability.workingDays).map(([day, dayData]) => (
-                                                <div key={day} className="p-4 border-2 border-border rounded-xl bg-card/30 hover:bg-card/50 transition-all duration-200">
-                                                    <div className="flex items-center justify-between mb-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`relative flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                                                                dayData.enabled 
-                                                                    ? 'border-primary bg-primary' 
-                                                                    : 'border-muted-foreground'
-                                                            }`}>
-                                                                {dayData.enabled && (
-                                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                                        <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                        </svg>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <h4 className="text-lg font-semibold text-foreground capitalize">{day}</h4>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setFormData(prev => ({
-                                                                ...prev,
-                                                                availabilitySchedule: {
-                                                                    ...prev.availabilitySchedule,
-                                                                    onlineAvailability: {
-                                                                        ...prev.availabilitySchedule.onlineAvailability,
-                                                                        workingDays: {
-                                                                            ...prev.availabilitySchedule.onlineAvailability.workingDays,
-                                                                            [day]: {
-                                                                                ...prev.availabilitySchedule.onlineAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.onlineAvailability.workingDays],
-                                                                                enabled: !prev.availabilitySchedule.onlineAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.onlineAvailability.workingDays].enabled
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }))}
-                                                            className="text-sm text-primary hover:text-primary/80 font-medium"
-                                                        >
-                                                            {dayData.enabled ? 'Disable' : 'Enable'}
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    {dayData.enabled && (
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">Start Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.startTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            onlineAvailability: {
-                                                                                ...prev.availabilitySchedule.onlineAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.onlineAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.onlineAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.onlineAvailability.workingDays],
-                                                                                        startTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select start time"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-sm font-medium text-foreground/80">End Time</Label>
-                                                                <TimePicker
-                                                                    value={dayData.endTime}
-                                                                    onChange={(value) => setFormData(prev => ({
-                                                                        ...prev,
-                                                                        availabilitySchedule: {
-                                                                            ...prev.availabilitySchedule,
-                                                                            onlineAvailability: {
-                                                                                ...prev.availabilitySchedule.onlineAvailability,
-                                                                                workingDays: {
-                                                                                    ...prev.availabilitySchedule.onlineAvailability.workingDays,
-                                                                                    [day]: {
-                                                                                        ...prev.availabilitySchedule.onlineAvailability.workingDays[day as keyof typeof prev.availabilitySchedule.onlineAvailability.workingDays],
-                                                                                        endTime: value
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }))}
-                                                                    placeholder="Select end time"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Online Settings */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Duration (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="15"
-                                                max="45"
-                                                step="5"
-                                                value={formData.availabilitySchedule.onlineAvailability.consultationDuration}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        onlineAvailability: {
-                                                            ...prev.availabilitySchedule.onlineAvailability,
-                                                            consultationDuration: parseInt(e.target.value) || 25
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Buffer Time (min)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="5"
-                                                max="20"
-                                                step="5"
-                                                value={formData.availabilitySchedule.onlineAvailability.bufferTime}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        onlineAvailability: {
-                                                            ...prev.availabilitySchedule.onlineAvailability,
-                                                            bufferTime: parseInt(e.target.value) || 10
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-foreground/80">Advance Booking (days)</Label>
-                                            <Input 
-                                                type="number"
-                                                min="1"
-                                                max="14"
-                                                value={formData.availabilitySchedule.onlineAvailability.advanceBookingDays}
-                                                onChange={(e) => setFormData(prev => ({
-                                                    ...prev,
-                                                    availabilitySchedule: {
-                                                        ...prev.availabilitySchedule,
-                                                        onlineAvailability: {
-                                                            ...prev.availabilitySchedule.onlineAvailability,
-                                                            advanceBookingDays: parseInt(e.target.value) || 7
-                                                        }
-                                                    }
-                                                }))}
-                                                className="h-10 rounded-lg border-border focus:border-primary focus:ring-primary"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="flex gap-4 items-center pt-6">
-                            <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
-                            <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-200 shadow-lg hover:shadow-xl">Next</Button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Step 6: Review & Submit */}
-                {currentStep === 6 && (
-                    <div className="space-y-4">
-                        <h2 className="text-2xl font-semibold mb-4">Review & Submit</h2>
-                        <p className="text-muted-foreground mb-6">Review your information before submitting.</p>
-                        {/* Add review details here */}
-                        <div className="flex gap-3 items-center">
-                            <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1">Back</Button>
                             <Button type="button" onClick={handleSubmit} disabled={isLoading} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50">
                             {isLoading ? (
-                                <div className="flex items-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>Creating account...</div>
-                            ) : 'Create account'}
+                                    <div className="flex items-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>Submitting...</div>
+                                ) : 'Finish registration'}
                             </Button>
                         </div>
                     </div>
                 )}
+
+                {/* (removed review step) */}
 
 
             </div>
