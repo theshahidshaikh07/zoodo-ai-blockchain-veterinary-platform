@@ -19,7 +19,6 @@ public class HealthController {
         healthData.put("service", "Zoodo Backend");
         healthData.put("version", "1.0.0");
         healthData.put("timestamp", LocalDateTime.now());
-        
         return ResponseEntity.ok(new ApiResponse<>(true, "Service is healthy", healthData));
     }
 
@@ -27,4 +26,4 @@ public class HealthController {
     public ResponseEntity<ApiResponse<String>> home() {
         return ResponseEntity.ok(new ApiResponse<>(true, "Zoodo Backend API", "Welcome to Zoodo Backend API"));
     }
-} 
+}

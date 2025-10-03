@@ -171,10 +171,21 @@ class ApiService {
     });
   }
 
-  async registerUser(userData: FormData): Promise<ApiResponse<User>> {
+  async registerUser(userData: FormData | Record<string, unknown>): Promise<ApiResponse<User>> {
+    // Route JSON vs multipart requests to appropriate endpoints
+    const isForm = typeof FormData !== 'undefined' && userData instanceof FormData;
+    if (isForm) {
+      const form = userData as FormData;
+      const isVetMultipart = form.has('licenseNumber') || form.has('licenseProof') || form.has('independentServices') || form.has('availabilitySchedule');
+      const endpoint = isVetMultipart ? '/users/register/veterinarian' : '/users/register';
+      return this.request<User>(endpoint, {
+        method: 'POST',
+        body: form,
+      });
+    }
     return this.request<User>('/users/register', {
       method: 'POST',
-      body: userData,
+      body: JSON.stringify(userData),
     });
   }
 
@@ -182,9 +193,10 @@ class ApiService {
     usernameOrEmail: string;
     password: string;
   }): Promise<ApiResponse<string>> {
+    // Backend expects { email, password }
     const response = await this.request<string>('/users/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
+      body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
     });
     
     // Store JWT token if login is successful

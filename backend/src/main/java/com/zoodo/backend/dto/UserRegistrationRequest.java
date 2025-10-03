@@ -22,6 +22,9 @@ public class UserRegistrationRequest {
     
     @NotBlank(message = "User type is required")
     private String userType;
+
+    @NotBlank(message = "Username is required")
+    private String username;
     
     private String phone;
     private String specialization;
@@ -85,6 +88,14 @@ public class UserRegistrationRequest {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPhone() {

@@ -25,7 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 
-type ServiceType = 'clinic' | 'home' | 'online';
+type ServiceType = 'clinic' | 'online';
 
 interface AvailabilitySlot {
   id: string;
@@ -47,7 +47,7 @@ interface AppointmentItem {
   owner: string;
   date: string; // ISO date
   time: string; // HH:mm
-  service: Extract<ServiceType, 'home' | 'online'>;
+  service: ServiceType;
   status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'in-progress';
 }
 
@@ -72,11 +72,10 @@ function formatHumanTime(time24h: string): string {
   }
 }
 
-export default function VetDashboardPage() {
+export default function HospitalDashboardPage() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Availability state kept locally for now; later this should come from backend
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<AvailabilitySlot | null>(null);
@@ -85,15 +84,15 @@ export default function VetDashboardPage() {
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [reports, setReports] = useState<ReportItem[]>([]);
 
-  // Individual veterinarian account: only Online and Home Visit
-  const allowedServices = useMemo<ServiceType[]>(() => ['home', 'online'], []);
+  // Business facility: Online and Clinic/Hospital
+  const allowedServices = useMemo<ServiceType[]>(() => ['clinic', 'online'], []);
 
   useEffect(() => setMounted(true), []);
 
   // Load saved availability from localStorage on first mount
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('vetAvailabilitySlots');
+      const raw = localStorage.getItem('hospitalAvailabilitySlots');
       if (raw) {
         const parsed = JSON.parse(raw) as AvailabilitySlot[];
         if (Array.isArray(parsed)) setSlots(parsed);
@@ -104,7 +103,7 @@ export default function VetDashboardPage() {
   // Persist slots
   useEffect(() => {
     try {
-      localStorage.setItem('vetAvailabilitySlots', JSON.stringify(slots));
+      localStorage.setItem('hospitalAvailabilitySlots', JSON.stringify(slots));
     } catch {}
   }, [slots]);
 
@@ -116,9 +115,9 @@ export default function VetDashboardPage() {
     const tomorrowIso = tomorrow.toISOString().slice(0, 10);
     setAppointments([
       { id: crypto.randomUUID(), petName: 'Buddy', species: 'Dog', owner: 'John Smith', date: todayIso, time: '10:00', service: 'online', status: 'confirmed' },
-      { id: crypto.randomUUID(), petName: 'Whiskers', species: 'Cat', owner: 'Sarah Johnson', date: todayIso, time: '11:30', service: 'home', status: 'scheduled' },
+      { id: crypto.randomUUID(), petName: 'Whiskers', species: 'Cat', owner: 'Sarah Johnson', date: todayIso, time: '11:30', service: 'clinic', status: 'scheduled' },
       { id: crypto.randomUUID(), petName: 'Coco', species: 'Parrot', owner: 'Anita Rao', date: tomorrowIso, time: '09:15', service: 'online', status: 'scheduled' },
-      { id: crypto.randomUUID(), petName: 'Max', species: 'Dog', owner: 'Karan Mehta', date: tomorrowIso, time: '14:00', service: 'home', status: 'scheduled' },
+      { id: crypto.randomUUID(), petName: 'Max', species: 'Dog', owner: 'Karan Mehta', date: tomorrowIso, time: '14:00', service: 'clinic', status: 'scheduled' },
     ]);
     setReports([
       { id: crypto.randomUUID(), petName: 'Buddy', owner: 'John Smith', date: todayIso, summary: 'Dermatitis check, topical ointment prescribed', status: 'finalized' },
@@ -151,7 +150,6 @@ export default function VetDashboardPage() {
 
   const saveDraft = () => {
     if (!draft) return;
-    // Basic validation: dates, times, days, allowed service
     if (!allowedServices.includes(draft.service)) {
       setDraftError('Selected service is not available for this account.');
       return;
@@ -209,14 +207,14 @@ export default function VetDashboardPage() {
               height={32}
               className="w-auto h-5"
             />
-            <Badge variant="secondary" className="hidden sm:inline-flex">Dashboard</Badge>
+            <Badge variant="secondary" className="hidden sm:inline-flex">Hospital Dashboard</Badge>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon"><Bell className="h-5 w-5"/></Button>
             <Button variant="ghost" size="icon"><Settings className="h-5 w-5"/></Button>
             <Avatar>
               <AvatarImage src="/api/placeholder/40/40" />
-              <AvatarFallback>DR</AvatarFallback>
+              <AvatarFallback>HC</AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -227,7 +225,7 @@ export default function VetDashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-muted-foreground">Manage your services and appointments with ease.</p>
+            <p className="text-sm text-muted-foreground">Manage your facility services and appointments.</p>
           </div>
           <div className="flex gap-2">
             {allowedServices.includes('online') && (
@@ -251,7 +249,7 @@ export default function VetDashboardPage() {
               <StatCard title="Today" value="0" icon={<Calendar className="h-4 w-4"/>} note="appointments" />
               <StatCard title="Completed" value="0" icon={<Check className="h-4 w-4"/>} note="today" />
               <StatCard title="Pending" value="0" icon={<Clock className="h-4 w-4"/>} note="upcoming" />
-              <StatCard title="Services" value={String(allowedServices.length)} icon={<Stethoscope className="h-4 w-4"/>} note="Individual vet" />
+              <StatCard title="Services" value={String(allowedServices.length)} icon={<Stethoscope className="h-4 w-4"/>} note="Facility account" />
             </div>
 
             <Card>
@@ -268,7 +266,7 @@ export default function VetDashboardPage() {
                       <div key={a.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <div className="font-medium">{a.petName} • {a.species}</div>
-                          <div className="text-xs text-muted-foreground">{a.owner} • {a.service === 'online' ? 'Online' : 'Home visit'}</div>
+                          <div className="text-xs text-muted-foreground">{a.owner} • {a.service === 'online' ? 'Online' : 'Clinic/Hospital'}</div>
                         </div>
                         <div className="text-sm">{formatHumanTime(a.time)}</div>
                       </div>
@@ -284,7 +282,7 @@ export default function VetDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold">Manage Availability</h3>
-                <p className="text-sm text-muted-foreground">Create windows when pet owners can book you.</p>
+                <p className="text-sm text-muted-foreground">Create windows when pet owners can book your facility.</p>
               </div>
               <Button onClick={openCreateModal} className="gap-2"><Plus className="h-4 w-4"/>Add new slot</Button>
             </div>
@@ -292,7 +290,7 @@ export default function VetDashboardPage() {
             {slots.length === 0 ? (
               <Card>
                 <CardContent className="py-16">
-                  <EmptyState label="You have no available slots. Create one to get new appointments." actionLabel="Add Availability" onAction={openCreateModal} />
+                  <EmptyState label="You have no available slots. Create one to accept new bookings." actionLabel="Add Availability" onAction={openCreateModal} />
                 </CardContent>
               </Card>
             ) : (
@@ -347,7 +345,7 @@ export default function VetDashboardPage() {
                         <span className="text-xs rounded-full px-2 py-1 border">{a.status}</span>
                       </div>
                       <div className="mt-1 text-sm text-muted-foreground">Owner: {a.owner}</div>
-                      <div className="mt-2 text-sm">{a.date} • {formatHumanTime(a.time)} • {a.service==='online'?'Online':'Home visit'}</div>
+                      <div className="mt-2 text-sm">{a.date} • {formatHumanTime(a.time)} • {a.service==='online'?'Online':'Clinic/Hospital'}</div>
                     </div>
                   ))}
                 </div>
@@ -391,7 +389,7 @@ export default function VetDashboardPage() {
             </div>
             <div className="p-5 space-y-5">
               <div className="flex gap-2 flex-wrap">
-                {(['home','online'] as ServiceType[]).map(s=> (
+                {(['clinic','online'] as ServiceType[]).map(s=> (
                   <button
                     key={s}
                     disabled={!allowedServices.includes(s)}
@@ -500,8 +498,6 @@ function ServiceIcon({ service }: { service: ServiceType }) {
   switch (service) {
     case 'clinic':
       return <Home className="h-3.5 w-3.5" />;
-    case 'home':
-      return <Home className="h-3.5 w-3.5" />;
     case 'online':
       return <Video className="h-3.5 w-3.5" />;
   }
@@ -510,10 +506,10 @@ function ServiceIcon({ service }: { service: ServiceType }) {
 function ServiceLabel({ service }: { service: ServiceType }) {
   switch (service) {
     case 'clinic':
-      return <>Clinic consultation</>;
-    case 'home':
-      return <>Home visit</>;
+      return <>Clinic/Hospital</>;
     case 'online':
       return <>Online consultation</>;
   }
 }
+
+

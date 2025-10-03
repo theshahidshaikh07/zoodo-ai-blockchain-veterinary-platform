@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -23,12 +24,81 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.zoodo.backend.service.FileStorageService fileStorageService;
+
+    @Autowired
+    private com.zoodo.backend.repository.VetProfileRepository vetProfileRepository;
+
     // Public endpoints (no authentication required)
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
         try {
             User user = userService.registerUser(request);
             return ResponseEntity.ok(new ApiResponse<>(true, "User registered successfully", user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+    // Veterinarian multipart registration (accepts files but persists only text fields for now)
+    @PostMapping(value = "/register/veterinarian", consumes = { "multipart/form-data" })
+    public ResponseEntity<ApiResponse<User>> registerVeterinarian(
+            @RequestPart("username") String username,
+            @RequestPart("firstName") String firstName,
+            @RequestPart("lastName") String lastName,
+            @RequestPart("email") String email,
+            @RequestPart("password") String password,
+            @RequestPart(value = "phoneNumber", required = false) String phoneNumber,
+            @RequestPart(value = "address", required = false) String address,
+            @RequestPart(value = "licenseNumber", required = false) String licenseNumber,
+            @RequestPart(value = "specialization", required = false) java.util.List<String> specializationItems,
+            @RequestPart(value = "qualifications", required = false) java.util.List<String> qualificationsItems,
+            @RequestPart(value = "independentServices", required = false) String independentServicesJson,
+            @RequestPart(value = "availabilitySchedule", required = false) String availabilityScheduleJson,
+            @RequestPart(value = "licenseProof", required = false) MultipartFile licenseProof,
+            @RequestPart(value = "idProof", required = false) MultipartFile idProof,
+            @RequestPart(value = "degreeProof", required = false) MultipartFile degreeProof,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
+    ) {
+        try {
+            UserRegistrationRequest request = new UserRegistrationRequest();
+            request.setEmail(email);
+            request.setUsername(username);
+            request.setPassword(password);
+            request.setFirstName(firstName);
+            request.setLastName(lastName);
+            request.setUserType("veterinarian");
+            request.setPhone(phoneNumber);
+            request.setAddress(address);
+            request.setLicenseNumber(licenseNumber);
+            if (specializationItems != null && !specializationItems.isEmpty()) {
+                request.setSpecialization(String.join(", ", specializationItems));
+            }
+            User user = userService.registerUser(request);
+
+            String baseDir = "vets/" + user.getId();
+            String licensePath = fileStorageService.store(baseDir, licenseProof);
+            String idPath = fileStorageService.store(baseDir, idProof);
+            String degreePath = fileStorageService.store(baseDir, degreeProof);
+            String photoPath = fileStorageService.store(baseDir, profilePhoto);
+
+            com.zoodo.backend.model.VetProfile profile = new com.zoodo.backend.model.VetProfile();
+            profile.setUser(user);
+            profile.setLicenseNumber(licenseNumber);
+            if (specializationItems != null && !specializationItems.isEmpty()) {
+                profile.setSpecializations(String.join(", ", specializationItems));
+            }
+            if (qualificationsItems != null && !qualificationsItems.isEmpty()) {
+                profile.setQualifications(String.join(", ", qualificationsItems));
+            }
+            profile.setLicenseProofPath(licensePath);
+            profile.setIdProofPath(idPath);
+            profile.setDegreeProofPath(degreePath);
+            profile.setProfilePhotoPath(photoPath);
+            vetProfileRepository.save(profile);
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Veterinarian registered successfully", user));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         }
@@ -114,7 +184,7 @@ public class UserController {
 
     // Protected endpoints (require authentication)
     @GetMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<User>> getCurrentUserProfile() {
         try {
             User user = userService.getCurrentUser();
@@ -125,7 +195,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<User>> updateUserProfile(@Valid @RequestBody UserUpdateRequest request) {
         try {
             User updatedUser = userService.updateUserProfile(request);
@@ -151,6 +221,16 @@ public class UserController {
         try {
             User provider = userService.getProviderById(providerId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Provider retrieved successfully", provider));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/providers/{providerId}/profile")
+    public ResponseEntity<ApiResponse<com.zoodo.backend.dto.ProviderProfileResponse>> getProviderProfile(@PathVariable UUID providerId) {
+        try {
+            com.zoodo.backend.dto.ProviderProfileResponse resp = userService.getProviderProfile(providerId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Provider profile retrieved successfully", resp));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         }

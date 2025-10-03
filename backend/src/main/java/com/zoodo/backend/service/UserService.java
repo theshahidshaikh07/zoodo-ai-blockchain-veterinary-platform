@@ -1,12 +1,17 @@
 package com.zoodo.backend.service;
 
 import com.zoodo.backend.model.User;
+import com.zoodo.backend.model.VetProfile;
 import com.zoodo.backend.repository.UserRepository;
+import com.zoodo.backend.repository.VetProfileRepository;
+import com.zoodo.backend.dto.ProviderProfileResponse;
 import com.zoodo.backend.dto.UserRegistrationRequest;
 import com.zoodo.backend.dto.UserLoginRequest;
 import com.zoodo.backend.dto.UserUpdateRequest;
 import com.zoodo.backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,9 @@ public class UserService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private VetProfileRepository vetProfileRepository;
 
     // New CRUD methods for frontend
     public List<User> getAllUsers() {
@@ -59,12 +67,16 @@ public class UserService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
+        if (request.getUsername() != null && userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already taken");
+        }
         
         // Create new user
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword())); // Hash password
         user.setUserType(User.UserType.valueOf(request.getUserType().toUpperCase()));
         user.setPhone(request.getPhone());
@@ -97,8 +109,13 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        // TODO: Implement get current user logic
-        throw new UnsupportedOperationException("Get current user not implemented yet");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new RuntimeException("Unauthenticated");
+        }
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User updateUserProfile(UserUpdateRequest request) {
@@ -117,8 +134,8 @@ public class UserService {
     }
 
     public User getProviderById(UUID providerId) {
-        // TODO: Implement get provider by ID logic
-        throw new UnsupportedOperationException("Get provider by ID not implemented yet");
+        return userRepository.findById(providerId)
+            .orElseThrow(() -> new RuntimeException("Provider not found"));
     }
 
     public User verifyUser(UUID userId) {
@@ -136,5 +153,31 @@ public class UserService {
     public List<User> searchUsers(String query, String userType) {
         // TODO: Implement search users logic
         throw new UnsupportedOperationException("Search users not implemented yet");
+    }
+
+    public ProviderProfileResponse getProviderProfile(UUID providerId) {
+        User user = getProviderById(providerId);
+        VetProfile vet = vetProfileRepository.findByUserId(providerId).orElse(null);
+        ProviderProfileResponse resp = new ProviderProfileResponse();
+        resp.setId(user.getId().toString());
+        resp.setFirstName(user.getFirstName());
+        resp.setLastName(user.getLastName());
+        resp.setEmail(user.getEmail());
+        resp.setUsername(user.getUsername());
+        resp.setPhone(user.getPhone());
+        resp.setAddress(user.getAddress());
+        resp.setUserType(user.getUserType().name());
+        if (vet != null) {
+            resp.setSpecializations(vet.getSpecializations());
+            resp.setQualifications(vet.getQualifications());
+            resp.setLicenseNumber(vet.getLicenseNumber());
+            resp.setLicenseProofPath(vet.getLicenseProofPath());
+            resp.setIdProofPath(vet.getIdProofPath());
+            resp.setDegreeProofPath(vet.getDegreeProofPath());
+            resp.setProfilePhotoPath(vet.getProfilePhotoPath());
+        } else {
+            resp.setSpecializations(user.getSpecialization());
+        }
+        return resp;
     }
 } 
