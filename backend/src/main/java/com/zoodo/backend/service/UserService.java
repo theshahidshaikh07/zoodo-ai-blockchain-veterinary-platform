@@ -77,12 +77,11 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Hash password
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword())); // Hash password
         user.setUserType(User.UserType.valueOf(request.getUserType().toUpperCase()));
         user.setPhone(request.getPhone());
         user.setAddress(request.getAddress());
-        user.setSpecialization(request.getSpecialization());
-        user.setExperience(request.getLicenseNumber()); // Using licenseNumber as experience for now
+        // Specialization and experience are handled in specific user type models
         user.setIsVerified(false);
         user.setIsActive(true);
         
@@ -95,7 +94,7 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("Invalid email or password"));
         
         // Verify password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Invalid email or password");
         }
         
@@ -176,7 +175,7 @@ public class UserService {
             resp.setDegreeProofPath(vet.getDegreeProofPath());
             resp.setProfilePhotoPath(vet.getProfilePhotoPath());
         } else {
-            resp.setSpecializations(user.getSpecialization());
+            // Specializations are handled in specific user type models
         }
         return resp;
     }

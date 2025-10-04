@@ -1,236 +1,260 @@
-version: '3.8'
+# ===================================================================
+# 🐳 DOCKER COMPOSE CONFIGURATION - TEMPORARILY DISABLED
+# ===================================================================
+# 
+# This Docker Compose file is currently commented out for development.
+# We will enable Docker after completing the project development.
+#
+# 🚀 TO ENABLE DOCKER LATER:
+# 1. Uncomment all the services below
+# 2. Run: docker-compose up -d
+# 3. Access services at:
+#    - Frontend: http://localhost:3000
+#    - Backend API: http://localhost:8080
+#    - AI Service: http://localhost:8000
+#    - Database: localhost:5432
+#
+# 📝 CURRENT DEVELOPMENT SETUP:
+# - Use local PostgreSQL database
+# - Run backend with: ./mvnw spring-boot:run
+# - Run frontend with: npm run dev
+# - Database setup: See db/init.sql
+#
+# ===================================================================
 
-services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: zoodo_postgres
-    environment:
-      POSTGRES_DB: zoodo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# version: '3.8'
 
-  # MongoDB Database for AI Service
-  mongodb:
-    image: mongo:7.0
-    container_name: zoodo_mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: zoodo_ai
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# services:
+#   # PostgreSQL Database
+#   postgres:
+#     image: postgres:15-alpine
+#     container_name: zoodo_postgres
+#     environment:
+#       POSTGRES_DB: zoodo
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: password
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Redis for caching
-  redis:
-    image: redis:7-alpine
-    container_name: zoodo_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # MongoDB Database for AI Service
+#   mongodb:
+#     image: mongo:7.0
+#     container_name: zoodo_mongodb
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: admin
+#       MONGO_INITDB_ROOT_PASSWORD: password
+#       MONGO_INITDB_DATABASE: zoodo_ai
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongodb_data:/data/db
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Java Spring Boot Backend
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: zoodo_backend
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zoodo
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      AI_SERVICE_URL: http://ai_service:8000
-      BLOCKCHAIN_NETWORK_URL: http://blockchain:8545
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # Redis for caching
+#   redis:
+#     image: redis:7-alpine
+#     container_name: zoodo_redis
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # AI Service (Python FastAPI)
-  ai_service:
-    build:
-      context: ./ai_service
-      dockerfile: Dockerfile
-    container_name: zoodo_ai_service
-    environment:
-      # MongoDB Configuration
-      MONGO_URI: mongodb://admin:password@mongodb:27017/zoodo_ai?authSource=admin
-      MONGO_DB_NAME: zoodo_ai
-      # Redis Configuration
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 0
-      # Other configurations
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      BACKEND_URL: http://backend:8080
-      BLOCKCHAIN_NETWORK_URL: http://blockchain:8545
-    ports:
-      - "8000:8000"
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # Java Spring Boot Backend
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     container_name: zoodo_backend
+#     environment:
+#       SPRING_PROFILES_ACTIVE: docker
+#       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zoodo
+#       SPRING_DATASOURCE_USERNAME: postgres
+#       SPRING_DATASOURCE_PASSWORD: password
+#       SPRING_REDIS_HOST: redis
+#       SPRING_REDIS_PORT: 6379
+#       JWT_SECRET: your-super-secret-jwt-key-change-in-production
+#       AI_SERVICE_URL: http://ai_service:8000
+#       BLOCKCHAIN_NETWORK_URL: http://blockchain:8545
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#       redis:
+#         condition: service_healthy
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Frontend (Next.js)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: zoodo_frontend
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
-      NEXT_PUBLIC_AI_SERVICE_URL: http://localhost:8000
-      NEXT_PUBLIC_BLOCKCHAIN_NETWORK_URL: http://localhost:8545
-    ports:
-      - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
-      ai_service:
-        condition: service_healthy
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # AI Service (Python FastAPI)
+#   ai_service:
+#     build:
+#       context: ./ai_service
+#       dockerfile: Dockerfile
+#     container_name: zoodo_ai_service
+#     environment:
+#       # MongoDB Configuration
+#       MONGO_URI: mongodb://admin:password@mongodb:27017/zoodo_ai?authSource=admin
+#       MONGO_DB_NAME: zoodo_ai
+#       # Redis Configuration
+#       REDIS_HOST: redis
+#       REDIS_PORT: 6379
+#       REDIS_DB: 0
+#       # Other configurations
+#       OPENAI_API_KEY: ${OPENAI_API_KEY}
+#       JWT_SECRET: your-super-secret-jwt-key-change-in-production
+#       BACKEND_URL: http://backend:8080
+#       BLOCKCHAIN_NETWORK_URL: http://blockchain:8545
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       mongodb:
+#         condition: service_healthy
+#       redis:
+#         condition: service_healthy
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Blockchain Network (Hardhat)
-  blockchain:
-    build:
-      context: ./blockchain
-      dockerfile: Dockerfile
-    container_name: zoodo_blockchain
-    environment:
-      HARDHAT_NETWORK: localhost
-    ports:
-      - "8545:8545"
-    volumes:
-      - blockchain_data:/app/data
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-X", "POST", "-H", "Content-Type: application/json", "--data", '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}', "http://localhost:8545"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # Frontend (Next.js)
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     container_name: zoodo_frontend
+#     environment:
+#       NEXT_PUBLIC_API_URL: http://localhost:8080
+#       NEXT_PUBLIC_AI_SERVICE_URL: http://localhost:8000
+#       NEXT_PUBLIC_BLOCKCHAIN_NETWORK_URL: http://localhost:8545
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       backend:
+#         condition: service_healthy
+#       ai_service:
+#         condition: service_healthy
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:3000"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: zoodo_nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./devops/nginx.conf:/etc/nginx/nginx.conf
-      - ./devops/ssl:/etc/nginx/ssl
-    depends_on:
-      - frontend
-      - backend
-      - ai_service
-    networks:
-      - zoodo_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+#   # Blockchain Network (Hardhat)
+#   blockchain:
+#     build:
+#       context: ./blockchain
+#       dockerfile: Dockerfile
+#     container_name: zoodo_blockchain
+#     environment:
+#       HARDHAT_NETWORK: localhost
+#     ports:
+#       - "8545:8545"
+#     volumes:
+#       - blockchain_data:/app/data
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "-X", "POST", "-H", "Content-Type: application/json", "--data", '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}', "http://localhost:8545"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  # Monitoring (Optional)
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: zoodo_prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./devops/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    networks:
-      - zoodo_network
+#   # Nginx Reverse Proxy
+#   nginx:
+#     image: nginx:alpine
+#     container_name: zoodo_nginx
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./devops/nginx.conf:/etc/nginx/nginx.conf
+#       - ./devops/ssl:/etc/nginx/ssl
+#     depends_on:
+#       - frontend
+#       - backend
+#       - ai_service
+#     networks:
+#       - zoodo_network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: zoodo_grafana
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - zoodo_network
+#   # Monitoring (Optional)
+#   prometheus:
+#     image: prom/prometheus:latest
+#     container_name: zoodo_prometheus
+#     ports:
+#       - "9090:9090"
+#     volumes:
+#       - ./devops/prometheus.yml:/etc/prometheus/prometheus.yml
+#       - prometheus_data:/prometheus
+#     command:
+#       - '--config.file=/etc/prometheus/prometheus.yml'
+#       - '--storage.tsdb.path=/prometheus'
+#       - '--web.console.libraries=/etc/prometheus/console_libraries'
+#       - '--web.console.templates=/etc/prometheus/consoles'
+#       - '--storage.tsdb.retention.time=200h'
+#       - '--web.enable-lifecycle'
+#     networks:
+#       - zoodo_network
 
-volumes:
-  postgres_data:
-  mongodb_data:
-  redis_data:
-  blockchain_data:
-  prometheus_data:
-  grafana_data:
+#   grafana:
+#     image: grafana/grafana:latest
+#     container_name: zoodo_grafana
+#     ports:
+#       - "3001:3000"
+#     environment:
+#       GF_SECURITY_ADMIN_PASSWORD: admin
+#     volumes:
+#       - grafana_data:/var/lib/grafana
+#     depends_on:
+#       - prometheus
+#     networks:
+#       - zoodo_network
 
-networks:
-  zoodo_network:
-    driver: bridge
+# volumes:
+#   postgres_data:
+#   mongodb_data:
+#   redis_data:
+#   blockchain_data:
+#   prometheus_data:
+#   grafana_data:
+
+# networks:
+#   zoodo_network:
+#     driver: bridge

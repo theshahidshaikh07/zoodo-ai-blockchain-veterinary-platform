@@ -52,7 +52,6 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError('');
     try {
-      // Placeholder: implement this in your apiService
       const response = await apiService.loginAdmin({
         usernameOrEmail: formData.usernameOrEmail,
         password: formData.password

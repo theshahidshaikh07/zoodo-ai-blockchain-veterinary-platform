@@ -56,4 +56,29 @@ public class ApiResponse<T> {
     public void setError(String error) {
         this.error = error;
     }
+
+    // Static factory methods
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, "Success", data);
+    }
+
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data);
+    }
+
+    public static <T> ApiResponse<T> error(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(false);
+        response.setMessage(message);
+        response.setError(message);
+        return response;
+    }
+
+    public static <T> ApiResponse<T> error(String message, String error) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(false);
+        response.setMessage(message);
+        response.setError(error);
+        return response;
+    }
 } 

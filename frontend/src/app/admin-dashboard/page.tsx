@@ -16,7 +16,10 @@ import {
   Edit,
   Trash2,
   Plus,
-  MoreHorizontal
+  MoreHorizontal,
+  Download,
+  RefreshCw,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +35,7 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
+import { apiService } from '@/lib/api';
 
 interface SystemStats {
   totalUsers: number;
@@ -46,12 +50,102 @@ interface SystemStats {
 
 interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  role: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  userType: string;
   status: 'active' | 'inactive' | 'suspended';
-  lastActive: string;
-  avatar?: string;
+  isVerified: boolean;
+  isActive: boolean;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  latitude?: number;
+  longitude?: number;
+  rating?: number;
+  totalReviews?: number;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string;
+  profileCompletion: number;
+  
+  // Veterinarian specific fields
+  licenseNumber?: string;
+  experience?: number;
+  specializations?: string[];
+  qualifications?: string[];
+  resumeUrl?: string;
+  profilePhotoUrl?: string;
+  licenseProofUrl?: string;
+  idProofUrl?: string;
+  degreeProofUrl?: string;
+  isAffiliated?: boolean;
+  affiliatedFacilityName?: string;
+  affiliatedType?: string;
+  otherFacilityName?: string;
+  offerOnlineConsultation?: boolean;
+  offerHomeVisits?: boolean;
+  homeServiceAddress?: string;
+  homeServiceSameAsPersonal?: boolean;
+  homeServiceStreet?: string;
+  homeServiceCity?: string;
+  homeServiceZip?: string;
+  homeVisitRadius?: number;
+  availabilitySettings?: string;
+  
+  // Trainer specific fields
+  certifications?: string[];
+  practiceType?: string;
+  offerOnlineTraining?: boolean;
+  offerHomeTraining?: boolean;
+  offerGroupClasses?: boolean;
+  independentServiceAddress?: string;
+  independentServiceSameAsPersonal?: boolean;
+  independentServiceStreet?: string;
+  independentServiceCity?: string;
+  independentServiceZip?: string;
+  homeTrainingRadius?: number;
+  hasTrainingCenter?: boolean;
+  trainingCenterName?: string;
+  trainingCenterAddress?: string;
+  hasAcademy?: boolean;
+  academyName?: string;
+  academyStreet?: string;
+  academyCity?: string;
+  academyState?: string;
+  academyPostalCode?: string;
+  academyCountry?: string;
+  academyPhone?: string;
+  
+  // Pet owner specific fields
+  petCount?: number;
+  pets?: PetSummary[];
+  
+  // System fields
+  notes?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+}
+
+interface PetSummary {
+  id: string;
+  name: string;
+  species: string;
+  breed?: string;
+  gender?: string;
+  birthDate?: string;
+  age?: number;
+  ageUnit?: string;
+  weight?: number;
+  weightUnit?: string;
+  microchipId?: string;
+  sterilized?: boolean;
+  photoUrl?: string;
+  createdAt: string;
 }
 
 interface Alert {
@@ -76,71 +170,161 @@ export default function AdminDashboard() {
     systemHealth: 0,
     uptime: 0
   });
-  const [recentUsers, setRecentUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [userTypeFilter, setUserTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    // Mock data - replace with actual API calls
-    setSystemStats({
-      totalUsers: 1247,
-      totalPets: 2156,
-      totalAppointments: 892,
-      totalRevenue: 45678.90,
-      activeVets: 89,
-      activeTrainers: 45,
-      systemHealth: 98.5,
-      uptime: 99.9
-    });
-
-    setRecentUsers([
-      {
-        id: '1',
-        name: 'Dr. Sarah Smith',
-        email: 'sarah.smith@vetclinic.com',
-        role: 'veterinarian',
-        status: 'active',
-        lastActive: '2 minutes ago',
-        avatar: '/api/placeholder/40/40'
-      },
-      {
-        id: '2',
-        name: 'John Doe',
-        email: 'john.doe@email.com',
-        role: 'pet_owner',
-        status: 'active',
-        lastActive: '5 minutes ago'
-      },
-      {
-        id: '3',
-        name: 'Mike Johnson',
-        email: 'mike.johnson@trainer.com',
-        role: 'trainer',
-        status: 'active',
-        lastActive: '10 minutes ago'
-      }
-    ]);
-
-    setAlerts([
-      {
-        id: '1',
-        type: 'warning',
-        message: 'High server load detected',
-        timestamp: '2 minutes ago',
-        priority: 'high'
-      },
-      {
-        id: '2',
-        type: 'info',
-        message: 'New user registration spike',
-        timestamp: '5 minutes ago',
-        priority: 'medium'
-      }
-    ]);
+    loadSystemStats();
+    loadUsers();
   }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [currentPage, searchTerm, userTypeFilter, statusFilter]);
+
+  const loadSystemStats = async () => {
+    try {
+      const response = await apiService.getSystemStats();
+      if (response.success) {
+        const stats = response.data;
+        setSystemStats({
+          totalUsers: stats.totalUsers || 0,
+          totalPets: stats.totalPets || 0,
+          totalAppointments: 0, // Not implemented yet
+          totalRevenue: 0, // Not implemented yet
+          activeVets: stats.totalVeterinarians || 0,
+          activeTrainers: stats.totalTrainers || 0,
+          systemHealth: 98.5, // Mock data
+          uptime: 99.9 // Mock data
+        });
+      }
+    } catch (error) {
+      console.error('Error loading system stats:', error);
+    }
+  };
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await apiService.getUsers({
+        page: currentPage,
+        size: 10,
+        userType: userTypeFilter !== 'all' ? userTypeFilter : undefined,
+        search: searchTerm || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined
+      });
+      
+      if (response.success) {
+        setUsers(response.data.content || []);
+        setTotalPages(response.data.totalPages || 0);
+        setTotalUsers(response.data.totalElements || 0);
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(0);
+  };
+
+  const handleUserTypeFilter = (value: string) => {
+    setUserTypeFilter(value);
+    setCurrentPage(0);
+  };
+
+  const handleStatusFilter = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(0);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleRefresh = () => {
+    loadUsers();
+    loadSystemStats();
+  };
+
+  const handleViewUserDetails = async (userId: string) => {
+    try {
+      const response = await apiService.getUserDetails(userId);
+      if (response.success) {
+        setSelectedUser(response.data);
+        setShowUserDetails(true);
+      }
+    } catch (error) {
+      console.error('Error loading user details:', error);
+    }
+  };
+
+  const handleCloseUserDetails = () => {
+    setShowUserDetails(false);
+    setSelectedUser(null);
+  };
+
+  const handleExportUsers = async () => {
+    try {
+      const response = await apiService.exportUsers({
+        userType: userTypeFilter !== 'all' ? userTypeFilter : undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined
+      });
+      
+      if (response.success) {
+        // Create and download CSV
+        const csvContent = createCSVContent(response.data);
+        downloadCSV(csvContent, 'users.csv');
+      }
+    } catch (error) {
+      console.error('Error exporting users:', error);
+    }
+  };
+
+  const createCSVContent = (users: User[]) => {
+    const headers = ['ID', 'Username', 'Email', 'Name', 'User Type', 'Status', 'Verified', 'City', 'State', 'Created At'];
+    const rows = users.map(user => [
+      user.id,
+      user.username,
+      user.email,
+      `${user.firstName} ${user.lastName}`,
+      user.userType,
+      user.status,
+      user.isVerified ? 'Yes' : 'No',
+      user.city || '',
+      user.state || '',
+      new Date(user.createdAt).toLocaleDateString()
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+  };
+
+  const downloadCSV = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -281,19 +465,22 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentUsers.map((user) => (
+                    {users.slice(0, 5).map((user) => (
                       <div key={user.id} className="flex items-center space-x-4">
                         <Avatar className="h-9 w-9">
-                          <AvatarImage src={user.avatar} />
-                          <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          <AvatarFallback>
+                            {user.firstName?.[0]}{user.lastName?.[0]}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium leading-none">{user.name}</p>
+                          <p className="text-sm font-medium leading-none">
+                            {user.firstName} {user.lastName}
+                          </p>
                           <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge variant="outline" className="text-xs">
-                            {user.role}
+                            {user.userType}
                           </Badge>
                           <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`} />
                         </div>
@@ -339,21 +526,34 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>User Management</CardTitle>
-                    <CardDescription>Manage all platform users and their roles</CardDescription>
+                    <CardDescription>
+                      Manage all platform users and their roles ({totalUsers} total users)
+                    </CardDescription>
                   </div>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add User
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+                      <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                    <Button variant="outline" onClick={handleExportUsers}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search users..." className="pl-8" />
+                    <Input 
+                      placeholder="Search users..." 
+                      className="pl-8" 
+                      value={searchTerm}
+                      onChange={(e) => handleSearch(e.target.value)}
+                    />
                   </div>
-                  <Select>
+                  <Select value={userTypeFilter} onValueChange={handleUserTypeFilter}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Filter by role" />
                     </SelectTrigger>
@@ -365,72 +565,203 @@ export default function AdminDashboard() {
                       <SelectItem value="admin">Admins</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="verified">Verified</SelectItem>
+                      <SelectItem value="unverified">Unverified</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Last Active</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={user.avatar} />
-                              <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{user.name}</p>
-                              <p className="text-sm text-muted-foreground">{user.email}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{user.role}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`} />
-                            <span className="text-sm capitalize">{user.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {user.lastActive}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit User
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete User
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
+                  <>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>ID</TableHead>
+                          <TableHead>User Details</TableHead>
+                          <TableHead>Contact</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Role & Status</TableHead>
+                          <TableHead>Verification</TableHead>
+                          <TableHead>Profile</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-mono text-xs">
+                              {user.id.substring(0, 8)}...
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={user.profilePhotoUrl} />
+                                  <AvatarFallback>
+                                    {user.firstName?.[0]}{user.lastName?.[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{user.firstName} {user.lastName}</p>
+                                  <p className="text-xs text-muted-foreground">@{user.username}</p>
+                                  {user.rating && (
+                                    <div className="flex items-center space-x-1">
+                                      <span className="text-xs text-yellow-500">★</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {user.rating.toFixed(1)} ({user.totalReviews || 0} reviews)
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">{user.email}</p>
+                                {user.phone && (
+                                  <p className="text-xs text-muted-foreground">{user.phone}</p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                {user.address && (
+                                  <p className="text-xs text-muted-foreground truncate max-w-[120px]">
+                                    {user.address}
+                                  </p>
+                                )}
+                                <p className="text-xs text-muted-foreground">
+                                  {[user.city, user.state, user.country].filter(Boolean).join(', ')}
+                                </p>
+                                {user.postalCode && (
+                                  <p className="text-xs text-muted-foreground">{user.postalCode}</p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-2">
+                                <Badge variant="outline" className="capitalize">
+                                  {user.userType.replace('_', ' ')}
+                                </Badge>
+                                <div className="flex items-center space-x-2">
+                                  <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`} />
+                                  <span className="text-xs capitalize">{user.status}</span>
+                                </div>
+                                {user.isActive !== undefined && (
+                                  <div className="flex items-center space-x-2">
+                                    <div className={`w-2 h-2 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                                    <span className="text-xs">{user.isActive ? 'Active' : 'Inactive'}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <Badge variant={user.isVerified ? "default" : "secondary"}>
+                                  {user.isVerified ? "Verified" : "Unverified"}
+                                </Badge>
+                                {user.verifiedAt && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {new Date(user.verifiedAt).toLocaleDateString()}
+                                  </p>
+                                )}
+                                {user.verifiedBy && (
+                                  <p className="text-xs text-muted-foreground">
+                                    by {user.verifiedBy}
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Progress value={user.profileCompletion} className="w-16" />
+                                <span className="text-xs text-muted-foreground">{user.profileCompletion}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              <div className="space-y-1">
+                                <p>{new Date(user.createdAt).toLocaleDateString()}</p>
+                                <p className="text-xs">
+                                  {new Date(user.createdAt).toLocaleTimeString()}
+                                </p>
+                                {user.lastLoginAt && (
+                                  <p className="text-xs text-green-600">
+                                    Last login: {new Date(user.lastLoginAt).toLocaleDateString()}
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleViewUserDetails(user.id)}>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View Full Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit User
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="text-red-600">
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete User
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="text-sm text-muted-foreground">
+                          Showing {currentPage * 10 + 1} to {Math.min((currentPage + 1) * 10, totalUsers)} of {totalUsers} users
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 0}
+                          >
+                            Previous
+                          </Button>
+                          <span className="text-sm">
+                            Page {currentPage + 1} of {totalPages}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage >= totalPages - 1}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -573,6 +904,320 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* User Details Modal */}
+      {showUserDetails && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={selectedUser.profilePhotoUrl} />
+                  <AvatarFallback>
+                    {selectedUser.firstName?.[0]}{selectedUser.lastName?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="text-2xl font-bold">{selectedUser.firstName} {selectedUser.lastName}</h2>
+                  <p className="text-muted-foreground">@{selectedUser.username} • {selectedUser.email}</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleCloseUserDetails}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">User ID</label>
+                        <p className="font-mono text-sm">{selectedUser.id}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">User Type</label>
+                        <Badge variant="outline" className="capitalize">
+                          {selectedUser.userType.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Status</label>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedUser.status)}`} />
+                          <span className="text-sm capitalize">{selectedUser.status}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Active</label>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${selectedUser.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <span className="text-sm">{selectedUser.isActive ? 'Yes' : 'No'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Verified</label>
+                        <Badge variant={selectedUser.isVerified ? "default" : "secondary"}>
+                          {selectedUser.isVerified ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Profile Completion</label>
+                        <div className="flex items-center space-x-2">
+                          <Progress value={selectedUser.profileCompletion} className="w-20" />
+                          <span className="text-sm">{selectedUser.profileCompletion}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Contact Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Contact Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Email</label>
+                      <p className="text-sm">{selectedUser.email}</p>
+                    </div>
+                    {selectedUser.phone && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                        <p className="text-sm">{selectedUser.phone}</p>
+                      </div>
+                    )}
+                    {selectedUser.address && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Address</label>
+                        <p className="text-sm">{selectedUser.address}</p>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedUser.city && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">City</label>
+                          <p className="text-sm">{selectedUser.city}</p>
+                        </div>
+                      )}
+                      {selectedUser.state && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">State</label>
+                          <p className="text-sm">{selectedUser.state}</p>
+                        </div>
+                      )}
+                      {selectedUser.country && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Country</label>
+                          <p className="text-sm">{selectedUser.country}</p>
+                        </div>
+                      )}
+                      {selectedUser.postalCode && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Postal Code</label>
+                          <p className="text-sm">{selectedUser.postalCode}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Veterinarian Specific Information */}
+                {selectedUser.userType === 'veterinarian' && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Veterinarian Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {selectedUser.licenseNumber && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">License Number</label>
+                          <p className="text-sm font-mono">{selectedUser.licenseNumber}</p>
+                        </div>
+                      )}
+                      {selectedUser.experience && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Experience</label>
+                          <p className="text-sm">{selectedUser.experience} years</p>
+                        </div>
+                      )}
+                      {selectedUser.specializations && selectedUser.specializations.length > 0 && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Specializations</label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {selectedUser.specializations.map((spec, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {spec}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {selectedUser.qualifications && selectedUser.qualifications.length > 0 && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Qualifications</label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {selectedUser.qualifications.map((qual, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {qual}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-4">
+                        {selectedUser.offerOnlineConsultation !== undefined && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Online Consultation</label>
+                            <p className="text-sm">{selectedUser.offerOnlineConsultation ? 'Yes' : 'No'}</p>
+                          </div>
+                        )}
+                        {selectedUser.offerHomeVisits !== undefined && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Home Visits</label>
+                            <p className="text-sm">{selectedUser.offerHomeVisits ? 'Yes' : 'No'}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Trainer Specific Information */}
+                {selectedUser.userType === 'trainer' && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Trainer Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {selectedUser.experience && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Experience</label>
+                          <p className="text-sm">{selectedUser.experience} years</p>
+                        </div>
+                      )}
+                      {selectedUser.certifications && selectedUser.certifications.length > 0 && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Certifications</label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {selectedUser.certifications.map((cert, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {cert}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {selectedUser.practiceType && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Practice Type</label>
+                          <p className="text-sm">{selectedUser.practiceType}</p>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-4">
+                        {selectedUser.offerOnlineTraining !== undefined && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Online Training</label>
+                            <p className="text-sm">{selectedUser.offerOnlineTraining ? 'Yes' : 'No'}</p>
+                          </div>
+                        )}
+                        {selectedUser.offerHomeTraining !== undefined && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Home Training</label>
+                            <p className="text-sm">{selectedUser.offerHomeTraining ? 'Yes' : 'No'}</p>
+                          </div>
+                        )}
+                        {selectedUser.offerGroupClasses !== undefined && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Group Classes</label>
+                            <p className="text-sm">{selectedUser.offerGroupClasses ? 'Yes' : 'No'}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Pet Owner Information */}
+                {selectedUser.userType === 'pet_owner' && selectedUser.pets && selectedUser.pets.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pets ({selectedUser.pets.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {selectedUser.pets.map((pet) => (
+                          <div key={pet.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                              <span className="text-sm font-medium">{pet.name[0]}</span>
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium">{pet.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {pet.species} {pet.breed && `• ${pet.breed}`}
+                                {pet.age && ` • ${pet.age} ${pet.ageUnit || 'years'} old`}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-muted-foreground">
+                                {pet.gender && `${pet.gender} • `}
+                                {pet.weight && `${pet.weight} ${pet.weightUnit || 'kg'}`}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* System Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>System Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Created At</label>
+                        <p className="text-sm">{new Date(selectedUser.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Updated At</label>
+                        <p className="text-sm">{new Date(selectedUser.updatedAt).toLocaleString()}</p>
+                      </div>
+                      {selectedUser.lastLoginAt && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Last Login</label>
+                          <p className="text-sm">{new Date(selectedUser.lastLoginAt).toLocaleString()}</p>
+                        </div>
+                      )}
+                      {selectedUser.verifiedAt && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Verified At</label>
+                          <p className="text-sm">{new Date(selectedUser.verifiedAt).toLocaleString()}</p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedUser.notes && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Admin Notes</label>
+                        <p className="text-sm p-2 bg-muted rounded">{selectedUser.notes}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

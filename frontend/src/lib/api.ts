@@ -12,7 +12,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  userType: 'pet_owner' | 'veterinarian' | 'trainer' | 'admin';
+  userType: 'pet_owner' | 'veterinarian' | 'trainer' | 'hospital' | 'clinic' | 'admin';
   phone?: string;
   address?: string;
   createdAt: string;
@@ -177,13 +177,20 @@ class ApiService {
     if (isForm) {
       const form = userData as FormData;
       const isVetMultipart = form.has('licenseNumber') || form.has('licenseProof') || form.has('independentServices') || form.has('availabilitySchedule');
-      const endpoint = isVetMultipart ? '/users/register/veterinarian' : '/users/register';
+      const isTrainerMultipart = form.has('specialization') || form.has('certifications') || form.has('resume') || form.has('academyDetails');
+      const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument') || form.has('businessHours');
+      
+      let endpoint = '/register/pet-owner';
+      if (isVetMultipart) endpoint = '/register/veterinarian';
+      else if (isTrainerMultipart) endpoint = '/register/trainer';
+      else if (isHospitalMultipart) endpoint = '/register/hospital';
+      
       return this.request<User>(endpoint, {
         method: 'POST',
         body: form,
       });
     }
-    return this.request<User>('/users/register', {
+    return this.request<User>('/register/pet-owner', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -212,16 +219,16 @@ class ApiService {
   async loginAdmin(credentials: {
     usernameOrEmail: string;
     password: string;
-  }): Promise<ApiResponse<string>> {
-    const response = await this.request<string>('/users/login/admin', {
+  }): Promise<ApiResponse<{ token: string }>> {
+    const response = await this.request<{ token: string }>('/admin/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
     
     // Store JWT token if login is successful
-    if (response.success && response.data) {
+    if (response.success && response.data?.token) {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('jwt_token', response.data);
+        localStorage.setItem('jwt_token', response.data.token);
       }
     }
     
@@ -325,6 +332,64 @@ class ApiService {
 
   async getProviderById(providerId: string): Promise<ApiResponse<User>> {
     return this.request<User>(`/users/providers/${providerId}`);
+  }
+
+  // Admin endpoints
+  async getUsers(params?: {
+    page?: number;
+    size?: number;
+    userType?: string;
+    search?: string;
+    status?: string;
+  }): Promise<ApiResponse<{
+    content: User[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.size !== undefined) queryParams.append('size', params.size.toString());
+    if (params?.userType) queryParams.append('userType', params.userType);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status) queryParams.append('status', params.status);
+    
+    const endpoint = `/admin/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return this.request(endpoint);
+  }
+
+  async getUserDetails(userId: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`);
+  }
+
+  async updateUserStatus(userId: string, status: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async deleteUser(userId: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getSystemStats(): Promise<ApiResponse<any>> {
+    return this.request('/admin/stats');
+  }
+
+  async exportUsers(params?: {
+    userType?: string;
+    status?: string;
+  }): Promise<ApiResponse<User[]>> {
+    const queryParams = new URLSearchParams();
+    if (params?.userType) queryParams.append('userType', params.userType);
+    if (params?.status) queryParams.append('status', params.status);
+    
+    const endpoint = `/admin/users/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return this.request(endpoint);
   }
 
   // Health check
