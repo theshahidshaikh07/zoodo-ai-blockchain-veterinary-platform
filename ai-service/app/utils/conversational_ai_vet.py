@@ -471,6 +471,20 @@ What animal companion brings you here today?"""
                     self.consultation.symptom_onset = match.group(0)
                 self.consultation.mark_gathered("duration")
                 break
+        
+        # Extract specific information from the conversation
+        if "not eating" in message_lower or "won't eat" in message_lower or "refusing food" in message_lower:
+            self.consultation.info_gathered["not_eating"] = True
+        
+        if "drinking" in message_lower and ("yes" in message_lower or "still" in message_lower):
+            self.consultation.info_gathered["drinking"] = True
+        elif "drinking" in message_lower and ("no" in message_lower or "not" in message_lower):
+            self.consultation.info_gathered["drinking"] = False
+        
+        if "entirely" in message_lower or "completely" in message_lower:
+            self.consultation.info_gathered["eating_status"] = "entirely"
+        elif "less" in message_lower or "reduced" in message_lower:
+            self.consultation.info_gathered["eating_status"] = "reduced"
 
     def _build_context(self, user_message):
         """Build context with system prompt, animal profile, and conversation history"""
@@ -603,6 +617,20 @@ What animal companion brings you here today?"""
             else:
                 # Ready for assessment
                 return f"Based on what you've told me about your {self.pet_profile.age} year old {self.pet_profile.species} - not eating for {self.consultation.symptom_onset} but still drinking water - this could indicate several things. Here's what I recommend:\n\n- Monitor their energy level and behavior closely\n- Try offering their favorite food or treats\n- If they continue not eating or show other symptoms, see a vet within 24-48 hours\n\nWhat's their energy level like? Are they acting normal otherwise?"
+        
+        # Handle specific responses to questions
+        if "entirely" in message_lower or "completely" in message_lower:
+            self.consultation.info_gathered["eating_status"] = "entirely"
+            if self.pet_profile.species and self.consultation.symptom_onset:
+                return f"I understand - your {self.pet_profile.species} is completely refusing food for {self.consultation.symptom_onset}. Is your {self.pet_profile.species} still drinking water normally?"
+            else:
+                return "I understand - completely refusing food. Is your pet still drinking water normally?"
+        
+        if "nothing much" in message_lower or "just not eating" in message_lower:
+            if self.pet_profile.species and self.consultation.symptom_onset:
+                return f"I see, so your {self.pet_profile.species} is not eating for {self.consultation.symptom_onset} but no other symptoms. Is your {self.pet_profile.species} still drinking water normally?"
+            else:
+                return "I understand - just not eating. Is your pet still drinking water normally?"
         
         # Check if they're providing age information
         if any(word in message_lower for word in ["year", "month", "week", "old", "puppy", "kitten", "adult", "senior"]):

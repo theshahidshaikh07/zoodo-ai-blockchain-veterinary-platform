@@ -144,8 +144,17 @@ const ServicesSection = () => {
                   className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-primary-foreground font-medium rounded-md flex items-center justify-center relative z-10"
                   style={{ cursor: 'pointer !important', willChange: 'transform' }}
                   onClick={() => {
-                    // TODO: Add navigation to specific service pages
-                    console.log(`Navigate to ${service.title} service`);
+                    // Navigate to specific service pages
+                    const serviceRoutes = {
+                      "Find Vet": "/services/find-vets",
+                      "Clinic & Hospital": "/services/find-hospitals",
+                      "Teleconsultation": "/services/teleconsultation",
+                      "Pet Trainer": "/services/find-trainers"
+                    };
+                    const route = serviceRoutes[service.title as keyof typeof serviceRoutes];
+                    if (route) {
+                      window.location.href = route;
+                    }
                   }}
                 >
                   Explore Service

@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import diversePets from "@/assets/diverse-pets.jpg";
 import Link from "next/link";
+import ConsultationPopup from "./ConsultationPopup";
 
 const HeroSection = () => {
   const [mounted, setMounted] = useState(false);
+  const [isConsultationPopupOpen, setIsConsultationPopupOpen] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -150,8 +152,7 @@ const HeroSection = () => {
                 className="group relative hover:scale-105 transition-all duration-300 text-base lg:text-lg px-8 lg:px-12 py-3 lg:py-4 border-2 border-primary/40 hover:border-primary/80 hover:bg-primary/10 bg-background/80 hover:bg-primary/10 hover:text-foreground !hover:bg-primary/10 !hover:text-foreground"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Add your custom click handler here
-                  console.log('Get Instant Care button clicked');
+                  setIsConsultationPopupOpen(true);
                 }}
               >
                 <Lightning className="w-5 h-5 lg:w-7 lg:h-7 mr-2 relative z-10 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
@@ -186,6 +187,11 @@ const HeroSection = () => {
         </div>
       </div>
 
+      {/* Consultation Popup */}
+      <ConsultationPopup 
+        isOpen={isConsultationPopupOpen}
+        onClose={() => setIsConsultationPopupOpen(false)}
+      />
     </section>
   );
 };
