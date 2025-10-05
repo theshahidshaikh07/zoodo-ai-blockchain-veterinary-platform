@@ -26,7 +26,7 @@ public class Pet {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @NotBlank(message = "Pet name is required")

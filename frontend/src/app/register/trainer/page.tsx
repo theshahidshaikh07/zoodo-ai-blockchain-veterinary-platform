@@ -103,7 +103,7 @@ interface FormData {
   confirmPassword: string;
   phoneNumber: string;
   address: string;
-  experience: number | string;
+  experience: number;
   specialization: string[];
   otherSpecialization: string;
   certifications: string[];
@@ -217,7 +217,7 @@ function TrainerWizard() {
     confirmPassword: '',
     phoneNumber: '',
     address: '',
-    experience: '',
+    experience: 0,
     specialization: [],
     otherSpecialization: '',
     certifications: [],
@@ -433,12 +433,20 @@ function TrainerWizard() {
         setError('Specialization is required');
         return false;
       }
+      if (formData.certifications.length === 0) {
+        setError('At least one certification is required');
+        return false;
+      }
       if (formData.specialization.includes('Other') && !formData.otherSpecialization.trim()) {
         setError('Please specify your other specialization');
         return false;
       }
       if (formData.certifications.includes('Other') && !formData.otherCertification.trim()) {
         setError('Please specify your other certification');
+        return false;
+      }
+      if (!formData.experience || formData.experience < 0) {
+        setError('Please enter a valid experience value');
         return false;
       }
     }
@@ -468,14 +476,23 @@ function TrainerWizard() {
   const prevStep = () => setCurrentStep((s) => Math.max(1, s - 1));
 
   const handleSubmit = async () => {
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3)) return;
+    if (!validateStep(1) || !validateStep(2)) {
+      setError('Please complete all required fields in steps 1 and 2');
+      return;
+    }
+    if (!validateStep(3)) {
+      setError('Please complete academy details if you selected academy option');
+      return;
+    }
     setIsLoading(true);
     setError('');
 
     const data = new FormData();
     
+    // Create a copy of formData to modify specialization and certifications
     const formDataToSend = { ...formData };
 
+    // Handle "Other" values by replacing them with the custom input
     if (formDataToSend.specialization.includes('Other') && formDataToSend.otherSpecialization.trim()) {
       formDataToSend.specialization = formDataToSend.specialization.filter(s => s !== 'Other');
       formDataToSend.specialization.push(formDataToSend.otherSpecialization.trim());
@@ -485,18 +502,50 @@ function TrainerWizard() {
       formDataToSend.certifications.push(formDataToSend.otherCertification.trim());
     }
 
-    Object.keys(formDataToSend).forEach(key => {
-      const value = formDataToSend[key as keyof typeof formDataToSend];
-      if (value instanceof File) {
-        data.append(key, value);
-      } else if (Array.isArray(value)) {
-        value.forEach(item => data.append(key, String(item)));
-      } else if (typeof value === 'object' && value !== null) {
-        data.append(key, JSON.stringify(value));
-      } else if (value !== null && value !== undefined) {
-        data.append(key, String(value));
-      }
-    });
+    // Create registration data object that matches the backend DTO
+    const registrationData = {
+      username: formDataToSend.username,
+      firstName: formDataToSend.firstName,
+      lastName: formDataToSend.lastName,
+      email: formDataToSend.email,
+      password: formDataToSend.password,
+      phoneNumber: formDataToSend.phoneNumber,
+      address: formDataToSend.address,
+      experience: formDataToSend.experience,
+      specialization: formDataToSend.specialization,
+      certifications: formDataToSend.certifications,
+      otherSpecialization: formDataToSend.otherSpecialization,
+      otherCertification: formDataToSend.otherCertification,
+      practiceType: JSON.stringify(formDataToSend.practiceType),
+      offerOnlineTraining: formDataToSend.independentServices.onlineTraining,
+      offerHomeTraining: formDataToSend.independentServices.homeTraining,
+      offerGroupClasses: formDataToSend.independentServices.groupClasses,
+      independentServiceSameAsPersonal: formDataToSend.independentServices.serviceAddress.sameAsPersonal,
+      independentServiceStreet: formDataToSend.independentServices.serviceAddress.street,
+      independentServiceCity: formDataToSend.independentServices.serviceAddress.city,
+      independentServiceZip: formDataToSend.independentServices.serviceAddress.zip,
+      homeTrainingRadius: parseInt(formDataToSend.independentServices.homeVisitRadius) || 1,
+      hasTrainingCenter: formDataToSend.practiceType.trainingCenter,
+      trainingCenterName: formDataToSend.trainingCenterDetails.centerName,
+      trainingCenterAddress: formDataToSend.trainingCenterDetails.centerAddress,
+      hasAcademy: formDataToSend.academyDetails.hasAcademy,
+      academyName: formDataToSend.academyDetails.name,
+      academyStreet: formDataToSend.academyDetails.street,
+      academyCity: formDataToSend.academyDetails.city,
+      academyState: formDataToSend.academyDetails.state,
+      academyPostalCode: formDataToSend.academyDetails.postalCode,
+      academyCountry: formDataToSend.academyDetails.country,
+      academyPhone: formDataToSend.academyDetails.phone,
+      independentServices: JSON.stringify(formDataToSend.independentServices),
+      availabilitySchedule: JSON.stringify(formDataToSend.availabilitySchedule)
+    };
+
+    // Add registration data as JSON string
+    data.append('registrationData', JSON.stringify(registrationData));
+
+    // Add files
+    if (formDataToSend.resume) data.append('resume', formDataToSend.resume);
+    if (formDataToSend.profilePhoto) data.append('profilePhoto', formDataToSend.profilePhoto);
 
     try {
       const res = await apiService.registerUser(data);
@@ -738,7 +787,15 @@ function TrainerWizard() {
 
                   <div className="space-y-2">
                     <Label htmlFor="experience">Years of Experience</Label>
-                    <Input id="experience" name="experience" type="number" value={formData.experience} onChange={handleInputChange} placeholder="Enter total years of experience" />
+                    <Input 
+                      id="experience" 
+                      name="experience" 
+                      type="number" 
+                      value={formData.experience} 
+                      onChange={(e) => setFormData(prev => ({ ...prev, experience: parseInt(e.target.value) || 0 }))} 
+                      placeholder="Enter total years of experience" 
+                      min="0"
+                    />
                   </div>
 
                   <div className="space-y-4">

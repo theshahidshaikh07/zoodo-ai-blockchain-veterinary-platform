@@ -26,6 +26,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
+        // Skip JWT authentication for registration endpoints
+        String requestPath = request.getRequestURI();
+        if (requestPath.startsWith("/api/register/") || 
+            requestPath.equals("/api/users/login") || 
+            requestPath.equals("/api/admin/login") ||
+            requestPath.equals("/health")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         final String authorizationHeader = request.getHeader("Authorization");
 
         String username = null;

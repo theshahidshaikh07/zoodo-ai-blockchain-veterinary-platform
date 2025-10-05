@@ -161,8 +161,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
                       >
                         {option?.label || value}
                       </Badge>
-                      <button
-                        type="button"
+                      <div
                         className="ml-1 h-4 w-4 cursor-pointer hover:text-destructive z-10 relative flex items-center justify-center"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -171,9 +170,17 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((
                           handleRemove(value);
                         }}
                         style={{ pointerEvents: 'auto' }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleRemove(value);
+                          }
+                        }}
                       >
                         <X className="h-3 w-3" />
-                      </button>
+                      </div>
                     </div>
                   );
                 })}

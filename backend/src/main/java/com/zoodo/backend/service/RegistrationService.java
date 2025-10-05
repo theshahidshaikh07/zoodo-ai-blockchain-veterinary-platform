@@ -244,7 +244,16 @@ public class RegistrationService {
 
             // Store availability settings as JSON
             if (request.getAvailabilitySchedule() != null) {
-                veterinarian.setAvailabilitySettings(request.getAvailabilitySchedule());
+                try {
+                    // Parse the JSON string to ensure it's valid JSON
+                    objectMapper.readTree(request.getAvailabilitySchedule());
+                    veterinarian.setAvailabilitySettings(request.getAvailabilitySchedule());
+                } catch (JsonProcessingException e) {
+                    log.warn("Invalid JSON in availability schedule, storing as null: {}", e.getMessage());
+                    veterinarian.setAvailabilitySettings(null);
+                }
+            } else {
+                veterinarian.setAvailabilitySettings(null);
             }
 
             veterinarianRepository.save(veterinarian);

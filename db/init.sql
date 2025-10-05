@@ -56,7 +56,7 @@ CREATE TABLE veterinarians (
     home_service_zip VARCHAR(20),
     home_visit_radius INTEGER, -- in km
     -- Availability settings (JSON format for flexibility)
-    availability_settings JSONB,
+    availability_settings TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

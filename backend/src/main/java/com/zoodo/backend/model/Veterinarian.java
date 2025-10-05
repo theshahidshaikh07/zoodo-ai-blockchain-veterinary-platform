@@ -105,7 +105,7 @@ public class Veterinarian {
     @Column(name = "home_visit_radius")
     private Integer homeVisitRadius; // in km
 
-    @Column(name = "availability_settings", columnDefinition = "jsonb")
+    @Column(name = "availability_settings", columnDefinition = "TEXT")
     private String availabilitySettings; // JSON string for flexibility
 
     @CreationTimestamp

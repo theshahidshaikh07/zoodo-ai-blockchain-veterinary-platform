@@ -11,7 +11,11 @@ import zoodoLogo from "@/assets/zoodo.png";
 import zoodoLightLogo from "@/assets/Zoodo-light.png";
 import { usePathname, useRouter } from "next/navigation";
 
-const Header = () => {
+interface HeaderProps {
+  isScrolled?: boolean;
+}
+
+const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   const { setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -24,12 +28,18 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    // If external scroll state is provided, use it instead of window scroll
+    if (externalIsScrolled !== undefined) {
+      setIsScrolled(externalIsScrolled);
+      return;
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [externalIsScrolled]);
 
   const toggleTheme = () => {
     if (mounted) {

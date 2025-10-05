@@ -479,19 +479,51 @@ function VeterinarianWizard() {
       formDataToSend.qualifications.push(formDataToSend.otherQualification.trim());
     }
 
-    Object.keys(formDataToSend).forEach(key => {
-      const value = formDataToSend[key as keyof typeof formDataToSend];
-      if (value instanceof File) {
-        data.append(key, value);
-      } else if (Array.isArray(value)) {
-        // Handle arrays by appending each item
-        value.forEach(item => data.append(key, String(item)));
-      } else if (typeof value === 'object' && value !== null) {
-        data.append(key, JSON.stringify(value));
-      } else if (value !== null && value !== undefined) {
-        data.append(key, String(value));
+    // Add basic user fields
+    data.append('username', formDataToSend.username);
+    data.append('firstName', formDataToSend.firstName);
+    data.append('lastName', formDataToSend.lastName);
+    data.append('email', formDataToSend.email);
+    data.append('password', formDataToSend.password);
+    data.append('phoneNumber', formDataToSend.phoneNumber);
+    data.append('address', formDataToSend.address);
+    data.append('licenseNumber', formDataToSend.licenseNumber);
+    data.append('experience', String(formDataToSend.experience));
+    data.append('isAffiliated', String(formDataToSend.isAffiliated));
+    data.append('otherSpecialization', formDataToSend.otherSpecialization);
+    data.append('otherQualification', formDataToSend.otherQualification);
+
+    // Add arrays
+    formDataToSend.specialization.forEach(item => data.append('specialization', item));
+    formDataToSend.qualifications.forEach(item => data.append('qualifications', item));
+
+    // Add affiliation details
+    if (formDataToSend.isAffiliated) {
+      data.append('affiliatedDetails.facilityName', formDataToSend.affiliatedDetails.facilityName);
+      data.append('affiliatedDetails.affiliationType', formDataToSend.affiliatedDetails.affiliationType);
+      if (formDataToSend.affiliatedDetails.otherFacilityName) {
+        data.append('affiliatedDetails.otherFacilityName', formDataToSend.affiliatedDetails.otherFacilityName);
       }
-    });
+    }
+
+    // Add independent services
+    data.append('independentServices.onlineConsultation', String(formDataToSend.independentServices.onlineConsultation));
+    data.append('independentServices.homeConsultation', String(formDataToSend.independentServices.homeConsultation));
+    data.append('independentServices.serviceAddress.sameAsPersonal', String(formDataToSend.independentServices.serviceAddress.sameAsPersonal));
+    data.append('independentServices.serviceAddress.street', formDataToSend.independentServices.serviceAddress.street);
+    data.append('independentServices.serviceAddress.city', formDataToSend.independentServices.serviceAddress.city);
+    data.append('independentServices.serviceAddress.zip', formDataToSend.independentServices.serviceAddress.zip);
+    data.append('independentServices.homeVisitRadius', formDataToSend.independentServices.homeVisitRadius);
+
+    // Add JSON strings for complex objects
+    data.append('independentServices', JSON.stringify(formDataToSend.independentServices));
+    data.append('availabilitySchedule', JSON.stringify(formDataToSend.availabilitySchedule));
+
+    // Add files
+    if (formDataToSend.licenseProof) data.append('licenseProof', formDataToSend.licenseProof);
+    if (formDataToSend.idProof) data.append('idProof', formDataToSend.idProof);
+    if (formDataToSend.degreeProof) data.append('degreeProof', formDataToSend.degreeProof);
+    if (formDataToSend.profilePhoto) data.append('profilePhoto', formDataToSend.profilePhoto);
 
     try {
       const res = await apiService.registerUser(data);

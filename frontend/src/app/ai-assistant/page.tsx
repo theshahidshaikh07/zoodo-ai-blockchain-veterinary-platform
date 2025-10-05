@@ -2,25 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import {
-  Send,
-  Camera,
-  Mic,
-  Settings,
-  Share2,
-  RotateCcw,
-  Stethoscope,
   Heart,
-  Utensils,
-  MapPin
+  Plus,
+  ArrowUp,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
-import Image from 'next/image';
-import Link from 'next/link';
-import zoodoLogo from '@/assets/zoodo.png';
-import zoodoLightLogo from '@/assets/Zoodo-light.png';
+import Header from '@/components/Header';
 
 interface Message {
   id: string;
@@ -41,7 +32,18 @@ export default function AIAssistantPage() {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+  const [isPlaceholderTyping, setIsPlaceholderTyping] = useState(false);
+  const [isChatScrolled, setIsChatScrolled] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const placeholderMessages = [
+    "Why is my dog scratching so much?",
+    "Recommend a good vet nearby.",
+    "What's the best diet for a Persian cat?",
+    "Find pet training academies near me."
+  ];
 
   useEffect(() => {
     setMounted(true);
@@ -63,6 +65,34 @@ export default function AIAssistantPage() {
     // Auto-scroll to bottom when new messages arrive
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Start placeholder animation when component mounts and restart when conditions change
+  useEffect(() => {
+    if (inputMessage.trim() || isTyping || messages.length > 1) {
+      setIsPlaceholderTyping(false);
+      return;
+    }
+    
+    // Start the animation
+    setIsPlaceholderTyping(true);
+  }, [inputMessage, isTyping, messages.length]);
+
+  // Handle chat container scroll for header styling
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (!chatContainer || messages.length <= 1) return;
+
+    const handleChatScroll = () => {
+      const scrolled = chatContainer.scrollTop > 20;
+      setIsChatScrolled(scrolled);
+    };
+
+    // Set initial state
+    handleChatScroll();
+
+    chatContainer.addEventListener('scroll', handleChatScroll);
+    return () => chatContainer.removeEventListener('scroll', handleChatScroll);
+  }, [messages.length]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -124,6 +154,63 @@ export default function AIAssistantPage() {
     }
   };
 
+  // Animated placeholder component
+  const AnimatedPlaceholder = () => {
+    const [displayText, setDisplayText] = useState('');
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+      if (!isPlaceholderTyping) {
+        setDisplayText('');
+        setCurrentIndex(0);
+        setIsDeleting(false);
+        return;
+      }
+
+      const currentMessage = placeholderMessages[currentPlaceholderIndex];
+      
+      // Typing phase
+      if (!isDeleting && currentIndex < currentMessage.length) {
+        const timeout = setTimeout(() => {
+          setDisplayText(currentMessage.substring(0, currentIndex + 1));
+          setCurrentIndex(currentIndex + 1);
+        }, 50);
+        return () => clearTimeout(timeout);
+      }
+      
+      // Pause after completing sentence
+      if (!isDeleting && currentIndex === currentMessage.length) {
+        const timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, 1000); // 1 second pause
+        return () => clearTimeout(timeout);
+      }
+      
+      // Deleting phase
+      if (isDeleting && currentIndex > 0) {
+        const timeout = setTimeout(() => {
+          setDisplayText(currentMessage.substring(0, currentIndex - 1));
+          setCurrentIndex(currentIndex - 1);
+        }, 30);
+        return () => clearTimeout(timeout);
+      }
+      
+      // Move to next message after deleting completely
+      if (isDeleting && currentIndex === 0) {
+        setIsDeleting(false);
+        setCurrentPlaceholderIndex((prev) => (prev + 1) % placeholderMessages.length);
+      }
+    }, [currentPlaceholderIndex, isPlaceholderTyping, currentIndex, isDeleting]);
+
+    return (
+      <span className="text-muted-foreground">
+        {messages.length > 1 ? "Ask Dr. Salus AI" : `Ask Dr. Salus AI : ${displayText}`}
+        {messages.length <= 1 && <span className="animate-pulse">|</span>}
+      </span>
+    );
+  };
+
   if (!mounted) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -131,155 +218,234 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border/40 bg-card/50 backdrop-blur-xl">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center group">
-                       <Image
-           src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
-           alt="Zoodo"
-           width={120}
-           height={40}
-           priority
-                  className="h-3 md:h-4 lg:h-5 w-auto group-hover:scale-105 transition-all duration-300"
-         />
-              </Link>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                Dr. Salus AI
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Header - Different for landing vs chat */}
+      {messages.length <= 1 ? (
+        <Header />
+      ) : (
+        /* Chat Header */
+        <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/30 shadow-elegant">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
+              {/* Left side - Back button + Dr. Salus AI */}
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => window.location.reload()}
+                  className="hover:bg-primary/10 hover:scale-105 transition-all duration-300"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <Heart className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h1 className="font-semibold text-foreground">Dr. Salus AI</h1>
+                    <p className="text-xs text-muted-foreground">Your Pet's Health Assistant</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Right side - New Chat button */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => window.location.reload()}
+                className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
+              >
+                New Chat
+              </Button>
+            </div>
+          </div>
+        </header>
+      )}
+      
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
+      
+      {/* Main Content Area */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {messages.length <= 1 ? (
+          /* Hero Section - Only show when not chatting */
+          <div className="flex-1 flex flex-col items-center justify-center px-4 py-20 pt-32">
+            {/* Cloud Graphic */}
+            <div className="mb-8 opacity-60">
+              <div className="w-24 h-12 bg-muted/30 rounded-full relative">
+                <div className="absolute -top-2 left-4 w-8 h-8 bg-muted/30 rounded-full"></div>
+                <div className="absolute -top-1 right-6 w-6 h-6 bg-muted/30 rounded-full"></div>
+                <div className="absolute top-1 left-8 w-4 h-4 bg-muted/30 rounded-full"></div>
+              </div>
+            </div>
+            
+            {/* Banner */}
+            <div className="mb-8">
+              <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5">
+                Introducing Dr. Salus AI
+                <ArrowUp className="h-3 w-3 ml-1" />
               </Badge>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon">
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
+            {/* Main Headline */}
+            <div className="text-center mb-8 max-w-4xl">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                <span className="block sm:inline">Your Pet's Personal</span>{' '}
+                <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  Health Guide
+                </span>
+              </h1>
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
+                Get instant pet health advice, personalized diet plans, and recommendations for the best vets, trainers, hospitals, and clinics nearby.
+              </p>
+            </div>
+            
+            {/* Large AI Chat Input Area - Centered when not chatting */}
+            <div className="w-full max-w-4xl mx-auto px-4 mt-8">
+              <div className="relative">
+                <div className="bg-muted/50 backdrop-blur-xl rounded-2xl p-6 shadow-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        placeholder=""
+                        value={inputMessage}
+                        onChange={(e) => setInputMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                        className="w-full min-h-[60px] text-base border-0 focus:border-0 focus:outline-none focus:ring-0 bg-transparent text-foreground placeholder:text-muted-foreground"
+                      />
+                      {!inputMessage && (
+                        <div className="absolute inset-0 flex items-center pointer-events-none">
+                          <AnimatedPlaceholder />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Controls */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
+                    <div className="flex items-center space-x-4">
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!inputMessage.trim() || isTyping}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        size="icon"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] lg:max-w-[70%] ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-2xl p-4 lg:p-6`}>
-                  <p className="text-sm lg:text-base leading-relaxed">{message.content}</p>
-                  {message.analysis && (
-                    <div className="mt-4 p-3 bg-background/50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium">Analysis</span>
-                        <Badge className={getSeverityColor(message.analysis.severity)}>
-                          {message.analysis.severity}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1">
-                        {message.analysis.recommendations.map((rec, index) => (
-                          <div key={index} className="flex items-center space-x-2 text-xs">
-                            <div className="w-1 h-1 bg-primary rounded-full"></div>
-                            <span>{rec}</span>
-      </div>
-                        ))}
-                </div>
-                </div>
-                  )}
-                  <p className="text-xs opacity-70 mt-3">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </div>
-              </div>
-            ))}
+        ) : (
+          /* Chat Interface - Full screen when chatting */
+          <div className="flex-1 flex flex-col h-screen">
             
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-2xl p-4 lg:p-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    <span className="text-sm text-muted-foreground ml-2">Dr. Salus is typing...</span>
+            {/* Chat Messages Area */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-6 pt-24">
+              <div className="max-w-4xl mx-auto space-y-6">
+                {messages.slice(1).map((message) => (
+                  <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted/80 backdrop-blur-sm'} rounded-3xl p-6 shadow-lg`}>
+                      <p className="text-base leading-relaxed">{message.content}</p>
+                      {message.analysis && (
+                        <div className="mt-4 p-4 bg-background/60 backdrop-blur-sm rounded-2xl border border-border/20">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-semibold text-foreground">Analysis</span>
+                            <Badge className={`${getSeverityColor(message.analysis.severity)} shadow-sm`}>
+                              {message.analysis.severity}
+                            </Badge>
+                          </div>
+                          <div className="space-y-2">
+                            {message.analysis.recommendations.map((rec, index) => (
+                              <div key={index} className="flex items-start space-x-3 text-sm">
+                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                                <span className="text-foreground">{rec}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
-            
-                  <div ref={messagesEndRef} />
-                </div>
-              </div>
-
-        {/* Input Area */}
-        <div className="border-t border-border/40 bg-card/50 backdrop-blur-xl p-4 lg:p-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-end space-x-3">
-                  <div className="flex-1">
-                <Input
-                  placeholder="Describe your pet's symptoms or ask a question..."
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                  className="min-h-[50px] text-base border-0 focus-visible:ring-0 bg-background"
-                    />
-                  </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleImageUpload}
-                  className="hover:bg-primary/10"
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleVoiceInput}
-                  className={`hover:bg-primary/10 ${isRecording ? 'bg-red-500 text-white' : ''}`}
-                >
-                  <Mic className="h-4 w-4" />
-                </Button>
-                <Button
-                      onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || isTyping}
-                  className="bg-primary hover:bg-primary/90"
-                  size="icon"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-                  </div>
-                </div>
+                ))}
                 
-            {/* Quick Actions */}
-            <div className="flex items-center justify-center space-x-4 mt-4 pt-4 border-t border-border/20">
-              <Button variant="ghost" size="sm" className="text-xs">
-                <Stethoscope className="h-3 w-3 mr-1" />
-                Diagnosis
-              </Button>
-              <Button variant="ghost" size="sm" className="text-xs">
-                <Utensils className="h-3 w-3 mr-1" />
-                Diet
-              </Button>
-              <Button variant="ghost" size="sm" className="text-xs">
-                <Heart className="h-3 w-3 mr-1" />
-                Care
-              </Button>
-              <Button variant="ghost" size="sm" className="text-xs">
-                <MapPin className="h-3 w-3 mr-1" />
-                Find Vet
-              </Button>
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-muted/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <span className="text-sm text-muted-foreground">Dr. Salus is thinking...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div ref={messagesEndRef} />
+            </div>
+            
+            {/* Chat Input Area - Same styling as before */}
+            <div className="w-full max-w-4xl mx-auto px-4 pb-8">
+              <div className="relative">
+                <div className="bg-muted/50 backdrop-blur-xl rounded-2xl p-6 shadow-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        placeholder=""
+                        value={inputMessage}
+                        onChange={(e) => setInputMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                        className="w-full min-h-[60px] text-base border-0 focus:border-0 focus:outline-none focus:ring-0 bg-transparent text-foreground placeholder:text-muted-foreground"
+                      />
+                      {!inputMessage && (
+                        <div className="absolute inset-0 flex items-center pointer-events-none">
+                          <AnimatedPlaceholder />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Controls */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
+                    <div className="flex items-center space-x-4">
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!inputMessage.trim() || isTyping}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        size="icon"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

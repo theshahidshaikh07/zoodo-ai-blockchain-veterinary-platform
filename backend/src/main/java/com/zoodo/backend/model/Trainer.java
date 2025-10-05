@@ -44,7 +44,7 @@ public class Trainer {
     @Size(max = 500)
     private String profilePhotoUrl;
 
-    @Column(name = "practice_type", columnDefinition = "jsonb")
+    @Column(name = "practice_type", columnDefinition = "TEXT")
     private String practiceType; // JSON string: {independent: boolean, trainingCenter: boolean, affiliated: boolean}
 
     // Service details
@@ -122,7 +122,7 @@ public class Trainer {
     @Size(max = 20)
     private String academyPhone;
 
-    @Column(name = "availability_settings", columnDefinition = "jsonb")
+    @Column(name = "availability_settings", columnDefinition = "TEXT")
     private String availabilitySettings; // JSON string for flexibility
 
     @CreationTimestamp

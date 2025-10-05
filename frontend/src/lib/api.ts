@@ -77,12 +77,12 @@ class ApiService {
     const url = `${API_BASE_URL}${endpoint}`;
     
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...options.headers as Record<string, string>,
     };
 
-    if (options.body instanceof FormData) {
-      delete headers['Content-Type'];
+    // Only set Content-Type for non-FormData requests
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
     }
 
     // Add JWT token if available
@@ -177,23 +177,128 @@ class ApiService {
     if (isForm) {
       const form = userData as FormData;
       const isVetMultipart = form.has('licenseNumber') || form.has('licenseProof') || form.has('independentServices') || form.has('availabilitySchedule');
-      const isTrainerMultipart = form.has('specialization') || form.has('certifications') || form.has('resume') || form.has('academyDetails');
+      const isTrainerMultipart = form.has('registrationData') && (form.has('resume') || form.has('profilePhoto'));
       const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument') || form.has('businessHours');
       
-      let endpoint = '/register/pet-owner';
-      if (isVetMultipart) endpoint = '/register/veterinarian';
-      else if (isTrainerMultipart) endpoint = '/register/trainer';
-      else if (isHospitalMultipart) endpoint = '/register/hospital';
+      let endpoint = '/registrations/pet-owner';
+      if (isVetMultipart) {
+        // For veterinarian registration, we need to create a JSON string for registrationData
+        const registrationData = this.createVeterinarianRegistrationData(form);
+        form.set('registrationData', JSON.stringify(registrationData));
+        endpoint = '/registrations/veterinarian';
+      } else if (isTrainerMultipart) {
+        // Frontend already provides registrationData, no need to create it
+        endpoint = '/registrations/trainer';
+      } else if (isHospitalMultipart) {
+        const registrationData = this.createHospitalRegistrationData(form);
+        form.set('registrationData', JSON.stringify(registrationData));
+        endpoint = '/registrations/hospital-clinic';
+      }
       
       return this.request<User>(endpoint, {
         method: 'POST',
         body: form,
       });
     }
-    return this.request<User>('/register/pet-owner', {
+    return this.request<User>('/registrations/pet-owner', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
+  }
+
+  private createVeterinarianRegistrationData(form: FormData): any {
+    return {
+      username: form.get('username') as string,
+      firstName: form.get('firstName') as string,
+      lastName: form.get('lastName') as string,
+      email: form.get('email') as string,
+      password: form.get('password') as string,
+      phoneNumber: form.get('phoneNumber') as string,
+      address: form.get('address') as string,
+      licenseNumber: form.get('licenseNumber') as string,
+      experience: form.get('experience') ? parseInt(form.get('experience') as string) : 0,
+      specialization: this.getArrayFromFormData(form, 'specialization'),
+      qualifications: this.getArrayFromFormData(form, 'qualifications'),
+      otherSpecialization: form.get('otherSpecialization') as string,
+      otherQualification: form.get('otherQualification') as string,
+      isAffiliated: form.get('isAffiliated') === 'true',
+      affiliatedFacilityName: form.get('affiliatedDetails.facilityName') as string,
+      affiliatedType: form.get('affiliatedDetails.affiliationType') as string,
+      otherFacilityName: form.get('affiliatedDetails.otherFacilityName') as string,
+      offerOnlineConsultation: form.get('independentServices.onlineConsultation') === 'true',
+      offerHomeVisits: form.get('independentServices.homeConsultation') === 'true',
+      homeServiceSameAsPersonal: form.get('independentServices.serviceAddress.sameAsPersonal') === 'true',
+      homeServiceStreet: form.get('independentServices.serviceAddress.street') as string,
+      homeServiceCity: form.get('independentServices.serviceAddress.city') as string,
+      homeServiceZip: form.get('independentServices.serviceAddress.zip') as string,
+      homeVisitRadius: form.get('independentServices.homeVisitRadius') ? parseInt(form.get('independentServices.homeVisitRadius') as string) : 0,
+      independentServices: form.get('independentServices') as string,
+      availabilitySchedule: form.get('availabilitySchedule') as string
+    };
+  }
+
+  private createTrainerRegistrationData(form: FormData): any {
+    return {
+      username: form.get('username') as string,
+      firstName: form.get('firstName') as string,
+      lastName: form.get('lastName') as string,
+      email: form.get('email') as string,
+      password: form.get('password') as string,
+      phoneNumber: form.get('phoneNumber') as string,
+      address: form.get('address') as string,
+      experience: form.get('experience') ? parseInt(form.get('experience') as string) : 0,
+      specialization: this.getArrayFromFormData(form, 'specialization'),
+      certifications: this.getArrayFromFormData(form, 'certifications'),
+      otherSpecialization: form.get('otherSpecialization') as string,
+      otherCertification: form.get('otherCertification') as string,
+      practiceType: form.get('practiceType') as string,
+      offerOnlineTraining: form.get('offerOnlineTraining') === 'true',
+      offerHomeTraining: form.get('offerHomeTraining') === 'true',
+      offerGroupClasses: form.get('offerGroupClasses') === 'true',
+      independentServiceSameAsPersonal: form.get('independentServiceSameAsPersonal') === 'true',
+      independentServiceStreet: form.get('independentServiceStreet') as string,
+      independentServiceCity: form.get('independentServiceCity') as string,
+      independentServiceZip: form.get('independentServiceZip') as string,
+      homeTrainingRadius: form.get('homeTrainingRadius') ? parseInt(form.get('homeTrainingRadius') as string) : 1,
+      hasTrainingCenter: form.get('hasTrainingCenter') === 'true',
+      trainingCenterName: form.get('trainingCenterName') as string,
+      trainingCenterAddress: form.get('trainingCenterAddress') as string,
+      hasAcademy: form.get('hasAcademy') === 'true',
+      academyName: form.get('academyName') as string,
+      academyStreet: form.get('academyStreet') as string,
+      academyCity: form.get('academyCity') as string,
+      academyState: form.get('academyState') as string,
+      academyPostalCode: form.get('academyPostalCode') as string,
+      academyCountry: form.get('academyCountry') as string,
+      academyPhone: form.get('academyPhone') as string,
+      independentServices: form.get('independentServices') as string,
+      availabilitySchedule: form.get('availabilitySchedule') as string
+    };
+  }
+
+  private createHospitalRegistrationData(form: FormData): any {
+    return {
+      username: form.get('username') as string,
+      firstName: form.get('firstName') as string,
+      lastName: form.get('lastName') as string,
+      email: form.get('email') as string,
+      password: form.get('password') as string,
+      phoneNumber: form.get('phoneNumber') as string,
+      address: form.get('address') as string,
+      facilityName: form.get('facilityName') as string,
+      facilityLicenseNumber: form.get('facilityLicenseNumber') as string,
+      businessHours: form.get('businessHours') as string
+    };
+  }
+
+  private getArrayFromFormData(form: FormData, key: string): string[] {
+    const values: string[] = [];
+    for (const [formKey, value] of form.entries()) {
+      if (formKey === key && typeof value === 'string') {
+        values.push(value);
+      }
+    }
+    return values;
   }
 
   async loginUser(credentials: {
@@ -390,6 +495,156 @@ class ApiService {
     
     const endpoint = `/admin/users/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return this.request(endpoint);
+  }
+
+  // Registration Management Endpoints
+  
+  // Pet Owner Registration
+  async createPetOwnerRegistration(registrationData: any): Promise<ApiResponse<any>> {
+    return this.request('/registrations/pet-owner', {
+      method: 'POST',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async getPetOwnerRegistration(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/pet-owner/${id}`);
+  }
+
+  async updatePetOwnerRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/pet-owner/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async approvePetOwnerRegistration(id: string): Promise<ApiResponse<User>> {
+    return this.request(`/registrations/pet-owner/${id}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectPetOwnerRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/pet-owner/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getPetOwnerRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
+    return this.request(`/registrations/pet-owner/status/${status}`);
+  }
+
+  async getActivePetOwnerRegistrations(): Promise<ApiResponse<any[]>> {
+    return this.request('/registrations/pet-owner/active');
+  }
+
+  // Veterinarian Registration
+  async createVeterinarianRegistration(registrationData: FormData): Promise<ApiResponse<any>> {
+    return this.request('/registrations/veterinarian', {
+      method: 'POST',
+      body: registrationData,
+    });
+  }
+
+  async getVeterinarianRegistration(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/veterinarian/${id}`);
+  }
+
+  async updateVeterinarianRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/veterinarian/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async approveVeterinarianRegistration(id: string): Promise<ApiResponse<User>> {
+    return this.request(`/registrations/veterinarian/${id}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectVeterinarianRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/veterinarian/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getVeterinarianRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
+    return this.request(`/registrations/veterinarian/status/${status}`);
+  }
+
+  // Trainer Registration
+  async createTrainerRegistration(registrationData: FormData): Promise<ApiResponse<any>> {
+    return this.request('/registrations/trainer', {
+      method: 'POST',
+      body: registrationData,
+    });
+  }
+
+  async getTrainerRegistration(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/trainer/${id}`);
+  }
+
+  async updateTrainerRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/trainer/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async approveTrainerRegistration(id: string): Promise<ApiResponse<User>> {
+    return this.request(`/registrations/trainer/${id}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectTrainerRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/trainer/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getTrainerRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
+    return this.request(`/registrations/trainer/status/${status}`);
+  }
+
+  // Hospital/Clinic Registration
+  async createHospitalClinicRegistration(registrationData: any): Promise<ApiResponse<any>> {
+    return this.request('/registrations/hospital-clinic', {
+      method: 'POST',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async getHospitalClinicRegistration(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/hospital-clinic/${id}`);
+  }
+
+  async updateHospitalClinicRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/hospital-clinic/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(registrationData),
+    });
+  }
+
+  async approveHospitalClinicRegistration(id: string): Promise<ApiResponse<User>> {
+    return this.request(`/registrations/hospital-clinic/${id}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectHospitalClinicRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request(`/registrations/hospital-clinic/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getHospitalClinicRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
+    return this.request(`/registrations/hospital-clinic/status/${status}`);
   }
 
   // Health check

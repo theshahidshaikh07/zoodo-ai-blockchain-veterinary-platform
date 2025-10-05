@@ -37,9 +37,11 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
+  phoneNumber: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
+  state: string;
   postalCode: string;
   country: string;
   pets: PetInfo[];
@@ -57,9 +59,11 @@ function PetOwnerWizard() {
     email: '',
     password: '',
     confirmPassword: '',
+    phoneNumber: '',
     addressLine1: '',
     addressLine2: '',
     city: '',
+    state: '',
     postalCode: '',
     country: 'India',
     pets: [
@@ -198,6 +202,25 @@ function PetOwnerWizard() {
     setIsLoading(true);
     setError('');
     const address = `${formData.addressLine1}, ${formData.addressLine2}, ${formData.city} ${formData.postalCode}, ${formData.country}`;
+    
+    // Process pets data to match backend expectations
+    const processedPets = formData.pets
+      .filter(pet => pet.name && pet.species) // Only include pets with name and species
+      .map(pet => ({
+        name: pet.name,
+        species: pet.species,
+        breed: pet.breed || null,
+        gender: pet.gender,
+        birthday: pet.birthday || null,
+        age: pet.age ? parseInt(pet.age) : null,
+        ageUnit: pet.ageUnit,
+        weight: pet.weight ? parseFloat(pet.weight) : null,
+        weightUnit: pet.weightUnit,
+        microchip: pet.microchip || null,
+        sterilized: pet.sterilized,
+        photoUrl: null // No photo upload in registration form
+      }));
+    
     try {
       const res = await apiService.registerUser({
         username: formData.username,
@@ -205,7 +228,13 @@ function PetOwnerWizard() {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
+        phoneNumber: formData.phoneNumber || null,
         address,
+        city: formData.city || null,
+        state: formData.state || null,
+        country: formData.country || null,
+        postalCode: formData.postalCode || null,
+        pets: processedPets
       });
       if (res.success) router.push('/dashboard');
       else setError(res.message || 'Registration failed');
