@@ -1,8 +1,8 @@
-# Dr. Zoodo AI - AI Vet Assistant Guide
+# Dr. Salus AI - AI Vet Assistant Guide
 
 ## 🏥 Overview
 
-**Dr. Zoodo AI** is your virtual veterinary assistant, built into the Zoodo veterinary and pet care platform. This AI assistant provides professional veterinary guidance, symptom analysis, vet recommendations, and emergency handling.
+**Dr. Salus AI** is your virtual veterinary assistant, built into the Zoodo veterinary and pet care platform. This AI assistant provides professional veterinary guidance, symptom analysis, vet recommendations, and emergency handling.
 
 ## 🎯 Key Features
 
@@ -216,7 +216,7 @@ The AI automatically classifies queries into:
 ```json
 {
   "type": "non_vet_query",
-  "response": "I'm Dr. Zoodo AI, your virtual veterinary assistant. I'm here specifically to help with pet health and veterinary-related questions...",
+  "response": "I'm Dr. Salus AI, your virtual veterinary assistant. I'm here specifically to help with pet health and veterinary-related questions...",
   "confidence": 1.0,
   "should_see_vet": false,
   "emergency": false
@@ -376,4 +376,4 @@ GET /ai-vet/info
 
 ---
 
-**Dr. Zoodo AI** - Your trusted virtual veterinary assistant, always ready to help with your pet's health and care! 🐾 
+**Dr. Salus AI** - Your trusted virtual veterinary assistant, always ready to help with your pet's health and care! 🐾 

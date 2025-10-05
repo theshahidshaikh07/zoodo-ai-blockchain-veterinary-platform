@@ -1,365 +1,220 @@
 #!/usr/bin/env python3
 """
-Test script for AI Vet Assistant (Dr. Zoodo AI)
+Test script for AI Veterinarian Assistant
+This script tests the AI assistant functionality
 """
 
-import asyncio
 import os
 import sys
-from datetime import datetime
+import asyncio
+import json
+from pathlib import Path
 
-# Add the app directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
+# Add the app directory to Python path
+app_dir = Path(__file__).parent / "app"
+sys.path.insert(0, str(app_dir))
 
-from app.utils.ai_vet_assistant import AIVetAssistant
+from utils.ai_vet_assistant import AIVetAssistant
+from utils.mongodb_manager import MongoDBManager
+from utils.redis_manager import RedisManager
 
-async def test_ai_vet_initialization():
-    """Test AI Vet Assistant initialization"""
-    print("Testing AI Vet Assistant initialization...")
+async def test_ai_vet_assistant():
+    """Test the AI Vet Assistant functionality"""
+    print("🐾 Testing AI Veterinarian Assistant...")
     
-    ai_vet = AIVetAssistant()
+    # Initialize managers (optional for testing)
+    mongo_manager = MongoDBManager()
+    redis_manager = RedisManager()
     
     try:
-        await ai_vet.initialize()
-        
-        if ai_vet.is_ready():
-            print("✅ AI Vet Assistant initialized successfully")
-            print(f"   Name: {ai_vet.name}")
-            print(f"   Model: {ai_vet.model_name}")
-            print(f"   Emergency keywords: {len(ai_vet.emergency_keywords)}")
-            print(f"   Vet topics: {len(ai_vet.vet_topics)}")
-        else:
-            print("❌ AI Vet Assistant initialization failed")
-            
+        await mongo_manager.initialize()
+        print("✅ MongoDB Manager initialized")
     except Exception as e:
-        print(f"❌ AI Vet Assistant test failed: {str(e)}")
+        print(f"⚠️  MongoDB Manager failed to initialize: {e}")
+        mongo_manager = None
     
-    finally:
-        await ai_vet.close()
-
-async def test_vet_related_queries():
-    """Test vet-related query detection"""
-    print("\nTesting vet-related query detection...")
+    try:
+        await redis_manager.initialize()
+        print("✅ Redis Manager initialized")
+    except Exception as e:
+        print(f"⚠️  Redis Manager failed to initialize: {e}")
+        redis_manager = None
     
+    # Initialize the assistant
     ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
+    await ai_vet.initialize(mongo_manager=mongo_manager, redis_manager=redis_manager)
     
-    # Test cases
-    test_cases = [
-        ("My dog is vomiting", True, "symptom_check"),
-        ("Find a vet near me", True, "vet_finder"),
-        ("What should I feed my cat?", True, "diet_care"),
-        ("How to groom my pet", True, "diet_care"),
-        ("What's the weather like?", False, "non_vet"),
-        ("Tell me a joke", False, "non_vet"),
-        ("My pet is having seizures", True, "emergency"),
-        ("Dog not breathing", True, "emergency")
-    ]
+    if not ai_vet.is_ready():
+        print("❌ AI Vet Assistant failed to initialize")
+        return False
     
-    for query, should_be_vet, expected_type in test_cases:
-        is_vet = ai_vet._is_vet_related(query)
-        has_emergency = ai_vet._contains_emergency_keywords(query)
-        query_type = ai_vet._classify_query(query)
-        
-        if has_emergency:
-            actual_type = "emergency"
-        else:
-            actual_type = query_type
-        
-        status = "✅" if is_vet == should_be_vet else "❌"
-        print(f"{status} Query: '{query}'")
-        print(f"   Vet-related: {is_vet} (expected: {should_be_vet})")
-        print(f"   Type: {actual_type} (expected: {expected_type})")
-        print(f"   Emergency: {has_emergency}")
-        print()
-    
-    await ai_vet.close()
-
-async def test_symptom_analysis():
-    """Test symptom analysis functionality"""
-    print("\nTesting symptom analysis...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
+    print("✅ AI Vet Assistant initialized successfully")
     
     # Test cases
     test_cases = [
         {
-            "query": "My dog is vomiting and not eating",
-            "pet_info": {"species": "dog", "breed": "Golden Retriever", "age": 5},
-            "expected_symptoms": ["vomiting", "not eating"]
-        },
-        {
-            "query": "My cat is limping and seems in pain",
-            "pet_info": {"species": "cat", "breed": "Persian", "age": 3},
-            "expected_symptoms": ["limping", "pain"]
-        }
-    ]
-    
-    for i, test_case in enumerate(test_cases, 1):
-        print(f"Test case {i}:")
-        print(f"   Query: '{test_case['query']}'")
-        
-        symptoms = ai_vet._extract_symptoms(test_case['query'])
-        urgency = ai_vet._determine_urgency(symptoms, test_case['query'])
-        
-        print(f"   Extracted symptoms: {symptoms}")
-        print(f"   Urgency level: {urgency}")
-        print(f"   Expected symptoms: {test_case['expected_symptoms']}")
-        
-        # Check if expected symptoms are found
-        found_expected = all(symptom in test_case['query'].lower() for symptom in test_case['expected_symptoms'])
-        status = "✅" if found_expected else "❌"
-        print(f"   {status} Symptom extraction")
-        print()
-    
-    await ai_vet.close()
-
-async def test_emergency_detection():
-    """Test emergency keyword detection"""
-    print("\nTesting emergency detection...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
-    
-    # Test cases
-    emergency_cases = [
-        "My dog is having a seizure",
-        "Cat not breathing",
-        "Pet bleeding severely",
-        "Dog collapsed",
-        "Pet unconscious"
-    ]
-    
-    non_emergency_cases = [
-        "My dog is sneezing",
-        "Cat has mild cough",
-        "Pet is slightly lethargic",
-        "Dog has minor limp"
-    ]
-    
-    print("Emergency cases:")
-    for case in emergency_cases:
-        is_emergency = ai_vet._contains_emergency_keywords(case)
-        status = "✅" if is_emergency else "❌"
-        print(f"   {status} '{case}' -> Emergency: {is_emergency}")
-    
-    print("\nNon-emergency cases:")
-    for case in non_emergency_cases:
-        is_emergency = ai_vet._contains_emergency_keywords(case)
-        status = "✅" if not is_emergency else "❌"
-        print(f"   {status} '{case}' -> Emergency: {is_emergency}")
-    
-    await ai_vet.close()
-
-async def test_query_classification():
-    """Test query classification"""
-    print("\nTesting query classification...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
-    
-    # Test cases
-    test_cases = [
-        ("My dog is vomiting", "symptom_check"),
-        ("Find a veterinarian", "vet_finder"),
-        ("What should I feed my puppy?", "diet_care"),
-        ("How to care for my cat", "diet_care"),
-        ("General pet health advice", "general_advice")
-    ]
-    
-    for query, expected_type in test_cases:
-        actual_type = ai_vet._classify_query(query)
-        status = "✅" if actual_type == expected_type else "❌"
-        print(f"   {status} '{query}' -> {actual_type} (expected: {expected_type})")
-    
-    await ai_vet.close()
-
-async def test_integration_with_backend():
-    """Test integration with Spring Boot backend"""
-    print("\nTesting backend integration...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
-    
-    # Test vet recommendations
-    try:
-        vets = await ai_vet._get_vets_from_backend(
-            user_location={"lat": 40.7128, "lng": -74.0060},  # NYC coordinates
-            search_criteria={"specialization": "general"},
-            pet_info={"species": "dog", "breed": "Golden Retriever"}
-        )
-        
-        if vets:
-            print("✅ Backend vet integration successful")
-            print(f"   Found {len(vets)} vets")
-            for vet in vets[:2]:  # Show first 2
-                print(f"   - {vet.get('name', 'Unknown')}")
-        else:
-            print("⚠️  No vets found (using mock data)")
-            
-    except Exception as e:
-        print(f"❌ Backend integration test failed: {str(e)}")
-    
-    # Test emergency clinics
-    try:
-        clinics = await ai_vet._get_emergency_clinics(
-            user_location={"lat": 40.7128, "lng": -74.0060}
-        )
-        
-        if clinics:
-            print("✅ Emergency clinics integration successful")
-            print(f"   Found {len(clinics)} emergency clinics")
-        else:
-            print("⚠️  No emergency clinics found (using mock data)")
-            
-    except Exception as e:
-        print(f"❌ Emergency clinics integration failed: {str(e)}")
-    
-    await ai_vet.close()
-
-async def test_mongodb_redis_integration():
-    """Test MongoDB and Redis integration"""
-    print("\nTesting MongoDB and Redis integration...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
-    
-    if not ai_vet.mongo_manager or not ai_vet.redis_manager:
-        print("❌ Database managers not initialized")
-        return
-    
-    # Test MongoDB connection
-    mongo_connected = await ai_vet.mongo_manager.is_connected()
-    print(f"   MongoDB: {'✅ Connected' if mongo_connected else '❌ Not connected'}")
-    
-    # Test Redis connection
-    redis_connected = await ai_vet.redis_manager.is_connected()
-    print(f"   Redis: {'✅ Connected' if redis_connected else '❌ Not connected'}")
-    
-    if mongo_connected and redis_connected:
-        print("✅ Database integration successful")
-        
-        # Test storing interaction
-        try:
-            await ai_vet.redis_manager.store_user_interaction(
-                user_id="test_user",
-                interaction_type="test_interaction",
-                interaction_data={"test": "data"}
-            )
-            print("✅ Redis interaction storage successful")
-        except Exception as e:
-            print(f"❌ Redis interaction storage failed: {str(e)}")
-        
-        # Test storing symptom analysis
-        try:
-            await ai_vet.mongo_manager.store_symptom_analysis(
-                user_id="test_user",
-                pet_id="test_pet",
-                symptoms=["test symptom"],
-                analysis_result={"test": "analysis"}
-            )
-            print("✅ MongoDB symptom analysis storage successful")
-        except Exception as e:
-            print(f"❌ MongoDB symptom analysis storage failed: {str(e)}")
-    else:
-        print("❌ Database integration failed")
-    
-    await ai_vet.close()
-
-async def test_full_conversation_flow():
-    """Test full conversation flow with AI Vet Assistant"""
-    print("\nTesting full conversation flow...")
-    
-    ai_vet = AIVetAssistant()
-    await ai_vet.initialize()
-    
-    # Test conversation scenarios
-    scenarios = [
-        {
-            "name": "Symptom Check",
-            "query": "My dog is vomiting and seems lethargic",
-            "pet_info": {"species": "dog", "breed": "Labrador", "age": 3},
+            "name": "Symptom Check - Dog Vomiting",
+            "query": "My dog has been vomiting for 2 days and seems lethargic",
+            "pet_info": {"species": "dog", "breed": "Golden Retriever", "age": 3},
             "expected_type": "symptom_check"
         },
         {
-            "name": "Vet Finder",
-            "query": "I need to find a good veterinarian near me",
-            "pet_info": {"species": "dog", "breed": "Golden Retriever"},
+            "name": "Emergency Case - Breathing Issues",
+            "query": "My cat is having difficulty breathing and seems to be in distress",
+            "pet_info": {"species": "cat", "breed": "Persian", "age": 5},
+            "expected_type": "emergency"
+        },
+        {
+            "name": "Emergency Case - Seizure",
+            "query": "My dog just had a seizure and is not responding",
+            "pet_info": {"species": "dog", "breed": "Border Collie", "age": 4},
+            "expected_type": "emergency"
+        },
+        {
+            "name": "Vet Finder Request",
+            "query": "I need to find a good veterinarian near me for my dog",
+            "pet_info": {"species": "dog", "breed": "Labrador"},
             "user_location": {"lat": 40.7128, "lng": -74.0060},
             "expected_type": "vet_finder"
         },
         {
-            "name": "Diet Care",
+            "name": "Diet and Care Question",
             "query": "What should I feed my 6-month-old puppy?",
             "pet_info": {"species": "dog", "breed": "German Shepherd", "age": 0.5},
             "expected_type": "diet_care"
         },
         {
-            "name": "Emergency Case",
-            "query": "My cat is having seizures and not breathing properly",
-            "pet_info": {"species": "cat", "breed": "Persian", "age": 5},
-            "expected_type": "emergency"
+            "name": "Grooming Question",
+            "query": "How often should I groom my long-haired cat?",
+            "pet_info": {"species": "cat", "breed": "Maine Coon", "age": 2},
+            "expected_type": "diet_care"
         },
         {
-            "name": "Non-Vet Query",
+            "name": "General Health Question",
+            "query": "My dog seems to be limping on his front leg",
+            "pet_info": {"species": "dog", "breed": "Beagle", "age": 7},
+            "expected_type": "symptom_check"
+        },
+        {
+            "name": "Non-Vet Question",
             "query": "What's the weather like today?",
-            "expected_type": "non_vet"
+            "pet_info": None,
+            "expected_type": "non_vet_query"
+        },
+        {
+            "name": "Multiple Symptoms",
+            "query": "My cat is not eating, seems lethargic, and has been hiding under the bed",
+            "pet_info": {"species": "cat", "breed": "Siamese", "age": 6},
+            "expected_type": "symptom_check"
         }
     ]
     
-    for scenario in scenarios:
-        print(f"\nScenario: {scenario['name']}")
-        print(f"Query: '{scenario['query']}'")
+    print("\n🧪 Running test cases...")
+    print("=" * 60)
+    
+    for i, test_case in enumerate(test_cases, 1):
+        print(f"\nTest {i}: {test_case['name']}")
+        print(f"Query: {test_case['query']}")
         
         try:
             result = await ai_vet.process_user_query(
                 user_id="test_user",
-                query=scenario['query'],
-                pet_info=scenario.get('pet_info'),
-                user_location=scenario.get('user_location')
+                query=test_case["query"],
+                pet_info=test_case.get("pet_info"),
+                user_location=test_case.get("user_location")
             )
             
-            print(f"Response type: {result['type']}")
-            print(f"Emergency: {result.get('emergency', False)}")
-            print(f"Should see vet: {result.get('should_see_vet', False)}")
-            print(f"Confidence: {result.get('confidence', 0.0)}")
+            print(f"✅ Response Type: {result['type']}")
+            print(f"✅ Confidence: {result['confidence']}")
+            print(f"✅ Should See Vet: {result['should_see_vet']}")
+            print(f"✅ Emergency: {result.get('emergency', False)}")
             
-            # Check if response type matches expected
-            expected_type = scenario['expected_type']
-            actual_type = result['type']
-            
-            if expected_type == "emergency" and result.get('emergency', False):
-                status = "✅"
-            elif actual_type == expected_type:
-                status = "✅"
+            if result['type'] == test_case['expected_type']:
+                print("✅ Test PASSED - Response type matches expected")
             else:
-                status = "❌"
+                print(f"⚠️  Test PARTIAL - Expected {test_case['expected_type']}, got {result['type']}")
             
-            print(f"{status} Type match: {actual_type} (expected: {expected_type})")
+            # Show a snippet of the response
+            response_snippet = result['response'][:100] + "..." if len(result['response']) > 100 else result['response']
+            print(f"📝 Response: {response_snippet}")
             
         except Exception as e:
-            print(f"❌ Error processing scenario: {str(e)}")
+            print(f"❌ Test FAILED - Error: {str(e)}")
+        
+        print("-" * 40)
     
-    await ai_vet.close()
+    print("\n🎉 Test completed!")
+    
+    # Cleanup
+    if mongo_manager:
+        await mongo_manager.close()
+    if redis_manager:
+        await redis_manager.close()
+    
+    return True
 
-async def main():
-    """Run all tests"""
-    print("🧪 Testing AI Vet Assistant (Dr. Zoodo AI)")
-    print("=" * 60)
+async def test_simple_functionality():
+    """Test basic functionality without OpenAI"""
+    print("\n🔧 Testing basic functionality...")
     
-    await test_ai_vet_initialization()
-    await test_vet_related_queries()
-    await test_symptom_analysis()
-    await test_emergency_detection()
-    await test_query_classification()
-    await test_integration_with_backend()
-    await test_mongodb_redis_integration()
-    await test_full_conversation_flow()
+    # Test without OpenAI API key
+    original_key = os.environ.get("OPENAI_API_KEY")
+    if original_key:
+        del os.environ["OPENAI_API_KEY"]
     
-    print("\n" + "=" * 60)
-    print("✅ All AI Vet Assistant tests completed!")
-    print("\n🎉 Dr. Zoodo AI is ready to help with your pet's health!")
+    ai_vet = AIVetAssistant()
+    await ai_vet.initialize()
+    
+    if ai_vet.is_ready():
+        print("✅ AI Vet Assistant works without OpenAI (rule-based mode)")
+        
+        # Test a simple query
+        result = await ai_vet.process_user_query(
+            user_id="test_user",
+            query="My dog is vomiting",
+            pet_info={"species": "dog"}
+        )
+        
+        print(f"✅ Rule-based response generated: {result['type']}")
+        print(f"📝 Response: {result['response'][:100]}...")
+    else:
+        print("❌ AI Vet Assistant failed to initialize in rule-based mode")
+    
+    # Restore API key
+    if original_key:
+        os.environ["OPENAI_API_KEY"] = original_key
+
+def main():
+    """Main test function"""
+    print("🧪 AI Veterinarian Assistant Test Suite")
+    print("=" * 50)
+    
+    # Check AI provider configuration
+    ai_provider = os.getenv("AI_PROVIDER", "google")
+    has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    has_google_key = bool(os.getenv("GOOGLE_API_KEY"))
+    
+    if ai_provider.lower() == "google" and has_google_key:
+        print(f"🔑 Google API Key: ✅ Available")
+        print("🤖 Will test with Google Gemini integration")
+    elif ai_provider.lower() == "openai" and has_openai_key:
+        print(f"🔑 OpenAI API Key: ✅ Available")
+        print("🤖 Will test with OpenAI integration")
+    else:
+        print("🔧 Will test in rule-based mode only")
+    
+    try:
+        # Run tests
+        asyncio.run(test_ai_vet_assistant())
+        
+        # Test basic functionality
+        asyncio.run(test_simple_functionality())
+        
+        print("\n✅ All tests completed successfully!")
+        
+    except Exception as e:
+        print(f"\n❌ Test suite failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    main()

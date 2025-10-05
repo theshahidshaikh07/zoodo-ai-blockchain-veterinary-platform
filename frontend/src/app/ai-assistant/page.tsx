@@ -12,17 +12,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
 import Header from '@/components/Header';
+import { apiService, AIChatRequest } from '@/lib/api';
 
 interface Message {
   id: string;
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
-  analysis?: {
-    confidence: number;
-    recommendations: string[];
-    severity: 'low' | 'medium' | 'high';
-  };
 }
 
 export default function AIAssistantPage() {
@@ -55,7 +51,7 @@ export default function AIAssistantPage() {
       {
         id: '1',
         type: 'ai',
-        content: "Hello! I'm Dr. Salus AI, your intelligent veterinary assistant. I can help you with pet diagnosis, diet recommendations, personalized care plans, and connect you with the best vets and trainers. How can I assist you today?",
+        content: "Hello! I'm Dr. Salus AI, your intelligent veterinary assistant powered by Google Gemini. I can help you with pet health advice, symptom analysis, care recommendations, and emergency guidance. How can I assist you with your pet's health today?",
         timestamp: new Date(),
       }
     ]);
@@ -105,25 +101,55 @@ export default function AIAssistantPage() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputMessage;
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
-      type: 'ai',
-        content: generateAIResponse(),
-      timestamp: new Date(),
-        analysis: {
-          confidence: 0.85,
-          recommendations: ['Schedule a vet visit', 'Monitor symptoms', 'Keep pet hydrated'],
-          severity: 'medium'
+    try {
+      // Call the real AI service
+      const request: AIChatRequest = {
+        message: currentMessage,
+        pet_info: {
+          // You can add pet info here if available
+          species: 'unknown',
+          breed: 'unknown',
+          age: 0
         }
       };
-      setMessages(prev => [...prev, aiResponse]);
+
+      const response = await apiService.chatWithAI(request);
+      
+      if (response.success && response.data) {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: response.data.response,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        // Fallback to error message
+        const errorResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later or contact support.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorResponse]);
+      }
+    } catch (error) {
+      console.error('Error calling AI service:', error);
+      // Fallback to error message
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later or contact support.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+    }
   };
 
   const generateAIResponse = (): string => {
@@ -145,14 +171,6 @@ export default function AIAssistantPage() {
     // Implement image upload logic here
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'low': return 'bg-green-500 text-white';
-      case 'medium': return 'bg-yellow-500 text-black';
-      case 'high': return 'bg-red-500 text-white';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
 
   // Animated placeholder component
   const AnimatedPlaceholder = () => {
@@ -243,7 +261,7 @@ export default function AIAssistantPage() {
                   </div>
                   <div>
                     <h1 className="font-semibold text-foreground">Dr. Salus AI</h1>
-                    <p className="text-xs text-muted-foreground">Your Pet's Health Assistant</p>
+                    <p className="text-xs text-muted-foreground">Powered by Google Gemini</p>
                   </div>
                 </div>
               </div>
@@ -359,24 +377,6 @@ export default function AIAssistantPage() {
                   <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted/80 backdrop-blur-sm'} rounded-3xl p-6 shadow-lg`}>
                       <p className="text-base leading-relaxed">{message.content}</p>
-                      {message.analysis && (
-                        <div className="mt-4 p-4 bg-background/60 backdrop-blur-sm rounded-2xl border border-border/20">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-sm font-semibold text-foreground">Analysis</span>
-                            <Badge className={`${getSeverityColor(message.analysis.severity)} shadow-sm`}>
-                              {message.analysis.severity}
-                            </Badge>
-                          </div>
-                          <div className="space-y-2">
-                            {message.analysis.recommendations.map((rec, index) => (
-                              <div key={index} className="flex items-start space-x-3 text-sm">
-                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                                <span className="text-foreground">{rec}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

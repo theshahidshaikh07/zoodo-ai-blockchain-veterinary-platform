@@ -1,4 +1,5 @@
 const API_BASE_URL = 'http://localhost:8080/api';
+const AI_SERVICE_URL = 'http://localhost:8000';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -60,6 +61,29 @@ export interface Appointment {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// AI Service interfaces
+export interface AIChatRequest {
+  message: string;
+  pet_info?: {
+    species?: string;
+    breed?: string;
+    age?: number;
+    weight?: number;
+    name?: string;
+  };
+}
+
+export interface AIChatResponse {
+  response: string;
+  timestamp: string;
+}
+
+export interface AIHealthCheck {
+  status: string;
+  ai_vet: boolean;
+  provider: string;
 }
 
 class ApiService {
@@ -679,6 +703,93 @@ class ApiService {
     } catch (parseError) {
       console.error('Failed to parse health check JSON:', parseError);
       throw new Error('Invalid JSON response from health check');
+    }
+  }
+
+  // AI Service endpoints
+  async chatWithAI(request: AIChatRequest): Promise<ApiResponse<AIChatResponse>> {
+    try {
+      const response = await fetch(`${AI_SERVICE_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI Service error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        success: true,
+        message: 'AI response received',
+        data: data
+      };
+    } catch (error) {
+      console.error('AI Service request failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'AI Service unavailable',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getAIHealthCheck(): Promise<ApiResponse<AIHealthCheck>> {
+    try {
+      const response = await fetch(`${AI_SERVICE_URL}/health`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI Service health check failed! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        success: true,
+        message: 'AI Service health check completed',
+        data: data
+      };
+    } catch (error) {
+      console.error('AI Service health check failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'AI Service unavailable',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getAIInfo(): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(`${AI_SERVICE_URL}/ai-vet/info`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI Service info request failed! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        success: true,
+        message: 'AI Service info retrieved',
+        data: data
+      };
+    } catch (error) {
+      console.error('AI Service info request failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'AI Service unavailable',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 }

@@ -12,15 +12,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from .models.ai_models import SymptomAnalysisRequest, ProviderRecommendationRequest, CareRoutineRequest
-from .utils.ai_vet_assistant import AIVetAssistant
-from .utils.blockchain_client import BlockchainClient
-from .utils.mongodb_manager import MongoDBManager
-from .utils.redis_manager import RedisManager
-from .utils.auth import verify_token
+from models.ai_models import SymptomAnalysisRequest, ProviderRecommendationRequest, CareRoutineRequest
+from utils.ai_vet_assistant import AIVetAssistant
+from utils.blockchain_client import BlockchainClient
+from utils.mongodb_manager import MongoDBManager
+from utils.redis_manager import RedisManager
+from utils.auth import verify_token
 
 app = FastAPI(
-    title="Zoodo AI Vet Assistant",
+    title="Dr. Salus AI Vet Assistant",
     description="AI-powered virtual veterinary assistant for pet health, symptom analysis, and care recommendations",
     version="2.0.0"
 )
@@ -46,10 +46,15 @@ redis_manager = RedisManager()
 @app.on_event("startup")
 async def startup_event():
     """Initialize AI Vet Assistant and services on startup"""
-    await ai_vet.initialize()
-    await blockchain_client.initialize()
+    # Initialize database managers first
     await mongo_manager.initialize()
     await redis_manager.initialize()
+    
+    # Initialize blockchain client
+    await blockchain_client.initialize()
+    
+    # Initialize AI Vet Assistant with managers
+    await ai_vet.initialize(mongo_manager=mongo_manager, redis_manager=redis_manager)
 
 @app.get("/")
 async def root():
@@ -99,7 +104,7 @@ async def chat_with_ai_vet(
     """
     Main chat endpoint with AI Vet Assistant
     
-    This is the primary endpoint for interacting with Dr. Zoodo AI.
+    This is the primary endpoint for interacting with Dr. Salus AI.
     The AI will:
     - Analyze symptoms and provide health advice
     - Recommend vets based on location and symptoms

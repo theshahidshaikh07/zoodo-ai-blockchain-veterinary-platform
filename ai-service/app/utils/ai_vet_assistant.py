@@ -2,13 +2,13 @@ import os
 import json
 import asyncio
 import httpx
+import hashlib
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta
-import openai
-from langchain_community.llms import OpenAI
-from langchain.chains import LLMChain
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
+
 # Load environment variables
 load_dotenv()
 
@@ -26,48 +26,69 @@ class AIVetAssistant:
     """
     
     def __init__(self):
-        self.name = "Dr. Zoodo AI"  # AI Vet Assistant name
+        self.name = "Dr. Salus AI"  # AI Vet Assistant name
         self.is_initialized = False
-        self.openai_client = None
         self.llm = None
+        self.mongo_manager = None
+        self.redis_manager = None
+        
         # Configuration
-        self.openai_api_key = os.getenv("OPENAI_API_KEY")
-        self.model_name = os.getenv("AI_MODEL_NAME", "gpt-4")
+        self.google_api_key = os.getenv("GOOGLE_API_KEY")
+        self.model_name = os.getenv("AI_MODEL_NAME", "gemini-pro")
         self.backend_url = os.getenv("BACKEND_URL", "http://localhost:8080")
         
         # Emergency keywords that trigger immediate escalation
         self.emergency_keywords = [
             "seizure", "not breathing", "blood", "choking", "critical",
             "unconscious", "collapse", "severe bleeding", "difficulty breathing",
-            "emergency", "urgent", "dying", "dead", "heart attack", "stroke"
+            "emergency", "urgent", "dying", "dead", "heart attack", "stroke",
+            "not responding", "blue tongue", "pale gums", "shock", "trauma"
         ]
         
         # Vet-only topics - AI will refuse non-vet questions
         self.vet_topics = [
             "pet health", "veterinary", "animal care", "pet symptoms",
             "pet diet", "pet exercise", "pet grooming", "pet behavior",
-            "pet emergency", "pet medication", "pet vaccination"
+            "pet emergency", "pet medication", "pet vaccination", "pet training",
+            "pet nutrition", "pet wellness", "pet disease", "pet injury"
         ]
+        
+        # Symptom severity levels
+        self.severity_levels = {
+            "emergency": ["seizure", "not breathing", "unconscious", "severe bleeding", "choking"],
+            "high": ["difficulty breathing", "severe pain", "vomiting blood", "collapse", "shock"],
+            "medium": ["vomiting", "diarrhea", "lethargy", "not eating", "limping"],
+            "low": ["mild cough", "slight limp", "reduced appetite", "mild itching"]
+        }
 
-    async def initialize(self):
+    async def initialize(self, mongo_manager=None, redis_manager=None):
         """Initialize the AI Vet Assistant"""
         try:
-            # Initialize OpenAI
-            if self.openai_api_key:
-                openai.api_key = self.openai_api_key
-                self.openai_client = openai
-                self.llm = OpenAI(
+            # Store manager references
+            self.mongo_manager = mongo_manager
+            self.redis_manager = redis_manager
+            
+            # Initialize Google Gemini
+            if self.google_api_key:
+                self.llm = ChatGoogleGenerativeAI(
+                    model=self.model_name,
+                    google_api_key=self.google_api_key,
                     temperature=0.7,
-                    openai_api_key=self.openai_api_key,
-                    model_name=self.model_name
+                    max_output_tokens=1000
                 )
+                print(f"✅ {self.name} initialized with Google Gemini")
+            else:
+                print(f"⚠️  No Google API key configured, using rule-based mode")
+                self.llm = None
                 
             self.is_initialized = True
             print(f"✅ {self.name} initialized successfully")
             
         except Exception as e:
             print(f"❌ Error initializing {self.name}: {str(e)}")
-            self.is_initialized = False
+            print(f"⚠️  Falling back to rule-based mode")
+            self.llm = None
+            self.is_initialized = True
 
     async def process_user_query(
         self,
@@ -160,11 +181,34 @@ class AIVetAssistant:
     ) -> Dict[str, Any]:
         """Handle emergency cases with immediate escalation"""
         
+        # Log emergency case
+        if self.redis_manager:
+            await self.redis_manager.add_to_emergency_queue({
+                "user_id": user_id,
+                "query": query,
+                "pet_info": pet_info,
+                "location": user_location,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+        
         # Get nearest emergency clinics
         emergency_clinics = await self._get_emergency_clinics(user_location)
         
         # Generate emergency response
         emergency_response = await self._generate_emergency_response(query, pet_info, emergency_clinics)
+        
+        # Store emergency assessment in MongoDB
+        if self.mongo_manager:
+            await self.mongo_manager.store_emergency_assessment(
+                user_id=user_id,
+                pet_id=pet_info.get("pet_id") if pet_info else None,
+                assessment_data={
+                    "query": query,
+                    "pet_info": pet_info,
+                    "emergency_clinics": emergency_clinics,
+                    "response": emergency_response
+                }
+            )
         
         return {
             "response": emergency_response,
@@ -174,11 +218,14 @@ class AIVetAssistant:
             "emergency": True,
             "emergency_clinics": emergency_clinics,
             "immediate_actions": [
-                "Call emergency veterinary clinic immediately",
-                "Keep pet calm and comfortable",
+                "🚨 Call emergency veterinary clinic immediately",
+                "Keep your pet calm and comfortable",
                 "Do not attempt home treatment",
-                "Transport to nearest emergency facility"
-            ]
+                "Transport to nearest emergency facility",
+                "Monitor vital signs if possible",
+                "Have pet's medical records ready"
+            ],
+            "urgency_level": "emergency"
         }
 
     async def _handle_symptom_check(
@@ -326,6 +373,57 @@ class AIVetAssistant:
         
         return "low"
 
+    def _should_recommend_vet_visit(self, symptoms: List[str], response_text: str) -> bool:
+        """Determine if vet visit should be recommended based on symptoms and response"""
+        if not symptoms:
+            return False
+        
+        # Check for high-priority symptoms
+        high_priority_symptoms = [
+            "vomiting", "diarrhea", "lethargy", "not eating", "limping", 
+            "coughing", "sneezing", "bleeding", "pain", "swelling"
+        ]
+        
+        # If multiple symptoms or high-priority symptoms, recommend vet visit
+        if len(symptoms) >= 2 or any(symptom in high_priority_symptoms for symptom in symptoms):
+            return True
+        
+        # Check response text for vet recommendation keywords
+        vet_keywords = ["veterinarian", "vet", "clinic", "examination", "diagnosis", "urgent", "immediate"]
+        response_lower = response_text.lower()
+        
+        return any(keyword in response_lower for keyword in vet_keywords)
+
+    def _extract_care_data_from_response(self, response_text: str, pet_info: Optional[Dict[str, Any]], care_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract structured care data from AI response"""
+        species = care_info.get("species") or (pet_info.get("species") if pet_info else "unknown")
+        age_category = care_info.get("age_category", "adult")
+        
+        # Default care data based on species and age
+        care_data = {
+            "diet": "Consult veterinarian for specific recommendations",
+            "exercise": "Appropriate for age and health",
+            "grooming": "Regular maintenance schedule",
+            "health_monitoring": "Regular check-ups recommended"
+        }
+        
+        # Try to extract specific information from response
+        response_lower = response_text.lower()
+        
+        # Extract diet information
+        if "diet" in response_lower or "food" in response_lower:
+            care_data["diet"] = "See detailed recommendations in response"
+        
+        # Extract exercise information
+        if "exercise" in response_lower or "activity" in response_lower:
+            care_data["exercise"] = "See detailed recommendations in response"
+        
+        # Extract grooming information
+        if "grooming" in response_lower or "bathing" in response_lower:
+            care_data["grooming"] = "See detailed recommendations in response"
+        
+        return care_data
+
     async def _generate_symptom_analysis(
         self,
         query: str,
@@ -334,47 +432,85 @@ class AIVetAssistant:
     ) -> Dict[str, Any]:
         """Generate AI-powered symptom analysis"""
         
-        if not self.llm:
-            return self._generate_rule_based_analysis(query, symptoms)
+        # Check cache first
+        if self.redis_manager:
+            cache_key = f"symptom_analysis:{hashlib.md5(query.encode()).hexdigest()}"
+            cached_result = await self.redis_manager.get_cached_ai_result(cache_key)
+            if cached_result:
+                return cached_result
         
-        try:
-            prompt_template = PromptTemplate(
-                input_variables=["query", "pet_info", "symptoms"],
-                template="""
-                You are {self.name}, a virtual veterinary assistant. Analyze the following pet health query and provide professional advice:
+        if not self.llm:
+            result = self._generate_rule_based_analysis(query, symptoms)
+        else:
+            try:
+                # Enhanced prompt for better analysis
+                prompt_template = PromptTemplate(
+                    input_variables=["query", "pet_info", "symptoms", "assistant_name"],
+                    template="""
+                    You are {assistant_name}, a professional virtual veterinary assistant with extensive experience in pet health. 
+                    
+                    Analyze the following pet health situation and provide comprehensive, professional advice:
+                    
+                    **Pet Owner's Query:** {query}
+                    **Pet Information:** {pet_info}
+                    **Identified Symptoms:** {symptoms}
+                    
+                    Please provide a detailed analysis including:
+                    
+                    1. **Symptom Assessment**: Clear analysis of the described symptoms and their potential significance
+                    2. **Possible Causes**: Common conditions that could cause these symptoms (but avoid definitive diagnosis)
+                    3. **Urgency Level**: Assess whether this requires immediate, same-day, or routine veterinary attention
+                    4. **Immediate Actions**: Specific steps the owner should take right now
+                    5. **Home Care**: Safe home care measures while waiting for veterinary attention
+                    6. **Warning Signs**: Red flags that indicate the situation is worsening
+                    7. **Veterinary Recommendation**: Clear guidance on when and why to see a vet
+                    
+                    **Important Guidelines:**
+                    - Always prioritize pet safety and welfare
+                    - Never provide specific medical diagnoses
+                    - Be empathetic and reassuring to worried pet owners
+                    - Use clear, non-technical language
+                    - Emphasize that you cannot replace professional veterinary examination
+                    - If symptoms are severe or multiple, strongly recommend immediate veterinary care
+                    
+                    Format your response in a clear, structured manner that's easy for pet owners to follow.
+                    """
+                )
                 
-                User Query: {query}
-                Pet Information: {pet_info}
-                Identified Symptoms: {symptoms}
+                # Use the new LangChain syntax
+                chain = prompt_template | self.llm
                 
-                Please provide:
-                1. A clear analysis of the symptoms
-                2. Potential causes and concerns
-                3. Recommended next steps
-                4. Whether veterinary attention is needed
-                5. Home care tips if appropriate
+                result = await chain.ainvoke({
+                    "query": query,
+                    "pet_info": json.dumps(pet_info) if pet_info else "Not provided",
+                    "symptoms": ", ".join(symptoms) if symptoms else "No specific symptoms identified",
+                    "assistant_name": self.name
+                })
                 
-                Keep the response professional, caring, and easy to understand. Always prioritize pet safety.
-                """
+                response_text = result.content.strip() if hasattr(result, 'content') else str(result).strip()
+                
+                # Determine if vet visit is needed based on symptoms and response
+                should_see_vet = self._should_recommend_vet_visit(symptoms, response_text)
+                
+                result = {
+                    "response": response_text,
+                    "confidence": 0.9,
+                    "should_see_vet": should_see_vet
+                }
+                
+            except Exception as e:
+                print(f"Error generating symptom analysis: {str(e)}")
+                result = self._generate_rule_based_analysis(query, symptoms)
+        
+        # Cache the result
+        if self.redis_manager:
+            await self.redis_manager.cache_ai_result(
+                cache_key=f"symptom_analysis:{hashlib.md5(query.encode()).hexdigest()}",
+                result=result,
+                ttl_seconds=3600  # 1 hour cache
             )
-            
-            chain = LLMChain(llm=self.llm, prompt=prompt_template)
-            
-            result = await chain.arun(
-                query=query,
-                pet_info=json.dumps(pet_info) if pet_info else "Not provided",
-                symptoms=", ".join(symptoms) if symptoms else "No specific symptoms identified"
-            )
-            
-            return {
-                "response": result.strip(),
-                "confidence": 0.9,
-                "should_see_vet": len(symptoms) > 0
-            }
-            
-        except Exception as e:
-            print(f"Error generating symptom analysis: {str(e)}")
-            return self._generate_rule_based_analysis(query, symptoms)
+        
+        return result
 
     def _generate_rule_based_analysis(self, query: str, symptoms: List[str]) -> Dict[str, Any]:
         """Generate rule-based analysis when AI is not available"""
@@ -594,50 +730,104 @@ class AIVetAssistant:
     ) -> Dict[str, Any]:
         """Generate care recommendations"""
         
-        if not self.llm:
-            return self._generate_rule_based_care_recommendations(pet_info, care_info)
+        # Check cache first
+        if self.redis_manager:
+            cache_key = f"care_recommendations:{hashlib.md5(query.encode()).hexdigest()}"
+            cached_result = await self.redis_manager.get_cached_ai_result(cache_key)
+            if cached_result:
+                return cached_result
         
-        try:
-            prompt_template = PromptTemplate(
-                input_variables=["query", "pet_info", "care_info"],
-                template="""
-                You are {self.name}, a virtual veterinary assistant. Provide diet and care recommendations based on the following:
+        if not self.llm:
+            result = self._generate_rule_based_care_recommendations(pet_info, care_info)
+        else:
+            try:
+                prompt_template = PromptTemplate(
+                    input_variables=["query", "pet_info", "care_info", "assistant_name"],
+                    template="""
+                    You are {assistant_name}, a professional veterinary assistant specializing in pet care and nutrition.
+                    
+                    Provide comprehensive care recommendations based on the following:
+                    
+                    **Pet Owner's Query:** {query}
+                    **Pet Information:** {pet_info}
+                    **Care Information:** {care_info}
+                    
+                    Please provide detailed recommendations for:
+                    
+                    1. **Nutrition & Diet**: 
+                       - Specific food recommendations based on age, breed, and health
+                       - Feeding schedule and portion sizes
+                       - Foods to avoid and dietary restrictions
+                       - Supplements if needed
+                    
+                    2. **Exercise & Activity**:
+                       - Daily exercise requirements
+                       - Activity types appropriate for the pet
+                       - Mental stimulation activities
+                       - Age-appropriate modifications
+                    
+                    3. **Grooming & Hygiene**:
+                       - Grooming schedule and techniques
+                       - Bathing frequency and products
+                       - Dental care routine
+                       - Nail trimming and ear cleaning
+                    
+                    4. **Health Monitoring**:
+                       - Signs to watch for
+                       - Regular health checks
+                       - Vaccination schedule reminders
+                       - Preventive care measures
+                    
+                    5. **Special Considerations**:
+                       - Breed-specific needs
+                       - Age-related care changes
+                       - Seasonal considerations
+                       - Environmental factors
+                    
+                    **Guidelines:**
+                    - Be specific and actionable
+                    - Consider the pet's individual needs
+                    - Provide age and breed-appropriate advice
+                    - Include safety considerations
+                    - Suggest when to consult a veterinarian
+                    
+                    Format your response in a clear, organized manner with practical, easy-to-follow advice.
+                    """
+                )
                 
-                User Query: {query}
-                Pet Information: {pet_info}
-                Care Information: {care_info}
+                # Use the new LangChain syntax
+                chain = prompt_template | self.llm
                 
-                Please provide:
-                1. Diet recommendations
-                2. Exercise suggestions
-                3. Grooming tips
-                4. Health monitoring advice
-                5. Any special considerations
+                result = await chain.ainvoke({
+                    "query": query,
+                    "pet_info": json.dumps(pet_info) if pet_info else "Not provided",
+                    "care_info": json.dumps(care_info),
+                    "assistant_name": self.name
+                })
                 
-                Keep the response practical and easy to follow.
-                """
-            )
-            
-            chain = LLMChain(llm=self.llm, prompt=prompt_template)
-            
-            result = await chain.arun(
-                query=query,
-                pet_info=json.dumps(pet_info) if pet_info else "Not provided",
-                care_info=json.dumps(care_info)
-            )
-            
-            return {
-                "response": result.strip(),
-                "care_data": {
-                    "diet": "Based on species and age",
-                    "exercise": "Appropriate for age and health",
-                    "grooming": "Regular maintenance schedule"
+                response_text = result.content.strip() if hasattr(result, 'content') else str(result).strip()
+                
+                # Extract structured care data
+                care_data = self._extract_care_data_from_response(response_text, pet_info, care_info)
+                
+                result = {
+                    "response": response_text,
+                    "care_data": care_data
                 }
-            }
-            
-        except Exception as e:
-            print(f"Error generating care recommendations: {str(e)}")
-            return self._generate_rule_based_care_recommendations(pet_info, care_info)
+                
+            except Exception as e:
+                print(f"Error generating care recommendations: {str(e)}")
+                result = self._generate_rule_based_care_recommendations(pet_info, care_info)
+        
+        # Cache the result
+        if self.redis_manager:
+            await self.redis_manager.cache_ai_result(
+                cache_key=f"care_recommendations:{hashlib.md5(query.encode()).hexdigest()}",
+                result=result,
+                ttl_seconds=7200  # 2 hours cache
+            )
+        
+        return result
 
     def _generate_rule_based_care_recommendations(
         self,
@@ -719,9 +909,9 @@ class AIVetAssistant:
         
         try:
             prompt_template = PromptTemplate(
-                input_variables=["query", "pet_info"],
+                input_variables=["query", "pet_info", "assistant_name"],
                 template="""
-                You are {self.name}, a virtual veterinary assistant. Provide helpful, professional advice for the following pet-related question:
+                You are {assistant_name}, a virtual veterinary assistant. Provide helpful, professional advice for the following pet-related question:
                 
                 User Query: {query}
                 Pet Information: {pet_info}
@@ -730,14 +920,16 @@ class AIVetAssistant:
                 """
             )
             
-            chain = LLMChain(llm=self.llm, prompt=prompt_template)
+            # Use the new LangChain syntax
+            chain = prompt_template | self.llm
             
-            result = await chain.arun(
-                query=query,
-                pet_info=json.dumps(pet_info) if pet_info else "Not provided"
-            )
+            result = await chain.ainvoke({
+                "query": query,
+                "pet_info": json.dumps(pet_info) if pet_info else "Not provided",
+                "assistant_name": self.name
+            })
             
-            return result.strip()
+            return result.content.strip() if hasattr(result, 'content') else str(result).strip()
             
         except Exception as e:
             print(f"Error generating general advice: {str(e)}")

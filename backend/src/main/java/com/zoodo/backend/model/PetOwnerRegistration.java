@@ -89,6 +89,11 @@ public class PetOwnerRegistration {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Verification notes for admin review
+    @Column(name = "verification_notes", length = 1000)
+    @Size(max = 1000)
+    private String verificationNotes;
+
     // Link to main users table when registration is completed
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -158,12 +163,16 @@ public class PetOwnerRegistration {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
+    public String getVerificationNotes() { return verificationNotes; }
+    public void setVerificationNotes(String verificationNotes) { this.verificationNotes = verificationNotes; }
+
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
     // Enum for Registration Status
     public enum RegistrationStatus {
         PENDING("pending"),
+        APPROVED("approved"),
         COMPLETED("completed"),
         VERIFIED("verified"),
         REJECTED("rejected");
