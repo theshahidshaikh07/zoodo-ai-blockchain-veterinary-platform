@@ -148,7 +148,7 @@ const ServicesSection = () => {
                     const serviceRoutes = {
                       "Find Vet": "/services/find-vets",
                       "Clinic & Hospital": "/services/find-hospitals",
-                      "Teleconsultation": "/services/teleconsultation",
+                      "Teleconsultation": "/services/find-vets?type=online",
                       "Pet Trainer": "/services/find-trainers"
                     };
                     const route = serviceRoutes[service.title as keyof typeof serviceRoutes];

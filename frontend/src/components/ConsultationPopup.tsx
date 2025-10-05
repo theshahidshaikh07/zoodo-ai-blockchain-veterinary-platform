@@ -120,7 +120,14 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
                       <Video className="w-4 h-4 mr-2" />
                       Try Again
                     </Button>
-                    <Button variant="ghost" className="w-full" onClick={handleClose}>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full" 
+                      onClick={() => {
+                        handleClose();
+                        window.location.href = '/services/find-hospitals?search=emergency&type=Emergency%20Hospital';
+                      }}
+                    >
                       Find Local Emergency Clinic
                     </Button>
                   </div>

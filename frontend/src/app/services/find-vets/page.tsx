@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,8 @@ import {
   IndianRupee,
   CheckCircle,
   Users,
-  Award
+  Award,
+  AlertCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import Header from '@/components/Header';
@@ -50,7 +52,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Surgery)",
     hospital: "PetCare Hospital",
     isOnline: true,
-    responseTime: "5 mins"
+    responseTime: "5 mins",
+    consultationType: "Home Visit"
   },
   {
     id: 2,
@@ -69,7 +72,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Emergency Medicine)",
     hospital: "Emergency Pet Clinic",
     isOnline: false,
-    responseTime: "15 mins"
+    responseTime: "15 mins",
+    consultationType: "Home Visit"
   },
   {
     id: 3,
@@ -88,7 +92,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Dermatology)",
     hospital: "Skin & Coat Clinic",
     isOnline: true,
-    responseTime: "10 mins"
+    responseTime: "10 mins",
+    consultationType: "Online Consultation"
   },
   {
     id: 4,
@@ -107,7 +112,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Orthopedics)",
     hospital: "Ortho Pet Center",
     isOnline: true,
-    responseTime: "8 mins"
+    responseTime: "8 mins",
+    consultationType: "Home Visit"
   },
   {
     id: 5,
@@ -126,7 +132,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Cardiology)",
     hospital: "Heart Care Veterinary",
     isOnline: false,
-    responseTime: "20 mins"
+    responseTime: "20 mins",
+    consultationType: "Online Consultation"
   },
   {
     id: 6,
@@ -145,7 +152,8 @@ const dummyVets = [
     education: "BVSc, MVSc (Oncology)",
     hospital: "Cancer Care Center",
     isOnline: true,
-    responseTime: "12 mins"
+    responseTime: "12 mins",
+    consultationType: "Online Consultation"
   }
 ];
 
@@ -161,6 +169,12 @@ const specializations = [
   "Internal Medicine"
 ];
 
+const consultationTypes = [
+  "All Types",
+  "Home Visit",
+  "Online Consultation"
+];
+
 const locations = [
   "All Locations",
   "Mumbai, Maharashtra",
@@ -172,12 +186,24 @@ const locations = [
 ];
 
 export default function FindVetsPage() {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('All Specializations');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [selectedConsultationType, setSelectedConsultationType] = useState('All Types');
   const [showFilters, setShowFilters] = useState(false);
   const [filteredVets, setFilteredVets] = useState(dummyVets);
   const [sortBy, setSortBy] = useState('rating');
+  const [showBookingPopup, setShowBookingPopup] = useState(false);
+
+  // Check for URL parameters on component mount
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'online') {
+      setSelectedConsultationType('Online Consultation');
+      setShowFilters(true); // Auto-show filters when coming from service link
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let filtered = dummyVets;
@@ -201,6 +227,11 @@ export default function FindVetsPage() {
       filtered = filtered.filter(vet => vet.location === selectedLocation);
     }
 
+    // Filter by consultation type
+    if (selectedConsultationType !== 'All Types') {
+      filtered = filtered.filter(vet => vet.consultationType === selectedConsultationType);
+    }
+
     // Sort results
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -217,13 +248,30 @@ export default function FindVetsPage() {
     });
 
     setFilteredVets(filtered);
-  }, [searchTerm, selectedSpecialization, selectedLocation, sortBy]);
+  }, [searchTerm, selectedSpecialization, selectedLocation, selectedConsultationType, sortBy]);
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedSpecialization('All Specializations');
     setSelectedLocation('All Locations');
+    setSelectedConsultationType('All Types');
     setSortBy('rating');
+    setShowFilters(false);
+  };
+
+  const handleSpecializationChange = (value: string) => {
+    setSelectedSpecialization(value);
+    setShowFilters(false);
+  };
+
+  const handleLocationChange = (value: string) => {
+    setSelectedLocation(value);
+    setShowFilters(false);
+  };
+
+  const handleConsultationTypeChange = (value: string) => {
+    setSelectedConsultationType(value);
+    setShowFilters(false);
   };
 
   return (
@@ -239,7 +287,7 @@ export default function FindVetsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search by vet name, specialization, or hospital..."
+                placeholder="Search by vet name, specialization, or consultation type..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
@@ -275,13 +323,13 @@ export default function FindVetsPage() {
 
             {/* Filters */}
             {showFilters && (
-              <div className="grid md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
+              <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
                 <div>
                   <label className="block text-sm font-medium mb-2">Specialization</label>
                   <CustomSelect
                     options={specializations.map(spec => ({ value: spec, label: spec }))}
                     value={selectedSpecialization}
-                    onChange={setSelectedSpecialization}
+                    onChange={handleSpecializationChange}
                     placeholder="Select specialization"
                   />
                 </div>
@@ -290,11 +338,20 @@ export default function FindVetsPage() {
                   <CustomSelect
                     options={locations.map(location => ({ value: location, label: location }))}
                     value={selectedLocation}
-                    onChange={setSelectedLocation}
+                    onChange={handleLocationChange}
                     placeholder="Select location"
                   />
                 </div>
-                <div className="md:col-span-2 flex justify-end">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Consultation Type</label>
+                  <CustomSelect
+                    options={consultationTypes.map(type => ({ value: type, label: type }))}
+                    value={selectedConsultationType}
+                    onChange={handleConsultationTypeChange}
+                    placeholder="Select consultation type"
+                  />
+                </div>
+                <div className="md:col-span-3 flex justify-end">
                   <Button variant="ghost" onClick={clearFilters} className="text-sm">
                     <X className="w-4 h-4 mr-1" />
                     Clear Filters
@@ -305,9 +362,16 @@ export default function FindVetsPage() {
 
             {/* Results Count */}
             <div className="flex items-center justify-between mb-8">
-              <p className="text-muted-foreground font-medium">
-                {filteredVets.length} veterinarian{filteredVets.length !== 1 ? 's' : ''} found
-              </p>
+              <div>
+                <p className="text-muted-foreground font-medium">
+                  {filteredVets.length} veterinarian{filteredVets.length !== 1 ? 's' : ''} found
+                </p>
+                {selectedConsultationType === 'Online Consultation' && (
+                  <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                    Showing online consultation services
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -330,7 +394,7 @@ export default function FindVetsPage() {
                   <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Vet Image */}
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-64 overflow-hidden">
                         <Image
                           src={vet.image}
                           alt={vet.name}
@@ -340,6 +404,11 @@ export default function FindVetsPage() {
                         <div className="absolute top-3 right-3">
                           <Badge variant={vet.isOnline ? 'default' : 'secondary'} className="text-xs">
                             {vet.isOnline ? 'Online' : 'Offline'}
+                          </Badge>
+                        </div>
+                        <div className="absolute bottom-3 left-3">
+                          <Badge className={`text-xs ${vet.consultationType === 'Home Visit' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
+                            {vet.consultationType}
                           </Badge>
                         </div>
                       </div>
@@ -375,8 +444,11 @@ export default function FindVetsPage() {
                             <p className="text-lg font-bold text-primary">{vet.consultationFee}</p>
                             <p className="text-xs text-gray-500">Consultation</p>
                           </div>
-                          <Button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm">
-                            Book Now
+                          <Button 
+                            className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
+                            onClick={() => setShowBookingPopup(true)}
+                          >
+                            Book
                           </Button>
                         </div>
                       </div>
@@ -390,6 +462,40 @@ export default function FindVetsPage() {
       </section>
 
       <Footer />
+
+      {/* Booking Popup */}
+      {showBookingPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
+              Booking Temporarily Unavailable
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+              We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowBookingPopup(false)}
+              >
+                Close
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={() => setShowBookingPopup(false)}
+              >
+                Contact Us
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

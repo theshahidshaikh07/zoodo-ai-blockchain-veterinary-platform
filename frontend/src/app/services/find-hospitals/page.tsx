@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +22,8 @@ import {
   CreditCard,
   Users,
   Award,
-  CheckCircle
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import Header from '@/components/Header';
@@ -54,7 +56,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "Immediate"
+    responseTime: "Immediate",
+    consultationType: "In-Person (Clinic/Hospital)"
   },
   {
     id: 2,
@@ -75,7 +78,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "Immediate"
+    responseTime: "Immediate",
+    consultationType: "In-Person (Clinic/Hospital)"
   },
   {
     id: 3,
@@ -96,7 +100,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "30 mins"
+    responseTime: "30 mins",
+    consultationType: "Online"
   },
   {
     id: 4,
@@ -117,7 +122,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "15 mins"
+    responseTime: "15 mins",
+    consultationType: "In-Person (Clinic/Hospital)"
   },
   {
     id: 5,
@@ -138,7 +144,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "45 mins"
+    responseTime: "45 mins",
+    consultationType: "Online"
   },
   {
     id: 6,
@@ -159,7 +166,8 @@ const dummyHospitals = [
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "1 hour"
+    responseTime: "1 hour",
+    consultationType: "In-Person (Clinic/Hospital)"
   }
 ];
 
@@ -194,14 +202,37 @@ const specializations = [
   "Oncology"
 ];
 
+const consultationTypes = [
+  "All Types",
+  "In-Person (Clinic/Hospital)",
+  "Online"
+];
+
 export default function FindHospitalsPage() {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [selectedSpecialization, setSelectedSpecialization] = useState('All Specializations');
+  const [selectedConsultationType, setSelectedConsultationType] = useState('All Types');
   const [showFilters, setShowFilters] = useState(false);
   const [filteredHospitals, setFilteredHospitals] = useState(dummyHospitals);
   const [sortBy, setSortBy] = useState('rating');
+  const [showBookingPopup, setShowBookingPopup] = useState(false);
+
+  // Check for URL parameters on component mount
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    const typeParam = searchParams.get('type');
+    
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+    if (typeParam) {
+      setSelectedType(typeParam);
+      setShowFilters(false); // Hide filters when coming from emergency search
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let filtered = dummyHospitals;
@@ -232,6 +263,11 @@ export default function FindHospitalsPage() {
       );
     }
 
+    // Filter by consultation type
+    if (selectedConsultationType !== 'All Types') {
+      filtered = filtered.filter(hospital => hospital.consultationType === selectedConsultationType);
+    }
+
     // Sort results
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -247,14 +283,36 @@ export default function FindHospitalsPage() {
     });
 
     setFilteredHospitals(filtered);
-  }, [searchTerm, selectedType, selectedLocation, selectedSpecialization, sortBy]);
+  }, [searchTerm, selectedType, selectedLocation, selectedSpecialization, selectedConsultationType, sortBy]);
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedType('All Types');
     setSelectedLocation('All Locations');
     setSelectedSpecialization('All Specializations');
+    setSelectedConsultationType('All Types');
     setSortBy('rating');
+    setShowFilters(false);
+  };
+
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+    setShowFilters(false);
+  };
+
+  const handleLocationChange = (value: string) => {
+    setSelectedLocation(value);
+    setShowFilters(false);
+  };
+
+  const handleSpecializationChange = (value: string) => {
+    setSelectedSpecialization(value);
+    setShowFilters(false);
+  };
+
+  const handleConsultationTypeChange = (value: string) => {
+    setSelectedConsultationType(value);
+    setShowFilters(false);
   };
 
   return (
@@ -270,7 +328,7 @@ export default function FindHospitalsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search by hospital name, type, or specialization..."
+                placeholder="Search by hospital name, type, or consultation type..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
@@ -306,13 +364,13 @@ export default function FindHospitalsPage() {
 
             {/* Filters */}
             {showFilters && (
-              <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
+              <div className="grid md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
                 <div>
                   <label className="block text-sm font-medium mb-2">Hospital Type</label>
                   <CustomSelect
                     options={hospitalTypes.map(type => ({ value: type, label: type }))}
                     value={selectedType}
-                    onChange={setSelectedType}
+                    onChange={handleTypeChange}
                     placeholder="Select hospital type"
                   />
                 </div>
@@ -321,7 +379,7 @@ export default function FindHospitalsPage() {
                   <CustomSelect
                     options={locations.map(location => ({ value: location, label: location }))}
                     value={selectedLocation}
-                    onChange={setSelectedLocation}
+                    onChange={handleLocationChange}
                     placeholder="Select location"
                   />
                 </div>
@@ -330,11 +388,20 @@ export default function FindHospitalsPage() {
                   <CustomSelect
                     options={specializations.map(spec => ({ value: spec, label: spec }))}
                     value={selectedSpecialization}
-                    onChange={setSelectedSpecialization}
+                    onChange={handleSpecializationChange}
                     placeholder="Select specialization"
                   />
                 </div>
-                <div className="md:col-span-3 flex justify-end">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Consultation Type</label>
+                  <CustomSelect
+                    options={consultationTypes.map(type => ({ value: type, label: type }))}
+                    value={selectedConsultationType}
+                    onChange={handleConsultationTypeChange}
+                    placeholder="Select consultation type"
+                  />
+                </div>
+                <div className="md:col-span-4 flex justify-end">
                   <Button variant="ghost" onClick={clearFilters} className="text-sm">
                     <X className="w-4 h-4 mr-1" />
                     Clear Filters
@@ -345,9 +412,16 @@ export default function FindHospitalsPage() {
 
             {/* Results Count */}
             <div className="flex items-center justify-between mb-8">
-              <p className="text-muted-foreground font-medium">
-                {filteredHospitals.length} hospital{filteredHospitals.length !== 1 ? 's' : ''} found
-              </p>
+              <div>
+                <p className="text-muted-foreground font-medium">
+                  {filteredHospitals.length} hospital{filteredHospitals.length !== 1 ? 's' : ''} found
+                </p>
+                {selectedType === 'Emergency Hospital' && (
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                    Showing emergency hospitals for urgent care
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -370,7 +444,7 @@ export default function FindHospitalsPage() {
                   <Card key={hospital.id} className="group hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Hospital Image */}
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-64 overflow-hidden">
                         <Image
                           src={hospital.image}
                           alt={hospital.name}
@@ -380,6 +454,14 @@ export default function FindHospitalsPage() {
                         <div className="absolute top-3 right-3">
                           <Badge variant="default" className="text-xs">
                             Est. {hospital.established}
+                          </Badge>
+                        </div>
+                        <div className="absolute bottom-3 left-3">
+                          <Badge className={`text-xs ${
+                            hospital.consultationType === 'In-Person (Clinic/Hospital)' ? 'bg-green-600 text-white' :
+                            'bg-blue-600 text-white'
+                          }`}>
+                            {hospital.consultationType}
                           </Badge>
                         </div>
                       </div>
@@ -417,8 +499,11 @@ export default function FindHospitalsPage() {
                             <p className="text-lg font-bold text-primary">{hospital.consultationFee}</p>
                             <p className="text-xs text-gray-500">Consultation</p>
                           </div>
-                          <Button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm">
-                            Book Appointment
+                          <Button 
+                            className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
+                            onClick={() => setShowBookingPopup(true)}
+                          >
+                            Book
                           </Button>
                         </div>
                       </div>
@@ -432,6 +517,40 @@ export default function FindHospitalsPage() {
       </section>
 
       <Footer />
+
+      {/* Booking Popup */}
+      {showBookingPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
+              Booking Temporarily Unavailable
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+              We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowBookingPopup(false)}
+              >
+                Close
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={() => setShowBookingPopup(false)}
+              >
+                Contact Us
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
