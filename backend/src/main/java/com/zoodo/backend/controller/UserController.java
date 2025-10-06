@@ -15,10 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -107,9 +109,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> loginUser(@Valid @RequestBody UserLoginRequest request) {
         try {
+            log.info("Login attempt for: {}", request.getEmail());
             String token = userService.loginUser(request);
+            log.info("Login successful for: {}", request.getEmail());
             return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", token));
         } catch (Exception e) {
+            log.error("Login failed for {}: {}", request.getEmail(), e.getMessage());
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         }
     }

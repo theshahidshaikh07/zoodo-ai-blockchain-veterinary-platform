@@ -19,7 +19,7 @@ const features = [
   {
     icon: Brain,
     title: "AI Pet Care Assistant",
-    description: "Intelligent symptom analysis and personalized care recommendations powered by advanced AI.",
+    description: "Intelligent symptom analysis and personalized care recommendations with AI powered veterinary assistant.",
     color: "zoodo-purple"
   },
   {

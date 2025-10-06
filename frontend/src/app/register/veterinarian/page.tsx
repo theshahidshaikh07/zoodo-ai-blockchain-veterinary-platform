@@ -13,6 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
 import { apiService } from '@/lib/api';
+import { getDashboardRoute } from '@/lib/dashboard-utils';
+import { toast } from 'sonner';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { FileUploadField } from '@/components/ui/file-upload-field';
 
@@ -527,8 +529,33 @@ function VeterinarianWizard() {
 
     try {
       const res = await apiService.registerUser(data);
-      if (res.success) router.push('/dashboard');
-      else setError(res.message || 'Registration failed');
+      
+      if (res.success) {
+        // Automatically log the user in after successful registration
+        const loginResponse = await apiService.loginUser({
+          usernameOrEmail: formDataToSend.email,
+          password: formDataToSend.password
+        });
+        
+        if (loginResponse.success) {
+          // Get user profile and redirect to appropriate dashboard
+          const userResponse = await apiService.getCurrentUser();
+          if (userResponse.success && userResponse.data) {
+            // Show success message and redirect to appropriate dashboard
+            setError(''); // Clear any existing errors
+            toast.success('Registration successful! Welcome to Zoodo!');
+            // Redirect to appropriate dashboard based on user type
+            const dashboardRoute = getDashboardRoute(userResponse.data.userType);
+            router.push(dashboardRoute);
+            return;
+          }
+        }
+        
+        // Fallback redirect
+        router.push('/dashboard');
+      } else {
+        setError(res.message || 'Registration failed');
+      }
     } catch {
       setError('An error occurred during registration');
     } finally {

@@ -11,9 +11,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserLoginRequest {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
+    @NotBlank(message = "Email or username is required")
+    private String email; // This field can contain either email or username
 
     @NotBlank(message = "Password is required")
     private String password;

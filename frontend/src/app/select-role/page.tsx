@@ -61,7 +61,7 @@ export default function SelectRole() {
   const router = useRouter();
 
   const handleRoleSelect = (roleId: string) => {
-    router.push(`/register?role=${roleId}`);
+    router.push('/role-selection');
   };
 
   return (

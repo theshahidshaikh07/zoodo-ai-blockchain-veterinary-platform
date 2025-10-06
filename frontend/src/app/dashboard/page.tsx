@@ -5,6 +5,9 @@ import { FaPaw, FaUserMd, FaCalendar, FaChartLine, FaBell, FaCog, FaSignOutAlt }
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService, Appointment, Pet } from '@/lib/api';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 
@@ -16,90 +19,63 @@ interface User {
   email: string;
 }
 
-interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string;
-  photoUrl?: string;
-}
 
-interface Appointment {
-  id: string;
-  petName: string;
-  providerName: string;
-  date: string;
-  time: string;
-  status: string;
-  type: string;
-}
-
-export default function Dashboard() {
+function DashboardContent() {
   const { resolvedTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [providers, setProviders] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Mock data - replace with actual API calls
+  // Fetch real data from API
   useEffect(() => {
-    setUser({
-      id: '1',
-      firstName: 'John',
-      lastName: 'Doe',
-      userType: 'pet_owner',
-      email: 'john@example.com'
-    });
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        
+        // Fetch pets, appointments, and providers in parallel
+        const [petsResponse, appointmentsResponse, providersResponse] = await Promise.all([
+          apiService.getPets(),
+          apiService.getAppointments(),
+          apiService.getProviders()
+        ]);
 
-    setPets([
-      {
-        id: '1',
-        name: 'Buddy',
-        species: 'dog',
-        breed: 'Golden Retriever',
-        photoUrl: '/api/placeholder/150/150'
-      },
-      {
-        id: '2',
-        name: 'Whiskers',
-        species: 'cat',
-        breed: 'Persian'
-      }
-    ]);
+        if (petsResponse.success && petsResponse.data) {
+          setPets(petsResponse.data);
+        }
 
-    setAppointments([
-      {
-        id: '1',
-        petName: 'Buddy',
-        providerName: 'Dr. Sarah Smith',
-        date: '2024-02-15',
-        time: '10:00 AM',
-        status: 'confirmed',
-        type: 'checkup'
-      },
-      {
-        id: '2',
-        petName: 'Whiskers',
-        providerName: 'Dr. Mike Johnson',
-        date: '2024-02-20',
-        time: '2:30 PM',
-        status: 'scheduled',
-        type: 'vaccination'
+        if (appointmentsResponse.success && appointmentsResponse.data) {
+          setAppointments(appointmentsResponse.data);
+        }
+
+        if (providersResponse.success && providersResponse.data) {
+          setProviders(providersResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    fetchDashboardData();
+  }, [user]);
 
   const getDashboardContent = () => {
     if (!user) return null;
 
     switch (user.userType) {
       case 'pet_owner':
-        return <PetOwnerDashboard pets={pets} appointments={appointments} />;
+        return <PetOwnerDashboard pets={pets} appointments={appointments} providers={providers} />;
       case 'veterinarian':
         return <VeterinarianDashboard appointments={appointments} />;
       case 'trainer':
@@ -129,7 +105,7 @@ export default function Dashboard() {
     return baseItems;
   };
 
-  if (!user) {
+  if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -198,7 +174,28 @@ export default function Dashboard() {
   );
 }
 
-function PetOwnerDashboard({ pets, appointments }: { pets: Pet[]; appointments: Appointment[] }) {
+function PetOwnerDashboard({ pets, appointments, providers }: { pets: Pet[]; appointments: Appointment[]; providers: User[] }) {
+  // Helper functions to get names from IDs
+  const getPetName = (petId: string) => {
+    const pet = pets.find(p => p.id === petId);
+    return pet ? pet.name : 'Unknown Pet';
+  };
+
+  const getProviderName = (providerId: string) => {
+    const provider = providers.find(p => p.id === providerId);
+    return provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider';
+  };
+
+  const formatAppointmentDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  const formatAppointmentTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
@@ -236,7 +233,7 @@ function PetOwnerDashboard({ pets, appointments }: { pets: Pet[]; appointments: 
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Providers</p>
-              <p className="text-2xl font-semibold text-gray-900">3</p>
+              <p className="text-2xl font-semibold text-gray-900">{providers.length}</p>
             </div>
           </div>
         </div>
@@ -268,9 +265,9 @@ function PetOwnerDashboard({ pets, appointments }: { pets: Pet[]; appointments: 
                     <FaCalendar className="text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{appointment.petName}</p>
-                    <p className="text-sm text-gray-600">{appointment.providerName}</p>
-                    <p className="text-sm text-gray-500">{appointment.date} at {appointment.time}</p>
+                    <p className="font-medium text-gray-900">{getPetName(appointment.petId)}</p>
+                    <p className="text-sm text-gray-600">{getProviderName(appointment.providerId)}</p>
+                    <p className="text-sm text-gray-500">{formatAppointmentDate(appointment.appointmentDate)} at {formatAppointmentTime(appointment.appointmentDate)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -314,7 +311,7 @@ function PetOwnerDashboard({ pets, appointments }: { pets: Pet[]; appointments: 
                   <Link href={`/pets/${pet.id}`} className="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg text-sm hover:bg-blue-700">
                     View Details
                   </Link>
-                  <Link href={`/appointments/new?petId=${pet.id}`} className="flex-1 border border-blue-600 text-blue-600 text-center py-2 rounded-lg text-sm hover:bg-blue-50">
+                  <Link href="/services/find-vets" className="flex-1 border border-blue-600 text-blue-600 text-center py-2 rounded-lg text-sm hover:bg-blue-50">
                     Book Appointment
                   </Link>
                 </div>
@@ -412,5 +409,13 @@ function AdminDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 } 

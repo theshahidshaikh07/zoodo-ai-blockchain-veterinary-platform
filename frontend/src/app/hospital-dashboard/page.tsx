@@ -22,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+import { apiService, Appointment, Pet } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 
@@ -74,7 +76,9 @@ function formatHumanTime(time24h: string): string {
 
 export default function HospitalDashboardPage() {
   const { resolvedTheme } = useTheme();
+  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,22 +113,45 @@ export default function HospitalDashboardPage() {
 
   // Seed dummy appointments and reports
   useEffect(() => {
-    const todayIso = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date();
-    tomorrow.setDate(new Date().getDate() + 1);
-    const tomorrowIso = tomorrow.toISOString().slice(0, 10);
-    setAppointments([
-      { id: crypto.randomUUID(), petName: 'Buddy', species: 'Dog', owner: 'John Smith', date: todayIso, time: '10:00', service: 'online', status: 'confirmed' },
-      { id: crypto.randomUUID(), petName: 'Whiskers', species: 'Cat', owner: 'Sarah Johnson', date: todayIso, time: '11:30', service: 'clinic', status: 'scheduled' },
-      { id: crypto.randomUUID(), petName: 'Coco', species: 'Parrot', owner: 'Anita Rao', date: tomorrowIso, time: '09:15', service: 'online', status: 'scheduled' },
-      { id: crypto.randomUUID(), petName: 'Max', species: 'Dog', owner: 'Karan Mehta', date: tomorrowIso, time: '14:00', service: 'clinic', status: 'scheduled' },
-    ]);
-    setReports([
-      { id: crypto.randomUUID(), petName: 'Buddy', owner: 'John Smith', date: todayIso, summary: 'Dermatitis check, topical ointment prescribed', status: 'finalized' },
-      { id: crypto.randomUUID(), petName: 'Whiskers', owner: 'Sarah Johnson', date: todayIso, summary: 'Vaccination follow-up, mild fever advice', status: 'pending' },
-      { id: crypto.randomUUID(), petName: 'Coco', owner: 'Anita Rao', date: tomorrowIso, summary: 'Respiratory observation; schedule recheck', status: 'draft' },
-    ]);
-  }, []);
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        
+        // Fetch appointments for this hospital
+        const appointmentsResponse = await apiService.getAppointments();
+        
+        if (appointmentsResponse.success && appointmentsResponse.data) {
+          // Filter appointments for this hospital and convert to the expected format
+          const hospitalAppointments = appointmentsResponse.data
+            .filter(apt => apt.providerId === user.id)
+            .map(apt => ({
+              id: apt.id,
+              petName: 'Pet', // This would need to be fetched from pet data
+              species: 'Unknown', // This would need to be fetched from pet data
+              owner: 'Owner', // This would need to be fetched from owner data
+              date: apt.appointmentDate.split('T')[0],
+              time: apt.appointmentDate.split('T')[1]?.substring(0, 5) || '00:00',
+              service: apt.type === 'consultation' ? 'online' as const : 'clinic' as const,
+              status: apt.status
+            }));
+          
+          setAppointments(hospitalAppointments);
+        }
+
+        // For now, set empty reports - this would need a separate API endpoint
+        setReports([]);
+        
+      } catch (error) {
+        console.error('Error fetching hospital dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
 
   // Helpers
   const openCreateModal = () => {
@@ -186,7 +213,7 @@ export default function HospitalDashboardPage() {
 
   const removeSlot = (id: string) => setSlots(prev => prev.filter(s => s.id !== id));
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin h-8 w-8 rounded-full border-2 border-primary border-t-transparent" />

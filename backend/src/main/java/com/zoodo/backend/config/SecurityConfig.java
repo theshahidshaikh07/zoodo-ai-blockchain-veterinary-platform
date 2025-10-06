@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +30,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -37,6 +39,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/register/**").permitAll() // Registration endpoints
                 .requestMatchers("/api/users/login").permitAll() // User login
                 .requestMatchers("/api/admin/login").permitAll() // Admin login
+                .requestMatchers("/api/oauth/**").permitAll() // OAuth endpoints
+                .requestMatchers("/login/oauth2/**").permitAll() // OAuth2 login endpoints
                 .requestMatchers("/api/users/providers", "/api/users/search").permitAll() // Public endpoints
                 .requestMatchers("/health").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
@@ -48,6 +52,10 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/api/oauth/google/success", true)
+                .failureUrl("/api/oauth/google/failure")
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();

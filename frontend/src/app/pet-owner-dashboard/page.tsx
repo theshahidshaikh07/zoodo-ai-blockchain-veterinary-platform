@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import {
-  PawPrint, Calendar, FileText, TrendingUp, Bell, Settings, Plus, Eye,
-  Brain, Shield, Camera, MessageSquare
+  PawPrint, FileText, TrendingUp, Bell, Settings, Plus, Eye,
+  Brain, Shield, Camera, MessageSquare, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,10 +11,35 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Removed popover
+// import { Calendar } from '@/components/ui/calendar'; // Removed calendar component
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { apiService, Pet as ApiPet, Appointment as ApiAppointment, User } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+// import { format } from 'date-fns'; // Removed format import
+import { toast } from 'sonner';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
+
+interface PetInfo {
+  name: string;
+  gender: 'male' | 'female' | 'unknown';
+  species: string;
+  breed?: string;
+  birthday?: string;
+  age?: string;
+  ageUnit?: 'Years' | 'Months' | 'Days';
+  weight?: string;
+  weightUnit?: 'Kgs' | 'Gms';
+  microchip?: string;
+  sterilized?: 'yes' | 'no';
+}
 
 interface PetOwnerStats {
   totalPets: number;
@@ -27,31 +52,7 @@ interface PetOwnerStats {
   emergencyContacts: number;
 }
 
-interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string;
-  age: number;
-  weight: number;
-  healthStatus: 'healthy' | 'monitoring' | 'treatment' | 'recovery';
-  lastCheckup: string;
-  nextVaccination?: string;
-  photoUrl?: string;
-}
-
-interface Appointment {
-  id: string;
-  petName: string;
-  vetName: string;
-  date: string;
-  time: string;
-  type: 'checkup' | 'vaccination' | 'surgery' | 'consultation' | 'emergency';
-  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
-  consultationType: 'clinic' | 'home-visit' | 'telemedicine';
-  location?: string;
-  notes?: string;
-}
+// Using API types directly - no local interfaces needed
 
 interface HealthRecord {
   id: string;
@@ -68,8 +69,26 @@ interface HealthRecord {
 
 export default function PetOwnerDashboard() {
   const { resolvedTheme } = useTheme();
+  const { user } = useAuth();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
+  const [petFormData, setPetFormData] = useState<PetInfo>({
+    name: '',
+    gender: 'unknown',
+    species: '',
+    breed: '',
+    birthday: '',
+    age: '',
+    ageUnit: 'Years',
+    weight: '',
+    weightUnit: 'Kgs',
+    microchip: '',
+    sterilized: 'no'
+  });
+  const [isAddingPet, setIsAddingPet] = useState(false);
   const [ownerStats, setOwnerStats] = useState<PetOwnerStats>({
     totalPets: 0,
     upcomingAppointments: 0,
@@ -80,8 +99,9 @@ export default function PetOwnerDashboard() {
     healthRecords: 0,
     emergencyContacts: 0
   });
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [pets, setPets] = useState<ApiPet[]>([]);
+  const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
+  const [providers, setProviders] = useState<User[]>([]);
   const [healthRecords, setHealthRecords] = useState<HealthRecord[]>([]);
 
   useEffect(() => {
@@ -89,93 +109,158 @@ export default function PetOwnerDashboard() {
   }, []);
 
   useEffect(() => {
-    setOwnerStats({
-      totalPets: 2,
-      upcomingAppointments: 3,
-      completedAppointments: 15,
-      totalSpent: 1250.75,
-      averageRating: 4.9,
-      aiConsultations: 5,
-      healthRecords: 8,
-      emergencyContacts: 2
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        
+        // Fetch pets, appointments, and providers in parallel
+        const [petsResponse, appointmentsResponse, providersResponse] = await Promise.all([
+          apiService.getPets(),
+          apiService.getAppointments(),
+          apiService.getProviders()
+        ]);
+
+        if (petsResponse.success && petsResponse.data) {
+          setPets(petsResponse.data);
+        }
+
+        if (appointmentsResponse.success && appointmentsResponse.data) {
+          setAppointments(appointmentsResponse.data);
+        }
+
+        if (providersResponse.success && providersResponse.data) {
+          setProviders(providersResponse.data);
+        }
+
+        // Calculate stats from real data
+        const upcomingAppointments = appointmentsResponse.data?.filter(
+          apt => apt.status === 'scheduled' || apt.status === 'confirmed'
+        ).length || 0;
+        
+        const completedAppointments = appointmentsResponse.data?.filter(
+          apt => apt.status === 'completed'
+        ).length || 0;
+
+        setOwnerStats({
+          totalPets: petsResponse.data?.length || 0,
+          upcomingAppointments,
+          completedAppointments,
+          totalSpent: 0, // This would need to be calculated from payment data
+          averageRating: 0, // This would need to be calculated from reviews
+          aiConsultations: 0, // This would need to be fetched from AI service
+          healthRecords: 0, // This would need to be fetched from health records
+          emergencyContacts: 0 // This would need to be fetched from emergency contacts
+        });
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
+
+  // Navigation handlers
+  const handleAIClick = () => {
+    router.push('/ai-assistant');
+  };
+
+  const handleBookAppointment = () => {
+    router.push('/services/find-vets');
+  };
+
+  const handleAddPet = () => {
+    setIsAddPetModalOpen(true);
+  };
+
+  const closeAddPetModal = () => {
+    setIsAddPetModalOpen(false);
+    // Reset form data
+    setPetFormData({
+      name: '',
+      gender: 'unknown',
+      species: '',
+      breed: '',
+      birthday: '',
+      age: '',
+      ageUnit: 'Years',
+      weight: '',
+      weightUnit: 'Kgs',
+      microchip: '',
+      sterilized: 'no'
     });
+  };
 
-    setPets([
-      {
-        id: '1',
-        name: 'Buddy',
-        species: 'Dog',
-        breed: 'Golden Retriever',
-        age: 3,
-        weight: 65,
-        healthStatus: 'healthy',
-        lastCheckup: '2024-01-15',
-        nextVaccination: '2024-03-15',
-        photoUrl: '/api/placeholder/60/60'
-      },
-      {
-        id: '2',
-        name: 'Whiskers',
-        species: 'Cat',
-        breed: 'Persian',
-        age: 2,
-        weight: 8,
-        healthStatus: 'monitoring',
-        lastCheckup: '2024-01-20',
-        photoUrl: '/api/placeholder/60/60'
-      }
-    ]);
+  const handlePetFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!petFormData.name.trim() || !petFormData.species.trim()) {
+      toast.error('Please fill in pet name and species');
+      return;
+    }
 
-    setAppointments([
-      {
-        id: '1',
-        petName: 'Buddy',
-        vetName: 'Dr. Sarah Smith',
-        date: '2024-02-15',
-        time: '10:00 AM',
-        type: 'checkup',
-        status: 'confirmed',
-        consultationType: 'clinic',
-        location: 'Central Vet Clinic'
-      },
-      {
-        id: '2',
-        petName: 'Whiskers',
-        vetName: 'Dr. Mike Johnson',
-        date: '2024-02-20',
-        time: '2:30 PM',
-        type: 'vaccination',
-        status: 'scheduled',
-        consultationType: 'clinic',
-        location: 'Central Vet Clinic'
-      }
-    ]);
+    setIsAddingPet(true);
 
-    setHealthRecords([
-      {
-        id: '1',
-        petName: 'Buddy',
-        date: '2024-01-15',
-        type: 'checkup',
-        vetName: 'Dr. Sarah Smith',
-        diagnosis: 'Healthy',
-        treatment: 'Routine checkup completed',
-        medications: [],
-        blockchainHash: '0x1234567890abcdef'
-      },
-      {
-        id: '2',
-        petName: 'Whiskers',
-        date: '2024-01-20',
-        type: 'vaccination',
-        vetName: 'Dr. Mike Johnson',
-        diagnosis: 'Due for annual vaccination',
-        treatment: 'Rabies vaccine administered',
-        medications: ['Rabies Vaccine'],
-        blockchainHash: '0xabcdef1234567890'
+    try {
+      // Create pet data in the format expected by the API
+      const petData = {
+        name: petFormData.name,
+        species: petFormData.species,
+        breed: petFormData.breed || undefined,
+        age: petFormData.age ? parseInt(petFormData.age) : undefined,
+        weight: petFormData.weight ? parseFloat(petFormData.weight) : undefined,
+        // Add other fields as needed based on your API
+      };
+
+      const response = await apiService.createPet(petData);
+      
+      if (response.success) {
+        toast.success('Pet added successfully!');
+        closeAddPetModal();
+        // Refresh the pets data
+        const petsResponse = await apiService.getPets();
+        if (petsResponse.success && petsResponse.data) {
+          setPets(petsResponse.data);
+          setOwnerStats(prev => ({
+            ...prev,
+            totalPets: petsResponse.data?.length || 0
+          }));
+        }
+      } else {
+        toast.error(response.message || 'Failed to add pet');
       }
-    ]);
-  }, []);
+    } catch (error) {
+      console.error('Error adding pet:', error);
+      toast.error('An error occurred while adding your pet. Please try again.');
+    } finally {
+      setIsAddingPet(false);
+    }
+  };
+
+  // Helper functions to get names from IDs
+  const getPetName = (petId: string) => {
+    const pet = pets.find(p => p.id === petId);
+    return pet ? pet.name : 'Unknown Pet';
+  };
+
+  const getProviderName = (providerId: string) => {
+    const provider = providers.find(p => p.id === providerId);
+    return provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider';
+  };
+
+  const formatAppointmentDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  const formatAppointmentTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -198,7 +283,7 @@ export default function PetOwnerDashboard() {
     }
   };
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
     </div>;
@@ -261,7 +346,7 @@ export default function PetOwnerDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{ownerStats.upcomingAppointments}</div>
@@ -319,14 +404,14 @@ export default function PetOwnerDashboard() {
                     {pets.map((pet) => (
                       <div key={pet.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={pet.photoUrl} />
+                          <AvatarImage src={undefined} />
                           <AvatarFallback>{pet.name[0]}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium">{pet.name}</h4>
-                            <Badge className={getHealthStatusColor(pet.healthStatus)}>
-                              {pet.healthStatus}
+                            <Badge className={getHealthStatusColor('healthy')}>
+                              {'healthy'}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
@@ -334,13 +419,8 @@ export default function PetOwnerDashboard() {
                           </p>
                           <div className="flex items-center space-x-4 mt-2">
                             <span className="text-xs text-muted-foreground">
-                              Last checkup: {pet.lastCheckup}
+                              Last checkup: {'Not available'}
                             </span>
-                            {pet.nextVaccination && (
-                              <span className="text-xs text-orange-600">
-                                Vaccination due: {pet.nextVaccination}
-                              </span>
-                            )}
                           </div>
                         </div>
                         <Button variant="outline" size="sm">
@@ -359,11 +439,11 @@ export default function PetOwnerDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
-                    <Button className="h-20 flex-col space-y-2">
-                      <Calendar className="h-6 w-6" />
+                    <Button className="h-20 flex-col space-y-2" onClick={handleBookAppointment}>
+                      <Plus className="h-6 w-6" />
                       <span className="text-sm">Book Appointment</span>
                     </Button>
-                    <Button variant="outline" className="h-20 flex-col space-y-2">
+                    <Button variant="outline" className="h-20 flex-col space-y-2" onClick={handleAIClick}>
                       <Brain className="h-6 w-6" />
                       <span className="text-sm">AI Consultation</span>
                     </Button>
@@ -371,7 +451,7 @@ export default function PetOwnerDashboard() {
                       <FileText className="h-6 w-6" />
                       <span className="text-sm">View Records</span>
                     </Button>
-                    <Button variant="outline" className="h-20 flex-col space-y-2">
+                    <Button variant="outline" className="h-20 flex-col space-y-2" onClick={handleAddPet}>
                       <Plus className="h-6 w-6" />
                       <span className="text-sm">Add Pet</span>
                     </Button>
@@ -389,7 +469,7 @@ export default function PetOwnerDashboard() {
                     <CardTitle>Pet Management</CardTitle>
                     <CardDescription>Manage your pets&#39; information and health</CardDescription>
                   </div>
-                  <Button>
+                  <Button onClick={handleAddPet}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Pet
                   </Button>
@@ -401,7 +481,7 @@ export default function PetOwnerDashboard() {
                     <Card key={pet.id} className="p-4">
                       <div className="flex items-center space-x-4">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={pet.photoUrl} />
+                          <AvatarImage src={undefined} />
                           <AvatarFallback>{pet.name[0]}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -410,8 +490,8 @@ export default function PetOwnerDashboard() {
                             {pet.breed} • {pet.age} years
                           </p>
                           <div className="flex items-center space-x-2 mt-2">
-                            <Badge className={getHealthStatusColor(pet.healthStatus)}>
-                              {pet.healthStatus}
+                            <Badge className={getHealthStatusColor('healthy')}>
+                              {'healthy'}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
                               {pet.weight} lbs
@@ -437,7 +517,7 @@ export default function PetOwnerDashboard() {
                     <CardTitle>Appointment History</CardTitle>
                     <CardDescription>View and manage your appointments</CardDescription>
                   </div>
-                  <Button>
+                  <Button onClick={handleBookAppointment}>
                     <Plus className="h-4 w-4 mr-2" />
                     Book Appointment
                   </Button>
@@ -461,18 +541,18 @@ export default function PetOwnerDashboard() {
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarFallback>{appointment.petName[0]}</AvatarFallback>
+                              <AvatarFallback>{getPetName(appointment.petId)[0]}</AvatarFallback>
                             </Avatar>
-                            <span className="font-medium">{appointment.petName}</span>
+                            <span className="font-medium">{getPetName(appointment.petId)}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">{appointment.vetName}</div>
-                          <div className="text-xs text-muted-foreground">{appointment.location}</div>
+                          <div className="text-sm font-medium">{getProviderName(appointment.providerId)}</div>
+                          <div className="text-xs text-muted-foreground">{'Clinic'}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">{appointment.date}</div>
-                          <div className="text-xs text-muted-foreground">{appointment.time}</div>
+                          <div className="text-sm font-medium">{formatAppointmentDate(appointment.appointmentDate)}</div>
+                          <div className="text-xs text-muted-foreground">{formatAppointmentTime(appointment.appointmentDate)}</div>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="capitalize">
@@ -635,6 +715,183 @@ export default function PetOwnerDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Add Pet Modal */}
+      <Dialog open={isAddPetModalOpen} onOpenChange={setIsAddPetModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Pet</DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handlePetFormSubmit} className="space-y-5">
+            {/* Row 1: Name + Gender */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Input 
+                placeholder="Pet's Name" 
+                value={petFormData.name} 
+                onChange={(e) => setPetFormData(prev => ({ ...prev, name: e.target.value }))} 
+                className="h-12 rounded-xl" 
+              />
+              <div className="flex gap-2 md:col-span-2">
+                {(['male','female','unknown'] as const).map(g => (
+                  <button 
+                    key={g} 
+                    type="button" 
+                    onClick={() => setPetFormData(prev => ({ ...prev, gender: g }))} 
+                    className={`flex-1 h-12 rounded-xl border ${
+                      petFormData.gender === g 
+                        ? 'border-primary text-primary bg-primary/10' 
+                        : 'border-border text-foreground/80 hover:bg-accent'
+                    }`}
+                  >
+                    {g.charAt(0).toUpperCase() + g.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Row 2: Species + Breed */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative">
+                <Select 
+                  value={petFormData.species} 
+                  onValueChange={(v) => setPetFormData(prev => ({ ...prev, species: v }))}
+                >
+                  <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
+                    <SelectValue placeholder="Pet Species" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="Dog">Dog</SelectItem>
+                    <SelectItem value="Cat">Cat</SelectItem>
+                    <SelectItem value="Bird">Bird</SelectItem>
+                    <SelectItem value="Rabbit">Rabbit</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Input 
+                placeholder="Breed (Optional)" 
+                value={petFormData.breed || ''} 
+                onChange={(e) => setPetFormData(prev => ({ ...prev, breed: e.target.value }))} 
+                className="h-14 rounded-full" 
+              />
+            </div>
+
+            {/* Row 3: Birthdate + Age + Weight */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Input
+                  type="date"
+                  value={petFormData.birthday || ''}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, birthday: e.target.value }))}
+                  className="h-14 rounded-full"
+                  placeholder="Birthdate (optional)"
+                />
+              </div>
+              <div className="relative flex gap-2">
+                <Input 
+                  type="number" 
+                  placeholder="Pet Age" 
+                  value={petFormData.age || ''} 
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, age: e.target.value }))} 
+                  className="h-14 rounded-full flex-1" 
+                />
+                <div className="relative">
+                  <Select 
+                    value={petFormData.ageUnit || 'Years'} 
+                    onValueChange={(v) => setPetFormData(prev => ({ ...prev, ageUnit: v as PetInfo['ageUnit'] }))}
+                  >
+                    <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="Years">Years</SelectItem>
+                      <SelectItem value="Months">Months</SelectItem>
+                      <SelectItem value="Days">Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="relative flex gap-2">
+                <Input 
+                  type="number" 
+                  placeholder="Pet Weight" 
+                  value={petFormData.weight || ''} 
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, weight: e.target.value }))} 
+                  className="h-14 rounded-full flex-1" 
+                />
+                <div className="relative">
+                  <Select 
+                    value={petFormData.weightUnit || 'Kgs'} 
+                    onValueChange={(v) => setPetFormData(prev => ({ ...prev, weightUnit: v as PetInfo['weightUnit'] }))}
+                  >
+                    <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="Kgs">Kgs</SelectItem>
+                      <SelectItem value="Gms">Gms</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <Input 
+              placeholder="Microchip Number (Optional)" 
+              value={petFormData.microchip || ''} 
+              onChange={(e) => setPetFormData(prev => ({ ...prev, microchip: e.target.value }))} 
+              className="h-12 rounded-xl" 
+            />
+
+            <div className="flex items-center justify-between">
+              {/* Sterilized segmented buttons */}
+              <div className="flex items-center gap-2 text-sm">
+                {([
+                  { key: 'yes', label: 'Sterilized' },
+                  { key: 'no', label: 'Not Sterilized' },
+                ] as const).map(opt => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setPetFormData(prev => ({ ...prev, sterilized: opt.key }))}
+                    className={`px-3 h-10 rounded-full border transition-colors ${
+                      petFormData.sterilized === opt.key
+                        ? 'border-primary text-primary bg-primary/10'
+                        : 'border-border text-foreground/80 hover:bg-accent'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-center pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={closeAddPetModal} 
+                className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isAddingPet} 
+                className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50"
+              >
+                {isAddingPet ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                    Adding Pet...
+                  </div>
+                ) : 'Add Pet'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

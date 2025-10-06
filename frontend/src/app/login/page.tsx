@@ -11,9 +11,10 @@ import {
   EyeOff,
   ArrowLeft
 } from 'lucide-react';
-import { apiService } from '@/lib/api';
-import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import { getDashboardRoute } from '@/lib/dashboard-utils';
 
 
 interface FormData {
@@ -26,18 +27,25 @@ export default function LoginPage() {
     usernameOrEmail: '',
     password: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { login, isLoading, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboardRoute = getDashboardRoute(user.userType);
+      router.push(dashboardRoute);
+    }
+  }, [isAuthenticated, user, router]);
 
 
 
@@ -47,40 +55,54 @@ export default function LoginPage() {
       ...prev,
       [name]: value
     }));
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.usernameOrEmail || !formData.password) {
-      setError('Please fill in all fields');
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await apiService.loginUser({
-        usernameOrEmail: formData.usernameOrEmail,
-        password: formData.password
-      });
-      
-      if (response.success) {
-        router.push('/dashboard');
+    const success = await login({
+      usernameOrEmail: formData.usernameOrEmail,
+      password: formData.password
+    });
+    
+    if (success) {
+      // Get user data from localStorage (set by AuthContext) and redirect immediately
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          const dashboardRoute = getDashboardRoute(userData.userType);
+          router.push(dashboardRoute);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          router.push('/dashboard');
+        }
       } else {
-        setError(response.message || 'Login failed');
+        // Fallback: wait a moment and try again
+        setTimeout(() => {
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            try {
+              const userData = JSON.parse(storedUser);
+              const dashboardRoute = getDashboardRoute(userData.userType);
+              router.push(dashboardRoute);
+            } catch (error) {
+              console.error('Error parsing user data:', error);
+              router.push('/dashboard');
+            }
+          } else {
+            router.push('/dashboard');
+          }
+        }, 200);
       }
-    } catch {
-     setError('An error occurred during login');
-   } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider: 'google' | 'github' | 'microsoft' | 'apple') => {
-    console.log(`Logging in with ${provider}`);
-    // Implement social login logic here
+    console.log(`${provider} login not implemented yet`);
   };
 
   return (
@@ -120,11 +142,6 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <div className="space-y-6">
-                {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
 
             {/* Username Input with Floating Label */}
             <div className="relative">
@@ -209,7 +226,7 @@ export default function LoginPage() {
               <p className="text-sm text-muted-foreground">
                 Don&#39;t have an account?{' '}
                 <Link 
-                  href="/register" 
+                  href="/role-selection" 
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
                   Sign up

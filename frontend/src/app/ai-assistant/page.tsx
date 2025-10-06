@@ -51,7 +51,7 @@ export default function AIAssistantPage() {
       {
         id: '1',
         type: 'ai',
-        content: "Hello! I'm Dr. Salus AI, your intelligent veterinary assistant powered by Google Gemini. I can help you with pet health advice, symptom analysis, care recommendations, and emergency guidance. How can I assist you with your pet's health today?",
+        content: "Hello! I'm Dr. Salus AI, your AI powered veterinary assistant. I can help you with pet health advice, symptom analysis, care recommendations, and emergency guidance. How can I assist you with your pet's health today?",
         timestamp: new Date(),
       }
     ]);
@@ -261,7 +261,7 @@ export default function AIAssistantPage() {
                   </div>
                   <div>
                     <h1 className="font-semibold text-foreground">Dr. Salus AI</h1>
-                    <p className="text-xs text-muted-foreground">Powered by Google Gemini</p>
+                    <p className="text-xs text-muted-foreground">AI Powered Veterinary Assistant</p>
                   </div>
                 </div>
               </div>

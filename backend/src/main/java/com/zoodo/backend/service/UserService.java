@@ -89,8 +89,9 @@ public class UserService {
     }
 
     public String loginUser(UserLoginRequest request) {
-        // Find user by email
+        // Find user by email or username
         User user = userRepository.findByEmail(request.getEmail())
+            .or(() -> userRepository.findByUsername(request.getEmail()))
             .orElseThrow(() -> new RuntimeException("Invalid email or password"));
         
         // Verify password

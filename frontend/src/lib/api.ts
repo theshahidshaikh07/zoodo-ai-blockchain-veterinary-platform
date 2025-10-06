@@ -204,19 +204,19 @@ class ApiService {
       const isTrainerMultipart = form.has('registrationData') && (form.has('resume') || form.has('profilePhoto'));
       const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument') || form.has('businessHours');
       
-      let endpoint = '/registrations/pet-owner';
+      let endpoint = '/register/pet-owner';
       if (isVetMultipart) {
         // For veterinarian registration, we need to create a JSON string for registrationData
         const registrationData = this.createVeterinarianRegistrationData(form);
         form.set('registrationData', JSON.stringify(registrationData));
-        endpoint = '/registrations/veterinarian';
+        endpoint = '/register/veterinarian';
       } else if (isTrainerMultipart) {
         // Frontend already provides registrationData, no need to create it
-        endpoint = '/registrations/trainer';
+        endpoint = '/register/trainer';
       } else if (isHospitalMultipart) {
         const registrationData = this.createHospitalRegistrationData(form);
         form.set('registrationData', JSON.stringify(registrationData));
-        endpoint = '/registrations/hospital-clinic';
+        endpoint = '/register/hospital';
       }
       
       return this.request<User>(endpoint, {
@@ -224,7 +224,7 @@ class ApiService {
         body: form,
       });
     }
-    return this.request<User>('/registrations/pet-owner', {
+    return this.request<User>('/register/pet-owner', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -329,20 +329,29 @@ class ApiService {
     usernameOrEmail: string;
     password: string;
   }): Promise<ApiResponse<string>> {
-    // Backend expects { email, password }
-    const response = await this.request<string>('/users/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
-    });
-    
-    // Store JWT token if login is successful
-    if (response.success && response.data) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('jwt_token', response.data);
+    try {
+      // Backend expects { email, password } where email can be either email or username
+      const response = await this.request<string>('/users/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
+      });
+      
+      // Store JWT token if login is successful
+      if (response.success && response.data) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('jwt_token', response.data);
+        }
       }
+      
+      return response;
+    } catch (error) {
+      console.error('Login API error:', error);
+      return {
+        success: false,
+        message: 'Network error. Please check your connection and try again.',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
-    
-    return response;
   }
 
   async loginAdmin(credentials: {
@@ -367,6 +376,50 @@ class ApiService {
   logout(): void {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
+    }
+  }
+
+  // Google OAuth methods
+  initiateGoogleLogin(): void {
+    if (typeof window !== 'undefined') {
+      window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+    }
+  }
+
+  async handleGoogleCallback(): Promise<ApiResponse<{ 
+    token?: string; 
+    action: 'login' | 'register';
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    picture?: string;
+  }>> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/oauth/google/success`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.data?.action === 'login' && data.data?.token) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('jwt_token', data.data.token);
+        }
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Google OAuth callback failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Google OAuth failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 
@@ -525,150 +578,150 @@ class ApiService {
   
   // Pet Owner Registration
   async createPetOwnerRegistration(registrationData: any): Promise<ApiResponse<any>> {
-    return this.request('/registrations/pet-owner', {
+    return this.request('/register/pet-owner', {
       method: 'POST',
       body: JSON.stringify(registrationData),
     });
   }
 
   async getPetOwnerRegistration(id: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/pet-owner/${id}`);
+    return this.request(`/register/pet-owner/${id}`);
   }
 
   async updatePetOwnerRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/pet-owner/${id}`, {
+    return this.request(`/register/pet-owner/${id}`, {
       method: 'PUT',
       body: JSON.stringify(registrationData),
     });
   }
 
   async approvePetOwnerRegistration(id: string): Promise<ApiResponse<User>> {
-    return this.request(`/registrations/pet-owner/${id}/approve`, {
+    return this.request(`/register/pet-owner/${id}/approve`, {
       method: 'POST',
     });
   }
 
   async rejectPetOwnerRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/pet-owner/${id}/reject`, {
+    return this.request(`/register/pet-owner/${id}/reject`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
   }
 
   async getPetOwnerRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
-    return this.request(`/registrations/pet-owner/status/${status}`);
+    return this.request(`/register/pet-owner/status/${status}`);
   }
 
   async getActivePetOwnerRegistrations(): Promise<ApiResponse<any[]>> {
-    return this.request('/registrations/pet-owner/active');
+    return this.request('/register/pet-owner/active');
   }
 
   // Veterinarian Registration
   async createVeterinarianRegistration(registrationData: FormData): Promise<ApiResponse<any>> {
-    return this.request('/registrations/veterinarian', {
+    return this.request('/register/veterinarian', {
       method: 'POST',
       body: registrationData,
     });
   }
 
   async getVeterinarianRegistration(id: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/veterinarian/${id}`);
+    return this.request(`/register/veterinarian/${id}`);
   }
 
   async updateVeterinarianRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/veterinarian/${id}`, {
+    return this.request(`/register/veterinarian/${id}`, {
       method: 'PUT',
       body: JSON.stringify(registrationData),
     });
   }
 
   async approveVeterinarianRegistration(id: string): Promise<ApiResponse<User>> {
-    return this.request(`/registrations/veterinarian/${id}/approve`, {
+    return this.request(`/register/veterinarian/${id}/approve`, {
       method: 'POST',
     });
   }
 
   async rejectVeterinarianRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/veterinarian/${id}/reject`, {
+    return this.request(`/register/veterinarian/${id}/reject`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
   }
 
   async getVeterinarianRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
-    return this.request(`/registrations/veterinarian/status/${status}`);
+    return this.request(`/register/veterinarian/status/${status}`);
   }
 
   // Trainer Registration
   async createTrainerRegistration(registrationData: FormData): Promise<ApiResponse<any>> {
-    return this.request('/registrations/trainer', {
+    return this.request('/register/trainer', {
       method: 'POST',
       body: registrationData,
     });
   }
 
   async getTrainerRegistration(id: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/trainer/${id}`);
+    return this.request(`/register/trainer/${id}`);
   }
 
   async updateTrainerRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/trainer/${id}`, {
+    return this.request(`/register/trainer/${id}`, {
       method: 'PUT',
       body: JSON.stringify(registrationData),
     });
   }
 
   async approveTrainerRegistration(id: string): Promise<ApiResponse<User>> {
-    return this.request(`/registrations/trainer/${id}/approve`, {
+    return this.request(`/register/trainer/${id}/approve`, {
       method: 'POST',
     });
   }
 
   async rejectTrainerRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/trainer/${id}/reject`, {
+    return this.request(`/register/trainer/${id}/reject`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
   }
 
   async getTrainerRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
-    return this.request(`/registrations/trainer/status/${status}`);
+    return this.request(`/register/trainer/status/${status}`);
   }
 
   // Hospital/Clinic Registration
   async createHospitalClinicRegistration(registrationData: any): Promise<ApiResponse<any>> {
-    return this.request('/registrations/hospital-clinic', {
+    return this.request('/register/hospital', {
       method: 'POST',
       body: JSON.stringify(registrationData),
     });
   }
 
   async getHospitalClinicRegistration(id: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/hospital-clinic/${id}`);
+    return this.request(`/register/hospital/${id}`);
   }
 
   async updateHospitalClinicRegistration(id: string, registrationData: any): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/hospital-clinic/${id}`, {
+    return this.request(`/register/hospital/${id}`, {
       method: 'PUT',
       body: JSON.stringify(registrationData),
     });
   }
 
   async approveHospitalClinicRegistration(id: string): Promise<ApiResponse<User>> {
-    return this.request(`/registrations/hospital-clinic/${id}/approve`, {
+    return this.request(`/register/hospital/${id}/approve`, {
       method: 'POST',
     });
   }
 
   async rejectHospitalClinicRegistration(id: string, reason: string): Promise<ApiResponse<any>> {
-    return this.request(`/registrations/hospital-clinic/${id}/reject`, {
+    return this.request(`/register/hospital/${id}/reject`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
   }
 
   async getHospitalClinicRegistrationsByStatus(status: string): Promise<ApiResponse<any[]>> {
-    return this.request(`/registrations/hospital-clinic/status/${status}`);
+    return this.request(`/register/hospital/status/${status}`);
   }
 
   // Health check

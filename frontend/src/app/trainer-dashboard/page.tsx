@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import { apiService, Appointment, Pet } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 
@@ -68,8 +70,10 @@ interface BehavioralAssessment {
 
 export default function TrainerDashboard() {
   const { resolvedTheme } = useTheme();
+  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
   const [trainerStats, setTrainerStats] = useState<TrainerStats>({
     totalClients: 0,
     activeSessions: 0,
@@ -89,95 +93,55 @@ export default function TrainerDashboard() {
   }, []);
 
   useEffect(() => {
-    setTrainerStats({
-      totalClients: 24,
-      activeSessions: 8,
-      completedSessions: 156,
-      totalEarnings: 8750.50,
-      averageRating: 4.9,
-      aiAssistedSessions: 12,
-      behavioralAssessments: 18,
-      certifications: 5
-    });
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        
+        // Fetch appointments for this trainer
+        const appointmentsResponse = await apiService.getAppointments();
+        
+        if (appointmentsResponse.success && appointmentsResponse.data) {
+          // Filter appointments for this trainer
+          const trainerAppointments = appointmentsResponse.data.filter(
+            apt => apt.providerId === user.id
+          );
+          
+          const activeSessions = trainerAppointments.filter(
+            apt => apt.status === 'scheduled' || apt.status === 'confirmed'
+          ).length;
+          
+          const completedSessions = trainerAppointments.filter(
+            apt => apt.status === 'completed'
+          ).length;
 
-    setClients([
-      {
-        id: '1',
-        name: 'Sarah Johnson',
-        petName: 'Max',
-        petSpecies: 'Dog',
-        petBreed: 'Golden Retriever',
-        trainingGoals: ['Obedience', 'Socialization'],
-        progressLevel: 'intermediate',
-        lastSession: '2024-02-10',
-        nextSession: '2024-02-15',
-        photoUrl: '/api/placeholder/60/60'
-      },
-      {
-        id: '2',
-        name: 'Mike Davis',
-        petName: 'Luna',
-        petSpecies: 'Dog',
-        petBreed: 'Border Collie',
-        trainingGoals: ['Agility', 'Advanced Commands'],
-        progressLevel: 'advanced',
-        lastSession: '2024-02-12',
-        photoUrl: '/api/placeholder/60/60'
-      }
-    ]);
+          setTrainerStats({
+            totalClients: 0, // This would need to be calculated from unique pet owners
+            activeSessions,
+            completedSessions,
+            totalEarnings: 0, // This would need to be calculated from payment data
+            averageRating: 0, // This would need to be calculated from reviews
+            aiAssistedSessions: 0, // This would need to be fetched from AI service
+            behavioralAssessments: 0, // This would need to be fetched from assessments
+            certifications: 0 // This would need to be fetched from certifications
+          });
+        }
 
-    setSessions([
-      {
-        id: '1',
-        clientName: 'Sarah Johnson',
-        petName: 'Max',
-        date: '2024-02-15',
-        time: '10:00 AM',
-        type: 'obedience',
-        status: 'confirmed',
-        sessionType: 'in-person',
-        duration: 60,
-        focus: 'Basic commands reinforcement'
-      },
-      {
-        id: '2',
-        clientName: 'Mike Davis',
-        petName: 'Luna',
-        date: '2024-02-16',
-        time: '2:30 PM',
-        type: 'agility',
-        status: 'scheduled',
-        sessionType: 'in-person',
-        duration: 90,
-        focus: 'Advanced obstacle course training'
+        // For now, set empty arrays - these would need separate API endpoints
+        setClients([]);
+        setSessions([]);
+        setAssessments([]);
+        
+      } catch (error) {
+        console.error('Error fetching trainer dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
-    ]);
+    };
 
-    setAssessments([
-      {
-        id: '1',
-        petName: 'Max',
-        clientName: 'Sarah Johnson',
-        date: '2024-02-10',
-        assessmentType: 'socialization',
-        severity: 'mild',
-        recommendations: ['Increase social exposure', 'Positive reinforcement training'],
-        progressNotes: 'Showing improvement in social interactions',
-        aiAnalysis: 'AI analysis suggests continued positive reinforcement approach'
-      },
-      {
-        id: '2',
-        petName: 'Luna',
-        clientName: 'Mike Davis',
-        date: '2024-02-12',
-        assessmentType: 'obedience',
-        severity: 'moderate',
-        recommendations: ['Consistent command training', 'Advanced skill development'],
-        progressNotes: 'Excellent progress in advanced commands',
-        aiAnalysis: 'AI recommends progression to competition-level training'
-      }
-    ]);
-  }, []);
+    fetchDashboardData();
+  }, [user]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -208,7 +172,7 @@ export default function TrainerDashboard() {
     }
   };
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
     </div>;

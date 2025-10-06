@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { apiService } from '@/lib/api';
-import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 interface AdminFormData {
   usernameOrEmail: string;
@@ -21,18 +21,24 @@ export default function AdminLoginPage() {
     usernameOrEmail: '',
     password: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { loginAdmin, isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/admin-dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,32 +46,22 @@ export default function AdminLoginPage() {
       ...prev,
       [name]: value
     }));
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.usernameOrEmail || !formData.password) {
-      setError('Please fill in all fields');
       return;
     }
-    setIsLoading(true);
-    setError('');
-    try {
-      const response = await apiService.loginAdmin({
-        usernameOrEmail: formData.usernameOrEmail,
-        password: formData.password
-      });
-      if (response.success) {
-        router.push('/admin-dashboard');
-      } else {
-        setError(response.message || 'Admin login failed');
-      }
-    } catch {
-     setError('An error occurred during admin login');
-   } finally {
-     setIsLoading(false);
-   }
+
+    const success = await loginAdmin({
+      usernameOrEmail: formData.usernameOrEmail,
+      password: formData.password
+    });
+    
+    if (success) {
+      router.push('/admin-dashboard');
+    }
   };
 
   return (
@@ -105,11 +101,6 @@ export default function AdminLoginPage() {
 
           {/* Admin Login Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
 
             {/* Username Input with Floating Label */}
             <div className="relative">

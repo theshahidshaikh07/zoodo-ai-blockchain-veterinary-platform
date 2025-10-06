@@ -36,6 +36,8 @@ import Image from 'next/image';
 import zoodoLogo from '@/assets/zoodo.png';
 import zoodoLightLogo from '@/assets/Zoodo-light.png';
 import { apiService } from '@/lib/api';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SystemStats {
   totalUsers: number;
@@ -156,7 +158,7 @@ interface Alert {
   priority: 'high' | 'medium' | 'low';
 }
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -1219,5 +1221,13 @@ export default function AdminDashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <ProtectedRoute requireAdmin={true}>
+      <AdminDashboardContent />
+    </ProtectedRoute>
   );
 } 

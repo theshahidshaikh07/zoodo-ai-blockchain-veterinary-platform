@@ -10,6 +10,8 @@ import Image from "next/image";
 import zoodoLogo from "@/assets/zoodo.png";
 import zoodoLightLogo from "@/assets/Zoodo-light.png";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogOut, User, Settings } from "lucide-react";
 
 interface HeaderProps {
   isScrolled?: boolean;
@@ -22,6 +24,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -164,22 +167,51 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
             {/* CTA Buttons */}
             <div className="flex items-center space-x-2 lg:space-x-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                asChild
-              >
-                <Link href="/login">Log In</Link>
-              </Button>
-              <Button 
-                variant="default" 
-                size="sm"
-                className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                asChild
-              >
-                <Link href="/role-selection">Get Started</Link>
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <div className="hidden md:flex items-center space-x-2">
+                    <span className="text-sm text-muted-foreground">
+                      Welcome, {user?.firstName}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                    asChild
+                  >
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={logout}
+                    className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                  >
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                    asChild
+                  >
+                    <Link href="/login">Log In</Link>
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                    asChild
+                  >
+                    <Link href="/role-selection">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -227,22 +259,52 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
               ))}
               <div className="pt-4 border-t border-border/30">
                 <div className="flex flex-col space-y-3">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
-                    asChild
-                  >
-                    <Link href="/login">Log In</Link>
-                  </Button>
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300"
-                    asChild
-                  >
-                    <Link href="/role-selection">Get Started</Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Welcome, {user?.firstName}
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
+                        asChild
+                      >
+                        <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
+                        asChild
+                      >
+                        <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300"
+                        asChild
+                      >
+                        <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </nav>
