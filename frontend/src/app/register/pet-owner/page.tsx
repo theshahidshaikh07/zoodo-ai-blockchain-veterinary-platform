@@ -16,7 +16,9 @@ import { Eye, EyeOff, ArrowLeft, Loader2, ChevronDown, Calendar as CalendarIcon 
 import { format } from 'date-fns';
 import { apiService } from '@/lib/api';
 import { getDashboardRoute } from '@/lib/dashboard-utils';
-import { toast } from 'sonner';
+import { notificationService } from '@/lib/notification-service';
+import { getOAuthUserData, clearOAuthUserData } from '@/lib/oauth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PetInfo {
   name: string;
@@ -40,8 +42,7 @@ interface FormData {
   password: string;
   confirmPassword: string;
   phoneNumber: string;
-  addressLine1: string;
-  addressLine2: string;
+  address: string;
   city: string;
   state: string;
   postalCode: string;
@@ -52,6 +53,7 @@ interface FormData {
 function PetOwnerWizard() {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const { loginWithGoogle } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -62,8 +64,7 @@ function PetOwnerWizard() {
     password: '',
     confirmPassword: '',
     phoneNumber: '',
-    addressLine1: '',
-    addressLine2: '',
+    address: '',
     city: '',
     state: '',
     postalCode: '',
@@ -101,6 +102,21 @@ function PetOwnerWizard() {
 
   useEffect(() => setMounted(true), []);
 
+  // Auto-fill form with OAuth data if available
+  useEffect(() => {
+    const oauthData = getOAuthUserData();
+    if (oauthData) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: oauthData.firstName,
+        lastName: oauthData.lastName,
+        email: oauthData.email,
+      }));
+      // Clear OAuth data after using it
+      clearOAuthUserData();
+    }
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -110,8 +126,16 @@ function PetOwnerWizard() {
   };
 
   const handleSocialLogin = (provider: 'google' | 'microsoft' | 'apple') => {
-    console.log(`${provider} login not implemented yet`);
-    toast.info(`${provider} login coming soon!`);
+    if (provider === 'google') {
+      loginWithGoogle();
+    } else {
+      console.log(`${provider} login not implemented yet`);
+      notificationService.info({
+        title: 'Coming Soon',
+        description: `${provider} login will be available soon!`,
+        type: 'feature',
+      });
+    }
   };
 
   // Helper: compute age and unit from a birthday
@@ -166,9 +190,9 @@ function PetOwnerWizard() {
     }
     if (step === 2) {
       if (
-        !formData.addressLine1 ||
-        !formData.addressLine2 ||
+        !formData.address ||
         !formData.city ||
+        !formData.state ||
         !formData.postalCode ||
         !formData.country
       ) {
@@ -203,7 +227,7 @@ function PetOwnerWizard() {
     if (!validateStep(1)) return;
     setIsLoading(true);
     setError('');
-    const address = `${formData.addressLine1}, ${formData.addressLine2}, ${formData.city} ${formData.postalCode}, ${formData.country}`;
+    const address = `${formData.address}, ${formData.city}, ${formData.state} ${formData.postalCode}, ${formData.country}`;
     
     // Process pets data to match backend expectations
     const processedPets = formData.pets
@@ -252,7 +276,7 @@ function PetOwnerWizard() {
           if (userResponse.success && userResponse.data) {
             // Show success message and redirect to appropriate dashboard
             setError(''); // Clear any existing errors
-            toast.success('Registration successful! Welcome to Zoodo!');
+            notificationService.registrationSuccess(userResponse.data.userType);
             // Redirect to appropriate dashboard based on user type
             const dashboardRoute = getDashboardRoute(userResponse.data.userType);
             router.push(dashboardRoute);
@@ -264,9 +288,15 @@ function PetOwnerWizard() {
         router.push('/dashboard');
       } else {
         setError(res.message || 'Registration failed');
+        notificationService.registrationError({
+          code: res.errorCode,
+          type: res.errorType,
+          details: res.details,
+        });
       }
     } catch {
       setError('An error occurred during registration');
+      notificationService.networkError();
     } finally {
       setIsLoading(false);
     }
@@ -454,12 +484,8 @@ function PetOwnerWizard() {
                     </button>
                   </div>
                   <div className="relative">
-                    <Label htmlFor="addressLine1" className="sr-only">Address Line 1</Label>
-                    <Input id="addressLine1" name="addressLine1" value={formData.addressLine1} onChange={handleInputChange} placeholder="Address Line 1" className="h-12 rounded-xl" />
-                  </div>
-                  <div className="relative">
-                    <Label htmlFor="addressLine2" className="sr-only">Address Line 2</Label>
-                    <Input id="addressLine2" name="addressLine2" value={formData.addressLine2} onChange={handleInputChange} placeholder="Address Line 2" className="h-12 rounded-xl" />
+                    <Label htmlFor="address" className="sr-only">Address</Label>
+                    <Input id="address" name="address" value={formData.address} onChange={handleInputChange} placeholder="Street Address" className="h-12 rounded-xl" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">

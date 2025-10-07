@@ -14,9 +14,7 @@ import java.util.UUID;
 @Repository
 public interface PetRepository extends JpaRepository<Pet, UUID> {
 
-    List<Pet> findByOwner(User owner);
-    
-    List<Pet> findByOwnerId(UUID ownerId);
+    List<Pet> findByOwnerId(User ownerId);
     
     List<Pet> findBySpecies(String species);
     
@@ -26,13 +24,14 @@ public interface PetRepository extends JpaRepository<Pet, UUID> {
     
     List<Pet> findBySpeciesAndGender(String species, Pet.Gender gender);
     
-    @Query("SELECT p FROM Pet p JOIN p.owner u WHERE u.isActive = true AND p.blockchainRecordHash IS NOT NULL")
-    List<Pet> findVerifiedPets();
+    // TODO: Implement blockchain verification when blockchainRecordHash field is added to Pet model
+    // @Query("SELECT p FROM Pet p JOIN p.ownerId u WHERE u.isActive = true AND p.blockchainRecordHash IS NOT NULL")
+    // List<Pet> findVerifiedPets();
     
-    @Query("SELECT p FROM Pet p JOIN p.owner u WHERE u.userType = :userType AND u.isActive = true")
+    @Query("SELECT p FROM Pet p JOIN p.ownerId u WHERE u.userType = :userType AND u.isActive = true")
     List<Pet> findByOwnerType(@Param("userType") User.UserType userType);
     
-    boolean existsByMicrochipId(String microchipId);
+    boolean existsByMicrochip(String microchip);
     
-    Optional<Pet> findByMicrochipId(String microchipId);
+    Optional<Pet> findByMicrochip(String microchip);
 }

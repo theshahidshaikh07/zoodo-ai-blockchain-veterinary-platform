@@ -8,6 +8,9 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private String error;
+    private String errorCode;
+    private String errorType;
+    private Object details;
 
     public ApiResponse() {}
 
@@ -22,6 +25,15 @@ public class ApiResponse<T> {
         this.message = message;
         this.data = data;
         this.error = error;
+    }
+
+    public ApiResponse(boolean success, String message, T data, String error, String errorCode, String errorType) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+        this.error = error;
+        this.errorCode = errorCode;
+        this.errorType = errorType;
     }
 
     // Getters and Setters
@@ -57,6 +69,30 @@ public class ApiResponse<T> {
         this.error = error;
     }
 
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public void setErrorType(String errorType) {
+        this.errorType = errorType;
+    }
+
+    public Object getDetails() {
+        return details;
+    }
+
+    public void setDetails(Object details) {
+        this.details = details;
+    }
+
     // Static factory methods
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(true, "Success", data);
@@ -71,6 +107,27 @@ public class ApiResponse<T> {
         response.setSuccess(false);
         response.setMessage(message);
         response.setError(message);
+        return response;
+    }
+
+    public static <T> ApiResponse<T> error(String message, String errorCode, String errorType) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(false);
+        response.setMessage(message);
+        response.setError(message);
+        response.setErrorCode(errorCode);
+        response.setErrorType(errorType);
+        return response;
+    }
+
+    public static <T> ApiResponse<T> error(String message, String errorCode, String errorType, Object details) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(false);
+        response.setMessage(message);
+        response.setError(message);
+        response.setErrorCode(errorCode);
+        response.setErrorType(errorType);
+        response.setDetails(details);
         return response;
     }
 

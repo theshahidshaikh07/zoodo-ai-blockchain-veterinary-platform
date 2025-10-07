@@ -58,9 +58,7 @@ public class TrainerRegistrationRequest {
     private String otherCertification;
     
     // Service offerings
-    private Boolean offerOnlineTraining = false;
     private Boolean offerHomeTraining = false;
-    private Boolean offerGroupClasses = false;
     
     // Independent practice details
     private Boolean independentServiceSameAsPersonal = true;

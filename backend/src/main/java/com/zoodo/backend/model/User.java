@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -44,9 +43,9 @@ public class User {
     @Size(max = 100)
     private String lastName;
 
-    @Column(length = 20)
+    @Column(name = "phone_number", length = 20)
     @Size(max = 20)
-    private String phone;
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 20)
@@ -71,17 +70,6 @@ public class User {
     @Size(max = 20)
     private String postalCode;
 
-    @Column(precision = 10, scale = 8)
-    private BigDecimal latitude;
-
-    @Column(precision = 11, scale = 8)
-    private BigDecimal longitude;
-
-    @Column(precision = 3, scale = 2)
-    private BigDecimal rating = BigDecimal.ZERO;
-
-    @Column(name = "total_reviews")
-    private Integer totalReviews = 0;
 
     @Column(name = "is_verified")
     private Boolean isVerified = false;
@@ -114,7 +102,7 @@ public class User {
     @JsonIgnore
     private Hospital hospital;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ownerId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private java.util.Set<Pet> pets;
 
@@ -149,8 +137,8 @@ public class User {
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public UserType getUserType() { return userType; }
     public void setUserType(UserType userType) { this.userType = userType; }
@@ -169,18 +157,6 @@ public class User {
 
     public String getPostalCode() { return postalCode; }
     public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
-
-    public BigDecimal getLatitude() { return latitude; }
-    public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
-
-    public BigDecimal getLongitude() { return longitude; }
-    public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
-
-    public BigDecimal getRating() { return rating; }
-    public void setRating(BigDecimal rating) { this.rating = rating; }
-
-    public Integer getTotalReviews() { return totalReviews; }
-    public void setTotalReviews(Integer totalReviews) { this.totalReviews = totalReviews; }
 
     public Boolean getIsVerified() { return isVerified; }
     public void setIsVerified(Boolean isVerified) { this.isVerified = isVerified; }

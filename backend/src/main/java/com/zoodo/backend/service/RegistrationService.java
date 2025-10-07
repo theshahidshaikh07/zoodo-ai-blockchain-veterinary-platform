@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.zoodo.backend.dto.*;
 import com.zoodo.backend.model.*;
 import com.zoodo.backend.repository.*;
+import com.zoodo.backend.exception.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,10 +59,10 @@ public class RegistrationService {
 
         // Check if username or email already exists
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException(ErrorCodes.USERNAME_ALREADY_EXISTS.getMessage());
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new IllegalArgumentException(ErrorCodes.EMAIL_ALREADY_EXISTS.getMessage());
         }
 
         // Create user
@@ -71,7 +72,7 @@ public class RegistrationService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setPhone(request.getPhoneNumber());
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
         user.setCity(request.getCity());
         user.setState(request.getState());
@@ -91,7 +92,7 @@ public class RegistrationService {
         if (request.getPets() != null && !request.getPets().isEmpty()) {
             for (PetOwnerRegistrationRequest.PetInfoDto petDto : request.getPets()) {
                 Pet pet = new Pet();
-                pet.setOwner(savedUser);
+                pet.setOwnerId(savedUser);
                 pet.setName(petDto.getName());
                 pet.setSpecies(petDto.getSpecies());
                 pet.setBreed(petDto.getBreed());
@@ -102,7 +103,7 @@ public class RegistrationService {
                 
                 if (petDto.getBirthday() != null && !petDto.getBirthday().isEmpty()) {
                     try {
-                        pet.setBirthDate(LocalDate.parse(petDto.getBirthday()));
+                        pet.setBirthday(LocalDate.parse(petDto.getBirthday()));
                     } catch (Exception e) {
                         log.warn("Invalid birthday format: {}", petDto.getBirthday());
                     }
@@ -112,7 +113,7 @@ public class RegistrationService {
                 pet.setAgeUnit(petDto.getAgeUnit());
                 pet.setWeight(petDto.getWeight());
                 pet.setWeightUnit(petDto.getWeightUnit());
-                pet.setMicrochipId(petDto.getMicrochip());
+                pet.setMicrochip(petDto.getMicrochip());
                 
                 if (petDto.getSterilized() != null) {
                     pet.setSterilized("yes".equals(petDto.getSterilized()));
@@ -140,13 +141,13 @@ public class RegistrationService {
 
             // Check if username, email, or license already exists
             if (userRepository.existsByUsername(request.getUsername())) {
-                throw new IllegalArgumentException("Username already exists");
+                throw new IllegalArgumentException(ErrorCodes.USERNAME_ALREADY_EXISTS.getMessage());
             }
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new IllegalArgumentException("Email already exists");
+                throw new IllegalArgumentException(ErrorCodes.EMAIL_ALREADY_EXISTS.getMessage());
             }
             if (veterinarianRepository.existsByLicenseNumber(request.getLicenseNumber())) {
-                throw new IllegalArgumentException("License number already exists");
+                throw new IllegalArgumentException(ErrorCodes.LICENSE_ALREADY_EXISTS.getMessage());
             }
 
             // Create user
@@ -156,7 +157,7 @@ public class RegistrationService {
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
-            user.setPhone(request.getPhoneNumber());
+            user.setPhoneNumber(request.getPhoneNumber());
             user.setAddress(request.getAddress());
             user.setUserType(User.UserType.VETERINARIAN);
             user.setIsVerified(false); // Pending verification
@@ -222,7 +223,7 @@ public class RegistrationService {
             veterinarian.setIsAffiliated(request.getIsAffiliated());
             if (request.getIsAffiliated()) {
                 veterinarian.setAffiliatedFacilityName(request.getAffiliatedFacilityName());
-                veterinarian.setAffiliatedType(request.getAffiliatedType());
+                veterinarian.setAffiliationType(request.getAffiliatedType());
                 if ("Other".equals(request.getAffiliatedFacilityName())) {
                     veterinarian.setOtherFacilityName(request.getOtherFacilityName());
                 }
@@ -230,14 +231,14 @@ public class RegistrationService {
 
             // Service offerings
             veterinarian.setOfferOnlineConsultation(request.getOfferOnlineConsultation());
-            veterinarian.setOfferHomeVisits(request.getOfferHomeVisits());
+            veterinarian.setOfferHomeConsultation(request.getOfferHomeConsultation());
             
-            if (request.getOfferHomeVisits()) {
-                veterinarian.setHomeServiceSameAsPersonal(request.getHomeServiceSameAsPersonal());
+            if (request.getOfferHomeConsultation()) {
+                veterinarian.setIndependentServiceSameAsPersonal(request.getHomeServiceSameAsPersonal());
                 if (!request.getHomeServiceSameAsPersonal()) {
-                    veterinarian.setHomeServiceStreet(request.getHomeServiceStreet());
-                    veterinarian.setHomeServiceCity(request.getHomeServiceCity());
-                    veterinarian.setHomeServiceZip(request.getHomeServiceZip());
+                    veterinarian.setIndependentServiceStreet(request.getHomeServiceStreet());
+                    veterinarian.setIndependentServiceCity(request.getHomeServiceCity());
+                    veterinarian.setIndependentServiceZip(request.getHomeServiceZip());
                 }
                 veterinarian.setHomeVisitRadius(request.getHomeVisitRadius());
             }
@@ -247,13 +248,13 @@ public class RegistrationService {
                 try {
                     // Parse the JSON string to ensure it's valid JSON
                     objectMapper.readTree(request.getAvailabilitySchedule());
-                    veterinarian.setAvailabilitySettings(request.getAvailabilitySchedule());
+                    veterinarian.setAvailabilitySchedule(request.getAvailabilitySchedule());
                 } catch (JsonProcessingException e) {
                     log.warn("Invalid JSON in availability schedule, storing as null: {}", e.getMessage());
-                    veterinarian.setAvailabilitySettings(null);
+                    veterinarian.setAvailabilitySchedule(null);
                 }
             } else {
-                veterinarian.setAvailabilitySettings(null);
+                veterinarian.setAvailabilitySchedule(null);
             }
 
             veterinarianRepository.save(veterinarian);
@@ -294,7 +295,7 @@ public class RegistrationService {
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
-            user.setPhone(request.getPhoneNumber());
+            user.setPhoneNumber(request.getPhoneNumber());
             user.setAddress(request.getAddress());
             user.setUserType(User.UserType.TRAINER);
             user.setIsVerified(false); // Pending verification
@@ -346,9 +347,7 @@ public class RegistrationService {
             trainer.setCertifications(certifications);
 
             // Service offerings
-            trainer.setOfferOnlineTraining(request.getOfferOnlineTraining());
             trainer.setOfferHomeTraining(request.getOfferHomeTraining());
-            trainer.setOfferGroupClasses(request.getOfferGroupClasses());
 
             // Academy details
             trainer.setHasAcademy(request.getHasAcademy());
@@ -382,7 +381,7 @@ public class RegistrationService {
 
             // Store availability settings as JSON
             if (request.getAvailabilitySchedule() != null) {
-                trainer.setAvailabilitySettings(request.getAvailabilitySchedule());
+                trainer.setAvailabilitySchedule(request.getAvailabilitySchedule());
             }
 
             trainerRepository.save(trainer);
@@ -444,7 +443,7 @@ public class RegistrationService {
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
             user.setFirstName(request.getFirstName()); // business name
             user.setLastName(request.getLastName()); // "Hospital" or "Clinic"
-            user.setPhone(request.getPhoneNumber());
+            user.setPhoneNumber(request.getPhoneNumber());
             user.setAddress(request.getAddress());
             user.setCity(request.getCity());
             user.setState(request.getState());
@@ -471,7 +470,6 @@ public class RegistrationService {
             Hospital hospital = new Hospital(savedUser, request.getBusinessName(), request.getContactPerson(), request.getAccountType());
             hospital.setOfferOnlineConsultation(request.getOfferOnlineConsultation());
             hospital.setOfferClinicHospital(request.getOfferClinicHospital());
-            hospital.setBusinessHours(request.getBusinessHours());
             hospital.setFacilityLicenseNumber(request.getFacilityLicenseNumber());
             hospital.setGovtRegistrationNumber(request.getGovtRegistrationNumber());
             hospital.setTaxId(request.getTaxId());

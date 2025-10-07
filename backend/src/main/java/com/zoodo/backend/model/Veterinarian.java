@@ -30,17 +30,19 @@ public class Veterinarian {
     @Column
     private Integer experience;
 
-    @jakarta.persistence.ElementCollection
-    @jakarta.persistence.CollectionTable(name = "veterinarian_specializations", 
-                                       joinColumns = @JoinColumn(name = "veterinarian_id"))
-    @Column(name = "specialization")
+    @Column(name = "specializations", columnDefinition = "TEXT[]")
     private java.util.List<String> specializations;
 
-    @jakarta.persistence.ElementCollection
-    @jakarta.persistence.CollectionTable(name = "veterinarian_qualifications",
-                                       joinColumns = @JoinColumn(name = "veterinarian_id"))
-    @Column(name = "qualification")
+    @Column(name = "other_specialization", length = 255)
+    @Size(max = 255)
+    private String otherSpecialization;
+
+    @Column(name = "qualifications", columnDefinition = "TEXT[]")
     private java.util.List<String> qualifications;
+
+    @Column(name = "other_qualification", length = 255)
+    @Size(max = 255)
+    private String otherQualification;
 
     @Column(name = "resume_url", length = 500)
     @Size(max = 500)
@@ -69,44 +71,45 @@ public class Veterinarian {
     @Size(max = 255)
     private String affiliatedFacilityName;
 
-    @Column(name = "affiliated_type", length = 50)
+    @Column(name = "affiliation_type", length = 50)
     @Size(max = 50)
-    private String affiliatedType;
+    private String affiliationType;
 
     @Column(name = "other_facility_name", length = 255)
     @Size(max = 255)
     private String otherFacilityName;
 
-    // Service details
+    // Independent services
+    @Column(name = "offer_home_consultation")
+    private Boolean offerHomeConsultation = false;
+
     @Column(name = "offer_online_consultation")
     private Boolean offerOnlineConsultation = false;
 
-    @Column(name = "offer_home_visits")
-    private Boolean offerHomeVisits = false;
+    @Column(name = "independent_service_address")
+    private String independentServiceAddress;
 
-    @Column(name = "home_service_address")
-    private String homeServiceAddress;
+    @Column(name = "independent_service_same_as_personal")
+    private Boolean independentServiceSameAsPersonal = true;
 
-    @Column(name = "home_service_same_as_personal")
-    private Boolean homeServiceSameAsPersonal = true;
-
-    @Column(name = "home_service_street", length = 255)
+    @Column(name = "independent_service_street", length = 255)
     @Size(max = 255)
-    private String homeServiceStreet;
+    private String independentServiceStreet;
 
-    @Column(name = "home_service_city", length = 100)
+    @Column(name = "independent_service_city", length = 100)
     @Size(max = 100)
-    private String homeServiceCity;
+    private String independentServiceCity;
 
-    @Column(name = "home_service_zip", length = 20)
+    @Column(name = "independent_service_zip", length = 20)
     @Size(max = 20)
-    private String homeServiceZip;
+    private String independentServiceZip;
 
     @Column(name = "home_visit_radius")
     private Integer homeVisitRadius; // in km
 
-    @Column(name = "availability_settings", columnDefinition = "TEXT")
-    private String availabilitySettings; // JSON string for flexibility
+
+    @Column(name = "availability_schedule", columnDefinition = "JSONB")
+    private String availabilitySchedule; // JSON string for flexibility
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -140,8 +143,14 @@ public class Veterinarian {
     public java.util.List<String> getSpecializations() { return specializations; }
     public void setSpecializations(java.util.List<String> specializations) { this.specializations = specializations; }
 
+    public String getOtherSpecialization() { return otherSpecialization; }
+    public void setOtherSpecialization(String otherSpecialization) { this.otherSpecialization = otherSpecialization; }
+
     public java.util.List<String> getQualifications() { return qualifications; }
     public void setQualifications(java.util.List<String> qualifications) { this.qualifications = qualifications; }
+
+    public String getOtherQualification() { return otherQualification; }
+    public void setOtherQualification(String otherQualification) { this.otherQualification = otherQualification; }
 
     public String getResumeUrl() { return resumeUrl; }
     public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
@@ -164,38 +173,38 @@ public class Veterinarian {
     public String getAffiliatedFacilityName() { return affiliatedFacilityName; }
     public void setAffiliatedFacilityName(String affiliatedFacilityName) { this.affiliatedFacilityName = affiliatedFacilityName; }
 
-    public String getAffiliatedType() { return affiliatedType; }
-    public void setAffiliatedType(String affiliatedType) { this.affiliatedType = affiliatedType; }
+    public String getAffiliationType() { return affiliationType; }
+    public void setAffiliationType(String affiliationType) { this.affiliationType = affiliationType; }
 
     public String getOtherFacilityName() { return otherFacilityName; }
     public void setOtherFacilityName(String otherFacilityName) { this.otherFacilityName = otherFacilityName; }
 
+    public Boolean getOfferHomeConsultation() { return offerHomeConsultation; }
+    public void setOfferHomeConsultation(Boolean offerHomeConsultation) { this.offerHomeConsultation = offerHomeConsultation; }
+
     public Boolean getOfferOnlineConsultation() { return offerOnlineConsultation; }
     public void setOfferOnlineConsultation(Boolean offerOnlineConsultation) { this.offerOnlineConsultation = offerOnlineConsultation; }
 
-    public Boolean getOfferHomeVisits() { return offerHomeVisits; }
-    public void setOfferHomeVisits(Boolean offerHomeVisits) { this.offerHomeVisits = offerHomeVisits; }
+    public String getIndependentServiceAddress() { return independentServiceAddress; }
+    public void setIndependentServiceAddress(String independentServiceAddress) { this.independentServiceAddress = independentServiceAddress; }
 
-    public String getHomeServiceAddress() { return homeServiceAddress; }
-    public void setHomeServiceAddress(String homeServiceAddress) { this.homeServiceAddress = homeServiceAddress; }
+    public Boolean getIndependentServiceSameAsPersonal() { return independentServiceSameAsPersonal; }
+    public void setIndependentServiceSameAsPersonal(Boolean independentServiceSameAsPersonal) { this.independentServiceSameAsPersonal = independentServiceSameAsPersonal; }
 
-    public Boolean getHomeServiceSameAsPersonal() { return homeServiceSameAsPersonal; }
-    public void setHomeServiceSameAsPersonal(Boolean homeServiceSameAsPersonal) { this.homeServiceSameAsPersonal = homeServiceSameAsPersonal; }
+    public String getIndependentServiceStreet() { return independentServiceStreet; }
+    public void setIndependentServiceStreet(String independentServiceStreet) { this.independentServiceStreet = independentServiceStreet; }
 
-    public String getHomeServiceStreet() { return homeServiceStreet; }
-    public void setHomeServiceStreet(String homeServiceStreet) { this.homeServiceStreet = homeServiceStreet; }
+    public String getIndependentServiceCity() { return independentServiceCity; }
+    public void setIndependentServiceCity(String independentServiceCity) { this.independentServiceCity = independentServiceCity; }
 
-    public String getHomeServiceCity() { return homeServiceCity; }
-    public void setHomeServiceCity(String homeServiceCity) { this.homeServiceCity = homeServiceCity; }
-
-    public String getHomeServiceZip() { return homeServiceZip; }
-    public void setHomeServiceZip(String homeServiceZip) { this.homeServiceZip = homeServiceZip; }
+    public String getIndependentServiceZip() { return independentServiceZip; }
+    public void setIndependentServiceZip(String independentServiceZip) { this.independentServiceZip = independentServiceZip; }
 
     public Integer getHomeVisitRadius() { return homeVisitRadius; }
     public void setHomeVisitRadius(Integer homeVisitRadius) { this.homeVisitRadius = homeVisitRadius; }
 
-    public String getAvailabilitySettings() { return availabilitySettings; }
-    public void setAvailabilitySettings(String availabilitySettings) { this.availabilitySettings = availabilitySettings; }
+    public String getAvailabilitySchedule() { return availabilitySchedule; }
+    public void setAvailabilitySchedule(String availabilitySchedule) { this.availabilitySchedule = availabilitySchedule; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

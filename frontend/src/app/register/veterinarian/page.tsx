@@ -17,6 +17,8 @@ import { getDashboardRoute } from '@/lib/dashboard-utils';
 import { toast } from 'sonner';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { FileUploadField } from '@/components/ui/file-upload-field';
+import { getOAuthUserData, clearOAuthUserData } from '@/lib/oauth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Custom Time Picker Component
 const TimePicker = ({ 
@@ -110,6 +112,10 @@ interface FormData {
   confirmPassword: string;
   phoneNumber: string;
   address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
   experience: number | string;
   licenseNumber: string;
   specialization: string[];
@@ -205,6 +211,7 @@ interface FormData {
 function VeterinarianWizard() {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const { loginWithGoogle } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -216,6 +223,10 @@ function VeterinarianWizard() {
     confirmPassword: '',
     phoneNumber: '',
     address: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'India',
     experience: '',
     licenseNumber: '',
     specialization: [],
@@ -317,15 +328,37 @@ function VeterinarianWizard() {
   const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
   const [isPhoneNumberFocused, setIsPhoneNumberFocused] = useState(false);
   const [isAddressFocused, setIsAddressFocused] = useState(false);
+  const [isCityFocused, setIsCityFocused] = useState(false);
+  const [isStateFocused, setIsStateFocused] = useState(false);
+  const [isCountryFocused, setIsCountryFocused] = useState(false);
+  const [isPostalCodeFocused, setIsPostalCodeFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSocialLogin = (provider: 'google' | 'microsoft' | 'apple') => {
-    console.log(`Logging in with ${provider}`);
-    // Implement social login logic here
+    if (provider === 'google') {
+      loginWithGoogle();
+    } else {
+      console.log(`${provider} login not implemented yet`);
+    }
   };
 
   useEffect(() => setMounted(true), []);
+
+  // Auto-fill form with OAuth data if available
+  useEffect(() => {
+    const oauthData = getOAuthUserData();
+    if (oauthData) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: oauthData.firstName,
+        lastName: oauthData.lastName,
+        email: oauthData.email,
+      }));
+      // Clear OAuth data after using it
+      clearOAuthUserData();
+    }
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -662,8 +695,38 @@ function VeterinarianWizard() {
                   <div className="relative">
                     <Label htmlFor="address" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
                         isAddressFocused || formData.address ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Personal Address</Label>
-                    <Textarea id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={()=>setIsAddressFocused(true)} onBlur={()=>setIsAddressFocused(false)} className="h-24 rounded-xl pt-8" />
+                    }`}>Street Address</Label>
+                    <Input id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={()=>setIsAddressFocused(true)} onBlur={()=>setIsAddressFocused(false)} className="h-12 rounded-full pt-4" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label htmlFor="city" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isCityFocused || formData.city ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>City</Label>
+                      <Input id="city" name="city" value={formData.city} onChange={handleInputChange} onFocus={()=>setIsCityFocused(true)} onBlur={()=>setIsCityFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                    <div className="relative">
+                      <Label htmlFor="state" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isStateFocused || formData.state ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>State</Label>
+                      <Input id="state" name="state" value={formData.state} onChange={handleInputChange} onFocus={()=>setIsStateFocused(true)} onBlur={()=>setIsStateFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label htmlFor="country" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isCountryFocused || formData.country ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Country</Label>
+                      <Input id="country" name="country" value={formData.country} onChange={handleInputChange} onFocus={()=>setIsCountryFocused(true)} onBlur={()=>setIsCountryFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                    <div className="relative">
+                      <Label htmlFor="postalCode" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isPostalCodeFocused || formData.postalCode ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Postal Code</Label>
+                      <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} onFocus={()=>setIsPostalCodeFocused(true)} onBlur={()=>setIsPostalCodeFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
                   </div>
 
                   <div className="relative">

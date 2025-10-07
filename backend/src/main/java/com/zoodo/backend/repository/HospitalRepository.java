@@ -12,6 +12,8 @@ public interface HospitalRepository extends JpaRepository<Hospital, UUID> {
     
     Optional<Hospital> findByUser_Id(UUID userId);
     
+    Optional<Hospital> findByUserId(UUID userId);
+    
     boolean existsByFacilityLicenseNumber(String facilityLicenseNumber);
     
     boolean existsByGovtRegistrationNumber(String govtRegistrationNumber);

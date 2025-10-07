@@ -16,15 +16,6 @@ import { getDashboardRoute } from '@/lib/dashboard-utils';
 import { toast } from 'sonner';
 import { FileUploadField } from '@/components/ui/file-upload-field';
 
-interface BusinessHours {
-  monday: { open: string; close: string; enabled: boolean };
-  tuesday: { open: string; close: string; enabled: boolean };
-  wednesday: { open: string; close: string; enabled: boolean };
-  thursday: { open: string; close: string; enabled: boolean };
-  friday: { open: string; close: string; enabled: boolean };
-  saturday: { open: string; close: string; enabled: boolean };
-  sunday: { open: string; close: string; enabled: boolean };
-}
 
 interface FormDataState {
   accountType: 'hospital' | 'clinic';
@@ -44,7 +35,6 @@ interface FormDataState {
     onlineConsultation: boolean;
     clinicHospital: boolean;
   };
-  businessHours: BusinessHours;
   facilityLicenseNumber: string;
   govtRegistrationNumber: string;
   taxId: string;
@@ -53,15 +43,6 @@ interface FormDataState {
   facilityLicenseDocument: File | null;
 }
 
-const defaultHours: BusinessHours = {
-  monday: { open: '09:00', close: '17:00', enabled: true },
-  tuesday: { open: '09:00', close: '17:00', enabled: true },
-  wednesday: { open: '09:00', close: '17:00', enabled: true },
-  thursday: { open: '09:00', close: '17:00', enabled: true },
-  friday: { open: '09:00', close: '17:00', enabled: true },
-  saturday: { open: '10:00', close: '14:00', enabled: false },
-  sunday: { open: '10:00', close: '14:00', enabled: false },
-};
 
 function HospitalClinicWizard() {
   const router = useRouter();
@@ -89,7 +70,6 @@ function HospitalClinicWizard() {
       onlineConsultation: false,
       clinicHospital: true,
     },
-    businessHours: defaultHours,
     facilityLicenseNumber: '',
     govtRegistrationNumber: '',
     taxId: '',
@@ -119,29 +99,6 @@ function HospitalClinicWizard() {
     setFormData((prev) => ({ ...prev, accountType: value }));
   };
 
-  const handleHoursToggle = (day: keyof BusinessHours) => {
-    setFormData((prev) => ({
-      ...prev,
-      businessHours: {
-        ...prev.businessHours,
-        [day]: { ...prev.businessHours[day], enabled: !prev.businessHours[day].enabled },
-      },
-    }));
-  };
-
-  const handleHoursChange = (
-    day: keyof BusinessHours,
-    field: 'open' | 'close',
-    value: string
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      businessHours: {
-        ...prev.businessHours,
-        [day]: { ...prev.businessHours[day], [field]: value },
-      },
-    }));
-  };
 
   const validateStep = (step: number): boolean => {
     if (step === 1) {
@@ -479,32 +436,6 @@ function HospitalClinicWizard() {
 
                 
 
-                <div className="space-y-3">
-                  <Label>Operating Hours</Label>
-                  {(Object.keys(formData.businessHours) as Array<keyof BusinessHours>).map((day) => (
-                    <div key={day} className="grid grid-cols-3 gap-3 items-center border border-border/50 rounded-lg p-3">
-                      <div className="text-sm capitalize">{day}</div>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          value={formData.businessHours[day].open}
-                          onChange={(e) => handleHoursChange(day, 'open', e.target.value)}
-                          placeholder="09:00"
-                        />
-                        <span className="text-xs text-muted-foreground">to</span>
-                        <Input
-                          value={formData.businessHours[day].close}
-                          onChange={(e) => handleHoursChange(day, 'close', e.target.value)}
-                          placeholder="17:00"
-                        />
-                      </div>
-                      <div className="flex justify-end">
-                        <Button type="button" variant={formData.businessHours[day].enabled ? 'default' : 'outline'} onClick={() => handleHoursToggle(day)} className="h-9 px-3 rounded-full text-xs">
-                          {formData.businessHours[day].enabled ? 'Open' : 'Closed'}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
                 <div className="flex gap-3 items-center">
                   <Button type="button" variant="outline" onClick={prevStep} className="h-12 rounded-full flex-1">Back</Button>

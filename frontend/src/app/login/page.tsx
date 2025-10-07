@@ -33,7 +33,7 @@ export default function LoginPage() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { login, isLoading, isAuthenticated, user } = useAuth();
+  const { login, loginWithGoogle, isLoading, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -102,7 +102,11 @@ export default function LoginPage() {
   };
 
   const handleSocialLogin = (provider: 'google' | 'github' | 'microsoft' | 'apple') => {
-    console.log(`${provider} login not implemented yet`);
+    if (provider === 'google') {
+      loginWithGoogle();
+    } else {
+      console.log(`${provider} login not implemented yet`);
+    }
   };
 
   return (

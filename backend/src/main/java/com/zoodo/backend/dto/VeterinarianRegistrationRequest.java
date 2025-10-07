@@ -66,7 +66,7 @@ public class VeterinarianRegistrationRequest {
     
     // Service offerings
     private Boolean offerOnlineConsultation = false;
-    private Boolean offerHomeVisits = false;
+    private Boolean offerHomeConsultation = false;
     
     // Service address details (if different from personal)
     private Boolean homeServiceSameAsPersonal = true;

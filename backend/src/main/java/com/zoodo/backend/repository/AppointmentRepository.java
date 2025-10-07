@@ -1,6 +1,7 @@
 package com.zoodo.backend.repository;
 
 import com.zoodo.backend.model.Appointment;
+import com.zoodo.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +16,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByProviderId(UUID providerId);
 
-    List<Appointment> findByPetOwnerId(UUID ownerId);
+    List<Appointment> findByPetOwnerId(User ownerId);
 
     List<Appointment> findByAppointmentDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 

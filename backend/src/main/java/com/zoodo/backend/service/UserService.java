@@ -1,9 +1,7 @@
 package com.zoodo.backend.service;
 
 import com.zoodo.backend.model.User;
-import com.zoodo.backend.model.VetProfile;
 import com.zoodo.backend.repository.UserRepository;
-import com.zoodo.backend.repository.VetProfileRepository;
 import com.zoodo.backend.dto.ProviderProfileResponse;
 import com.zoodo.backend.dto.UserRegistrationRequest;
 import com.zoodo.backend.dto.UserLoginRequest;
@@ -30,8 +28,6 @@ public class UserService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private VetProfileRepository vetProfileRepository;
 
     // New CRUD methods for frontend
     public List<User> getAllUsers() {
@@ -51,11 +47,23 @@ public class UserService {
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
         }
-        if (request.getPhone() != null) {
-            user.setPhone(request.getPhone());
+        if (request.getPhoneNumber() != null) {
+            user.setPhoneNumber(request.getPhoneNumber());
         }
         if (request.getAddress() != null) {
             user.setAddress(request.getAddress());
+        }
+        if (request.getCity() != null) {
+            user.setCity(request.getCity());
+        }
+        if (request.getState() != null) {
+            user.setState(request.getState());
+        }
+        if (request.getCountry() != null) {
+            user.setCountry(request.getCountry());
+        }
+        if (request.getPostalCode() != null) {
+            user.setPostalCode(request.getPostalCode());
         }
         
         return userRepository.save(user);
@@ -79,8 +87,12 @@ public class UserService {
         user.setUsername(request.getUsername());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword())); // Hash password
         user.setUserType(User.UserType.valueOf(request.getUserType().toUpperCase()));
-        user.setPhone(request.getPhone());
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
+        user.setCity(request.getCity());
+        user.setState(request.getState());
+        user.setCountry(request.getCountry());
+        user.setPostalCode(request.getPostalCode());
         // Specialization and experience are handled in specific user type models
         user.setIsVerified(false);
         user.setIsActive(true);
@@ -157,27 +169,21 @@ public class UserService {
 
     public ProviderProfileResponse getProviderProfile(UUID providerId) {
         User user = getProviderById(providerId);
-        VetProfile vet = vetProfileRepository.findByUserId(providerId).orElse(null);
         ProviderProfileResponse resp = new ProviderProfileResponse();
         resp.setId(user.getId().toString());
         resp.setFirstName(user.getFirstName());
         resp.setLastName(user.getLastName());
         resp.setEmail(user.getEmail());
         resp.setUsername(user.getUsername());
-        resp.setPhone(user.getPhone());
+        resp.setPhone(user.getPhoneNumber());
         resp.setAddress(user.getAddress());
+        resp.setCity(user.getCity());
+        resp.setState(user.getState());
+        resp.setCountry(user.getCountry());
+        resp.setPostalCode(user.getPostalCode());
         resp.setUserType(user.getUserType().name());
-        if (vet != null) {
-            resp.setSpecializations(vet.getSpecializations());
-            resp.setQualifications(vet.getQualifications());
-            resp.setLicenseNumber(vet.getLicenseNumber());
-            resp.setLicenseProofPath(vet.getLicenseProofPath());
-            resp.setIdProofPath(vet.getIdProofPath());
-            resp.setDegreeProofPath(vet.getDegreeProofPath());
-            resp.setProfilePhotoPath(vet.getProfilePhotoPath());
-        } else {
-            // Specializations are handled in specific user type models
-        }
+        // Specializations and other details are now handled in specific user type models
+        // This method should be updated to use the new Veterinarian, Trainer, or Hospital models
         return resp;
     }
 } 

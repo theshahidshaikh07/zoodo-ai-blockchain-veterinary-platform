@@ -43,7 +43,7 @@ public class UserDetailDto {
     private String affiliatedType;
     private String otherFacilityName;
     private Boolean offerOnlineConsultation;
-    private Boolean offerHomeVisits;
+    private Boolean offerHomeConsultation;
     private String homeServiceAddress;
     private Boolean homeServiceSameAsPersonal;
     private String homeServiceStreet;
@@ -55,9 +55,7 @@ public class UserDetailDto {
     // Trainer specific fields
     private String[] certifications;
     private String practiceType;
-    private Boolean offerOnlineTraining;
     private Boolean offerHomeTraining;
-    private Boolean offerGroupClasses;
     private String independentServiceAddress;
     private Boolean independentServiceSameAsPersonal;
     private String independentServiceStreet;

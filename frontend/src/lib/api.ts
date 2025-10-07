@@ -6,6 +6,9 @@ export interface ApiResponse<T> {
   message: string;
   data?: T;
   error?: string;
+  errorCode?: string;
+  errorType?: string;
+  details?: any;
 }
 
 export interface User {
@@ -121,6 +124,11 @@ class ApiService {
     };
 
     try {
+      console.log('Making request to:', url);
+      console.log('Request options:', defaultOptions);
+      console.log('Body type:', typeof defaultOptions.body);
+      console.log('Body instanceof FormData:', defaultOptions.body instanceof FormData);
+      
       const response = await fetch(url, defaultOptions);
       
       // Check if response is ok
@@ -202,13 +210,11 @@ class ApiService {
       const form = userData as FormData;
       const isVetMultipart = form.has('licenseNumber') || form.has('licenseProof') || form.has('independentServices') || form.has('availabilitySchedule');
       const isTrainerMultipart = form.has('registrationData') && (form.has('resume') || form.has('profilePhoto'));
-      const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument') || form.has('businessHours');
+      const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument');
       
       let endpoint = '/register/pet-owner';
       if (isVetMultipart) {
-        // For veterinarian registration, we need to create a JSON string for registrationData
-        const registrationData = this.createVeterinarianRegistrationData(form);
-        form.set('registrationData', JSON.stringify(registrationData));
+        // For veterinarian registration, use the direct endpoint that expects individual form parts
         endpoint = '/register/veterinarian';
       } else if (isTrainerMultipart) {
         // Frontend already provides registrationData, no need to create it
@@ -276,9 +282,7 @@ class ApiService {
       otherSpecialization: form.get('otherSpecialization') as string,
       otherCertification: form.get('otherCertification') as string,
       practiceType: form.get('practiceType') as string,
-      offerOnlineTraining: form.get('offerOnlineTraining') === 'true',
       offerHomeTraining: form.get('offerHomeTraining') === 'true',
-      offerGroupClasses: form.get('offerGroupClasses') === 'true',
       independentServiceSameAsPersonal: form.get('independentServiceSameAsPersonal') === 'true',
       independentServiceStreet: form.get('independentServiceStreet') as string,
       independentServiceCity: form.get('independentServiceCity') as string,
@@ -311,7 +315,6 @@ class ApiService {
       address: form.get('address') as string,
       facilityName: form.get('facilityName') as string,
       facilityLicenseNumber: form.get('facilityLicenseNumber') as string,
-      businessHours: form.get('businessHours') as string
     };
   }
 

@@ -137,7 +137,7 @@ public class AdminService {
         dto.setEmail(user.getEmail());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
-        dto.setPhone(user.getPhone());
+        dto.setPhone(user.getPhoneNumber());
         dto.setUserType(user.getUserType().getValue());
         dto.setStatus(user.getIsActive() ? "active" : "inactive");
         dto.setIsVerified(user.getIsVerified());
@@ -183,7 +183,7 @@ public class AdminService {
                 }
                 break;
             case PET_OWNER:
-                List<Pet> pets = petRepository.findByOwner(user);
+                List<Pet> pets = petRepository.findByOwnerId(user);
                 dto.setPetCount(pets.size());
                 break;
         }
@@ -197,7 +197,7 @@ public class AdminService {
         if (user.getEmail() != null && !user.getEmail().isEmpty()) completedFields++;
         if (user.getFirstName() != null && !user.getFirstName().isEmpty()) completedFields++;
         if (user.getLastName() != null && !user.getLastName().isEmpty()) completedFields++;
-        if (user.getPhone() != null && !user.getPhone().isEmpty()) completedFields++;
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty()) completedFields++;
         if (user.getAddress() != null && !user.getAddress().isEmpty()) completedFields++;
         if (user.getCity() != null && !user.getCity().isEmpty()) completedFields++;
         if (user.getState() != null && !user.getState().isEmpty()) completedFields++;
@@ -238,7 +238,7 @@ public class AdminService {
         dto.setEmail(user.getEmail());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
-        dto.setPhone(user.getPhone());
+        dto.setPhone(user.getPhoneNumber());
         dto.setUserType(user.getUserType().getValue());
         dto.setStatus(user.getIsActive() ? "active" : "inactive");
         dto.setIsVerified(user.getIsVerified());
@@ -248,8 +248,8 @@ public class AdminService {
         dto.setState(user.getState());
         dto.setCountry(user.getCountry());
         dto.setPostalCode(user.getPostalCode());
-        dto.setLatitude(user.getLatitude() != null ? user.getLatitude().doubleValue() : null);
-        dto.setLongitude(user.getLongitude() != null ? user.getLongitude().doubleValue() : null);
+        dto.setLatitude(null); // Latitude field removed from User model
+        dto.setLongitude(null); // Longitude field removed from User model
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
         dto.setProfileCompletion(calculateProfileCompletion(user));
@@ -279,17 +279,17 @@ public class AdminService {
                     dto.setDegreeProofUrl(veterinarian.getDegreeProofUrl());
                     dto.setIsAffiliated(veterinarian.getIsAffiliated());
                     dto.setAffiliatedFacilityName(veterinarian.getAffiliatedFacilityName());
-                    dto.setAffiliatedType(veterinarian.getAffiliatedType());
+                    dto.setAffiliatedType(veterinarian.getAffiliationType());
                     dto.setOtherFacilityName(veterinarian.getOtherFacilityName());
                     dto.setOfferOnlineConsultation(veterinarian.getOfferOnlineConsultation());
-                    dto.setOfferHomeVisits(veterinarian.getOfferHomeVisits());
-                    dto.setHomeServiceAddress(veterinarian.getHomeServiceAddress());
-                    dto.setHomeServiceSameAsPersonal(veterinarian.getHomeServiceSameAsPersonal());
-                    dto.setHomeServiceStreet(veterinarian.getHomeServiceStreet());
-                    dto.setHomeServiceCity(veterinarian.getHomeServiceCity());
-                    dto.setHomeServiceZip(veterinarian.getHomeServiceZip());
+                    dto.setOfferHomeConsultation(veterinarian.getOfferHomeConsultation());
+                    dto.setHomeServiceAddress(veterinarian.getIndependentServiceAddress());
+                    dto.setHomeServiceSameAsPersonal(veterinarian.getIndependentServiceSameAsPersonal());
+                    dto.setHomeServiceStreet(veterinarian.getIndependentServiceStreet());
+                    dto.setHomeServiceCity(veterinarian.getIndependentServiceCity());
+                    dto.setHomeServiceZip(veterinarian.getIndependentServiceZip());
                     dto.setHomeVisitRadius(veterinarian.getHomeVisitRadius());
-                    dto.setAvailabilitySettings(veterinarian.getAvailabilitySettings());
+                    dto.setAvailabilitySettings(veterinarian.getAvailabilitySchedule());
                 }
                 break;
             case TRAINER:
@@ -304,9 +304,7 @@ public class AdminService {
                     dto.setResumeUrl(trainerEntity.getResumeUrl());
                     dto.setProfilePhotoUrl(trainerEntity.getProfilePhotoUrl());
                     dto.setPracticeType(trainerEntity.getPracticeType());
-                    dto.setOfferOnlineTraining(trainerEntity.getOfferOnlineTraining());
                     dto.setOfferHomeTraining(trainerEntity.getOfferHomeTraining());
-                    dto.setOfferGroupClasses(trainerEntity.getOfferGroupClasses());
                     dto.setIndependentServiceAddress(trainerEntity.getIndependentServiceAddress());
                     dto.setIndependentServiceSameAsPersonal(trainerEntity.getIndependentServiceSameAsPersonal());
                     dto.setIndependentServiceStreet(trainerEntity.getIndependentServiceStreet());
@@ -324,11 +322,11 @@ public class AdminService {
                     dto.setAcademyPostalCode(trainerEntity.getAcademyPostalCode());
                     dto.setAcademyCountry(trainerEntity.getAcademyCountry());
                     dto.setAcademyPhone(trainerEntity.getAcademyPhone());
-                    dto.setAvailabilitySettings(trainerEntity.getAvailabilitySettings());
+                    dto.setAvailabilitySettings(trainerEntity.getAvailabilitySchedule());
                 }
                 break;
             case PET_OWNER:
-                List<Pet> pets = petRepository.findByOwner(user);
+                List<Pet> pets = petRepository.findByOwnerId(user);
                 dto.setPets(pets.stream().map(this::convertToPetSummaryDto).collect(Collectors.toList()));
                 break;
         }
@@ -341,12 +339,12 @@ public class AdminService {
         dto.setSpecies(pet.getSpecies());
         dto.setBreed(pet.getBreed());
         dto.setGender(pet.getGender() != null ? pet.getGender().getValue() : null);
-        dto.setBirthDate(pet.getBirthDate() != null ? pet.getBirthDate().atStartOfDay() : null);
+        dto.setBirthDate(pet.getBirthday() != null ? pet.getBirthday().atStartOfDay() : null);
         dto.setAge(pet.getAge());
         dto.setAgeUnit(pet.getAgeUnit());
         dto.setWeight(pet.getWeight() != null ? pet.getWeight().doubleValue() : null);
         dto.setWeightUnit(pet.getWeightUnit());
-        dto.setMicrochipId(pet.getMicrochipId());
+        dto.setMicrochipId(pet.getMicrochip());
         dto.setSterilized(pet.getSterilized());
         dto.setPhotoUrl(pet.getPhotoUrl());
         dto.setCreatedAt(pet.getCreatedAt());
@@ -391,7 +389,7 @@ public class AdminService {
             case PET_OWNER:
                 petOwnerRepository.findByUser(user).ifPresent(petOwnerRepository::delete);
                 // Delete pets
-                petRepository.findByOwner(user).forEach(petRepository::delete);
+                petRepository.findByOwnerId(user).forEach(petRepository::delete);
                 break;
         }
         

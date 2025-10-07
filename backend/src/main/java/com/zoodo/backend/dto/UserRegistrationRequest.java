@@ -27,6 +27,7 @@ public class UserRegistrationRequest {
     private String username;
     
     private String phone;
+    private String phoneNumber;
     private String specialization;
     private String licenseNumber;
     private String address;
@@ -176,5 +177,13 @@ public class UserRegistrationRequest {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 } 

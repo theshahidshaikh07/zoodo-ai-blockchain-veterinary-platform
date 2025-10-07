@@ -44,9 +44,6 @@ public class Hospital {
     @Column(name = "offer_clinic_hospital")
     private Boolean offerClinicHospital = true;
 
-    // Business hours (JSON format for flexibility)
-    @Column(name = "business_hours", columnDefinition = "jsonb")
-    private String businessHours;
 
     // Compliance details
     @Column(name = "facility_license_number", nullable = false, length = 100)
@@ -124,8 +121,6 @@ public class Hospital {
     public Boolean getOfferClinicHospital() { return offerClinicHospital; }
     public void setOfferClinicHospital(Boolean offerClinicHospital) { this.offerClinicHospital = offerClinicHospital; }
 
-    public String getBusinessHours() { return businessHours; }
-    public void setBusinessHours(String businessHours) { this.businessHours = businessHours; }
 
     public String getFacilityLicenseNumber() { return facilityLicenseNumber; }
     public void setFacilityLicenseNumber(String facilityLicenseNumber) { this.facilityLicenseNumber = facilityLicenseNumber; }

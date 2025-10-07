@@ -102,9 +102,7 @@ interface User {
   // Trainer specific fields
   certifications?: string[];
   practiceType?: string;
-  offerOnlineTraining?: boolean;
   offerHomeTraining?: boolean;
-  offerGroupClasses?: boolean;
   independentServiceAddress?: string;
   independentServiceSameAsPersonal?: boolean;
   independentServiceStreet?: string;
@@ -1123,22 +1121,10 @@ function AdminDashboardContent() {
                         </div>
                       )}
                       <div className="grid grid-cols-2 gap-4">
-                        {selectedUser.offerOnlineTraining !== undefined && (
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">Online Training</label>
-                            <p className="text-sm">{selectedUser.offerOnlineTraining ? 'Yes' : 'No'}</p>
-                          </div>
-                        )}
                         {selectedUser.offerHomeTraining !== undefined && (
                           <div>
                             <label className="text-sm font-medium text-muted-foreground">Home Training</label>
                             <p className="text-sm">{selectedUser.offerHomeTraining ? 'Yes' : 'No'}</p>
-                          </div>
-                        )}
-                        {selectedUser.offerGroupClasses !== undefined && (
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">Group Classes</label>
-                            <p className="text-sm">{selectedUser.offerGroupClasses ? 'Yes' : 'No'}</p>
                           </div>
                         )}
                       </div>

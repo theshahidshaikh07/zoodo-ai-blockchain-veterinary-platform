@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { useRouter } from 'next/navigation';
 import { apiService, User } from '@/lib/api';
 import { getDashboardRoute } from '@/lib/dashboard-utils';
-import { toast } from 'sonner';
+import { notificationService } from '@/lib/notification-service';
 
 interface AuthContextType {
   user: User | null;
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Validate input
       if (!credentials.usernameOrEmail || !credentials.password) {
-        toast.error('Please enter both username/email and password');
+        notificationService.validationError('Credentials', 'Please enter both username/email and password');
         setIsLoading(false);
         return false;
       }
@@ -95,39 +95,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success) {
         // Get user profile after successful login
         const userResponse = await apiService.getCurrentUser();
-        if (userResponse.success && userResponse.data) {
-          setUser(userResponse.data);
-          // Store user data in localStorage for persistence
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userResponse.data));
+          if (userResponse.success && userResponse.data) {
+            setUser(userResponse.data);
+            // Store user data in localStorage for persistence
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('user', JSON.stringify(userResponse.data));
+            }
+            notificationService.loginSuccess(userResponse.data.firstName);
+            setIsLoading(false);
+            return true;
+          } else {
+            notificationService.error({
+              title: 'Profile Load Failed',
+              description: 'Failed to load user profile after login',
+            });
+            setIsLoading(false);
+            return false;
           }
-          toast.success('Login successful!');
-          setIsLoading(false);
-          return true;
-        } else {
-          toast.error('Failed to load user profile');
-          setIsLoading(false);
-          return false;
-        }
       }
       
       // Handle specific error messages
-      const errorMessage = response.message || 'Login failed';
-      if (errorMessage.includes('Invalid email or password')) {
-        toast.error('Invalid username/email or password');
-      } else if (errorMessage.includes('Account is deactivated')) {
-        toast.error('Your account has been deactivated. Please contact support.');
-      } else if (errorMessage.includes('Network error')) {
-        toast.error('Network error. Please check your connection and try again.');
-      } else {
-        toast.error(errorMessage);
-      }
+      notificationService.loginError({
+        code: response.errorCode,
+        type: response.errorType,
+        details: response.details,
+      });
       
       setIsLoading(false);
       return false;
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('An unexpected error occurred during login');
+      notificationService.networkError();
       setIsLoading(false);
       return false;
     }
@@ -141,27 +139,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success) {
         // Get user profile after successful login
         const userResponse = await apiService.getCurrentUser();
-        if (userResponse.success && userResponse.data) {
-          setUser(userResponse.data);
-          // Store user data in localStorage for persistence
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userResponse.data));
+          if (userResponse.success && userResponse.data) {
+            setUser(userResponse.data);
+            // Store user data in localStorage for persistence
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('user', JSON.stringify(userResponse.data));
+            }
+            notificationService.success({
+              title: 'Admin Login Successful!',
+              description: 'Welcome to the admin dashboard.',
+              type: 'login',
+            });
+            setIsLoading(false);
+            return true;
           }
-          toast.success('Admin login successful!');
-          setIsLoading(false);
-          return true;
         }
+        
+        notificationService.error({
+          title: 'Admin Login Failed',
+          description: response.message || 'Unable to log in as admin',
+          errorDetails: {
+            code: response.errorCode,
+            type: response.errorType,
+          },
+        });
+        setIsLoading(false);
+        return false;
+      } catch (error) {
+        console.error('Admin login error:', error);
+        notificationService.networkError();
+        setIsLoading(false);
+        return false;
       }
-      
-      toast.error(response.message || 'Admin login failed');
-      setIsLoading(false);
-      return false;
-    } catch (error) {
-      console.error('Admin login error:', error);
-      toast.error('An error occurred during admin login');
-      setIsLoading(false);
-      return false;
-    }
   };
 
   const loginWithGoogle = async () => {
@@ -174,7 +183,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       apiService.initiateGoogleLogin();
     } catch (error) {
       console.error('Google login initiation failed:', error);
-      toast.error('Failed to initiate Google login');
+      notificationService.error({
+        title: 'Google Login Failed',
+        description: 'Failed to initiate Google login. Please try again.',
+      });
     }
   };
 
@@ -188,7 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userResponse = await apiService.getCurrentUser();
           if (userResponse.success && userResponse.data) {
             setUser(userResponse.data);
-            toast.success('Login successful!');
+            notificationService.loginSuccess(userResponse.data.firstName);
             return true;
           }
         } else if (response.data.action === 'register') {
@@ -201,16 +213,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               picture: response.data.picture
             }));
           }
-          toast.info('Please complete your registration');
+          notificationService.info({
+            title: 'Complete Registration',
+            description: 'Please complete your registration to continue.',
+            type: 'registration',
+          });
           return false;
         }
       }
       
-      toast.error(response.message || 'OAuth authentication failed');
+      notificationService.error({
+        title: 'OAuth Authentication Failed',
+        description: response.message || 'Unable to authenticate with Google',
+      });
       return false;
     } catch (error) {
       console.error('OAuth callback handling failed:', error);
-      toast.error('Authentication failed');
+      notificationService.error({
+        title: 'Authentication Failed',
+        description: 'An error occurred during authentication',
+      });
       return false;
     }
   };
@@ -237,7 +259,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const userResponse = await apiService.getCurrentUser();
             if (userResponse.success && userResponse.data) {
               setUser(userResponse.data);
-              toast.success('Registration successful! Welcome to Zoodo!');
+              notificationService.registrationSuccess(userResponse.data.userType);
               setIsLoading(false);
               
               // Determine redirect path based on user type
@@ -254,17 +276,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         
         // Fallback if auto-login fails
-        toast.success('Registration successful! Please login to continue.');
+        notificationService.success({
+          title: 'Registration Successful!',
+          description: 'Please login to continue.',
+          type: 'registration',
+        });
         setIsLoading(false);
         return { success: true };
       }
       
-      toast.error(response.message || 'Registration failed');
+      notificationService.registrationError({
+        code: response.errorCode,
+        type: response.errorType,
+        details: response.details,
+      });
       setIsLoading(false);
       return { success: false };
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('An error occurred during registration');
+      notificationService.networkError();
       setIsLoading(false);
       return { success: false };
     }
@@ -277,7 +307,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
     }
-    toast.success('Logged out successfully');
+    notificationService.success({
+      title: 'Logged Out Successfully',
+      description: 'You have been logged out of your account.',
+      type: 'login',
+    });
     router.push('/');
   };
 

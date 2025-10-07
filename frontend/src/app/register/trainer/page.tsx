@@ -17,6 +17,8 @@ import { getDashboardRoute } from '@/lib/dashboard-utils';
 import { toast } from 'sonner';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { FileUploadField } from '@/components/ui/file-upload-field';
+import { getOAuthUserData, clearOAuthUserData } from '@/lib/oauth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Custom Time Picker Component
 const TimePicker = ({ 
@@ -105,6 +107,10 @@ interface FormData {
   confirmPassword: string;
   phoneNumber: string;
   address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
   experience: number;
   specialization: string[];
   otherSpecialization: string;
@@ -121,8 +127,6 @@ interface FormData {
   // Step 4 fields
   independentServices: {
     homeTraining: boolean;
-    onlineTraining: boolean;
-    groupClasses: boolean;
     serviceAddress: {
       sameAsPersonal: boolean;
       street: string;
@@ -136,8 +140,6 @@ interface FormData {
     centerAddress: string;
     services: {
       inPersonTraining: boolean;
-      onlineTraining: boolean;
-      groupClasses: boolean;
     };
   };
   affiliatedDetails: {
@@ -187,27 +189,13 @@ interface FormData {
       bufferTime: number;
       advanceBookingDays: number;
     };
-    // Online training availability
-    onlineAvailability: {
-      workingDays: {
-        monday: { enabled: boolean; startTime: string; endTime: string };
-        tuesday: { enabled: boolean; startTime: string; endTime: string };
-        wednesday: { enabled: boolean; startTime: string; endTime: string };
-        thursday: { enabled: boolean; startTime: string; endTime: string };
-        friday: { enabled: boolean; startTime: string; endTime: string };
-        saturday: { enabled: boolean; startTime: string; endTime: string };
-        sunday: { enabled: boolean; startTime: string; endTime: string };
-      };
-      sessionDuration: number;
-      bufferTime: number;
-      advanceBookingDays: number;
-    };
   };
 }
 
 function TrainerWizard() {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const { loginWithGoogle } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -219,6 +207,10 @@ function TrainerWizard() {
     confirmPassword: '',
     phoneNumber: '',
     address: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'India',
     experience: 0,
     specialization: [],
     otherSpecialization: '',
@@ -235,8 +227,6 @@ function TrainerWizard() {
     // Step 4 fields
     independentServices: {
       homeTraining: false,
-      onlineTraining: false,
-      groupClasses: false,
       serviceAddress: {
         sameAsPersonal: true,
         street: '',
@@ -250,8 +240,6 @@ function TrainerWizard() {
       centerAddress: '',
       services: {
         inPersonTraining: false,
-        onlineTraining: false,
-        groupClasses: false,
       },
     },
     affiliatedDetails: {
@@ -299,20 +287,6 @@ function TrainerWizard() {
         bufferTime: 15,
         advanceBookingDays: 30,
       },
-      onlineAvailability: {
-        workingDays: {
-          monday: { enabled: true, startTime: '08:00', endTime: '20:00' },
-          tuesday: { enabled: true, startTime: '08:00', endTime: '20:00' },
-          wednesday: { enabled: true, startTime: '08:00', endTime: '20:00' },
-          thursday: { enabled: true, startTime: '08:00', endTime: '20:00' },
-          friday: { enabled: true, startTime: '08:00', endTime: '20:00' },
-          saturday: { enabled: true, startTime: '10:00', endTime: '16:00' },
-          sunday: { enabled: true, startTime: '10:00', endTime: '16:00' },
-        },
-        sessionDuration: 30,
-        bufferTime: 15,
-        advanceBookingDays: 7,
-      },
     },
   });
 
@@ -329,16 +303,38 @@ function TrainerWizard() {
   const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
   const [isPhoneFocused, setIsPhoneFocused] = useState(false);
   const [isAddressFocused, setIsAddressFocused] = useState(false);
+  const [isCityFocused, setIsCityFocused] = useState(false);
+  const [isStateFocused, setIsStateFocused] = useState(false);
+  const [isCountryFocused, setIsCountryFocused] = useState(false);
+  const [isPostalCodeFocused, setIsPostalCodeFocused] = useState(false);
   const [isExperienceFocused, setIsExperienceFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSocialLogin = (provider: 'google' | 'microsoft' | 'apple') => {
-    console.log(`Logging in with ${provider}`);
-    // Implement social login logic here
+    if (provider === 'google') {
+      loginWithGoogle();
+    } else {
+      console.log(`${provider} login not implemented yet`);
+    }
   };
 
   useEffect(() => setMounted(true), []);
+
+  // Auto-fill form with OAuth data if available
+  useEffect(() => {
+    const oauthData = getOAuthUserData();
+    if (oauthData) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: oauthData.firstName,
+        lastName: oauthData.lastName,
+        email: oauthData.email,
+      }));
+      // Clear OAuth data after using it
+      clearOAuthUserData();
+    }
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -519,9 +515,7 @@ function TrainerWizard() {
       otherSpecialization: formDataToSend.otherSpecialization,
       otherCertification: formDataToSend.otherCertification,
       practiceType: JSON.stringify(formDataToSend.practiceType),
-      offerOnlineTraining: formDataToSend.independentServices.onlineTraining,
       offerHomeTraining: formDataToSend.independentServices.homeTraining,
-      offerGroupClasses: formDataToSend.independentServices.groupClasses,
       independentServiceSameAsPersonal: formDataToSend.independentServices.serviceAddress.sameAsPersonal,
       independentServiceStreet: formDataToSend.independentServices.serviceAddress.street,
       independentServiceCity: formDataToSend.independentServices.serviceAddress.city,
@@ -680,8 +674,38 @@ function TrainerWizard() {
                   <div className="relative">
                     <Label htmlFor="address" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
                         isAddressFocused || formData.address ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Personal Address</Label>
-                    <Textarea id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={()=>setIsAddressFocused(true)} onBlur={()=>setIsAddressFocused(false)} className="h-24 rounded-xl pt-8" />
+                    }`}>Street Address</Label>
+                    <Input id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={()=>setIsAddressFocused(true)} onBlur={()=>setIsAddressFocused(false)} className="h-12 rounded-full pt-4" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label htmlFor="city" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isCityFocused || formData.city ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>City</Label>
+                      <Input id="city" name="city" value={formData.city} onChange={handleInputChange} onFocus={()=>setIsCityFocused(true)} onBlur={()=>setIsCityFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                    <div className="relative">
+                      <Label htmlFor="state" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isStateFocused || formData.state ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>State</Label>
+                      <Input id="state" name="state" value={formData.state} onChange={handleInputChange} onFocus={()=>setIsStateFocused(true)} onBlur={()=>setIsStateFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label htmlFor="country" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isCountryFocused || formData.country ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Country</Label>
+                      <Input id="country" name="country" value={formData.country} onChange={handleInputChange} onFocus={()=>setIsCountryFocused(true)} onBlur={()=>setIsCountryFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
+                    <div className="relative">
+                      <Label htmlFor="postalCode" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
+                          isPostalCodeFocused || formData.postalCode ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Postal Code</Label>
+                      <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} onFocus={()=>setIsPostalCodeFocused(true)} onBlur={()=>setIsPostalCodeFocused(false)} className="h-12 rounded-full pt-4" />
+                    </div>
                   </div>
 
                   <div className="relative">
@@ -883,20 +907,20 @@ function TrainerWizard() {
                       <div className="space-y-4 mt-6">
                         <Label className="text-base font-semibold text-foreground">Services Offered</Label>
                         <div className="grid gap-4">
-                          {/* Online Training */}
+                          {/* Home Visit Training */}
                           <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                            formData.independentServices.onlineTraining ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
+                            formData.independentServices.homeTraining ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
                           }`} onClick={() => setFormData(prev => ({
                             ...prev,
                             independentServices: {
                               ...prev.independentServices,
-                              onlineTraining: !prev.independentServices.onlineTraining
+                              homeTraining: !prev.independentServices.homeTraining
                             }
                           }))}>
                             <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                              formData.independentServices.onlineTraining ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
+                              formData.independentServices.homeTraining ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
                             }`}>
-                              {formData.independentServices.onlineTraining && (
+                              {formData.independentServices.homeTraining && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -908,15 +932,14 @@ function TrainerWizard() {
                               <div className="flex items-center gap-2 mb-1">
                                 <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
                                   <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                   </svg>
                                 </div>
-                                <Label className="font-semibold text-foreground">Online Training</Label>
+                                <Label className="font-semibold text-foreground">Home Visit Training</Label>
                               </div>
-                              <p className="text-sm text-muted-foreground">Offer remote training via video, audio, or chat.</p>
+                              <p className="text-sm text-muted-foreground">Provide training services at the pet owner's home.</p>
                             </div>
                           </div>
-
 
                           {/* Academy / Training Institute */}
                           <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
@@ -1006,6 +1029,82 @@ function TrainerWizard() {
           />
                         </div>
                       )}
+
+                      {/* Home Training Configuration */}
+                      {formData.independentServices.homeTraining && (
+                        <div className="space-y-4 mt-6">
+                          <Label className="text-base font-semibold text-foreground">Home Training Configuration</Label>
+                          <div className="space-y-4">
+                            <div>
+                              <Label className="text-sm font-medium text-foreground">Service Address</Label>
+                              <div className="mt-2 space-y-3">
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    id="sameAsPersonal"
+                                    checked={formData.independentServices.serviceAddress.sameAsPersonal}
+                                    onChange={(e) => setFormData(prev => ({
+                                      ...prev,
+                                      independentServices: {
+                                        ...prev.independentServices,
+                                        serviceAddress: {
+                                          ...prev.independentServices.serviceAddress,
+                                          sameAsPersonal: e.target.checked
+                                        }
+                                      }
+                                    }))}
+                                    className="rounded border-gray-300"
+                                  />
+                                  <Label htmlFor="sameAsPersonal" className="text-sm text-muted-foreground">
+                                    Same as personal address
+                                  </Label>
+                                </div>
+                                
+                                {!formData.independentServices.serviceAddress.sameAsPersonal && (
+                                  <div className="space-y-3">
+                                    <Input
+                                      name="independentServices.serviceAddress.street"
+                                      value={formData.independentServices.serviceAddress.street}
+                                      onChange={handleInputChange}
+                                      placeholder="Street Address"
+                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <Input
+                                        name="independentServices.serviceAddress.city"
+                                        value={formData.independentServices.serviceAddress.city}
+                                        onChange={handleInputChange}
+                                        placeholder="City"
+                                      />
+                                      <Input
+                                        name="independentServices.serviceAddress.zip"
+                                        value={formData.independentServices.serviceAddress.zip}
+                                        onChange={handleInputChange}
+                                        placeholder="ZIP Code"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <Label className="text-sm font-medium text-foreground">Home Visit Radius (km)</Label>
+                              <Input
+                                name="independentServices.homeVisitRadius"
+                                type="number"
+                                value={formData.independentServices.homeVisitRadius}
+                                onChange={handleInputChange}
+                                placeholder="Enter radius in kilometers"
+                                min="1"
+                                max="100"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Maximum distance you're willing to travel for home visits
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1057,7 +1156,7 @@ function TrainerWizard() {
                                 <div>
                                   <p className="font-semibold">Services</p>
                                   <p className="text-muted-foreground">
-                                    Online Training: {formData.independentServices.onlineTraining ? 'Yes' : 'No'}
+                                    Home Visit Training: {formData.independentServices.homeTraining ? 'Yes' : 'No'}
                                   </p>
                                 </div>
                                 {formData.academyDetails.hasAcademy && (

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Toaster } from '@/components/ui/sonner';
+import { NotificationProvider } from '@/components/providers/NotificationProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -30,7 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <AuthProvider>
           {children}
-          <Toaster />
+          <NotificationProvider />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

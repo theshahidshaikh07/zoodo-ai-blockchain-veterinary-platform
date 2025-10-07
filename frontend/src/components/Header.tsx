@@ -26,6 +26,26 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
+  // Function to get role-specific dashboard URL
+  const getDashboardUrl = () => {
+    if (!user) return "/dashboard";
+    
+    switch (user.userType) {
+      case 'pet_owner':
+        return "/pet-owner-dashboard";
+      case 'veterinarian':
+        return "/veterinarian-dashboard";
+      case 'trainer':
+        return "/trainer-dashboard";
+      case 'hospital':
+        return "/hospital-dashboard";
+      case 'admin':
+        return "/admin-dashboard";
+      default:
+        return "/dashboard";
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -180,7 +200,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                     asChild
                   >
-                    <Link href="/dashboard">Dashboard</Link>
+                    <Link href={getDashboardUrl()}>Dashboard</Link>
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -270,7 +290,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                         className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
                         asChild
                       >
-                        <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                        <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
                       </Button>
                       <Button 
                         variant="ghost" 

@@ -29,8 +29,6 @@ public class UserController {
     @Autowired
     private com.zoodo.backend.service.FileStorageService fileStorageService;
 
-    @Autowired
-    private com.zoodo.backend.repository.VetProfileRepository vetProfileRepository;
 
     // Public endpoints (no authentication required)
     @PostMapping("/register")
@@ -51,11 +49,12 @@ public class UserController {
             @RequestPart("lastName") String lastName,
             @RequestPart("email") String email,
             @RequestPart("password") String password,
-            @RequestPart(value = "phoneNumber", required = false) String phoneNumber,
-            @RequestPart(value = "address", required = false) String address,
-            @RequestPart(value = "licenseNumber", required = false) String licenseNumber,
-            @RequestPart(value = "specialization", required = false) java.util.List<String> specializationItems,
-            @RequestPart(value = "qualifications", required = false) java.util.List<String> qualificationsItems,
+            @RequestPart("phoneNumber") String phoneNumber,
+            @RequestPart("address") String address,
+            @RequestPart("licenseNumber") String licenseNumber,
+            @RequestPart("experience") String experienceStr,
+            @RequestPart("specialization") java.util.List<String> specializationItems,
+            @RequestPart("qualifications") java.util.List<String> qualificationsItems,
             @RequestPart(value = "independentServices", required = false) String independentServicesJson,
             @RequestPart(value = "availabilitySchedule", required = false) String availabilityScheduleJson,
             @RequestPart(value = "licenseProof", required = false) MultipartFile licenseProof,
@@ -64,6 +63,38 @@ public class UserController {
             @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
     ) {
         try {
+            // Validate required fields
+            if (username == null || username.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Username is required", null));
+            }
+            if (firstName == null || firstName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "First name is required", null));
+            }
+            if (lastName == null || lastName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Last name is required", null));
+            }
+            if (email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Email is required", null));
+            }
+            if (password == null || password.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Password is required", null));
+            }
+            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Phone number is required", null));
+            }
+            if (address == null || address.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Address is required", null));
+            }
+            if (licenseNumber == null || licenseNumber.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "License number is required", null));
+            }
+            if (specializationItems == null || specializationItems.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "At least one specialization is required", null));
+            }
+            if (qualificationsItems == null || qualificationsItems.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "At least one qualification is required", null));
+            }
+            
             UserRegistrationRequest request = new UserRegistrationRequest();
             request.setEmail(email);
             request.setUsername(username);
@@ -71,34 +102,14 @@ public class UserController {
             request.setFirstName(firstName);
             request.setLastName(lastName);
             request.setUserType("veterinarian");
-            request.setPhone(phoneNumber);
+            request.setPhoneNumber(phoneNumber);
             request.setAddress(address);
             request.setLicenseNumber(licenseNumber);
-            if (specializationItems != null && !specializationItems.isEmpty()) {
-                request.setSpecialization(String.join(", ", specializationItems));
-            }
+            request.setSpecialization(String.join(", ", specializationItems));
             User user = userService.registerUser(request);
 
-            String baseDir = "vets/" + user.getId();
-            String licensePath = fileStorageService.store(baseDir, licenseProof);
-            String idPath = fileStorageService.store(baseDir, idProof);
-            String degreePath = fileStorageService.store(baseDir, degreeProof);
-            String photoPath = fileStorageService.store(baseDir, profilePhoto);
-
-            com.zoodo.backend.model.VetProfile profile = new com.zoodo.backend.model.VetProfile();
-            profile.setUser(user);
-            profile.setLicenseNumber(licenseNumber);
-            if (specializationItems != null && !specializationItems.isEmpty()) {
-                profile.setSpecializations(String.join(", ", specializationItems));
-            }
-            if (qualificationsItems != null && !qualificationsItems.isEmpty()) {
-                profile.setQualifications(String.join(", ", qualificationsItems));
-            }
-            profile.setLicenseProofPath(licensePath);
-            profile.setIdProofPath(idPath);
-            profile.setDegreeProofPath(degreePath);
-            profile.setProfilePhotoPath(photoPath);
-            vetProfileRepository.save(profile);
+            // TODO: File uploads and veterinarian profile creation should be handled by the new RegistrationService
+            // This endpoint should be updated to use the new Veterinarian model and RegistrationService
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Veterinarian registered successfully", user));
         } catch (Exception e) {

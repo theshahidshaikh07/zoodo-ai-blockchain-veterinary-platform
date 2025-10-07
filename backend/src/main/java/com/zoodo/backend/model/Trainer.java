@@ -24,17 +24,19 @@ public class Trainer {
     @Column
     private Integer experience;
 
-    @jakarta.persistence.ElementCollection
-    @jakarta.persistence.CollectionTable(name = "trainer_specializations",
-                                       joinColumns = @JoinColumn(name = "trainer_id"))
-    @Column(name = "specialization")
+    @Column(name = "specializations", columnDefinition = "TEXT[]")
     private java.util.List<String> specializations;
 
-    @jakarta.persistence.ElementCollection
-    @jakarta.persistence.CollectionTable(name = "trainer_certifications",
-                                       joinColumns = @JoinColumn(name = "trainer_id"))
-    @Column(name = "certification")
+    @Column(name = "other_specialization", length = 255)
+    @Size(max = 255)
+    private String otherSpecialization;
+
+    @Column(name = "certifications", columnDefinition = "TEXT[]")
     private java.util.List<String> certifications;
+
+    @Column(name = "other_certification", length = 255)
+    @Size(max = 255)
+    private String otherCertification;
 
     @Column(name = "resume_url", length = 500)
     @Size(max = 500)
@@ -44,18 +46,12 @@ public class Trainer {
     @Size(max = 500)
     private String profilePhotoUrl;
 
-    @Column(name = "practice_type", columnDefinition = "TEXT")
+    @Column(name = "practice_type", columnDefinition = "JSONB")
     private String practiceType; // JSON string: {independent: boolean, trainingCenter: boolean, affiliated: boolean}
 
     // Service details
-    @Column(name = "offer_online_training")
-    private Boolean offerOnlineTraining = false;
-
     @Column(name = "offer_home_training")
     private Boolean offerHomeTraining = false;
-
-    @Column(name = "offer_group_classes")
-    private Boolean offerGroupClasses = false;
 
     // Independent practice details
     @Column(name = "independent_service_address")
@@ -90,6 +86,18 @@ public class Trainer {
     @Column(name = "training_center_address")
     private String trainingCenterAddress;
 
+    @Column(name = "training_center_offer_in_person")
+    private Boolean trainingCenterOfferInPerson = false;
+
+    // Affiliated details
+    @Column(name = "affiliated_facility_name", length = 255)
+    @Size(max = 255)
+    private String affiliatedFacilityName;
+
+    @Column(name = "affiliation_type", length = 50)
+    @Size(max = 50)
+    private String affiliationType;
+
     // Academy details
     @Column(name = "has_academy")
     private Boolean hasAcademy = false;
@@ -122,8 +130,8 @@ public class Trainer {
     @Size(max = 20)
     private String academyPhone;
 
-    @Column(name = "availability_settings", columnDefinition = "TEXT")
-    private String availabilitySettings; // JSON string for flexibility
+    @Column(name = "availability_schedule", columnDefinition = "JSONB")
+    private String availabilitySchedule; // JSON string for flexibility
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -153,8 +161,14 @@ public class Trainer {
     public java.util.List<String> getSpecializations() { return specializations; }
     public void setSpecializations(java.util.List<String> specializations) { this.specializations = specializations; }
 
+    public String getOtherSpecialization() { return otherSpecialization; }
+    public void setOtherSpecialization(String otherSpecialization) { this.otherSpecialization = otherSpecialization; }
+
     public java.util.List<String> getCertifications() { return certifications; }
     public void setCertifications(java.util.List<String> certifications) { this.certifications = certifications; }
+
+    public String getOtherCertification() { return otherCertification; }
+    public void setOtherCertification(String otherCertification) { this.otherCertification = otherCertification; }
 
     public String getResumeUrl() { return resumeUrl; }
     public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
@@ -165,14 +179,10 @@ public class Trainer {
     public String getPracticeType() { return practiceType; }
     public void setPracticeType(String practiceType) { this.practiceType = practiceType; }
 
-    public Boolean getOfferOnlineTraining() { return offerOnlineTraining; }
-    public void setOfferOnlineTraining(Boolean offerOnlineTraining) { this.offerOnlineTraining = offerOnlineTraining; }
 
     public Boolean getOfferHomeTraining() { return offerHomeTraining; }
     public void setOfferHomeTraining(Boolean offerHomeTraining) { this.offerHomeTraining = offerHomeTraining; }
 
-    public Boolean getOfferGroupClasses() { return offerGroupClasses; }
-    public void setOfferGroupClasses(Boolean offerGroupClasses) { this.offerGroupClasses = offerGroupClasses; }
 
     public String getIndependentServiceAddress() { return independentServiceAddress; }
     public void setIndependentServiceAddress(String independentServiceAddress) { this.independentServiceAddress = independentServiceAddress; }
@@ -201,6 +211,17 @@ public class Trainer {
     public String getTrainingCenterAddress() { return trainingCenterAddress; }
     public void setTrainingCenterAddress(String trainingCenterAddress) { this.trainingCenterAddress = trainingCenterAddress; }
 
+    public Boolean getTrainingCenterOfferInPerson() { return trainingCenterOfferInPerson; }
+    public void setTrainingCenterOfferInPerson(Boolean trainingCenterOfferInPerson) { this.trainingCenterOfferInPerson = trainingCenterOfferInPerson; }
+
+
+
+    public String getAffiliatedFacilityName() { return affiliatedFacilityName; }
+    public void setAffiliatedFacilityName(String affiliatedFacilityName) { this.affiliatedFacilityName = affiliatedFacilityName; }
+
+    public String getAffiliationType() { return affiliationType; }
+    public void setAffiliationType(String affiliationType) { this.affiliationType = affiliationType; }
+
     public Boolean getHasAcademy() { return hasAcademy; }
     public void setHasAcademy(Boolean hasAcademy) { this.hasAcademy = hasAcademy; }
 
@@ -225,8 +246,8 @@ public class Trainer {
     public String getAcademyPhone() { return academyPhone; }
     public void setAcademyPhone(String academyPhone) { this.academyPhone = academyPhone; }
 
-    public String getAvailabilitySettings() { return availabilitySettings; }
-    public void setAvailabilitySettings(String availabilitySettings) { this.availabilitySettings = availabilitySettings; }
+    public String getAvailabilitySchedule() { return availabilitySchedule; }
+    public void setAvailabilitySchedule(String availabilitySchedule) { this.availabilitySchedule = availabilitySchedule; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

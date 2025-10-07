@@ -55,9 +55,6 @@ public class HospitalRegistrationRequest {
     private Boolean offerOnlineConsultation = false;
     private Boolean offerClinicHospital = true;
     
-    // Business hours (JSON string)
-    private String businessHours;
-    
     // Compliance details
     @NotBlank(message = "Facility license number is required")
     @Size(max = 100, message = "Facility license number must not exceed 100 characters")

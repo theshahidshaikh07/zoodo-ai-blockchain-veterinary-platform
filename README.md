@@ -9,10 +9,11 @@ A comprehensive digital ecosystem for pet healthcare that unites pet owners, vet
 ## 🌟 Features
 
 ### 🤖 AI-Powered Pet Care Assistant
-- **Symptom Analysis**: Intelligent analysis of pet symptoms with urgency assessment
+- **Symptom Analysis**: Intelligent analysis of pet symptoms with urgency assessment using fine-tuned Gemini AI
 - **Provider Recommendations**: AI-driven matching of pets with suitable veterinarians and trainers
 - **Care Routines**: Personalized care and diet recommendations based on breed, age, and health conditions
 - **Emergency Assessment**: Real-time emergency evaluation with immediate action recommendations
+- **Custom Training**: Fine-tuned AI models trained on veterinary datasets for specialized pet care
 
 ### 🔗 Blockchain Security
 - **Medical Records**: Immutable storage of medical records on blockchain
@@ -25,6 +26,12 @@ A comprehensive digital ecosystem for pet healthcare that unites pet owners, vet
 - **Provider Management**: Verified veterinarians and trainers with ratings and reviews
 - **Community Events**: Vaccination drives, adoption camps, and wellness checkups
 - **Mobile Accessibility**: Cross-platform mobile application
+
+### 🧠 AI Training & Fine-tuning
+- **Custom Dataset Training**: Train AI models on veterinary-specific datasets
+- **Gemini Fine-tuning**: Fine-tune Google Gemini AI for specialized pet care
+- **Conversational AI**: Advanced chatbot trained on veterinary knowledge
+- **Continuous Learning**: AI models improve with more data and feedback
 
 ## 🏗️ Architecture
 
@@ -70,8 +77,8 @@ DB_PASSWORD=password
 # JWT Secret
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
-# OpenAI API (for AI features)
-OPENAI_API_KEY=your-openai-api-key
+# Google Gemini AI (for AI features)
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key
 
 # Blockchain
 BLOCKCHAIN_NETWORK_URL=http://localhost:8545
@@ -104,42 +111,18 @@ docker-compose up -d frontend blockchain
 
 ## 📁 Project Structure
 
+For detailed project structure, see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)
+
 ```
 zoodo-ai-blockchain-veterinary-platform/
-├── frontend/                 # Next.js + TypeScript frontend
-│   ├── src/
-│   │   ├── app/             # Next.js app router
-│   │   ├── components/      # Reusable UI components
-│   │   ├── features/        # Feature-specific components
-│   │   └── lib/             # Utilities and configurations
-│   └── package.json
-├── backend/                  # Spring Boot backend
-│   ├── src/main/java/
-│   │   └── com/zoodo/backend/
-│   │       ├── controller/  # REST API controllers
-│   │       ├── service/     # Business logic
-│   │       ├── model/       # Data models
-│   │       └── repository/  # Data access layer
-│   └── pom.xml
-├── ai_service/              # Python FastAPI AI service
-│   ├── app/
-│   │   ├── main.py         # FastAPI application
-│   │   ├── models/         # Pydantic models
-│   │   ├── routers/        # API routes
-│   │   └── utils/          # AI engine, blockchain client
-│   └── requirements.txt
-├── blockchain/              # Smart contracts
-│   ├── contracts/           # Solidity smart contracts
-│   ├── scripts/             # Deployment scripts
-│   └── hardhat.config.js
-├── db/                      # Database
-│   ├── init.sql            # Database schema
-│   ├── migrations/         # Database migrations
-│   └── seeders/            # Sample data
-├── devops/                  # Infrastructure
-│   ├── nginx.conf          # Nginx configuration
-│   └── scripts/            # Deployment scripts
-└── docker-compose.yml       # Service orchestration
+├── 📁 frontend/              # Next.js + TypeScript frontend
+├── 📁 backend/               # Spring Boot backend
+├── 📁 ai-service/            # Python FastAPI AI service
+├── 📁 blockchain/            # Smart contracts
+├── 📁 db/                    # Database schema
+├── 📁 docs/                  # Documentation
+├── 📁 devops/                # Infrastructure
+└── 📄 docker-compose.yml     # Service orchestration
 ```
 
 ## 🔧 Development
@@ -162,6 +145,19 @@ cd backend
 cd ai_service
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+```
+
+### AI Model Training & Fine-tuning
+```bash
+cd ai_service
+# Train custom veterinary AI model
+python demo_ai_training.py
+
+# Fine-tune Gemini AI with custom dataset
+python quick_training_demo.py
+
+# Test conversational AI
+python demo_conversational_ai.py
 ```
 
 ### Blockchain Development
@@ -195,7 +191,7 @@ cd blockchain && npx hardhat test
 # Test backend API
 curl http://localhost:8080/api/health
 
-# Test AI service
+# Test AI service (Gemini-powered)
 curl http://localhost:8000/health
 
 # Test blockchain
@@ -236,7 +232,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ### Environment Variables
 Set these environment variables for production:
 - `JWT_SECRET`: Strong secret key for JWT tokens
-- `OPENAI_API_KEY`: OpenAI API key for AI features
+- `GOOGLE_GEMINI_API_KEY`: Google Gemini API key for AI features
 - `DB_PASSWORD`: Strong database password
 - `BLOCKCHAIN_PRIVATE_KEY`: Private key for blockchain operations
 
@@ -252,19 +248,6 @@ Set these environment variables for production:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-- **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-username/zoodo-ai-blockchain-veterinary-platform/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/zoodo-ai-blockchain-veterinary-platform/discussions)
-
-## 🙏 Acknowledgments
-
-- OpenAI for AI capabilities
-- Ethereum Foundation for blockchain technology
-- Spring Boot team for the backend framework
-- Next.js team for the frontend framework
-- All contributors and supporters
 
 ---
 

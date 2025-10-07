@@ -27,7 +27,7 @@ public class Pet {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    private User ownerId;
 
     @NotBlank(message = "Pet name is required")
     @Column(nullable = false, length = 100)
@@ -44,8 +44,8 @@ public class Pet {
     @Column(length = 10)
     private Gender gender;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "birthday")
+    private LocalDate birthday;
 
     @Column
     private Integer age;
@@ -59,8 +59,8 @@ public class Pet {
     @Column(name = "weight_unit", length = 10)
     private String weightUnit; // Kgs, Gms
 
-    @Column(name = "microchip_id", length = 50)
-    private String microchipId;
+    @Column(name = "microchip", length = 50)
+    private String microchip;
 
     @Column
     private Boolean sterilized;
@@ -68,8 +68,6 @@ public class Pet {
     @Column(name = "photo_url", length = 500)
     private String photoUrl;
 
-    @Column(name = "blockchain_record_hash", length = 255)
-    private String blockchainRecordHash;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

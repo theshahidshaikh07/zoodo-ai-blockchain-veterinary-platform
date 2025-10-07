@@ -15,6 +15,10 @@ public class ProviderProfileResponse {
     private String username;
     private String phone;
     private String address;
+    private String city;
+    private String state;
+    private String country;
+    private String postalCode;
     private String userType;
     private String specializations;
     private String qualifications;
