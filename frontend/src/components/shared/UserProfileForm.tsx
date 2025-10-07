@@ -61,7 +61,7 @@ export default function UserProfileForm() {
     setError('');
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({ ...prev, [name]: value }));
     setPasswordError('');
@@ -112,7 +112,7 @@ export default function UserProfileForm() {
     }
   };
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPasswordLoading(true);
     setPasswordError('');
@@ -326,7 +326,7 @@ export default function UserProfileForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
             {passwordError && (
               <Alert variant="destructive">
                 <AlertDescription>{passwordError}</AlertDescription>
@@ -341,7 +341,7 @@ export default function UserProfileForm() {
                   name="currentPassword"
                   type={showPasswords.current ? 'text' : 'password'}
                   value={passwordData.currentPassword}
-                  onChange={handlePasswordChange}
+                  onChange={handlePasswordInputChange}
                   required
                   disabled={isPasswordLoading}
                 />
@@ -370,7 +370,7 @@ export default function UserProfileForm() {
                   name="newPassword"
                   type={showPasswords.new ? 'text' : 'password'}
                   value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
+                  onChange={handlePasswordInputChange}
                   required
                   disabled={isPasswordLoading}
                 />
@@ -399,7 +399,7 @@ export default function UserProfileForm() {
                   name="confirmPassword"
                   type={showPasswords.confirm ? 'text' : 'password'}
                   value={passwordData.confirmPassword}
-                  onChange={handlePasswordChange}
+                  onChange={handlePasswordInputChange}
                   required
                   disabled={isPasswordLoading}
                 />
