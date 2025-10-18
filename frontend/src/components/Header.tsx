@@ -32,15 +32,15 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     
     switch (user.userType) {
       case 'pet_owner':
-        return "/pet-owner-dashboard";
+        return "/dashboard/pet-owner";
       case 'veterinarian':
-        return "/veterinarian-dashboard";
+        return "/dashboard/veterinarian";
       case 'trainer':
-        return "/trainer-dashboard";
+        return "/dashboard/trainer";
       case 'hospital':
-        return "/hospital-dashboard";
+        return "/dashboard/hospital";
       case 'admin':
-        return "/admin-dashboard";
+        return "/dashboard/admin";
       default:
         return "/dashboard";
     }

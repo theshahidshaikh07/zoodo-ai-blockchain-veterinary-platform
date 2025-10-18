@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/oauth/**").permitAll() // OAuth endpoints
                 .requestMatchers("/login/oauth2/**").permitAll() // OAuth2 login endpoints
                 .requestMatchers("/api/users/providers", "/api/users/search").permitAll() // Public endpoints
+                .requestMatchers("/api/dashboard/**").permitAll() // Dashboard endpoints - no auth required
                 .requestMatchers("/health").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin endpoints require ADMIN role

@@ -28,6 +28,7 @@ export default function AIAssistantPage() {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [sessionId] = useState(() => 'frontend_session_' + Date.now()); // Generate session ID once
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [isPlaceholderTyping, setIsPlaceholderTyping] = useState(false);
   const [isChatScrolled, setIsChatScrolled] = useState(false);
@@ -109,23 +110,23 @@ export default function AIAssistantPage() {
       // Call the real AI service
       const request: AIChatRequest = {
         message: currentMessage,
-        pet_info: {
-          // You can add pet info here if available
-          species: 'unknown',
-          breed: 'unknown',
-          age: 0
-        }
+        session_id: sessionId // Use consistent session ID for conversation context
       };
 
       const response = await apiService.chatWithAI(request);
+      console.log('Frontend received response:', response); // Debug log
       
       if (response.success && response.data) {
+        console.log('Response data:', response.data); // Debug log
+        console.log('Response field:', response.data.response); // Debug log
+        
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
           content: response.data.response,
           timestamp: new Date()
         };
+        console.log('Creating AI message:', aiResponse); // Debug log
         setMessages(prev => [...prev, aiResponse]);
       } else {
         // Fallback to error message

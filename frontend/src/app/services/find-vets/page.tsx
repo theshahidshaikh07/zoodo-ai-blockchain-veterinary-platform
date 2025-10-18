@@ -57,7 +57,7 @@ const dummyVets = [
   },
   {
     id: 2,
-    name: "Dr. Rajesh Kumar",
+    name: "Dr. Emily Rodriguez",
     specialization: "Emergency Medicine",
     experience: "12 years",
     rating: 4.8,
@@ -77,7 +77,7 @@ const dummyVets = [
   },
   {
     id: 3,
-    name: "Dr. Priya Sharma",
+    name: "Dr. Jennifer Davis",
     specialization: "Dermatology",
     experience: "6 years",
     rating: 4.7,

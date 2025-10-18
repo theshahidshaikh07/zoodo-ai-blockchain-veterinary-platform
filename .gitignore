@@ -2,3 +2,8 @@
 .env
 .env.*
 !.env.example
+# Ignore all node_modules folders
+**/node_modules/
+
+# Ignore all .next build folders
+**/.next/

@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/admin-dashboard');
+      router.push('/dashboard/admin');
     }
   }, [isAuthenticated, router]);
 
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
     });
     
     if (success) {
-      router.push('/admin-dashboard');
+      router.push('/dashboard/admin');
     }
   };
 

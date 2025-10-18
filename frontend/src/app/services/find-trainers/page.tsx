@@ -58,7 +58,7 @@ const dummyTrainers = [
   },
   {
     id: 2,
-    name: "Rajesh Kumar",
+    name: "Emily Rodriguez",
     specialization: "Obedience Training",
     experience: "12 years",
     rating: 4.8,
@@ -79,7 +79,7 @@ const dummyTrainers = [
   },
   {
     id: 3,
-    name: "Priya Sharma",
+    name: "Jennifer Davis",
     specialization: "Puppy Training",
     experience: "6 years",
     rating: 4.7,

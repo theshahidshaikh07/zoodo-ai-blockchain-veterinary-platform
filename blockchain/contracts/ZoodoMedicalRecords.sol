@@ -177,7 +177,9 @@ contract ZoodoMedicalRecords is Ownable, Pausable {
     /**
      * @dev Get medical record information
      * @param recordHash Hash of the medical record
-     * @return petId, timestamp, exists status
+     * @return petId The pet ID
+     * @return timestamp The record timestamp
+     * @return exists Whether the record exists
      */
     function getMedicalRecord(string memory recordHash) 
         external 
@@ -206,7 +208,10 @@ contract ZoodoMedicalRecords is Ownable, Pausable {
     /**
      * @dev Get appointment record information
      * @param appointmentId ID of the appointment
-     * @return petId, timestamp, appointmentHash, exists status
+     * @return petId The pet ID
+     * @return timestamp The appointment timestamp
+     * @return appointmentHash The appointment hash
+     * @return exists Whether the appointment exists
      */
     function getAppointmentRecord(string memory appointmentId) 
         external 
@@ -309,7 +314,9 @@ contract ZoodoMedicalRecords is Ownable, Pausable {
     
     /**
      * @dev Get contract statistics
-     * @return totalRecords, totalAppointments, authorizedProvidersCount
+     * @return totalRecords Total number of medical records
+     * @return totalAppointments Total number of appointment records
+     * @return authorizedProvidersCount Number of authorized providers
      */
     function getContractStats() external view returns (uint256 totalRecords, uint256 totalAppointments, uint256 authorizedProvidersCount) {
         // Note: This is a simplified implementation

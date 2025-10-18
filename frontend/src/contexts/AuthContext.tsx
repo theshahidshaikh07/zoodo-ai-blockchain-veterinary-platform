@@ -43,7 +43,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check if user is authenticated on app load
   useEffect(() => {
-    checkAuth();
+    // Skip auth check for dashboard pages completely
+    const isDashboardPage = window.location.pathname.startsWith('/dashboard/');
+    
+    if (isDashboardPage) {
+      // For dashboard pages, just set loading to false immediately
+      setIsLoading(false);
+    } else {
+      checkAuth();
+    }
   }, []);
 
   const checkAuth = async (): Promise<boolean> => {
@@ -54,7 +62,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
-      const response = await apiService.getCurrentUser();
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Auth check timeout')), 3000)
+      );
+      
+      const response = await Promise.race([
+        apiService.getCurrentUser(),
+        timeoutPromise
+      ]) as any;
+      
       if (response.success && response.data) {
         setUser(response.data);
         // Store user data in localStorage for persistence
@@ -72,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
+      // Don't block the app if auth check fails - just clear token and continue
       localStorage.removeItem('jwt_token');
       setUser(null);
       setIsLoading(false);

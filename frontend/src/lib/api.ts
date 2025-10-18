@@ -69,18 +69,26 @@ export interface Appointment {
 // AI Service interfaces
 export interface AIChatRequest {
   message: string;
-  pet_info?: {
-    species?: string;
-    breed?: string;
-    age?: number;
-    weight?: number;
-    name?: string;
-  };
+  session_id?: string;
 }
 
 export interface AIChatResponse {
   response: string;
+  session_id: string;
   timestamp: string;
+  pet_profile: {
+    species: string | null;
+    breed: string | null;
+    age: string | null;
+    weight: string | null;
+    gender: string | null;
+    name: string | null;
+    medical_history: any[];
+    current_symptoms: any[];
+    medications: any[];
+  };
+  location_set: boolean;
+  emergency_detected: boolean;
 }
 
 export interface AIHealthCheck {
@@ -765,6 +773,8 @@ class ApiService {
   // AI Service endpoints
   async chatWithAI(request: AIChatRequest): Promise<ApiResponse<AIChatResponse>> {
     try {
+      console.log('Sending AI request:', request); // Debug log
+      
       const response = await fetch(`${AI_SERVICE_URL}/chat`, {
         method: 'POST',
         headers: {
@@ -778,6 +788,8 @@ class ApiService {
       }
 
       const data = await response.json();
+      console.log('AI Service response:', data); // Debug log
+      
       return {
         success: true,
         message: 'AI response received',
@@ -848,6 +860,7 @@ class ApiService {
       };
     }
   }
+
 }
 
 export const apiService = new ApiService(); 

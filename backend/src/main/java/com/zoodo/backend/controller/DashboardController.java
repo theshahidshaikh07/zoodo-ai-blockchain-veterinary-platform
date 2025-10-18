@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/dashboard")
-@Slf4j
-@CrossOrigin(origins = "*")
+// Temporarily disabled due to memory issues
+// @RestController
+// @RequestMapping("/api/dashboard")
+// @Slf4j
+// @CrossOrigin(origins = "*")
 public class DashboardController {
 
     @Autowired
@@ -28,15 +29,15 @@ public class DashboardController {
     @GetMapping("/overview")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardOverview() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+            // Create a mock user for demonstration purposes
+            // In a real scenario, you might want to pass user info as a parameter
+            User mockUser = new User();
+            mockUser.setId(java.util.UUID.randomUUID());
+            mockUser.setUserType(User.UserType.PET_OWNER);
+            mockUser.setUsername("demo_user");
+            mockUser.setIsVerified(true);
             
-            User user = authService.getUserByUsername(username);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-            
-            Map<String, Object> overview = dashboardService.getDashboardOverview(user);
+            Map<String, Object> overview = dashboardService.getDashboardOverview(mockUser);
             
             return ResponseEntity.ok(ApiResponse.success(overview));
         } catch (Exception e) {
@@ -49,15 +50,14 @@ public class DashboardController {
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardStats() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+            // Create a mock user for demonstration purposes
+            User mockUser = new User();
+            mockUser.setId(java.util.UUID.randomUUID());
+            mockUser.setUserType(User.UserType.PET_OWNER);
+            mockUser.setUsername("demo_user");
+            mockUser.setIsVerified(true);
             
-            User user = authService.getUserByUsername(username);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-            
-            Map<String, Object> stats = dashboardService.getDashboardStats(user);
+            Map<String, Object> stats = dashboardService.getDashboardStats(mockUser);
             
             return ResponseEntity.ok(ApiResponse.success(stats));
         } catch (Exception e) {
@@ -70,15 +70,14 @@ public class DashboardController {
     @GetMapping("/recent-activity")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getRecentActivity() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+            // Create a mock user for demonstration purposes
+            User mockUser = new User();
+            mockUser.setId(java.util.UUID.randomUUID());
+            mockUser.setUserType(User.UserType.PET_OWNER);
+            mockUser.setUsername("demo_user");
+            mockUser.setIsVerified(true);
             
-            User user = authService.getUserByUsername(username);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-            
-            Map<String, Object> activity = dashboardService.getRecentActivity(user);
+            Map<String, Object> activity = dashboardService.getRecentActivity(mockUser);
             
             return ResponseEntity.ok(ApiResponse.success(activity));
         } catch (Exception e) {

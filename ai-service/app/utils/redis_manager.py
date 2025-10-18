@@ -30,7 +30,11 @@ class RedisManager:
             "emergency_queue": "emergency:queue:",
             "analytics": "analytics:",
             "rate_limit": "rate:limit:",
-            "real_time": "realtime:"
+            "real_time": "realtime:",
+            "chat_session": "chat:session:",
+            "chat_messages": "chat:messages:",
+            "chat_history": "chat:history:",
+            "session_state": "session:state:"
         }
 
     async def initialize(self):
@@ -421,6 +425,280 @@ class RedisManager:
         except Exception as e:
             print(f"Error subscribing to channel: {str(e)}")
             return None
+
+    async def store_chat_session_state(
+        self,
+        session_key: str,
+        session_data: Dict[str, Any],
+        ttl_seconds: int = 3600  # 1 hour for temporary sessions
+    ) -> bool:
+        """Store chat session state in Redis"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            key = f"{self.key_prefixes['chat_session']}{session_key}"
+            await self.redis_client.setex(
+                key,
+                ttl_seconds,
+                json.dumps(session_data)
+            )
+            return True
+            
+        except Exception as e:
+            print(f"Error storing chat session state: {str(e)}")
+            return False
+
+    async def get_chat_session_state(
+        self,
+        session_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """Get chat session state from Redis"""
+        try:
+            if not self.is_connected:
+                return None
+            
+            key = f"{self.key_prefixes['chat_session']}{session_key}"
+            session_data = await self.redis_client.get(key)
+            
+            if session_data:
+                return json.loads(session_data)
+            
+            return None
+            
+        except Exception as e:
+            print(f"Error getting chat session state: {str(e)}")
+            return None
+
+    async def store_chat_message(
+        self,
+        session_id: str,
+        message: str,
+        message_type: str,  # "user" or "assistant"
+        metadata: Dict[str, Any] = None,
+        ttl_seconds: int = 3600  # 1 hour for temporary sessions
+    ) -> bool:
+        """Store a chat message in Redis"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            timestamp = datetime.utcnow().isoformat()
+            message_data = {
+                "message": message,
+                "message_type": message_type,
+                "metadata": metadata or {},
+                "timestamp": timestamp
+            }
+            
+            # Store in a list for the session
+            key = f"{self.key_prefixes['chat_messages']}{session_id}"
+            await self.redis_client.lpush(key, json.dumps(message_data))
+            await self.redis_client.expire(key, ttl_seconds)
+            
+            # Keep only last 100 messages per session
+            await self.redis_client.ltrim(key, 0, 99)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error storing chat message: {str(e)}")
+            return False
+
+    async def get_chat_messages(
+        self,
+        session_id: str,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """Get chat messages for a session from Redis"""
+        try:
+            if not self.is_connected:
+                return []
+            
+            key = f"{self.key_prefixes['chat_messages']}{session_id}"
+            messages = await self.redis_client.lrange(key, 0, limit - 1)
+            
+            # Reverse to get chronological order (oldest first)
+            messages.reverse()
+            
+            return [json.loads(message) for message in messages]
+            
+        except Exception as e:
+            print(f"Error getting chat messages: {str(e)}")
+            return []
+
+    async def store_chat_history(
+        self,
+        user_id: str,
+        session_id: str,
+        chat_history: List[Dict[str, Any]],
+        ttl_seconds: int = 3600  # 1 hour for temporary sessions
+    ) -> bool:
+        """Store complete chat history for a session"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            key = f"{self.key_prefixes['chat_history']}{user_id}:{session_id}"
+            await self.redis_client.setex(
+                key,
+                ttl_seconds,
+                json.dumps(chat_history)
+            )
+            return True
+            
+        except Exception as e:
+            print(f"Error storing chat history: {str(e)}")
+            return False
+
+    async def get_chat_history(
+        self,
+        user_id: str,
+        session_id: str
+    ) -> Optional[List[Dict[str, Any]]]:
+        """Get complete chat history for a session"""
+        try:
+            if not self.is_connected:
+                return None
+            
+            key = f"{self.key_prefixes['chat_history']}{user_id}:{session_id}"
+            history_data = await self.redis_client.get(key)
+            
+            if history_data:
+                return json.loads(history_data)
+            
+            return None
+            
+        except Exception as e:
+            print(f"Error getting chat history: {str(e)}")
+            return None
+
+    async def store_session_state(
+        self,
+        session_key: str,
+        state_data: Dict[str, Any],
+        ttl_seconds: int = 3600  # 1 hour for temporary sessions
+    ) -> bool:
+        """Store session state data"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            key = f"{self.key_prefixes['session_state']}{session_key}"
+            await self.redis_client.setex(
+                key,
+                ttl_seconds,
+                json.dumps(state_data)
+            )
+            return True
+            
+        except Exception as e:
+            print(f"Error storing session state: {str(e)}")
+            return False
+
+    async def get_session_state(
+        self,
+        session_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """Get session state data"""
+        try:
+            if not self.is_connected:
+                return None
+            
+            key = f"{self.key_prefixes['session_state']}{session_key}"
+            state_data = await self.redis_client.get(key)
+            
+            if state_data:
+                return json.loads(state_data)
+            
+            return None
+            
+        except Exception as e:
+            print(f"Error getting session state: {str(e)}")
+            return None
+
+    async def extend_session_ttl(
+        self,
+        session_key: str,
+        ttl_seconds: int = 86400
+    ) -> bool:
+        """Extend TTL for a session"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            # Extend TTL for all session-related keys
+            keys_to_extend = [
+                f"{self.key_prefixes['chat_session']}{session_key}",
+                f"{self.key_prefixes['session_state']}{session_key}",
+                f"{self.key_prefixes['chat_messages']}{session_key}"
+            ]
+            
+            for key in keys_to_extend:
+                if await self.redis_client.exists(key):
+                    await self.redis_client.expire(key, ttl_seconds)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error extending session TTL: {str(e)}")
+            return False
+
+    async def cleanup_expired_sessions(
+        self,
+        pattern: str = "*"
+    ) -> int:
+        """Clean up expired session keys"""
+        try:
+            if not self.is_connected:
+                return 0
+            
+            # Get all session keys
+            session_keys = await self.redis_client.keys(f"{self.key_prefixes['chat_session']}{pattern}")
+            state_keys = await self.redis_client.keys(f"{self.key_prefixes['session_state']}{pattern}")
+            message_keys = await self.redis_client.keys(f"{self.key_prefixes['chat_messages']}{pattern}")
+            
+            # Check TTL and delete expired keys
+            expired_count = 0
+            all_keys = session_keys + state_keys + message_keys
+            
+            for key in all_keys:
+                ttl = await self.redis_client.ttl(key)
+                if ttl == -1:  # Key exists but has no expiration
+                    await self.redis_client.delete(key)
+                    expired_count += 1
+                elif ttl == -2:  # Key doesn't exist
+                    expired_count += 1
+            
+            return expired_count
+            
+        except Exception as e:
+            print(f"Error cleaning up expired sessions: {str(e)}")
+            return 0
+
+    async def get_user_active_sessions(
+        self,
+        user_id: str
+    ) -> List[str]:
+        """Get list of active session keys for a user"""
+        try:
+            if not self.is_connected:
+                return []
+            
+            pattern = f"{self.key_prefixes['chat_session']}{user_id}_*"
+            keys = await self.redis_client.keys(pattern)
+            
+            # Extract session keys from full keys
+            session_keys = []
+            for key in keys:
+                session_key = key.replace(self.key_prefixes['chat_session'], '')
+                session_keys.append(session_key)
+            
+            return session_keys
+            
+        except Exception as e:
+            print(f"Error getting user active sessions: {str(e)}")
+            return []
 
     async def close(self):
         """Close Redis connection"""

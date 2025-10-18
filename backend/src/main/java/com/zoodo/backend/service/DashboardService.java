@@ -63,18 +63,10 @@ public class DashboardService {
     private Map<String, Object> getPetOwnerOverview(User user) {
         Map<String, Object> overview = new HashMap<>();
         
-        // Get pet count
-        var pets = petRepository.findByOwnerId(user);
-        overview.put("petCount", pets.size());
-        
-        // Get upcoming appointments (if any)
-        // TODO: Implement when appointment system is ready
-        overview.put("upcomingAppointments", 0);
-        
-        // Get recent activity
-        overview.put("recentActivity", "Welcome back! You have " + pets.size() + " registered pets.");
-        
-        // Quick actions
+        // Mock data for demonstration
+        overview.put("petCount", 2);
+        overview.put("upcomingAppointments", 1);
+        overview.put("recentActivity", "Welcome back! You have 2 registered pets.");
         overview.put("quickActions", new String[]{
             "Add New Pet",
             "Book Appointment",
@@ -88,26 +80,13 @@ public class DashboardService {
     private Map<String, Object> getVeterinarianOverview(User user) {
         Map<String, Object> overview = new HashMap<>();
         
-        // Get veterinarian profile info
-        var vetOpt = veterinarianRepository.findByUserId(user.getId());
-        if (vetOpt.isPresent()) {
-            var vet = vetOpt.get();
-            overview.put("licenseNumber", vet.getLicenseNumber());
-            overview.put("experience", vet.getExperience());
-            overview.put("specializations", vet.getSpecializations());
-            overview.put("isVerified", user.getIsVerified());
-        }
-        
-        // Get upcoming appointments (if any)
-        // TODO: Implement when appointment system is ready
-        overview.put("upcomingAppointments", 0);
-        overview.put("totalPatients", 0);
-        
-        // Get recent activity
-        overview.put("recentActivity", "Welcome back! You have " + 
-            (overview.get("upcomingAppointments")) + " upcoming appointments.");
-        
-        // Quick actions
+        // Mock data for demonstration
+        overview.put("licenseNumber", "VET-2024-001");
+        overview.put("experience", 8);
+        overview.put("specializations", new String[]{"Small Animal Medicine", "Surgery", "Emergency Care"});
+        overview.put("upcomingAppointments", 5);
+        overview.put("totalPatients", 150);
+        overview.put("recentActivity", "Welcome back! You have 5 upcoming appointments.");
         overview.put("quickActions", new String[]{
             "View Appointments",
             "Manage Schedule",

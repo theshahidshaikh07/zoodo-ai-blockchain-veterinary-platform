@@ -30,7 +30,10 @@ class MongoDBManager:
             "care_routines": "care_routines",
             "emergency_assessments": "emergency_assessments",
             "ai_models_cache": "ai_models_cache",
-            "analytics": "analytics"
+            "analytics": "analytics",
+            "chat_sessions": "chat_sessions",
+            "chat_messages": "chat_messages",
+            "user_sessions": "user_sessions"
         }
 
     async def initialize(self):
@@ -99,6 +102,41 @@ class MongoDBManager:
             await self.db[self.collections["analytics"]].create_index([
                 ("date", ASCENDING),
                 ("metric_type", ASCENDING)
+            ])
+
+            # Chat Sessions indexes
+            await self.db[self.collections["chat_sessions"]].create_index([
+                ("user_id", ASCENDING),
+                ("created_at", DESCENDING)
+            ])
+            await self.db[self.collections["chat_sessions"]].create_index([
+                ("session_id", ASCENDING)
+            ])
+            await self.db[self.collections["chat_sessions"]].create_index([
+                ("is_active", ASCENDING),
+                ("last_activity", DESCENDING)
+            ])
+
+            # Chat Messages indexes
+            await self.db[self.collections["chat_messages"]].create_index([
+                ("session_id", ASCENDING),
+                ("timestamp", ASCENDING)
+            ])
+            await self.db[self.collections["chat_messages"]].create_index([
+                ("user_id", ASCENDING),
+                ("timestamp", DESCENDING)
+            ])
+            await self.db[self.collections["chat_messages"]].create_index([
+                ("message_type", ASCENDING)
+            ])
+
+            # User Sessions indexes
+            await self.db[self.collections["user_sessions"]].create_index([
+                ("user_id", ASCENDING),
+                ("created_at", DESCENDING)
+            ])
+            await self.db[self.collections["user_sessions"]].create_index([
+                ("session_key", ASCENDING)
             ])
 
             print("MongoDB indexes created successfully")
@@ -447,6 +485,303 @@ class MongoDBManager:
         except Exception as e:
             print(f"Error getting analytics: {str(e)}")
             return []
+
+    async def create_chat_session(
+        self,
+        user_id: str,
+        session_id: str,
+        pet_profile: Dict[str, Any] = None,
+        location: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """Create a new chat session"""
+        try:
+            if not self.is_connected:
+                return {"success": False, "error": "MongoDB not connected"}
+            
+            document = {
+                "user_id": user_id,
+                "session_id": session_id,
+                "pet_profile": pet_profile or {},
+                "location": location or {},
+                "is_active": True,
+                "created_at": datetime.utcnow(),
+                "last_activity": datetime.utcnow(),
+                "message_count": 0
+            }
+            
+            result = await self.db[self.collections["chat_sessions"]].insert_one(document)
+            
+            return {
+                "success": True,
+                "session_id": session_id,
+                "mongo_id": str(result.inserted_id)
+            }
+            
+        except Exception as e:
+            print(f"Error creating chat session: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+    async def get_chat_session(
+        self,
+        user_id: str,
+        session_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """Get chat session by user_id and session_id"""
+        try:
+            if not self.is_connected:
+                return None
+            
+            document = await self.db[self.collections["chat_sessions"]].find_one({
+                "user_id": user_id,
+                "session_id": session_id
+            })
+            
+            if document:
+                document["_id"] = str(document["_id"])
+                return document
+            
+            return None
+            
+        except Exception as e:
+            print(f"Error getting chat session: {str(e)}")
+            return None
+
+    async def update_chat_session(
+        self,
+        user_id: str,
+        session_id: str,
+        update_data: Dict[str, Any]
+    ) -> bool:
+        """Update chat session"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            update_data["last_activity"] = datetime.utcnow()
+            
+            result = await self.db[self.collections["chat_sessions"]].update_one(
+                {"user_id": user_id, "session_id": session_id},
+                {"$set": update_data}
+            )
+            
+            return result.modified_count > 0
+            
+        except Exception as e:
+            print(f"Error updating chat session: {str(e)}")
+            return False
+
+    async def store_chat_message(
+        self,
+        session_id: str,
+        user_id: str,
+        message: str,
+        message_type: str,  # "user" or "assistant"
+        metadata: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """Store a chat message"""
+        try:
+            if not self.is_connected:
+                return {"success": False, "error": "MongoDB not connected"}
+            
+            document = {
+                "session_id": session_id,
+                "user_id": user_id,
+                "message": message,
+                "message_type": message_type,
+                "metadata": metadata or {},
+                "timestamp": datetime.utcnow()
+            }
+            
+            result = await self.db[self.collections["chat_messages"]].insert_one(document)
+            
+            # Update session message count
+            await self.db[self.collections["chat_sessions"]].update_one(
+                {"session_id": session_id},
+                {
+                    "$inc": {"message_count": 1},
+                    "$set": {"last_activity": datetime.utcnow()}
+                }
+            )
+            
+            return {
+                "success": True,
+                "message_id": str(result.inserted_id)
+            }
+            
+        except Exception as e:
+            print(f"Error storing chat message: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+    async def get_chat_messages(
+        self,
+        session_id: str,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[Dict[str, Any]]:
+        """Get chat messages for a session"""
+        try:
+            if not self.is_connected:
+                return []
+            
+            cursor = self.db[self.collections["chat_messages"]].find(
+                {"session_id": session_id}
+            ).sort("timestamp", ASCENDING).skip(offset).limit(limit)
+            
+            results = await cursor.to_list(length=limit)
+            
+            # Convert ObjectId to string for JSON serialization
+            for result in results:
+                result["_id"] = str(result["_id"])
+            
+            return results
+            
+        except Exception as e:
+            print(f"Error getting chat messages: {str(e)}")
+            return []
+
+    async def get_user_chat_sessions(
+        self,
+        user_id: str,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """Get user's chat sessions"""
+        try:
+            if not self.is_connected:
+                return []
+            
+            cursor = self.db[self.collections["chat_sessions"]].find(
+                {"user_id": user_id}
+            ).sort("last_activity", DESCENDING).limit(limit)
+            
+            results = await cursor.to_list(length=limit)
+            
+            # Convert ObjectId to string for JSON serialization
+            for result in results:
+                result["_id"] = str(result["_id"])
+            
+            return results
+            
+        except Exception as e:
+            print(f"Error getting user chat sessions: {str(e)}")
+            return []
+
+    async def deactivate_chat_session(
+        self,
+        user_id: str,
+        session_id: str
+    ) -> bool:
+        """Deactivate a chat session"""
+        try:
+            if not self.is_connected:
+                return False
+            
+            result = await self.db[self.collections["chat_sessions"]].update_one(
+                {"user_id": user_id, "session_id": session_id},
+                {
+                    "$set": {
+                        "is_active": False,
+                        "ended_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            return result.modified_count > 0
+            
+        except Exception as e:
+            print(f"Error deactivating chat session: {str(e)}")
+            return False
+
+    async def cleanup_old_sessions(
+        self,
+        days_old: int = 30
+    ) -> int:
+        """Clean up old inactive sessions"""
+        try:
+            if not self.is_connected:
+                return 0
+            
+            cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+            
+            # Deactivate old sessions
+            result = await self.db[self.collections["chat_sessions"]].update_many(
+                {
+                    "is_active": True,
+                    "last_activity": {"$lt": cutoff_date}
+                },
+                {
+                    "$set": {
+                        "is_active": False,
+                        "ended_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            return result.modified_count
+            
+        except Exception as e:
+            print(f"Error cleaning up old sessions: {str(e)}")
+            return 0
+
+    async def store_user_session_data(
+        self,
+        user_id: str,
+        session_key: str,
+        session_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Store user session data for persistence"""
+        try:
+            if not self.is_connected:
+                return {"success": False, "error": "MongoDB not connected"}
+            
+            document = {
+                "user_id": user_id,
+                "session_key": session_key,
+                "session_data": session_data,
+                "created_at": datetime.utcnow(),
+                "last_updated": datetime.utcnow()
+            }
+            
+            # Upsert - update if exists, insert if not
+            result = await self.db[self.collections["user_sessions"]].replace_one(
+                {"user_id": user_id, "session_key": session_key},
+                document,
+                upsert=True
+            )
+            
+            return {
+                "success": True,
+                "upserted_id": str(result.upserted_id) if result.upserted_id else None,
+                "modified_count": result.modified_count
+            }
+            
+        except Exception as e:
+            print(f"Error storing user session data: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+    async def get_user_session_data(
+        self,
+        user_id: str,
+        session_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """Get user session data"""
+        try:
+            if not self.is_connected:
+                return None
+            
+            document = await self.db[self.collections["user_sessions"]].find_one({
+                "user_id": user_id,
+                "session_key": session_key
+            })
+            
+            if document:
+                document["_id"] = str(document["_id"])
+                return document
+            
+            return None
+            
+        except Exception as e:
+            print(f"Error getting user session data: {str(e)}")
+            return None
 
     async def close(self):
         """Close MongoDB connection"""
