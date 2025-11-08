@@ -44,14 +44,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if user is authenticated on app load
   useEffect(() => {
     // Skip auth check for dashboard pages completely
-    const isDashboardPage = window.location.pathname.startsWith('/dashboard/');
-    
-    if (isDashboardPage) {
-      // For dashboard pages, just set loading to false immediately
-      setIsLoading(false);
-    } else {
-      checkAuth();
+    // Use typeof window check to ensure we're on client side
+    if (typeof window !== 'undefined') {
+      const isDashboardPage = window.location.pathname.startsWith('/dashboard/');
+      
+      if (isDashboardPage) {
+        // For dashboard pages, just set loading to false immediately
+        setIsLoading(false);
+        return;
+      }
     }
+    
+    // For non-dashboard pages, check auth
+    checkAuth();
   }, []);
 
   const checkAuth = async (): Promise<boolean> => {

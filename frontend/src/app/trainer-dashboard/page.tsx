@@ -70,7 +70,7 @@ interface BehavioralAssessment {
 
 export default function TrainerDashboard() {
   const { resolvedTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
@@ -94,7 +94,11 @@ export default function TrainerDashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) return;
+      // If no user, set loading to false immediately (dashboard pages work without auth)
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -140,8 +144,11 @@ export default function TrainerDashboard() {
       }
     };
 
-    fetchDashboardData();
-  }, [user]);
+    // Only fetch if auth is not loading (to avoid race conditions)
+    if (!authLoading) {
+      fetchDashboardData();
+    }
+  }, [user, authLoading]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

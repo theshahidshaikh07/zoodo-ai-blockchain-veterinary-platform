@@ -76,7 +76,7 @@ function formatHumanTime(time24h: string): string {
 
 export default function VetDashboardPage() {
   const { resolvedTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +115,11 @@ export default function VetDashboardPage() {
   // Fetch real appointments and reports
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) return;
+      // If no user, just set loading to false and return (dashboard pages work without auth)
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -151,8 +155,11 @@ export default function VetDashboardPage() {
       }
     };
 
-    fetchDashboardData();
-  }, [user]);
+    // Only fetch if auth is not loading (to avoid race conditions)
+    if (!authLoading) {
+      fetchDashboardData();
+    }
+  }, [user, authLoading]);
 
   // Helpers
   const openCreateModal = () => {
@@ -215,6 +222,8 @@ export default function VetDashboardPage() {
 
   const removeSlot = (id: string) => setSlots(prev => prev.filter(s => s.id !== id));
 
+  // Show loading only if component is not mounted or if we're actively fetching data
+  // For dashboard pages, authLoading should be false quickly, so we don't wait for it
   if (!mounted || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

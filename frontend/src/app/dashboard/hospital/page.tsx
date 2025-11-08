@@ -47,10 +47,14 @@ export default function HospitalDashboard() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
-      fetchDashboardData();
-      fetchProfessionalProfile();
+    // If no user, set loading to false immediately (dashboard pages work without auth)
+    if (!user) {
+      setIsLoading(false);
+      return;
     }
+    
+    fetchDashboardData();
+    fetchProfessionalProfile();
   }, [user]);
 
   const fetchDashboardData = async () => {

@@ -76,7 +76,7 @@ function formatHumanTime(time24h: string): string {
 
 export default function HospitalDashboardPage() {
   const { resolvedTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -114,7 +114,11 @@ export default function HospitalDashboardPage() {
   // Seed dummy appointments and reports
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) return;
+      // If no user, set loading to false immediately (dashboard pages work without auth)
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -150,8 +154,11 @@ export default function HospitalDashboardPage() {
       }
     };
 
-    fetchDashboardData();
-  }, [user]);
+    // Only fetch if auth is not loading (to avoid race conditions)
+    if (!authLoading) {
+      fetchDashboardData();
+    }
+  }, [user, authLoading]);
 
   // Helpers
   const openCreateModal = () => {

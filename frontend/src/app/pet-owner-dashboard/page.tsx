@@ -69,7 +69,7 @@ interface HealthRecord {
 
 export default function PetOwnerDashboard() {
   const { resolvedTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -110,7 +110,11 @@ export default function PetOwnerDashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) return;
+      // If no user, set loading to false immediately (dashboard pages work without auth)
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -161,8 +165,11 @@ export default function PetOwnerDashboard() {
       }
     };
 
-    fetchDashboardData();
-  }, [user]);
+    // Only fetch if auth is not loading (to avoid race conditions)
+    if (!authLoading) {
+      fetchDashboardData();
+    }
+  }, [user, authLoading]);
 
   // Navigation handlers
   const handleAIClick = () => {
