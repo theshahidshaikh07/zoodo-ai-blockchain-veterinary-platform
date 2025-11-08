@@ -1,5 +1,5 @@
-const API_BASE_URL = 'http://localhost:8080/api';
-const AI_SERVICE_URL = 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -738,7 +738,8 @@ class ApiService {
   // Health check
   async healthCheck(): Promise<ApiResponse<{ status: string }>> {
     // Health endpoint is at /health, not /api/health
-    const response = await fetch('http://localhost:8080/health', {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080';
+    const response = await fetch(`${baseUrl}/health`, {
       headers: {
         'Content-Type': 'application/json',
       },
