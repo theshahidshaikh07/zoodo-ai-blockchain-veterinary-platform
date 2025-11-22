@@ -7,3 +7,7 @@
 
 # Ignore all .next build folders
 **/.next/
+
+# Documentation Case Studies
+docs/PM_CASE_STUDY.md
+docs/NOTION_CASE_STUDY.md
