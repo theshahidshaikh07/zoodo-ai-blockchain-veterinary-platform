@@ -2,11 +2,51 @@
 .env
 .env.*
 !.env.example
-# Ignore all node_modules folders
-**/node_modules/
 
-# Ignore all .next build folders
+# Node.js
+**/node_modules/
 **/.next/
+**/dist/
+**/build/
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+**/venv/
+**/env/
+**/.venv/
+**/*.egg-info/
+**/.pytest_cache/
+**/.coverage
+
+# Java/Spring Boot
+**/target/
+**/*.class
+**/*.log
+**/*.jar
+**/*.war
+**/*.ear
+**/hs_err_pid*.log
+**/replay_pid*.log
+
+# IDE
+**/.idea/
+**/.vscode/
+**/*.swp
+**/*.swo
+**/*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+**/dist/
+**/build/
+**/.cache/
 
 # Documentation Case Studies
 docs/PM_CASE_STUDY.md
