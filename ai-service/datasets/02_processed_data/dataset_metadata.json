@@ -1,8 +1,0 @@
-{
-  "total_samples": 9060,
-  "training_samples": 240,
-  "test_samples": 1812,
-  "features_count": 29,
-  "targets_count": 4,
-  "cv_folds": 5
-}

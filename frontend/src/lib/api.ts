@@ -110,7 +110,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const headers: Record<string, string> = {
       ...options.headers as Record<string, string>,
     };
@@ -125,7 +125,7 @@ class ApiService {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     const defaultOptions: RequestInit = {
       headers,
       ...options,
@@ -136,9 +136,9 @@ class ApiService {
       console.log('Request options:', defaultOptions);
       console.log('Body type:', typeof defaultOptions.body);
       console.log('Body instanceof FormData:', defaultOptions.body instanceof FormData);
-      
+
       const response = await fetch(url, defaultOptions);
-      
+
       // Check if response is ok
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -168,11 +168,11 @@ class ApiService {
         console.error('Failed to parse JSON response:', parseError);
         throw new Error('Invalid JSON response from server');
       }
-      
+
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      
+
       // Return a structured error response
       return {
         success: false,
@@ -219,7 +219,7 @@ class ApiService {
       const isVetMultipart = form.has('licenseNumber') || form.has('licenseProof') || form.has('independentServices') || form.has('availabilitySchedule');
       const isTrainerMultipart = form.has('registrationData') && (form.has('resume') || form.has('profilePhoto'));
       const isHospitalMultipart = form.has('facilityLicenseNumber') || form.has('facilityLicenseDocument');
-      
+
       let endpoint = '/register/pet-owner';
       if (isVetMultipart) {
         // For veterinarian registration, use the direct endpoint that expects individual form parts
@@ -232,7 +232,7 @@ class ApiService {
         form.set('registrationData', JSON.stringify(registrationData));
         endpoint = '/register/hospital';
       }
-      
+
       return this.request<User>(endpoint, {
         method: 'POST',
         body: form,
@@ -346,14 +346,14 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
       });
-      
+
       // Store JWT token if login is successful
       if (response.success && response.data) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('jwt_token', response.data);
         }
       }
-      
+
       return response;
     } catch (error) {
       console.error('Login API error:', error);
@@ -373,14 +373,14 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    
+
     // Store JWT token if login is successful
     if (response.success && response.data?.token) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('jwt_token', response.data.token);
       }
     }
-    
+
     return response;
   }
 
@@ -397,8 +397,8 @@ class ApiService {
     }
   }
 
-  async handleGoogleCallback(): Promise<ApiResponse<{ 
-    token?: string; 
+  async handleGoogleCallback(): Promise<ApiResponse<{
+    token?: string;
     action: 'login' | 'register';
     email?: string;
     firstName?: string;
@@ -416,13 +416,13 @@ class ApiService {
       }
 
       const data = await response.json();
-      
+
       if (data.success && data.data?.action === 'login' && data.data?.token) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('jwt_token', data.data.token);
         }
       }
-      
+
       return data;
     } catch (error) {
       console.error('Google OAuth callback failed:', error);
@@ -547,7 +547,7 @@ class ApiService {
     if (params?.userType) queryParams.append('userType', params.userType);
     if (params?.search) queryParams.append('search', params.search);
     if (params?.status) queryParams.append('status', params.status);
-    
+
     const endpoint = `/admin/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return this.request(endpoint);
   }
@@ -580,13 +580,13 @@ class ApiService {
     const queryParams = new URLSearchParams();
     if (params?.userType) queryParams.append('userType', params.userType);
     if (params?.status) queryParams.append('status', params.status);
-    
+
     const endpoint = `/admin/users/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return this.request(endpoint);
   }
 
   // Registration Management Endpoints
-  
+
   // Pet Owner Registration
   async createPetOwnerRegistration(registrationData: any): Promise<ApiResponse<any>> {
     return this.request('/register/pet-owner', {
@@ -744,11 +744,11 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
@@ -761,7 +761,7 @@ class ApiService {
       }
       throw new Error(`Expected JSON response but got: ${contentType}`);
     }
-    
+
     try {
       const data = await response.json();
       return data;
@@ -775,8 +775,8 @@ class ApiService {
   async chatWithAI(request: AIChatRequest): Promise<ApiResponse<AIChatResponse>> {
     try {
       console.log('Sending AI request:', request); // Debug log
-      
-      const response = await fetch(`${AI_SERVICE_URL}/chat`, {
+
+      const response = await fetch(`${AI_SERVICE_URL}/api/v1/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -790,12 +790,9 @@ class ApiService {
 
       const data = await response.json();
       console.log('AI Service response:', data); // Debug log
-      
-      return {
-        success: true,
-        message: 'AI response received',
-        data: data
-      };
+
+      // The backend returns { success, data: { response, is_emergency, ... } }
+      return data;
     } catch (error) {
       console.error('AI Service request failed:', error);
       return {
@@ -808,7 +805,7 @@ class ApiService {
 
   async getAIHealthCheck(): Promise<ApiResponse<AIHealthCheck>> {
     try {
-      const response = await fetch(`${AI_SERVICE_URL}/health`, {
+      const response = await fetch(`${AI_SERVICE_URL}/api/v1/health`, {
         headers: {
           'Content-Type': 'application/json',
         },
