@@ -1,24 +1,26 @@
-# Core FastAPI dependencies
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
+# Dr. Salus AI - Python Dependencies
 
-# AI/ML Libraries
-langchain==0.1.0
-langchain-google-genai==0.0.6
+# FastAPI and server
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# Google Gemini AI
 google-generativeai==0.3.2
 
-# Database dependencies
-motor==3.3.2
-pymongo==4.6.0
+# Data processing - using newer version with better Windows support
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# CORS
+python-multipart==0.0.6
+
+# Redis for session management (MVP)
 redis==5.0.1
 
-# HTTP client
-httpx==0.25.2
-requests==2.31.0
-
-# Authentication
-PyJWT==2.8.0
-
-# Utilities
-python-dotenv==1.0.0
+# Optional: For future enhancements
+# pymongo==4.6.1  # For MongoDB integration (Phase 2)
+# scikit-learn==1.4.0  # For advanced NLP/ML features

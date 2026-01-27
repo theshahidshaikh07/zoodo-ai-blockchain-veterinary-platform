@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
 import Header from '@/components/Header';
 import { apiService, AIChatRequest } from '@/lib/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   id: string;
@@ -69,7 +71,7 @@ export default function AIAssistantPage() {
       setIsPlaceholderTyping(false);
       return;
     }
-    
+
     // Start the animation
     setIsPlaceholderTyping(true);
   }, [inputMessage, isTyping, messages.length]);
@@ -115,11 +117,11 @@ export default function AIAssistantPage() {
 
       const response = await apiService.chatWithAI(request);
       console.log('Frontend received response:', response); // Debug log
-      
+
       if (response.success && response.data) {
         console.log('Response data:', response.data); // Debug log
         console.log('Response field:', response.data.response); // Debug log
-        
+
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
@@ -188,7 +190,7 @@ export default function AIAssistantPage() {
       }
 
       const currentMessage = placeholderMessages[currentPlaceholderIndex];
-      
+
       // Typing phase
       if (!isDeleting && currentIndex < currentMessage.length) {
         const timeout = setTimeout(() => {
@@ -197,7 +199,7 @@ export default function AIAssistantPage() {
         }, 50);
         return () => clearTimeout(timeout);
       }
-      
+
       // Pause after completing sentence
       if (!isDeleting && currentIndex === currentMessage.length) {
         const timeout = setTimeout(() => {
@@ -205,7 +207,7 @@ export default function AIAssistantPage() {
         }, 1000); // 1 second pause
         return () => clearTimeout(timeout);
       }
-      
+
       // Deleting phase
       if (isDeleting && currentIndex > 0) {
         const timeout = setTimeout(() => {
@@ -214,7 +216,7 @@ export default function AIAssistantPage() {
         }, 30);
         return () => clearTimeout(timeout);
       }
-      
+
       // Move to next message after deleting completely
       if (isDeleting && currentIndex === 0) {
         setIsDeleting(false);
@@ -248,8 +250,8 @@ export default function AIAssistantPage() {
             <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
               {/* Left side - Back button + Dr. Salus AI */}
               <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => window.location.reload()}
                   className="hover:bg-primary/10 hover:scale-105 transition-all duration-300"
@@ -266,11 +268,11 @@ export default function AIAssistantPage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Right side - New Chat button */}
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => window.location.reload()}
                 className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
               >
@@ -280,12 +282,12 @@ export default function AIAssistantPage() {
           </div>
         </header>
       )}
-      
+
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
-      
+
       {/* Main Content Area */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {messages.length <= 1 ? (
@@ -299,7 +301,7 @@ export default function AIAssistantPage() {
                 <div className="absolute top-1 left-8 w-4 h-4 bg-muted/30 rounded-full"></div>
               </div>
             </div>
-            
+
             {/* Banner */}
             <div className="mb-8">
               <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5">
@@ -307,7 +309,7 @@ export default function AIAssistantPage() {
                 <ArrowUp className="h-3 w-3 ml-1" />
               </Badge>
             </div>
-            
+
             {/* Main Headline */}
             <div className="text-center mb-8 max-w-4xl">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
@@ -320,7 +322,7 @@ export default function AIAssistantPage() {
                 Get instant pet health advice, personalized diet plans, and recommendations for the best vets, trainers, hospitals, and clinics nearby.
               </p>
             </div>
-            
+
             {/* Large AI Chat Input Area - Centered when not chatting */}
             <div className="w-full max-w-4xl mx-auto px-4 mt-8">
               <div className="relative">
@@ -342,7 +344,7 @@ export default function AIAssistantPage() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Bottom Controls */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
                     <div className="flex items-center space-x-4">
@@ -351,7 +353,7 @@ export default function AIAssistantPage() {
                         Add
                       </Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <Button
                         onClick={handleSendMessage}
@@ -370,18 +372,39 @@ export default function AIAssistantPage() {
         ) : (
           /* Chat Interface - Full screen when chatting */
           <div className="flex-1 flex flex-col h-screen">
-            
+
             {/* Chat Messages Area */}
             <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-6 pt-24">
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.slice(1).map((message) => (
                   <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] ${message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted/80 backdrop-blur-sm'} rounded-3xl p-6 shadow-lg`}>
-                      <p className="text-base leading-relaxed">{message.content}</p>
+                      {message.type === 'user' ? (
+                        <p className="text-base leading-relaxed">{message.content}</p>
+                      ) : (
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              p: ({ node, ...props }) => <p className="text-base leading-relaxed mb-4 last:mb-0" {...props} />,
+                              ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-4 space-y-2" {...props} />,
+                              ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-4 space-y-2" {...props} />,
+                              li: ({ node, ...props }) => <li className="text-base leading-relaxed" {...props} />,
+                              strong: ({ node, ...props }) => <strong className="font-semibold text-primary" {...props} />,
+                              h1: ({ node, ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
+                              h2: ({ node, ...props }) => <h2 className="text-lg font-bold mb-3" {...props} />,
+                              h3: ({ node, ...props }) => <h3 className="text-base font-bold mb-2" {...props} />,
+                              blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary pl-4 italic my-4" {...props} />,
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
-                
+
                 {isTyping && (
                   <div className="flex justify-start">
                     <div className="bg-muted/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
@@ -399,7 +422,7 @@ export default function AIAssistantPage() {
               </div>
               <div ref={messagesEndRef} />
             </div>
-            
+
             {/* Chat Input Area - Same styling as before */}
             <div className="w-full max-w-4xl mx-auto px-4 pb-8">
               <div className="relative">
@@ -421,7 +444,7 @@ export default function AIAssistantPage() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Bottom Controls */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
                     <div className="flex items-center space-x-4">
@@ -430,7 +453,7 @@ export default function AIAssistantPage() {
                         Add
                       </Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <Button
                         onClick={handleSendMessage}

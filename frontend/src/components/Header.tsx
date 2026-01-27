@@ -29,7 +29,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   // Function to get role-specific dashboard URL
   const getDashboardUrl = () => {
     if (!user) return "/dashboard";
-    
+
     switch (user.userType) {
       case 'pet_owner':
         return "/dashboard/pet-owner";
@@ -79,17 +79,17 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     }
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
-    
+
     if (element) {
       const headerHeight = 96; // Approximate header height
       const elementPosition = element.offsetTop - headerHeight;
-      
+
       window.scrollTo({
         top: elementPosition,
         behavior: 'smooth'
       });
     }
-    
+
     // Close mobile menu if open
     setIsMenuOpen(false);
   };
@@ -98,16 +98,16 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     { name: "Home", href: "#hero", type: "anchor" as const },
     { name: "Services", href: "#services", type: "anchor" as const },
     { name: "Community", href: "#community", type: "anchor" as const },
+    { name: "AI Consultation", href: "/chat", type: "route" as const },
     { name: "About", href: "/about", type: "route" as const },
     { name: "Contact", href: "/contact", type: "route" as const },
   ];
 
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'glass-card border-b border-border/30 shadow-elegant backdrop-blur-xl' 
+    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
+        ? 'glass-card border-b border-border/30 shadow-elegant backdrop-blur-xl'
         : 'bg-transparent border-b border-transparent'
-    }`}>
+      }`}>
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
           {/* Logo */}
@@ -194,16 +194,16 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       Welcome, {user?.firstName}
                     </span>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                     asChild
                   >
                     <Link href={getDashboardUrl()}>Dashboard</Link>
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={logout}
                     className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
@@ -214,16 +214,16 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                 </>
               ) : (
                 <>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                     asChild
                   >
                     <Link href="/login">Log In</Link>
                   </Button>
-                  <Button 
-                    variant="default" 
+                  <Button
+                    variant="default"
                     size="sm"
                     className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                     asChild
@@ -284,16 +284,16 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       <div className="text-sm text-muted-foreground mb-2">
                         Welcome, {user?.firstName}
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
                         asChild
                       >
                         <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => {
                           logout();
@@ -307,16 +307,16 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     </>
                   ) : (
                     <>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
                         asChild
                       >
                         <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
                       </Button>
-                      <Button 
-                        variant="default" 
+                      <Button
+                        variant="default"
                         size="sm"
                         className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300"
                         asChild
