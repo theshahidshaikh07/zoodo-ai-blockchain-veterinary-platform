@@ -6,6 +6,7 @@ AI-powered veterinary assistant for pet parents
 from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env file
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
@@ -18,9 +19,13 @@ app = FastAPI(
 )
 
 # CORS middleware
+# In production, this will be your Vercel URL (e.g., https://zoodo.vercel.app)
+origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001")
+origins = [origin.strip() for origin in origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
