@@ -8,7 +8,7 @@ google-genai==1.56.0
 google-generativeai==0.3.2
 
 # Data processing
-pandas>=2.1.4
+pandas>=2.2.0
 numpy>=1.26.3
 
 # Environment variables
