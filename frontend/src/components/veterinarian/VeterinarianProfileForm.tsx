@@ -75,25 +75,29 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData(prev => ({
+      ...prev,
+      [name as keyof typeof prev]: type === 'checkbox' ? checked : value
     }));
     setError('');
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name as keyof typeof prev]: value }));
     setError('');
   };
 
   const handleArrayChange = (name: string, value: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked 
-        ? [...prev[name], value]
-        : prev[name].filter((item: string) => item !== value)
-    }));
+    setFormData(prev => {
+      const key = name as keyof typeof prev;
+      const currentArray = (prev[key] as unknown as string[]) || [];
+      return {
+        ...prev,
+        [key]: checked
+          ? [...currentArray, value]
+          : currentArray.filter((item: string) => item !== value)
+      };
+    });
     setError('');
   };
 
@@ -276,7 +280,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                     <Checkbox
                       id={`specialization-${option}`}
                       checked={formData.specializations.includes(option)}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleArrayChange('specializations', option, checked as boolean)
                       }
                       disabled={isLoading}
@@ -307,7 +311,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                     <Checkbox
                       id={`qualification-${option}`}
                       checked={formData.qualifications.includes(option)}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleArrayChange('qualifications', option, checked as boolean)
                       }
                       disabled={isLoading}
@@ -335,7 +339,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                 <Checkbox
                   id="isAffiliated"
                   checked={formData.isAffiliated}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setFormData(prev => ({ ...prev, isAffiliated: checked as boolean }))
                   }
                   disabled={isLoading}
@@ -402,7 +406,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                   <Checkbox
                     id="offerOnlineConsultation"
                     checked={formData.offerOnlineConsultation}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, offerOnlineConsultation: checked as boolean }))
                     }
                     disabled={isLoading}
@@ -414,7 +418,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                   <Checkbox
                     id="offerHomeConsultation"
                     checked={formData.offerHomeConsultation}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, offerHomeConsultation: checked as boolean }))
                     }
                     disabled={isLoading}
@@ -442,7 +446,7 @@ export default function VeterinarianProfileForm({ profile, onUpdate }: Veterinar
                     <Checkbox
                       id="independentServiceSameAsPersonal"
                       checked={formData.independentServiceSameAsPersonal}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setFormData(prev => ({ ...prev, independentServiceSameAsPersonal: checked as boolean }))
                       }
                       disabled={isLoading}

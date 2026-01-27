@@ -12,6 +12,13 @@ interface User {
   lastName: string;
   userType: string;
   isVerified: boolean;
+  phoneNumber?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
 }
 
 interface AuthContextType {
@@ -55,7 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const userData = JSON.parse(storedUser);
         setToken(storedToken);
         setUser(userData);
-        
+
         // Verify token is still valid
         verifyToken(storedToken);
       } catch (error) {
@@ -63,7 +70,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearAuthData();
       }
     }
-    
+
     setIsLoading(false);
   }, []);
 
@@ -76,7 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       const data = await response.json();
-      
+
       if (!data.success) {
         clearAuthData();
         router.push('/login');
@@ -109,18 +116,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (data.success) {
         const { token: newToken, user: userData } = data.data;
-        
+
         localStorage.setItem('token', newToken);
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         setToken(newToken);
         setUser(userData);
-        
+
         toast({
           title: "Login Successful",
           description: `Welcome back, ${userData.firstName}!`,
         });
-        
+
         return true;
       } else {
         toast({

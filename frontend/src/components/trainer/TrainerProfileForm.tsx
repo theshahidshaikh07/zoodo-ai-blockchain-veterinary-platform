@@ -84,25 +84,29 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData(prev => ({
+      ...prev,
+      [name as keyof typeof prev]: type === 'checkbox' ? checked : value
     }));
     setError('');
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name as keyof typeof prev]: value }));
     setError('');
   };
 
   const handleArrayChange = (name: string, value: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked 
-        ? [...prev[name], value]
-        : prev[name].filter((item: string) => item !== value)
-    }));
+    setFormData(prev => {
+      const key = name as keyof typeof prev;
+      const currentArray = (prev[key] as unknown as string[]) || [];
+      return {
+        ...prev,
+        [key]: checked
+          ? [...currentArray, value]
+          : currentArray.filter((item: string) => item !== value)
+      };
+    });
     setError('');
   };
 
@@ -281,7 +285,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                     <Checkbox
                       id={`specialization-${option}`}
                       checked={formData.specializations.includes(option)}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleArrayChange('specializations', option, checked as boolean)
                       }
                       disabled={isLoading}
@@ -312,7 +316,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                     <Checkbox
                       id={`certification-${option}`}
                       checked={formData.certifications.includes(option)}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleArrayChange('certifications', option, checked as boolean)
                       }
                       disabled={isLoading}
@@ -342,7 +346,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                   <Checkbox
                     id="independent"
                     checked={formData.practiceType.independent}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePracticeTypeChange('independent', checked as boolean)
                     }
                     disabled={isLoading}
@@ -354,7 +358,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                   <Checkbox
                     id="trainingCenter"
                     checked={formData.practiceType.trainingCenter}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePracticeTypeChange('trainingCenter', checked as boolean)
                     }
                     disabled={isLoading}
@@ -366,7 +370,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                   <Checkbox
                     id="affiliated"
                     checked={formData.practiceType.affiliated}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePracticeTypeChange('affiliated', checked as boolean)
                     }
                     disabled={isLoading}
@@ -383,7 +387,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                 <Checkbox
                   id="offerHomeTraining"
                   checked={formData.offerHomeTraining}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setFormData(prev => ({ ...prev, offerHomeTraining: checked as boolean }))
                   }
                   disabled={isLoading}
@@ -410,7 +414,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                     <Checkbox
                       id="independentServiceSameAsPersonal"
                       checked={formData.independentServiceSameAsPersonal}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setFormData(prev => ({ ...prev, independentServiceSameAsPersonal: checked as boolean }))
                       }
                       disabled={isLoading}
@@ -495,7 +499,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                   <Checkbox
                     id="trainingCenterOfferInPerson"
                     checked={formData.trainingCenterOfferInPerson}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, trainingCenterOfferInPerson: checked as boolean }))
                     }
                     disabled={isLoading}
@@ -551,7 +555,7 @@ export default function TrainerProfileForm({ profile, onUpdate }: TrainerProfile
                 <Checkbox
                   id="hasAcademy"
                   checked={formData.hasAcademy}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setFormData(prev => ({ ...prev, hasAcademy: checked as boolean }))
                   }
                   disabled={isLoading}

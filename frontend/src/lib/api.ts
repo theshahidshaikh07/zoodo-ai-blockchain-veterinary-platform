@@ -18,9 +18,25 @@ export interface User {
   email: string;
   userType: 'pet_owner' | 'veterinarian' | 'trainer' | 'hospital' | 'clinic' | 'admin';
   phone?: string;
+  phoneNumber?: string;
   address?: string;
   createdAt: string;
   updatedAt: string;
+  username?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+  status?: string;
+  profilePhotoUrl?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  rating?: number;
+  totalReviews?: number;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  lastLoginAt?: string;
+  profileCompletion?: number;
 }
 
 export interface UserCreateRequest {
@@ -528,7 +544,7 @@ class ApiService {
   }
 
   // Admin endpoints
-  async getUsers(params?: {
+  async getUsersAdmin(params?: {
     page?: number;
     size?: number;
     userType?: string;
@@ -563,7 +579,7 @@ class ApiService {
     });
   }
 
-  async deleteUser(userId: string): Promise<ApiResponse<any>> {
+  async deleteUserAdmin(userId: string): Promise<ApiResponse<any>> {
     return this.request(`/admin/users/${userId}`, {
       method: 'DELETE',
     });

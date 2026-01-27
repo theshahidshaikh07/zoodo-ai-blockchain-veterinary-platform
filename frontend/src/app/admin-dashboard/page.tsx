@@ -74,7 +74,7 @@ interface User {
   updatedAt: string;
   lastLoginAt?: string;
   profileCompletion: number;
-  
+
   // Veterinarian specific fields
   licenseNumber?: string;
   experience?: number;
@@ -98,7 +98,7 @@ interface User {
   homeServiceZip?: string;
   homeVisitRadius?: number;
   availabilitySettings?: string;
-  
+
   // Trainer specific fields
   certifications?: string[];
   practiceType?: string;
@@ -120,11 +120,11 @@ interface User {
   academyPostalCode?: string;
   academyCountry?: string;
   academyPhone?: string;
-  
+
   // Pet owner specific fields
   petCount?: number;
   pets?: PetSummary[];
-  
+
   // System fields
   notes?: string;
   verifiedAt?: string;
@@ -219,18 +219,18 @@ function AdminDashboardContent() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getUsers({
+      const response = await apiService.getUsersAdmin({
         page: currentPage,
         size: 10,
         userType: userTypeFilter !== 'all' ? userTypeFilter : undefined,
         search: searchTerm || undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined
       });
-      
+
       if (response.success) {
-        setUsers(response.data.content || []);
-        setTotalPages(response.data.totalPages || 0);
-        setTotalUsers(response.data.totalElements || 0);
+        setUsers((response.data?.content as unknown as User[]) || []);
+        setTotalPages(response.data?.totalPages || 0);
+        setTotalUsers(response.data?.totalElements || 0);
       }
     } catch (error) {
       console.error('Error loading users:', error);
@@ -287,10 +287,10 @@ function AdminDashboardContent() {
         userType: userTypeFilter !== 'all' ? userTypeFilter : undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined
       });
-      
+
       if (response.success) {
         // Create and download CSV
-        const csvContent = createCSVContent(response.data);
+        const csvContent = createCSVContent((response.data as unknown as User[]) || []);
         downloadCSV(csvContent, 'users.csv');
       }
     } catch (error) {
@@ -312,7 +312,7 @@ function AdminDashboardContent() {
       user.state || '',
       new Date(user.createdAt).toLocaleDateString()
     ]);
-    
+
     return [headers, ...rows].map(row => row.join(',')).join('\n');
   };
 
@@ -368,7 +368,7 @@ function AdminDashboardContent() {
                 Admin Dashboard
               </Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
@@ -546,9 +546,9 @@ function AdminDashboardContent() {
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Search users..." 
-                      className="pl-8" 
+                    <Input
+                      placeholder="Search users..."
+                      className="pl-8"
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
                     />
@@ -578,7 +578,7 @@ function AdminDashboardContent() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {loading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -730,7 +730,7 @@ function AdminDashboardContent() {
                         ))}
                       </TableBody>
                     </Table>
-                    
+
                     {/* Pagination */}
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between mt-4">
@@ -926,7 +926,7 @@ function AdminDashboardContent() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Basic Information */}
