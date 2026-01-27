@@ -20,7 +20,7 @@ class GeminiService:
         self.client = genai.Client(api_key=api_key)
         
         # Model name - available model found in list
-        self.model_name = "gemini-flash-latest"
+        self.model_name = "gemini-2.5-flash-lite"
         
         # System prompt for Dr. Salus AI
         self.system_prompt = """You are Dr. Salus AI, a compassionate and knowledgeable AI veterinary assistant created to help pet parents.
@@ -130,7 +130,7 @@ Remember: You're here to help worried pet parents. Be their trusted guide."""
             
         except Exception as e:
             print(f"Error generating response: {str(e)}")
-            return "I apologize, but I'm having trouble processing your request right now. Please try again in a moment. If this persists, please contact support."
+            return f"I apologize, but I'm having trouble processing your request right now. Error details: {str(e)}"
 
     def detect_emergency(self, message: str) -> Dict[str, any]:
         """
