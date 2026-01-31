@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Video, 
-  DollarSign, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Video,
+  DollarSign,
+  CheckCircle,
+  XCircle,
   Loader2,
   IndianRupee
 } from 'lucide-react';
@@ -34,7 +34,7 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
   const handleScheduleConsultation = async () => {
     setIsSearching(true);
     setSearchComplete(false);
-    
+
     // Simulate searching for available doctors
     setTimeout(() => {
       setIsSearching(false);
@@ -54,7 +54,7 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md w-[90%] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Video className="w-5 h-5 text-red-500" />
@@ -120,9 +120,9 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
                       <Video className="w-4 h-4 mr-2" />
                       Try Again
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full" 
+                    <Button
+                      variant="ghost"
+                      className="w-full"
                       onClick={() => {
                         handleClose();
                         window.location.href = '/services/find-hospitals?search=emergency&type=Emergency%20Hospital';
@@ -138,23 +138,22 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
 
           {/* Terms and Conditions */}
           {!isSearching && !searchComplete && (
-            <div 
-              className={`flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
-                termsAccepted 
-                  ? 'bg-primary/10 border-primary/30' 
+            <div
+              className={`flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-all duration-200 ${termsAccepted
+                  ? 'bg-primary/10 border-primary/30'
                   : 'bg-muted/50 border-border hover:bg-muted/70'
-              }`}
+                }`}
               onClick={() => setTermsAccepted(!termsAccepted)}
             >
-              <Checkbox 
-                id="terms" 
+              <Checkbox
+                id="terms"
                 checked={termsAccepted}
                 onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
                 className="mt-0.5"
               />
               <div className="space-y-1 flex-1">
-                <label 
-                  htmlFor="terms" 
+                <label
+                  htmlFor="terms"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   I accept the terms and conditions
@@ -198,8 +197,8 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
               <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button 
-                onClick={handleScheduleConsultation} 
+              <Button
+                onClick={handleScheduleConsultation}
                 disabled={!termsAccepted}
                 className="w-full sm:w-auto bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >

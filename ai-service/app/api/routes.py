@@ -17,6 +17,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., description="User's message")
     session_id: str = Field(..., description="Session ID for conversation tracking")
     location: Optional[Dict] = Field(None, description="User's location for nearby services")
+    conversation_history: Optional[List[Dict[str, str]]] = Field(None, description="Optional conversation history to override stored context")
 
 class ChatResponse(BaseModel):
     success: bool
@@ -44,7 +45,8 @@ async def chat(request: ChatRequest):
         result = ai_assistant.process_message(
             session_id=request.session_id,
             user_message=request.message,
-            user_location=request.location
+            user_location=request.location,
+            conversation_history=request.conversation_history
         )
         
         return ChatResponse(

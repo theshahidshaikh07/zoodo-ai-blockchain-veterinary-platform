@@ -19,8 +19,8 @@ class GeminiService:
         # Initialize the new Gemini client
         self.client = genai.Client(api_key=api_key)
         
-        # Model name - available model found in list
-        self.model_name = "gemini-flash-latest"
+        # Model name - gemini-2.0-flash is the stable V2 model
+        self.model_name = "gemini-2.0-flash"
         
         # System prompt for Dr. Salus AI
         self.system_prompt = """You are Dr. Salus AI, a compassionate and knowledgeable AI veterinary assistant created to help pet parents.
@@ -41,15 +41,23 @@ class GeminiService:
 **Conversation Guidelines:**
 - Always be warm and empathetic - pet parents are often worried
 - Ask for information progressively, one question at a time
-- Start with pet's name if not provided
+- Start with pet's name if not provided (EXCEPT in emergencies - skip name if urgency is required)
 - Ask for breed, age, weight, gender ONLY when relevant to the question
 - Speak like a real veterinarian would - professional but friendly
 - Keep responses concise and actionable
 - Use simple language, avoid excessive medical jargon
+- **CRITICAL:** Do NOT use formal support phrase like "Thank you for reaching out". Be natural.
+- **CRITICAL:** Check the chat history. If you have ALREADY introduced yourself, NEVER do it again.
+- **CRITICAL:** Do NOT start your response with "Hello", "Hi", "Hey" unless the user's PRIMARY intent in the *immediate last message* was a greeting. If they gave you information (e.g. "His name is Tom"), dive STRAIGHT into the response (e.g. "Thanks! Tom is a great name...").
+- **CRITICAL:** If the user says "Hi", respond warmly. Otherwise, skip the greeting.
+- **CRITICAL:** Context-Aware Name Detection:
+  - If you asked "What is your pet's name?", treat the subsequent response as the Pet's Name.
+  - If the user says "My name is [X] and my pet is [Y]", correctly identify [X] as the Owner and [Y] as the Pet.
+  - Always address the user as the "Pet Parent" or by their name if given, and refer to the animal by the Pet's Name.
 
 **Emergency Detection:**
 - Immediately identify emergency symptoms (difficulty breathing, severe bleeding, poisoning, seizures, bloat, trauma, collapse, inability to urinate, etc.)
-- For emergencies: Provide immediate first-aid steps AND strongly recommend urgent vet care
+- For emergencies: PRIORITIZE immediate first-aid advice. Do NOT ask for name/breed/age until the situation is stabilized.
 - Suggest "Connect with Vet Online" or "Find Vet Clinic Nearby" for emergencies
 
 **Scope Limitations:**
@@ -106,31 +114,53 @@ Remember: You're here to help worried pet parents. Be their trusted guide."""
             full_prompt = "\n\n".join(context_parts)
             full_prompt += f"\n\n**Current Question from Pet Parent:**\n{user_message}\n\n**Your Response:**"
             
-            # Generate response using new API
-            try:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=full_prompt
-                )
-                
-                # Extract text from response
-                if hasattr(response, 'text'):
-                    return response.text
-                elif hasattr(response, 'candidates') and len(response.candidates) > 0:
-                    return response.candidates[0].content.parts[0].text
-                else:
-                    print(f"Unexpected response format: {type(response)}")
-                    print(f"Response: {response}")
-                    return "I'm having trouble generating a response. Please try again."
+            # List of models to try in order of preference (speed/limits)
+            # gemini-pro-latest is 1.0 Pro (Legacy) - very stable and free
+            models_to_try = [self.model_name, "gemini-flash-latest", "gemini-2.0-flash-lite-001", "gemini-pro-latest"]
+            
+            last_error = None
+            
+            for model in models_to_try:
+                try:
+                    # Generate response using new API
+                    response = self.client.models.generate_content(
+                        model=model,
+                        contents=full_prompt
+                    )
                     
-            except Exception as api_error:
-                print(f"Gemini API Error: {str(api_error)}")
-                print(f"Error type: {type(api_error)}")
-                raise  # Re-raise to be caught by outer exception handler
+                    # Extract text from response
+                    if hasattr(response, 'text'):
+                        return response.text
+                    elif hasattr(response, 'candidates') and len(response.candidates) > 0:
+                        return response.candidates[0].content.parts[0].text
+                    else:
+                        print(f"Unexpected response format from {model}: {type(response)}")
+                
+                except Exception as api_error:
+                    error_str = str(api_error)
+                    print(f"Error with model {model}: {error_str}")
+                    last_error = api_error
+                    
+                    # Continue to next model on ANY error to maximize chance of success
+                    # (e.g. 404 Not Found, 429 Limit Exceeded, 503 Service Unavailable)
+                    continue
+            
+            # If we exhausted all models
+            if last_error:
+                raise last_error
+            
+            return "I'm having trouble generating a response. Please try again."
+                    
+
             
         except Exception as e:
-            print(f"Error generating response: {str(e)}")
-            return "I apologize, but I'm having trouble processing your request right now. Please try again in a moment. If this persists, please contact support."
+            error_msg = str(e)
+            print(f"Error generating response: {error_msg}")
+            
+            if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg or "Quota exceeded" in error_msg:
+                return "The AI model usage limit has been exceeded. Please try again later."
+                
+            return "I apologize, but I'm having trouble connecting to the service right now. Please try again in a moment."
 
     def detect_emergency(self, message: str) -> Dict[str, any]:
         """

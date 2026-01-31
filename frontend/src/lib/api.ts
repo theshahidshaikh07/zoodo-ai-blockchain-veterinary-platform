@@ -70,6 +70,7 @@ export interface Appointment {
 export interface AIChatRequest {
   message: string;
   session_id?: string;
+  conversation_history?: Array<{ role: string; content: string; }>;
 }
 
 export interface AIChatResponse {
@@ -528,7 +529,7 @@ class ApiService {
   }
 
   // Admin endpoints
-  async getUsers(params?: {
+  async getAllUsers(params?: {
     page?: number;
     size?: number;
     userType?: string;
@@ -563,7 +564,7 @@ class ApiService {
     });
   }
 
-  async deleteUser(userId: string): Promise<ApiResponse<any>> {
+  async deleteUserAdmin(userId: string): Promise<ApiResponse<any>> {
     return this.request(`/admin/users/${userId}`, {
       method: 'DELETE',
     });
