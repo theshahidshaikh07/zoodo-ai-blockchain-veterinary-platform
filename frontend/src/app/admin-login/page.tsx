@@ -24,14 +24,11 @@ export default function AdminLoginPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+
   const router = useRouter();
   const { loginAdmin, isLoading, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -58,7 +55,7 @@ export default function AdminLoginPage() {
       usernameOrEmail: formData.usernameOrEmail,
       password: formData.password
     });
-    
+
     if (success) {
       router.push('/dashboard/admin');
     }
@@ -70,7 +67,7 @@ export default function AdminLoginPage() {
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
           <Image
-            src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
+            src="/Zoodo.png"
             alt="Zoodo"
             width={120}
             height={40}
@@ -78,8 +75,8 @@ export default function AdminLoginPage() {
             priority
           />
         </div>
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="text-sm text-foreground/60 hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -104,13 +101,12 @@ export default function AdminLoginPage() {
 
             {/* Username Input with Floating Label */}
             <div className="relative">
-              <Label 
-                htmlFor="admin-username" 
-                className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                  isInputFocused || formData.usernameOrEmail 
-                    ? 'text-xs text-primary -top-2 px-1 bg-background' 
-                    : 'text-sm text-muted-foreground/70 top-3'
-                }`}
+              <Label
+                htmlFor="admin-username"
+                className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isInputFocused || formData.usernameOrEmail
+                  ? 'text-xs text-primary -top-2 px-1 bg-background'
+                  : 'text-sm text-muted-foreground/70 top-3'
+                  }`}
               >
                 Username or Email
               </Label>
@@ -131,13 +127,12 @@ export default function AdminLoginPage() {
 
             {/* Password Input with Floating Label */}
             <div className="relative">
-              <Label 
-                htmlFor="admin-password" 
-                className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                  isPasswordFocused || formData.password 
-                    ? 'text-xs text-primary -top-2 px-1 bg-background' 
-                    : 'text-sm text-muted-foreground/70 top-3'
-                }`}
+              <Label
+                htmlFor="admin-password"
+                className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPasswordFocused || formData.password
+                  ? 'text-xs text-primary -top-2 px-1 bg-background'
+                  : 'text-sm text-muted-foreground/70 top-3'
+                  }`}
               >
                 Password
               </Label>

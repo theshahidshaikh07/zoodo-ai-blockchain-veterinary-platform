@@ -24,8 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { apiService, Appointment, Pet } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import zoodoLogo from '@/assets/zoodo.png';
-import zoodoLightLogo from '@/assets/Zoodo-light.png';
+
 
 type ServiceType = 'clinic' | 'home' | 'online';
 
@@ -102,14 +101,14 @@ export default function VetDashboardPage() {
         const parsed = JSON.parse(raw) as AvailabilitySlot[];
         if (Array.isArray(parsed)) setSlots(parsed);
       }
-    } catch {}
+    } catch { }
   }, []);
 
   // Persist slots
   useEffect(() => {
     try {
       localStorage.setItem('vetAvailabilitySlots', JSON.stringify(slots));
-    } catch {}
+    } catch { }
   }, [slots]);
 
   // Fetch real appointments and reports
@@ -120,13 +119,13 @@ export default function VetDashboardPage() {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        
+
         // Fetch appointments for this veterinarian
         const appointmentsResponse = await apiService.getAppointments();
-        
+
         if (appointmentsResponse.success && appointmentsResponse.data) {
           // Filter appointments for this veterinarian and convert to the expected format
           const vetAppointments = appointmentsResponse.data
@@ -141,13 +140,13 @@ export default function VetDashboardPage() {
               service: apt.type === 'consultation' ? 'online' as const : 'home' as const,
               status: apt.status
             }));
-          
+
           setAppointments(vetAppointments);
         }
 
         // For now, set empty reports - this would need a separate API endpoint
         setReports([]);
-        
+
       } catch (error) {
         console.error('Error fetching veterinarian dashboard data:', error);
       } finally {
@@ -239,7 +238,7 @@ export default function VetDashboardPage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
-              src={resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+              src="/Zoodo.png"
               alt="Zoodo"
               width={120}
               height={32}
@@ -248,8 +247,8 @@ export default function VetDashboardPage() {
             <Badge variant="secondary" className="hidden sm:inline-flex">Dashboard</Badge>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon"><Bell className="h-5 w-5"/></Button>
-            <Button variant="ghost" size="icon"><Settings className="h-5 w-5"/></Button>
+            <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><Settings className="h-5 w-5" /></Button>
             <Avatar>
               <AvatarImage src="/api/placeholder/40/40" />
               <AvatarFallback>DR</AvatarFallback>
@@ -267,40 +266,40 @@ export default function VetDashboardPage() {
           </div>
           <div className="flex gap-2">
             {allowedServices.includes('online') && (
-              <Button className="gap-2"><Video className="h-4 w-4"/>Start online</Button>
+              <Button className="gap-2"><Video className="h-4 w-4" />Start online</Button>
             )}
-            <Button variant="outline" className="gap-2" onClick={openCreateModal}><Plus className="h-4 w-4"/>Add slot</Button>
+            <Button variant="outline" className="gap-2" onClick={openCreateModal}><Plus className="h-4 w-4" />Add slot</Button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(v)=>setActiveTab(v as any)} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="space-y-6">
           <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full">
-            <TabsTrigger value="overview" className="gap-2"><LayoutGrid className="h-4 w-4"/>Overview</TabsTrigger>
-            <TabsTrigger value="availability" className="gap-2"><Calendar className="h-4 w-4"/>Availability</TabsTrigger>
-            <TabsTrigger value="appointments" className="gap-2"><Clock className="h-4 w-4"/>Appointments</TabsTrigger>
-            <TabsTrigger value="reports" className="gap-2"><FileText className="h-4 w-4"/>Reports</TabsTrigger>
+            <TabsTrigger value="overview" className="gap-2"><LayoutGrid className="h-4 w-4" />Overview</TabsTrigger>
+            <TabsTrigger value="availability" className="gap-2"><Calendar className="h-4 w-4" />Availability</TabsTrigger>
+            <TabsTrigger value="appointments" className="gap-2"><Clock className="h-4 w-4" />Appointments</TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2"><FileText className="h-4 w-4" />Reports</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard title="Today" value="0" icon={<Calendar className="h-4 w-4"/>} note="appointments" />
-              <StatCard title="Completed" value="0" icon={<Check className="h-4 w-4"/>} note="today" />
-              <StatCard title="Pending" value="0" icon={<Clock className="h-4 w-4"/>} note="upcoming" />
-              <StatCard title="Services" value={String(allowedServices.length)} icon={<Stethoscope className="h-4 w-4"/>} note="Individual vet" />
+              <StatCard title="Today" value="0" icon={<Calendar className="h-4 w-4" />} note="appointments" />
+              <StatCard title="Completed" value="0" icon={<Check className="h-4 w-4" />} note="today" />
+              <StatCard title="Pending" value="0" icon={<Clock className="h-4 w-4" />} note="upcoming" />
+              <StatCard title="Services" value={String(allowedServices.length)} icon={<Stethoscope className="h-4 w-4" />} note="Individual vet" />
             </div>
 
             <Card>
               <CardHeader>
                 <CardTitle>Today’s appointments</CardTitle>
-                <CardDescription>{appointments.filter(a=>a.date===new Date().toISOString().slice(0,10)).length === 0 ? 'No upcoming appointments.' : 'Your schedule for today'}</CardDescription>
+                <CardDescription>{appointments.filter(a => a.date === new Date().toISOString().slice(0, 10)).length === 0 ? 'No upcoming appointments.' : 'Your schedule for today'}</CardDescription>
               </CardHeader>
               <CardContent>
-                {appointments.filter(a=>a.date===new Date().toISOString().slice(0,10)).length === 0 ? (
+                {appointments.filter(a => a.date === new Date().toISOString().slice(0, 10)).length === 0 ? (
                   <EmptyState label="No upcoming appointments" />
                 ) : (
                   <div className="space-y-3">
-                    {appointments.filter(a=>a.date===new Date().toISOString().slice(0,10)).map(a => (
+                    {appointments.filter(a => a.date === new Date().toISOString().slice(0, 10)).map(a => (
                       <div key={a.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <div className="font-medium">{a.petName} • {a.species}</div>
@@ -322,7 +321,7 @@ export default function VetDashboardPage() {
                 <h3 className="text-lg font-semibold">Manage Availability</h3>
                 <p className="text-sm text-muted-foreground">Create windows when pet owners can book you.</p>
               </div>
-              <Button onClick={openCreateModal} className="gap-2"><Plus className="h-4 w-4"/>Add new slot</Button>
+              <Button onClick={openCreateModal} className="gap-2"><Plus className="h-4 w-4" />Add new slot</Button>
             </div>
 
             {slots.length === 0 ? (
@@ -342,8 +341,8 @@ export default function VetDashboardPage() {
                           <span className="text-sm text-muted-foreground">{slot.fromDate} - {slot.toDate}</span>
                         </div>
                         <label className="inline-flex items-center gap-2 text-xs">
-                          <input type="checkbox" checked={slot.enabled} onChange={(e)=>setSlots(prev=>prev.map(s=>s.id===slot.id?{...s, enabled:e.target.checked}:s))} />
-                          {slot.enabled? 'Active':'Paused'}
+                          <input type="checkbox" checked={slot.enabled} onChange={(e) => setSlots(prev => prev.map(s => s.id === slot.id ? { ...s, enabled: e.target.checked } : s))} />
+                          {slot.enabled ? 'Active' : 'Paused'}
                         </label>
                       </div>
                     </CardHeader>
@@ -352,13 +351,13 @@ export default function VetDashboardPage() {
                         {formatHumanTime(slot.startTime)} – {formatHumanTime(slot.endTime)}
                       </div>
                       <div className="mt-3 flex gap-2">
-                        {slot.days.map((d, i)=> (
-                          <span key={i} className="h-7 w-7 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs">{d.replace('2','')}</span>
+                        {slot.days.map((d, i) => (
+                          <span key={i} className="h-7 w-7 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs">{d.replace('2', '')}</span>
                         ))}
                       </div>
                       <div className="mt-4 flex gap-2">
-                        <Button variant="outline" size="sm" onClick={()=>{ setDraft(slot); setIsModalOpen(true); }}>Edit</Button>
-                        <Button variant="outline" size="sm" onClick={()=>removeSlot(slot.id)}>Remove</Button>
+                        <Button variant="outline" size="sm" onClick={() => { setDraft(slot); setIsModalOpen(true); }}>Edit</Button>
+                        <Button variant="outline" size="sm" onClick={() => removeSlot(slot.id)}>Remove</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -383,7 +382,7 @@ export default function VetDashboardPage() {
                         <span className="text-xs rounded-full px-2 py-1 border">{a.status}</span>
                       </div>
                       <div className="mt-1 text-sm text-muted-foreground">Owner: {a.owner}</div>
-                      <div className="mt-2 text-sm">{a.date} • {formatHumanTime(a.time)} • {a.service==='online'?'Online':'Home visit'}</div>
+                      <div className="mt-2 text-sm">{a.date} • {formatHumanTime(a.time)} • {a.service === 'online' ? 'Online' : 'Home visit'}</div>
                     </div>
                   ))}
                 </div>
@@ -422,17 +421,17 @@ export default function VetDashboardPage() {
         <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-black/40">
           <div className="w-full max-w-xl rounded-2xl border bg-card shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b flex items-center justify-between">
-              <h4 className="font-semibold">{slots.some(s=>s.id===draft.id)? 'Edit':'Add'} Availability</h4>
-              <button onClick={()=>setIsModalOpen(false)} className="text-muted-foreground">✕</button>
+              <h4 className="font-semibold">{slots.some(s => s.id === draft.id) ? 'Edit' : 'Add'} Availability</h4>
+              <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground">✕</button>
             </div>
             <div className="p-5 space-y-5">
               <div className="flex gap-2 flex-wrap">
-                {(['home','online'] as ServiceType[]).map(s=> (
+                {(['home', 'online'] as ServiceType[]).map(s => (
                   <button
                     key={s}
                     disabled={!allowedServices.includes(s)}
-                    onClick={()=>setDraft(prev=>prev?{...prev, service:s}:prev)}
-                    className={`px-3 py-1 rounded-full text-sm border ${draft.service===s?'bg-primary text-primary-foreground border-primary':'bg-background'} ${!allowedServices.includes(s)?'opacity-40 cursor-not-allowed':''}`}
+                    onClick={() => setDraft(prev => prev ? { ...prev, service: s } : prev)}
+                    className={`px-3 py-1 rounded-full text-sm border ${draft.service === s ? 'bg-primary text-primary-foreground border-primary' : 'bg-background'} ${!allowedServices.includes(s) ? 'opacity-40 cursor-not-allowed' : ''}`}
                   >
                     <ServiceLabel service={s} />
                   </button>
@@ -441,30 +440,30 @@ export default function VetDashboardPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Start date">
-                  <input type="date" className="w-full h-10 rounded-md border bg-background px-3" value={draft.fromDate} onChange={(e)=>setDraft(prev=>prev?{...prev, fromDate:e.target.value}:prev)} />
+                  <input type="date" className="w-full h-10 rounded-md border bg-background px-3" value={draft.fromDate} onChange={(e) => setDraft(prev => prev ? { ...prev, fromDate: e.target.value } : prev)} />
                 </Field>
                 <Field label="End date">
-                  <input type="date" className="w-full h-10 rounded-md border bg-background px-3" value={draft.toDate} onChange={(e)=>setDraft(prev=>prev?{...prev, toDate:e.target.value}:prev)} />
+                  <input type="date" className="w-full h-10 rounded-md border bg-background px-3" value={draft.toDate} onChange={(e) => setDraft(prev => prev ? { ...prev, toDate: e.target.value } : prev)} />
                 </Field>
                 <Field label="Start time">
-                  <input type="time" className="w-full h-10 rounded-md border bg-background px-3" value={draft.startTime} onChange={(e)=>setDraft(prev=>prev?{...prev, startTime:e.target.value}:prev)} />
+                  <input type="time" className="w-full h-10 rounded-md border bg-background px-3" value={draft.startTime} onChange={(e) => setDraft(prev => prev ? { ...prev, startTime: e.target.value } : prev)} />
                 </Field>
                 <Field label="End time">
-                  <input type="time" className="w-full h-10 rounded-md border bg-background px-3" value={draft.endTime} onChange={(e)=>setDraft(prev=>prev?{...prev, endTime:e.target.value}:prev)} />
+                  <input type="time" className="w-full h-10 rounded-md border bg-background px-3" value={draft.endTime} onChange={(e) => setDraft(prev => prev ? { ...prev, endTime: e.target.value } : prev)} />
                 </Field>
                 <Field label="Consultation duration (minutes)">
-                  <input type="number" min={5} step={5} className="w-full h-10 rounded-md border bg-background px-3" value={draft.durationMinutes ?? 25} onChange={(e)=>setDraft(prev=>prev?{...prev, durationMinutes: Number(e.target.value)||25}:prev)} />
+                  <input type="number" min={5} step={5} className="w-full h-10 rounded-md border bg-background px-3" value={draft.durationMinutes ?? 25} onChange={(e) => setDraft(prev => prev ? { ...prev, durationMinutes: Number(e.target.value) || 25 } : prev)} />
                 </Field>
                 <Field label="Buffer time (minutes)">
-                  <input type="number" min={0} step={5} className="w-full h-10 rounded-md border bg-background px-3" value={draft.bufferMinutes ?? 10} onChange={(e)=>setDraft(prev=>prev?{...prev, bufferMinutes: Number(e.target.value)||0}:prev)} />
+                  <input type="number" min={0} step={5} className="w-full h-10 rounded-md border bg-background px-3" value={draft.bufferMinutes ?? 10} onChange={(e) => setDraft(prev => prev ? { ...prev, bufferMinutes: Number(e.target.value) || 0 } : prev)} />
                 </Field>
               </div>
 
               <div>
                 <div className="mb-2 text-sm font-medium">Working days</div>
                 <div className="flex flex-wrap gap-2">
-                  {(['S','M','T','W','T2','F','S2'] as AvailabilitySlot['days']).map(d => (
-                    <button key={d} onClick={()=>setDraft(prev=>prev?{...prev, days: prev.days.includes(d)? prev.days.filter(x=>x!==d) : [...prev.days, d]}:prev)} className={`h-9 w-9 rounded-full border text-sm ${draft.days.includes(d)?'bg-primary text-primary-foreground border-primary':'bg-background'}`}>{d.replace('2','')}</button>
+                  {(['S', 'M', 'T', 'W', 'T2', 'F', 'S2'] as AvailabilitySlot['days']).map(d => (
+                    <button key={d} onClick={() => setDraft(prev => prev ? { ...prev, days: prev.days.includes(d) ? prev.days.filter(x => x !== d) : [...prev.days, d] } : prev)} className={`h-9 w-9 rounded-full border text-sm ${draft.days.includes(d) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background'}`}>{d.replace('2', '')}</button>
                   ))}
                 </div>
               </div>
@@ -473,7 +472,7 @@ export default function VetDashboardPage() {
               <div className="px-5 text-destructive text-sm">{draftError}</div>
             )}
             <div className="px-5 py-4 border-t flex justify-end gap-2">
-              <Button variant="outline" onClick={()=>setIsModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
               <Button onClick={saveDraft}>Save</Button>
             </div>
           </div>

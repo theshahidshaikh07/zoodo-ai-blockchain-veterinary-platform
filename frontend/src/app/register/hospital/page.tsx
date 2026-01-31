@@ -46,8 +46,7 @@ interface FormDataState {
 
 function HospitalClinicWizard() {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -78,7 +77,7 @@ function HospitalClinicWizard() {
     facilityLicenseDocument: null,
   });
 
-  useEffect(() => setMounted(true), []);
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -185,7 +184,7 @@ function HospitalClinicWizard() {
           usernameOrEmail: formData.email,
           password: formData.password
         });
-        
+
         if (loginResponse.success) {
           // Get user profile and redirect to appropriate dashboard
           const userResponse = await apiService.getCurrentUser();
@@ -199,7 +198,7 @@ function HospitalClinicWizard() {
             return;
           }
         }
-        
+
         // Fallback redirect
         router.push('/dashboard');
       } else {
@@ -217,7 +216,7 @@ function HospitalClinicWizard() {
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
           <Image
-            src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
+            src="/Zoodo.png"
             alt="Zoodo"
             width={120}
             height={40}
@@ -325,7 +324,7 @@ function HospitalClinicWizard() {
                       <Label htmlFor="taxId">Tax ID (e.g., GST/VAT)</Label>
                       <Input id="taxId" name="taxId" value={formData.taxId} onChange={handleInputChange} placeholder="Tax ID" />
                     </div>
-                  
+
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -374,14 +373,12 @@ function HospitalClinicWizard() {
                   </div>
                   <div className="grid gap-4">
                     <div
-                      className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                        formData.businessServices.onlineConsultation ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
-                      }`}
+                      className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${formData.businessServices.onlineConsultation ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
+                        }`}
                       onClick={() => setFormData(prev => ({ ...prev, businessServices: { ...prev.businessServices, onlineConsultation: !prev.businessServices.onlineConsultation } }))}
                     >
-                      <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                        formData.businessServices.onlineConsultation ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
-                      }`}>
+                      <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${formData.businessServices.onlineConsultation ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
+                        }`}>
                         {formData.businessServices.onlineConsultation && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
@@ -403,14 +400,12 @@ function HospitalClinicWizard() {
                       </div>
                     </div>
                     <div
-                      className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                        formData.businessServices.clinicHospital ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
-                      }`}
+                      className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${formData.businessServices.clinicHospital ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
+                        }`}
                       onClick={() => setFormData(prev => ({ ...prev, businessServices: { ...prev.businessServices, clinicHospital: !prev.businessServices.clinicHospital } }))}
                     >
-                      <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                        formData.businessServices.clinicHospital ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
-                      }`}>
+                      <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${formData.businessServices.clinicHospital ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
+                        }`}>
                         {formData.businessServices.clinicHospital && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
@@ -434,7 +429,7 @@ function HospitalClinicWizard() {
                   </div>
                 </div>
 
-                
+
 
 
                 <div className="flex gap-3 items-center">

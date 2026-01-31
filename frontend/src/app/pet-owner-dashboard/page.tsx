@@ -24,8 +24,7 @@ import { apiService, Pet as ApiPet, Appointment as ApiAppointment, User } from '
 import { useAuth } from '@/contexts/AuthContext';
 // import { format } from 'date-fns'; // Removed format import
 import { toast } from 'sonner';
-import zoodoLogo from '@/assets/zoodo.png';
-import zoodoLightLogo from '@/assets/Zoodo-light.png';
+
 
 interface PetInfo {
   name: string;
@@ -115,10 +114,10 @@ export default function PetOwnerDashboard() {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        
+
         // Fetch pets, appointments, and providers in parallel
         const [petsResponse, appointmentsResponse, providersResponse] = await Promise.all([
           apiService.getPets(),
@@ -142,7 +141,7 @@ export default function PetOwnerDashboard() {
         const upcomingAppointments = appointmentsResponse.data?.filter(
           apt => apt.status === 'scheduled' || apt.status === 'confirmed'
         ).length || 0;
-        
+
         const completedAppointments = appointmentsResponse.data?.filter(
           apt => apt.status === 'completed'
         ).length || 0;
@@ -204,7 +203,7 @@ export default function PetOwnerDashboard() {
 
   const handlePetFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!petFormData.name.trim() || !petFormData.species.trim()) {
       toast.error('Please fill in pet name and species');
       return;
@@ -224,7 +223,7 @@ export default function PetOwnerDashboard() {
       };
 
       const response = await apiService.createPet(petData);
-      
+
       if (response.success) {
         toast.success('Pet added successfully!');
         closeAddPetModal();
@@ -303,7 +302,7 @@ export default function PetOwnerDashboard() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Image
-                src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+                src="/Zoodo.png"
                 alt="Zoodo Pet Owner"
                 width={120}
                 height={40}
@@ -313,7 +312,7 @@ export default function PetOwnerDashboard() {
                 Pet Owner Dashboard
               </Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
@@ -657,7 +656,7 @@ export default function PetOwnerDashboard() {
                       </div>
                       <Button size="sm">Start Check</Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-4 p-4 border rounded-lg">
                       <Camera className="h-8 w-8 text-blue-500" />
                       <div className="flex-1">
@@ -668,7 +667,7 @@ export default function PetOwnerDashboard() {
                       </div>
                       <Button variant="outline" size="sm">Upload Photo</Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-4 p-4 border rounded-lg">
                       <MessageSquare className="h-8 w-8 text-green-500" />
                       <div className="flex-1">
@@ -702,7 +701,7 @@ export default function PetOwnerDashboard() {
                       </div>
                       <Badge variant="outline">Completed</Badge>
                     </div>
-                    
+
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center">
@@ -729,27 +728,26 @@ export default function PetOwnerDashboard() {
           <DialogHeader>
             <DialogTitle>Add New Pet</DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handlePetFormSubmit} className="space-y-5">
             {/* Row 1: Name + Gender */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input 
-                placeholder="Pet's Name" 
-                value={petFormData.name} 
-                onChange={(e) => setPetFormData(prev => ({ ...prev, name: e.target.value }))} 
-                className="h-12 rounded-xl" 
+              <Input
+                placeholder="Pet's Name"
+                value={petFormData.name}
+                onChange={(e) => setPetFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="h-12 rounded-xl"
               />
               <div className="flex gap-2 md:col-span-2">
-                {(['male','female','unknown'] as const).map(g => (
-                  <button 
-                    key={g} 
-                    type="button" 
-                    onClick={() => setPetFormData(prev => ({ ...prev, gender: g }))} 
-                    className={`flex-1 h-12 rounded-xl border ${
-                      petFormData.gender === g 
-                        ? 'border-primary text-primary bg-primary/10' 
+                {(['male', 'female', 'unknown'] as const).map(g => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setPetFormData(prev => ({ ...prev, gender: g }))}
+                    className={`flex-1 h-12 rounded-xl border ${petFormData.gender === g
+                        ? 'border-primary text-primary bg-primary/10'
                         : 'border-border text-foreground/80 hover:bg-accent'
-                    }`}
+                      }`}
                   >
                     {g.charAt(0).toUpperCase() + g.slice(1)}
                   </button>
@@ -760,8 +758,8 @@ export default function PetOwnerDashboard() {
             {/* Row 2: Species + Breed */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
-                <Select 
-                  value={petFormData.species} 
+                <Select
+                  value={petFormData.species}
                   onValueChange={(v) => setPetFormData(prev => ({ ...prev, species: v }))}
                 >
                   <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
@@ -776,11 +774,11 @@ export default function PetOwnerDashboard() {
                   </SelectContent>
                 </Select>
               </div>
-              <Input 
-                placeholder="Breed (Optional)" 
-                value={petFormData.breed || ''} 
-                onChange={(e) => setPetFormData(prev => ({ ...prev, breed: e.target.value }))} 
-                className="h-14 rounded-full" 
+              <Input
+                placeholder="Breed (Optional)"
+                value={petFormData.breed || ''}
+                onChange={(e) => setPetFormData(prev => ({ ...prev, breed: e.target.value }))}
+                className="h-14 rounded-full"
               />
             </div>
 
@@ -796,16 +794,16 @@ export default function PetOwnerDashboard() {
                 />
               </div>
               <div className="relative flex gap-2">
-                <Input 
-                  type="number" 
-                  placeholder="Pet Age" 
-                  value={petFormData.age || ''} 
-                  onChange={(e) => setPetFormData(prev => ({ ...prev, age: e.target.value }))} 
-                  className="h-14 rounded-full flex-1" 
+                <Input
+                  type="number"
+                  placeholder="Pet Age"
+                  value={petFormData.age || ''}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, age: e.target.value }))}
+                  className="h-14 rounded-full flex-1"
                 />
                 <div className="relative">
-                  <Select 
-                    value={petFormData.ageUnit || 'Years'} 
+                  <Select
+                    value={petFormData.ageUnit || 'Years'}
                     onValueChange={(v) => setPetFormData(prev => ({ ...prev, ageUnit: v as PetInfo['ageUnit'] }))}
                   >
                     <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
@@ -820,16 +818,16 @@ export default function PetOwnerDashboard() {
                 </div>
               </div>
               <div className="relative flex gap-2">
-                <Input 
-                  type="number" 
-                  placeholder="Pet Weight" 
-                  value={petFormData.weight || ''} 
-                  onChange={(e) => setPetFormData(prev => ({ ...prev, weight: e.target.value }))} 
-                  className="h-14 rounded-full flex-1" 
+                <Input
+                  type="number"
+                  placeholder="Pet Weight"
+                  value={petFormData.weight || ''}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, weight: e.target.value }))}
+                  className="h-14 rounded-full flex-1"
                 />
                 <div className="relative">
-                  <Select 
-                    value={petFormData.weightUnit || 'Kgs'} 
+                  <Select
+                    value={petFormData.weightUnit || 'Kgs'}
                     onValueChange={(v) => setPetFormData(prev => ({ ...prev, weightUnit: v as PetInfo['weightUnit'] }))}
                   >
                     <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
@@ -844,11 +842,11 @@ export default function PetOwnerDashboard() {
               </div>
             </div>
 
-            <Input 
-              placeholder="Microchip Number (Optional)" 
-              value={petFormData.microchip || ''} 
-              onChange={(e) => setPetFormData(prev => ({ ...prev, microchip: e.target.value }))} 
-              className="h-12 rounded-xl" 
+            <Input
+              placeholder="Microchip Number (Optional)"
+              value={petFormData.microchip || ''}
+              onChange={(e) => setPetFormData(prev => ({ ...prev, microchip: e.target.value }))}
+              className="h-12 rounded-xl"
             />
 
             <div className="flex items-center justify-between">
@@ -862,11 +860,10 @@ export default function PetOwnerDashboard() {
                     key={opt.key}
                     type="button"
                     onClick={() => setPetFormData(prev => ({ ...prev, sterilized: opt.key }))}
-                    className={`px-3 h-10 rounded-full border transition-colors ${
-                      petFormData.sterilized === opt.key
+                    className={`px-3 h-10 rounded-full border transition-colors ${petFormData.sterilized === opt.key
                         ? 'border-primary text-primary bg-primary/10'
                         : 'border-border text-foreground/80 hover:bg-accent'
-                    }`}
+                      }`}
                   >
                     {opt.label}
                   </button>
@@ -875,17 +872,17 @@ export default function PetOwnerDashboard() {
             </div>
 
             <div className="flex gap-3 items-center pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={closeAddPetModal} 
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeAddPetModal}
                 className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={isAddingPet} 
+              <Button
+                type="submit"
+                disabled={isAddingPet}
                 className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-primary text-primary-foreground disabled:opacity-50"
               >
                 {isAddingPet ? (

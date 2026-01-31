@@ -33,8 +33,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
-import zoodoLogo from '@/assets/zoodo.png';
-import zoodoLightLogo from '@/assets/Zoodo-light.png';
+
 import { apiService } from '@/lib/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
@@ -358,7 +357,7 @@ function AdminDashboardContent() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Image
-                src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+                src="/Zoodo.png"
                 alt="Zoodo Admin"
                 width={120}
                 height={40}

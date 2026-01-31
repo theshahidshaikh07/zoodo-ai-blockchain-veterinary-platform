@@ -21,9 +21,9 @@ import { getOAuthUserData, clearOAuthUserData } from '@/lib/oauth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Custom Time Picker Component
-const TimePicker = ({ 
-  value, 
-  onChange, 
+const TimePicker = ({
+  value,
+  onChange,
   placeholder = "Select time",
   className = ""
 }: {
@@ -58,8 +58,8 @@ const TimePicker = ({
       </SelectTrigger>
       <SelectContent className="bg-background border-border/50 max-h-60">
         {timeOptions.map((time) => (
-          <SelectItem 
-            key={time.value} 
+          <SelectItem
+            key={time.value}
             value={time.value}
             className="focus:bg-accent/50"
           >
@@ -194,9 +194,7 @@ interface FormData {
 
 function TrainerWizard() {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
   const { loginWithGoogle } = useAuth();
-  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -319,7 +317,7 @@ function TrainerWizard() {
     }
   };
 
-  useEffect(() => setMounted(true), []);
+
 
   // Auto-fill form with OAuth data if available
   useEffect(() => {
@@ -342,47 +340,47 @@ function TrainerWizard() {
     const { name, value, type } = e.target as HTMLInputElement;
 
     if (type === 'checkbox') {
-        const { checked } = e.target as HTMLInputElement;
-        
-        // Handle nested checkbox structures
-        if (name.includes('.')) {
-          const [parent, child, subChild] = name.split('.');
-          setFormData((prev) => ({
-            ...prev,
-            [parent]: {
-              ...prev[parent as keyof FormData] as any,
-              [child]: subChild ? {
-                ...(prev[parent as keyof FormData] as any)[child],
-                [subChild]: checked,
-              } : checked,
-            },
-          }));
-        } else {
-          setFormData((prev) => ({
-            ...prev,
-            practiceType: {
-              ...prev.practiceType,
-              [name]: checked,
-            },
-          }));
-        }
+      const { checked } = e.target as HTMLInputElement;
+
+      // Handle nested checkbox structures
+      if (name.includes('.')) {
+        const [parent, child, subChild] = name.split('.');
+        setFormData((prev) => ({
+          ...prev,
+          [parent]: {
+            ...prev[parent as keyof FormData] as any,
+            [child]: subChild ? {
+              ...(prev[parent as keyof FormData] as any)[child],
+              [subChild]: checked,
+            } : checked,
+          },
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          practiceType: {
+            ...prev.practiceType,
+            [name]: checked,
+          },
+        }));
+      }
     } else {
-        // Handle nested input structures
-        if (name.includes('.')) {
-          const [parent, child, subChild] = name.split('.');
-          setFormData((prev) => ({
-            ...prev,
-            [parent]: {
-              ...prev[parent as keyof FormData] as any,
-              [child]: subChild ? {
-                ...(prev[parent as keyof FormData] as any)[child],
-                [subChild]: value,
-              } : value,
-            },
-          }));
-        } else {
-          setFormData((prev) => ({ ...prev, [name]: value }));
-        }
+      // Handle nested input structures
+      if (name.includes('.')) {
+        const [parent, child, subChild] = name.split('.');
+        setFormData((prev) => ({
+          ...prev,
+          [parent]: {
+            ...prev[parent as keyof FormData] as any,
+            [child]: subChild ? {
+              ...(prev[parent as keyof FormData] as any)[child],
+              [subChild]: value,
+            } : value,
+          },
+        }));
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }
     }
     setError('');
   };
@@ -451,12 +449,12 @@ function TrainerWizard() {
     if (step === 3) {
       // If Academy selected, require name, address fields and phone
       if (formData.academyDetails.hasAcademy) {
-        if (!formData.academyDetails.name.trim() || 
-            !formData.academyDetails.street.trim() || 
-            !formData.academyDetails.city.trim() || 
-            !formData.academyDetails.postalCode.trim() || 
-            !formData.academyDetails.country.trim() || 
-            !formData.academyDetails.phone.trim()) {
+        if (!formData.academyDetails.name.trim() ||
+          !formData.academyDetails.street.trim() ||
+          !formData.academyDetails.city.trim() ||
+          !formData.academyDetails.postalCode.trim() ||
+          !formData.academyDetails.country.trim() ||
+          !formData.academyDetails.phone.trim()) {
           setError('Please provide academy name, complete address fields, and phone number');
           return false;
         }
@@ -486,7 +484,7 @@ function TrainerWizard() {
     setError('');
 
     const data = new FormData();
-    
+
     // Create a copy of formData to modify specialization and certifications
     const formDataToSend = { ...formData };
 
@@ -545,14 +543,14 @@ function TrainerWizard() {
 
     try {
       const res = await apiService.registerUser(data);
-      
+
       if (res.success) {
         // Automatically log the user in after successful registration
         const loginResponse = await apiService.loginUser({
           usernameOrEmail: formDataToSend.email,
           password: formDataToSend.password
         });
-        
+
         if (loginResponse.success) {
           // Get user profile and redirect to appropriate dashboard
           const userResponse = await apiService.getCurrentUser();
@@ -566,7 +564,7 @@ function TrainerWizard() {
             return;
           }
         }
-        
+
         // Fallback redirect
         router.push('/dashboard');
       } else {
@@ -585,7 +583,7 @@ function TrainerWizard() {
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
           <Image
-            src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
+            src="/Zoodo.png"
             alt="Zoodo"
             width={120}
             height={40}
@@ -636,94 +634,82 @@ function TrainerWizard() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <Label htmlFor="firstName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isFirstNameFocused || formData.firstName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>First Name</Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} onFocus={()=>setIsFirstNameFocused(true)} onBlur={()=>setIsFirstNameFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="firstName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isFirstNameFocused || formData.firstName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>First Name</Label>
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} onFocus={() => setIsFirstNameFocused(true)} onBlur={() => setIsFirstNameFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                     <div className="relative">
-                      <Label htmlFor="lastName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isLastNameFocused || formData.lastName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>Last Name</Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} onFocus={()=>setIsLastNameFocused(true)} onBlur={()=>setIsLastNameFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="lastName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isLastNameFocused || formData.lastName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>Last Name</Label>
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} onFocus={() => setIsLastNameFocused(true)} onBlur={() => setIsLastNameFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="email" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isEmailFocused || formData.email ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Email address</Label>
-                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} onFocus={()=>setIsEmailFocused(true)} onBlur={()=>setIsEmailFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="email" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isEmailFocused || formData.email ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Email address</Label>
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} onFocus={() => setIsEmailFocused(true)} onBlur={() => setIsEmailFocused(false)} className="h-12 rounded-full pt-4" />
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="username" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isUsernameFocused || formData.username ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Username</Label>
-                    <Input id="username" name="username" value={formData.username} onChange={handleInputChange} onFocus={()=>setIsUsernameFocused(true)} onBlur={()=>setIsUsernameFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="username" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isUsernameFocused || formData.username ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Username</Label>
+                    <Input id="username" name="username" value={formData.username} onChange={handleInputChange} onFocus={() => setIsUsernameFocused(true)} onBlur={() => setIsUsernameFocused(false)} className="h-12 rounded-full pt-4" />
                     <p className="text-xs text-muted-foreground ml-4 mt-1">e.g., trainerdave</p>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="phoneNumber" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isPhoneFocused || formData.phoneNumber ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Phone Number</Label>
-                    <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} onFocus={()=>setIsPhoneFocused(true)} onBlur={()=>setIsPhoneFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="phoneNumber" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPhoneFocused || formData.phoneNumber ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Phone Number</Label>
+                    <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} onFocus={() => setIsPhoneFocused(true)} onBlur={() => setIsPhoneFocused(false)} className="h-12 rounded-full pt-4" />
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="address" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isAddressFocused || formData.address ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Street Address</Label>
-                    <Input id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={()=>setIsAddressFocused(true)} onBlur={()=>setIsAddressFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="address" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isAddressFocused || formData.address ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Street Address</Label>
+                    <Input id="address" name="address" value={formData.address} onChange={handleInputChange} onFocus={() => setIsAddressFocused(true)} onBlur={() => setIsAddressFocused(false)} className="h-12 rounded-full pt-4" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <Label htmlFor="city" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                          isCityFocused || formData.city ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>City</Label>
-                      <Input id="city" name="city" value={formData.city} onChange={handleInputChange} onFocus={()=>setIsCityFocused(true)} onBlur={()=>setIsCityFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="city" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isCityFocused || formData.city ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>City</Label>
+                      <Input id="city" name="city" value={formData.city} onChange={handleInputChange} onFocus={() => setIsCityFocused(true)} onBlur={() => setIsCityFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                     <div className="relative">
-                      <Label htmlFor="state" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                          isStateFocused || formData.state ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>State</Label>
-                      <Input id="state" name="state" value={formData.state} onChange={handleInputChange} onFocus={()=>setIsStateFocused(true)} onBlur={()=>setIsStateFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="state" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isStateFocused || formData.state ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>State</Label>
+                      <Input id="state" name="state" value={formData.state} onChange={handleInputChange} onFocus={() => setIsStateFocused(true)} onBlur={() => setIsStateFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <Label htmlFor="country" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                          isCountryFocused || formData.country ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>Country</Label>
-                      <Input id="country" name="country" value={formData.country} onChange={handleInputChange} onFocus={()=>setIsCountryFocused(true)} onBlur={()=>setIsCountryFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="country" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isCountryFocused || formData.country ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>Country</Label>
+                      <Input id="country" name="country" value={formData.country} onChange={handleInputChange} onFocus={() => setIsCountryFocused(true)} onBlur={() => setIsCountryFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                     <div className="relative">
-                      <Label htmlFor="postalCode" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                          isPostalCodeFocused || formData.postalCode ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>Postal Code</Label>
-                      <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} onFocus={()=>setIsPostalCodeFocused(true)} onBlur={()=>setIsPostalCodeFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="postalCode" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPostalCodeFocused || formData.postalCode ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>Postal Code</Label>
+                      <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} onFocus={() => setIsPostalCodeFocused(true)} onBlur={() => setIsPostalCodeFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="password" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isPasswordFocused || formData.password ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Password</Label>
-                    <Input id="password" name="password" type={showPassword? 'text':'password'} value={formData.password} onChange={handleInputChange} onFocus={()=>setIsPasswordFocused(true)} onBlur={()=>setIsPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
-                    <button type="button" onClick={()=>setShowPassword(v=>!v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
+                    <Label htmlFor="password" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPasswordFocused || formData.password ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Password</Label>
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleInputChange} onFocus={() => setIsPasswordFocused(true)} onBlur={() => setIsPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="confirmPassword" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isConfirmPasswordFocused || formData.confirmPassword ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Confirm Password</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword? 'text':'password'} value={formData.confirmPassword} onChange={handleInputChange} onFocus={()=>setIsConfirmPasswordFocused(true)} onBlur={()=>setIsConfirmPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
-                    <button type="button" onClick={()=>setShowConfirmPassword(v=>!v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
+                    <Label htmlFor="confirmPassword" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isConfirmPasswordFocused || formData.confirmPassword ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Confirm Password</Label>
+                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={handleInputChange} onFocus={() => setIsConfirmPasswordFocused(true)} onBlur={() => setIsConfirmPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
+                    <button type="button" onClick={() => setShowConfirmPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
@@ -753,15 +739,15 @@ function TrainerWizard() {
                       className="w-full h-12 bg-background border border-border hover:bg-accent hover:text-accent-foreground rounded-full transition-all duration-200"
                     >
                       <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                       </svg>
                       Continue with Google
                     </Button>
 
-{/* 
+                    {/* 
                     <Button
                       type="button"
                       variant="outline"
@@ -789,7 +775,7 @@ function TrainerWizard() {
                       Continue with Apple
                     </Button> */}
                   </div>
-                  
+
                   <div className="text-center text-sm text-muted-foreground mt-4">
                     Already have an account?{' '}
                     <Link href="/login" className="text-primary hover:underline font-medium">
@@ -838,13 +824,13 @@ function TrainerWizard() {
 
                   <div className="space-y-2">
                     <Label htmlFor="experience">Years of Experience</Label>
-                    <Input 
-                      id="experience" 
-                      name="experience" 
-                      type="number" 
-                      value={formData.experience} 
-                      onChange={(e) => setFormData(prev => ({ ...prev, experience: parseInt(e.target.value) || 0 }))} 
-                      placeholder="Enter total years of experience" 
+                    <Input
+                      id="experience"
+                      name="experience"
+                      type="number"
+                      value={formData.experience}
+                      onChange={(e) => setFormData(prev => ({ ...prev, experience: parseInt(e.target.value) || 0 }))}
+                      placeholder="Enter total years of experience"
                       min="0"
                     />
                   </div>
@@ -852,21 +838,21 @@ function TrainerWizard() {
                   <div className="space-y-4">
                     <div className="space-y-4">
                       <FileUploadField
-                          label="Resume / CV"
-                          name="resume"
-                          value={formData.resume}
-                          onChange={handleFileUploadChange}
-                          required
-                          helperText="Upload your resume for verification."
-                          accept="application/pdf,image/jpeg,image/png"
+                        label="Resume / CV"
+                        name="resume"
+                        value={formData.resume}
+                        onChange={handleFileUploadChange}
+                        required
+                        helperText="Upload your resume for verification."
+                        accept="application/pdf,image/jpeg,image/png"
                       />
                       <FileUploadField
-                          label="Profile Photo (Optional)"
-                          name="profilePhoto"
-                          value={formData.profilePhoto}
-                          onChange={handleFileUploadChange}
-                          helperText="Optional; helps clients recognize you on the platform."
-                          accept="image/jpeg,image/png"
+                        label="Profile Photo (Optional)"
+                        name="profilePhoto"
+                        value={formData.profilePhoto}
+                        onChange={handleFileUploadChange}
+                        helperText="Optional; helps clients recognize you on the platform."
+                        accept="image/jpeg,image/png"
                       />
                     </div>
                   </div>
@@ -908,18 +894,16 @@ function TrainerWizard() {
                         <Label className="text-base font-semibold text-foreground">Services Offered</Label>
                         <div className="grid gap-4">
                           {/* Home Visit Training */}
-                          <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                            formData.independentServices.homeTraining ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
-                          }`} onClick={() => setFormData(prev => ({
-                            ...prev,
-                            independentServices: {
-                              ...prev.independentServices,
-                              homeTraining: !prev.independentServices.homeTraining
-                            }
-                          }))}>
-                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                              formData.independentServices.homeTraining ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
-                            }`}>
+                          <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${formData.independentServices.homeTraining ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
+                            }`} onClick={() => setFormData(prev => ({
+                              ...prev,
+                              independentServices: {
+                                ...prev.independentServices,
+                                homeTraining: !prev.independentServices.homeTraining
+                              }
+                            }))}>
+                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${formData.independentServices.homeTraining ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
+                              }`}>
                               {formData.independentServices.homeTraining && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
@@ -942,18 +926,16 @@ function TrainerWizard() {
                           </div>
 
                           {/* Academy / Training Institute */}
-                          <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                            formData.academyDetails.hasAcademy ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
-                          }`} onClick={() => setFormData(prev => ({
-                            ...prev,
-                            academyDetails: {
-                              ...prev.academyDetails,
-                              hasAcademy: !prev.academyDetails.hasAcademy
-                            }
-                          }))}>
-                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
-                              formData.academyDetails.hasAcademy ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
-                            }`}>
+                          <div className={`group flex items-start space-x-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${formData.academyDetails.hasAcademy ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card/50'
+                            }`} onClick={() => setFormData(prev => ({
+                              ...prev,
+                              academyDetails: {
+                                ...prev.academyDetails,
+                                hasAcademy: !prev.academyDetails.hasAcademy
+                              }
+                            }))}>
+                            <div className={`relative flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${formData.academyDetails.hasAcademy ? 'border-primary bg-primary' : 'border-muted-foreground group-hover:border-primary'
+                              }`}>
                               {formData.academyDetails.hasAcademy && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
@@ -981,52 +963,52 @@ function TrainerWizard() {
                       {formData.academyDetails.hasAcademy && (
                         <div className="space-y-4 mt-6">
                           <Label className="text-base font-semibold text-foreground">Academy Details</Label>
-                          <Input 
+                          <Input
                             name="academyDetails.name"
                             value={formData.academyDetails.name}
                             onChange={handleInputChange}
                             placeholder="Academy / Institute Name"
                           />
-                          <Input 
-            name="academyDetails.street"
-            value={formData.academyDetails.street}
-            onChange={handleInputChange}
-            placeholder="Street Address"
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Input 
-              name="academyDetails.city"
-              value={formData.academyDetails.city}
-              onChange={handleInputChange}
-              placeholder="City"
-            />
-            <Input 
-              name="academyDetails.state"
-              value={formData.academyDetails.state}
-              onChange={handleInputChange}
-              placeholder="State"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input 
-              name="academyDetails.postalCode"
-              value={formData.academyDetails.postalCode}
-              onChange={handleInputChange}
-              placeholder="Postal Code"
-            />
-            <Input 
-              name="academyDetails.country"
-              value={formData.academyDetails.country}
-              onChange={handleInputChange}
-              placeholder="Country"
-            />
-          </div>
-          <Input 
-            name="academyDetails.phone"
-            value={formData.academyDetails.phone}
-            onChange={handleInputChange}
-            placeholder="Phone Number"
-          />
+                          <Input
+                            name="academyDetails.street"
+                            value={formData.academyDetails.street}
+                            onChange={handleInputChange}
+                            placeholder="Street Address"
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <Input
+                              name="academyDetails.city"
+                              value={formData.academyDetails.city}
+                              onChange={handleInputChange}
+                              placeholder="City"
+                            />
+                            <Input
+                              name="academyDetails.state"
+                              value={formData.academyDetails.state}
+                              onChange={handleInputChange}
+                              placeholder="State"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Input
+                              name="academyDetails.postalCode"
+                              value={formData.academyDetails.postalCode}
+                              onChange={handleInputChange}
+                              placeholder="Postal Code"
+                            />
+                            <Input
+                              name="academyDetails.country"
+                              value={formData.academyDetails.country}
+                              onChange={handleInputChange}
+                              placeholder="Country"
+                            />
+                          </div>
+                          <Input
+                            name="academyDetails.phone"
+                            value={formData.academyDetails.phone}
+                            onChange={handleInputChange}
+                            placeholder="Phone Number"
+                          />
                         </div>
                       )}
 
@@ -1059,7 +1041,7 @@ function TrainerWizard() {
                                     Same as personal address
                                   </Label>
                                 </div>
-                                
+
                                 {!formData.independentServices.serviceAddress.sameAsPersonal && (
                                   <div className="space-y-3">
                                     <Input
@@ -1086,7 +1068,7 @@ function TrainerWizard() {
                                 )}
                               </div>
                             </div>
-                            
+
                             <div>
                               <Label className="text-sm font-medium text-foreground">Home Visit Radius (km)</Label>
                               <Input
@@ -1116,68 +1098,68 @@ function TrainerWizard() {
               )}
 
 
-                {/* Step 4: Review and Submit */}
-                {currentStep === 4 && (
-                    <div className="space-y-8">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
-                                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h2 className="text-2xl font-bold mb-2">Review and Submit</h2>
-                            <p className="text-muted-foreground">Please review your information before submitting.</p>
-                        </div>
-
-                        <div className="space-y-6 rounded-2xl border border-border p-6 bg-card/50">
-                            <h3 className="text-lg font-semibold border-b border-border pb-3">Personal Information</h3>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><p className="text-muted-foreground">First Name</p><p>{formData.firstName}</p></div>
-                                <div><p className="text-muted-foreground">Last Name</p><p>{formData.lastName}</p></div>
-                                <div><p className="text-muted-foreground">Username</p><p>{formData.username}</p></div>
-                                <div><p className="text-muted-foreground">Email</p><p>{formData.email}</p></div>
-                                <div><p className="text-muted-foreground">Phone Number</p><p>{formData.phoneNumber}</p></div>
-                                <div className="col-span-2"><p className="text-muted-foreground">Address</p><p>{formData.address}</p></div>
-                            </div>
-
-                            <h3 className="text-lg font-semibold border-b border-border pb-3 pt-4">Professional Details</h3>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><p className="text-muted-foreground">Experience</p><p>{formData.experience} years</p></div>
-                                <div><p className="text-muted-foreground">Specialization</p><p>{formData.specialization.join(', ')}</p></div>
-                                {formData.otherSpecialization && <div><p className="text-muted-foreground">Other Specialization</p><p>{formData.otherSpecialization}</p></div>}
-                                <div><p className="text-muted-foreground">Certifications</p><p>{formData.certifications.join(', ')}</p></div>
-                                {formData.otherCertification && <div><p className="text-muted-foreground">Other Certification</p><p>{formData.otherCertification}</p></div>}
-                                {formData.resume && <div><p className="text-muted-foreground">Resume</p><p>{formData.resume.name}</p></div>}
-                                {formData.profilePhoto && <div><p className="text-muted-foreground">Profile Photo</p><p>{formData.profilePhoto.name}</p></div>}
-                            </div>
-
-                            <h3 className="text-lg font-semibold border-b border-border pb-3 pt-4">Practice and Services</h3>
-                            <div className="space-y-4 text-sm">
-                                <div>
-                                  <p className="font-semibold">Services</p>
-                                  <p className="text-muted-foreground">
-                                    Home Visit Training: {formData.independentServices.homeTraining ? 'Yes' : 'No'}
-                                  </p>
-                                </div>
-                                {formData.academyDetails.hasAcademy && (
-                                  <div>
-                                    <p className="font-semibold">Academy / Training Institute</p>
-                                    <p>{formData.academyDetails.name}</p>
-                                    <p className="text-muted-foreground">{formData.academyDetails.street}, {formData.academyDetails.city}, {formData.academyDetails.state} {formData.academyDetails.postalCode}, {formData.academyDetails.country}</p>
-                                    <p className="text-muted-foreground">Phone: {formData.academyDetails.phone}</p>
-                                  </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4 items-center pt-6">
-                            <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
-                            <Button type="button" onClick={handleSubmit} disabled={isLoading} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-200 shadow-lg hover:shadow-xl">
-                                {isLoading ? <Loader2 className="animate-spin" /> : 'Submit Registration'}
-                            </Button>
-                        </div>
+              {/* Step 4: Review and Submit */}
+              {currentStep === 4 && (
+                <div className="space-y-8">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mb-4">
+                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
-                )}
+                    <h2 className="text-2xl font-bold mb-2">Review and Submit</h2>
+                    <p className="text-muted-foreground">Please review your information before submitting.</p>
+                  </div>
+
+                  <div className="space-y-6 rounded-2xl border border-border p-6 bg-card/50">
+                    <h3 className="text-lg font-semibold border-b border-border pb-3">Personal Information</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div><p className="text-muted-foreground">First Name</p><p>{formData.firstName}</p></div>
+                      <div><p className="text-muted-foreground">Last Name</p><p>{formData.lastName}</p></div>
+                      <div><p className="text-muted-foreground">Username</p><p>{formData.username}</p></div>
+                      <div><p className="text-muted-foreground">Email</p><p>{formData.email}</p></div>
+                      <div><p className="text-muted-foreground">Phone Number</p><p>{formData.phoneNumber}</p></div>
+                      <div className="col-span-2"><p className="text-muted-foreground">Address</p><p>{formData.address}</p></div>
+                    </div>
+
+                    <h3 className="text-lg font-semibold border-b border-border pb-3 pt-4">Professional Details</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div><p className="text-muted-foreground">Experience</p><p>{formData.experience} years</p></div>
+                      <div><p className="text-muted-foreground">Specialization</p><p>{formData.specialization.join(', ')}</p></div>
+                      {formData.otherSpecialization && <div><p className="text-muted-foreground">Other Specialization</p><p>{formData.otherSpecialization}</p></div>}
+                      <div><p className="text-muted-foreground">Certifications</p><p>{formData.certifications.join(', ')}</p></div>
+                      {formData.otherCertification && <div><p className="text-muted-foreground">Other Certification</p><p>{formData.otherCertification}</p></div>}
+                      {formData.resume && <div><p className="text-muted-foreground">Resume</p><p>{formData.resume.name}</p></div>}
+                      {formData.profilePhoto && <div><p className="text-muted-foreground">Profile Photo</p><p>{formData.profilePhoto.name}</p></div>}
+                    </div>
+
+                    <h3 className="text-lg font-semibold border-b border-border pb-3 pt-4">Practice and Services</h3>
+                    <div className="space-y-4 text-sm">
+                      <div>
+                        <p className="font-semibold">Services</p>
+                        <p className="text-muted-foreground">
+                          Home Visit Training: {formData.independentServices.homeTraining ? 'Yes' : 'No'}
+                        </p>
+                      </div>
+                      {formData.academyDetails.hasAcademy && (
+                        <div>
+                          <p className="font-semibold">Academy / Training Institute</p>
+                          <p>{formData.academyDetails.name}</p>
+                          <p className="text-muted-foreground">{formData.academyDetails.street}, {formData.academyDetails.city}, {formData.academyDetails.state} {formData.academyDetails.postalCode}, {formData.academyDetails.country}</p>
+                          <p className="text-muted-foreground">Phone: {formData.academyDetails.phone}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 items-center pt-6">
+                    <Button type="button" variant="outline" onClick={prevStep} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 border-2 hover:bg-muted/50 transition-all duration-200">Back</Button>
+                    <Button type="button" onClick={handleSubmit} disabled={isLoading} className="h-14 px-8 rounded-full min-w-[160px] md:min-w-[200px] flex-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-200 shadow-lg hover:shadow-xl">
+                      {isLoading ? <Loader2 className="animate-spin" /> : 'Submit Registration'}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1187,9 +1169,9 @@ function TrainerWizard() {
 }
 
 export default function RegisterTrainerPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <TrainerWizard />
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TrainerWizard />
+    </Suspense>
+  );
 }

@@ -17,62 +17,9 @@ export const metadata: Metadata = {
   title: "Zoodo",
   description: "AI-powered pet healthcare platform with blockchain security",
   icons: {
-    icon: [
-      {
-        url: '/favicon.ico',
-        sizes: 'any',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/favicon-light.ico',
-        sizes: 'any',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/Z.png',
-        sizes: '32x32',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/Z-light.png',
-        sizes: '32x32',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/Z.png',
-        sizes: '16x16',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/Z-light.png',
-        sizes: '16x16',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
-    shortcut: [
-      {
-        url: '/Z.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/Z-light.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
-    apple: [
-      {
-        url: '/Z.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/Z-light.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/Zoodo.png',
   },
 };
 

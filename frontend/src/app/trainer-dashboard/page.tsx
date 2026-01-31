@@ -15,8 +15,7 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { apiService, Appointment, Pet } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import zoodoLogo from '@/assets/zoodo.png';
-import zoodoLightLogo from '@/assets/Zoodo-light.png';
+
 
 interface TrainerStats {
   totalClients: number;
@@ -99,23 +98,23 @@ export default function TrainerDashboard() {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        
+
         // Fetch appointments for this trainer
         const appointmentsResponse = await apiService.getAppointments();
-        
+
         if (appointmentsResponse.success && appointmentsResponse.data) {
           // Filter appointments for this trainer
           const trainerAppointments = appointmentsResponse.data.filter(
             apt => apt.providerId === user.id
           );
-          
+
           const activeSessions = trainerAppointments.filter(
             apt => apt.status === 'scheduled' || apt.status === 'confirmed'
           ).length;
-          
+
           const completedSessions = trainerAppointments.filter(
             apt => apt.status === 'completed'
           ).length;
@@ -136,7 +135,7 @@ export default function TrainerDashboard() {
         setClients([]);
         setSessions([]);
         setAssessments([]);
-        
+
       } catch (error) {
         console.error('Error fetching trainer dashboard data:', error);
       } finally {
@@ -192,7 +191,7 @@ export default function TrainerDashboard() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Image
-                src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+                src="/Zoodo.png"
                 alt="Zoodo Trainer"
                 width={120}
                 height={40}
@@ -202,7 +201,7 @@ export default function TrainerDashboard() {
                 Pet Trainer Dashboard
               </Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
@@ -553,7 +552,7 @@ export default function TrainerDashboard() {
                       </div>
                       <Button size="sm">Start Analysis</Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-4 p-4 border rounded-lg">
                       <Target className="h-8 w-8 text-blue-500" />
                       <div className="flex-1">
@@ -564,7 +563,7 @@ export default function TrainerDashboard() {
                       </div>
                       <Button variant="outline" size="sm">Create Plan</Button>
                     </div>
-                    
+
                     <div className="flex items-center space-x-4 p-4 border rounded-lg">
                       <Award className="h-8 w-8 text-green-500" />
                       <div className="flex-1">
@@ -598,7 +597,7 @@ export default function TrainerDashboard() {
                       </div>
                       <Badge variant="outline">Completed</Badge>
                     </div>
-                    
+
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center">

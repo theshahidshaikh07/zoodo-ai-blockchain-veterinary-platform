@@ -52,9 +52,7 @@ interface FormData {
 
 function PetOwnerWizard() {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
   const { loginWithGoogle } = useAuth();
-  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -100,7 +98,7 @@ function PetOwnerWizard() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+
 
   // Auto-fill form with OAuth data if available
   useEffect(() => {
@@ -228,7 +226,7 @@ function PetOwnerWizard() {
     setIsLoading(true);
     setError('');
     const address = `${formData.address}, ${formData.city}, ${formData.state} ${formData.postalCode}, ${formData.country}`;
-    
+
     // Process pets data to match backend expectations
     const processedPets = formData.pets
       .filter(pet => pet.name && pet.species) // Only include pets with name and species
@@ -246,7 +244,7 @@ function PetOwnerWizard() {
         sterilized: pet.sterilized,
         photoUrl: null // No photo upload in registration form
       }));
-    
+
     try {
       const res = await apiService.registerUser({
         username: formData.username,
@@ -262,14 +260,14 @@ function PetOwnerWizard() {
         postalCode: formData.postalCode || null,
         pets: processedPets
       });
-      
+
       if (res.success) {
         // Automatically log the user in after successful registration
         const loginResponse = await apiService.loginUser({
           usernameOrEmail: formData.email,
           password: formData.password
         });
-        
+
         if (loginResponse.success) {
           // Get user profile and redirect to appropriate dashboard
           const userResponse = await apiService.getCurrentUser();
@@ -283,7 +281,7 @@ function PetOwnerWizard() {
             return;
           }
         }
-        
+
         // Fallback redirect
         router.push('/dashboard');
       } else {
@@ -308,7 +306,7 @@ function PetOwnerWizard() {
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
           <Image
-            src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
+            src="/Zoodo.png"
             alt="Zoodo"
             width={120}
             height={40}
@@ -359,49 +357,43 @@ function PetOwnerWizard() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <Label htmlFor="firstName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isFirstNameFocused || formData.firstName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>First Name</Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} onFocus={()=>setIsFirstNameFocused(true)} onBlur={()=>setIsFirstNameFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="firstName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isFirstNameFocused || formData.firstName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>First Name</Label>
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} onFocus={() => setIsFirstNameFocused(true)} onBlur={() => setIsFirstNameFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                     <div className="relative">
-                      <Label htmlFor="lastName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                        isLastNameFocused || formData.lastName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                      }`}>Last Name</Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} onFocus={()=>setIsLastNameFocused(true)} onBlur={()=>setIsLastNameFocused(false)} className="h-12 rounded-full pt-4" />
+                      <Label htmlFor="lastName" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isLastNameFocused || formData.lastName ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                        }`}>Last Name</Label>
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} onFocus={() => setIsLastNameFocused(true)} onBlur={() => setIsLastNameFocused(false)} className="h-12 rounded-full pt-4" />
                     </div>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="email" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isEmailFocused || formData.email ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Email address</Label>
-                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} onFocus={()=>setIsEmailFocused(true)} onBlur={()=>setIsEmailFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="email" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isEmailFocused || formData.email ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Email address</Label>
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} onFocus={() => setIsEmailFocused(true)} onBlur={() => setIsEmailFocused(false)} className="h-12 rounded-full pt-4" />
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="username" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isUsernameFocused || formData.username ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Username</Label>
-                    <Input id="username" name="username" value={formData.username} onChange={handleInputChange} onFocus={()=>setIsUsernameFocused(true)} onBlur={()=>setIsUsernameFocused(false)} className="h-12 rounded-full pt-4" />
+                    <Label htmlFor="username" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isUsernameFocused || formData.username ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Username</Label>
+                    <Input id="username" name="username" value={formData.username} onChange={handleInputChange} onFocus={() => setIsUsernameFocused(true)} onBlur={() => setIsUsernameFocused(false)} className="h-12 rounded-full pt-4" />
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="password" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isPasswordFocused || formData.password ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Password</Label>
-                    <Input id="password" name="password" type={showPassword? 'text':'password'} value={formData.password} onChange={handleInputChange} onFocus={()=>setIsPasswordFocused(true)} onBlur={()=>setIsPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
-                    <button type="button" onClick={()=>setShowPassword(v=>!v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
+                    <Label htmlFor="password" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPasswordFocused || formData.password ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Password</Label>
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleInputChange} onFocus={() => setIsPasswordFocused(true)} onBlur={() => setIsPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
 
                   <div className="relative">
-                    <Label htmlFor="confirmPassword" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${
-                      isConfirmPasswordFocused || formData.confirmPassword ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
-                    }`}>Confirm Password</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword? 'text':'password'} value={formData.confirmPassword} onChange={handleInputChange} onFocus={()=>setIsConfirmPasswordFocused(true)} onBlur={()=>setIsConfirmPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
-                    <button type="button" onClick={()=>setShowConfirmPassword(v=>!v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
+                    <Label htmlFor="confirmPassword" className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isConfirmPasswordFocused || formData.confirmPassword ? 'text-xs text-primary -top-2 px-1 bg-background' : 'text-sm text-muted-foreground/70 top-3'
+                      }`}>Confirm Password</Label>
+                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={handleInputChange} onFocus={() => setIsConfirmPasswordFocused(true)} onBlur={() => setIsConfirmPasswordFocused(false)} className="h-12 rounded-full pt-4 pr-12" />
+                    <button type="button" onClick={() => setShowConfirmPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background rounded-full p-1">
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
@@ -431,15 +423,15 @@ function PetOwnerWizard() {
                       className="w-full h-12 bg-background border border-border hover:bg-accent hover:text-accent-foreground rounded-full transition-all duration-200"
                     >
                       <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                       </svg>
                       Continue with Google
                     </Button>
 
-{/* 
+                    {/* 
                     <Button
                       type="button"
                       variant="outline"
@@ -499,7 +491,7 @@ function PetOwnerWizard() {
                   </div>
                   <div className="relative">
                     <Label className="sr-only">Country</Label>
-                    <Select value={formData.country} onValueChange={(v)=>setFormData(prev=>({ ...prev, country: v }))}>
+                    <Select value={formData.country} onValueChange={(v) => setFormData(prev => ({ ...prev, country: v }))}>
                       <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
                         <SelectValue placeholder="Country" />
                       </SelectTrigger>
@@ -538,18 +530,18 @@ function PetOwnerWizard() {
                     <div key={idx} className="space-y-5 rounded-2xl border border-border p-4">
                       {/* Row 1: Name + Gender */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Input placeholder="Pet's Name" value={pet.name} onChange={(e)=>{
+                        <Input placeholder="Pet's Name" value={pet.name} onChange={(e) => {
                           const pets = [...formData.pets];
                           pets[idx] = { ...pets[idx], name: e.target.value };
-                          setFormData(prev=>({ ...prev, pets }));
+                          setFormData(prev => ({ ...prev, pets }));
                         }} className="h-12 rounded-xl" />
                         <div className="flex gap-2 md:col-span-2">
-                          {(['male','female','unknown'] as const).map(g => (
-                            <button key={g} type="button" onClick={()=>{
+                          {(['male', 'female', 'unknown'] as const).map(g => (
+                            <button key={g} type="button" onClick={() => {
                               const pets = [...formData.pets];
                               pets[idx] = { ...pets[idx], gender: g };
-                              setFormData(prev=>({ ...prev, pets }));
-                            }} className={`flex-1 h-12 rounded-xl border ${pet.gender===g ? 'border-primary text-primary bg-primary/10' : 'border-border text-foreground/80 hover:bg-accent'}`}>{g.charAt(0).toUpperCase()+g.slice(1)}</button>
+                              setFormData(prev => ({ ...prev, pets }));
+                            }} className={`flex-1 h-12 rounded-xl border ${pet.gender === g ? 'border-primary text-primary bg-primary/10' : 'border-border text-foreground/80 hover:bg-accent'}`}>{g.charAt(0).toUpperCase() + g.slice(1)}</button>
                           ))}
                         </div>
                       </div>
@@ -557,10 +549,10 @@ function PetOwnerWizard() {
                       {/* Row 2: Species + Breed */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative">
-                          <Select value={pet.species} onValueChange={(v)=>{
+                          <Select value={pet.species} onValueChange={(v) => {
                             const pets = [...formData.pets];
                             pets[idx] = { ...pets[idx], species: v };
-                            setFormData(prev=>({ ...prev, pets }));
+                            setFormData(prev => ({ ...prev, pets }));
                           }}>
                             <SelectTrigger className="h-14 rounded-full pl-4 pr-10">
                               <SelectValue placeholder="Pet Species" />
@@ -574,10 +566,10 @@ function PetOwnerWizard() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <Input placeholder="Breed (Optional)" value={pet.breed || ''} onChange={(e)=>{
+                        <Input placeholder="Breed (Optional)" value={pet.breed || ''} onChange={(e) => {
                           const pets = [...formData.pets];
                           pets[idx] = { ...pets[idx], breed: e.target.value };
-                          setFormData(prev=>({ ...prev, pets }));
+                          setFormData(prev => ({ ...prev, pets }));
                         }} className="h-14 rounded-full" />
                       </div>
 
@@ -600,7 +592,7 @@ function PetOwnerWizard() {
                               <Calendar
                                 mode="single"
                                 selected={pet.birthday ? new Date(pet.birthday) : undefined}
-                                onSelect={(date)=>{
+                                onSelect={(date) => {
                                   const pets = [...formData.pets];
                                   const val = date ? format(date, 'yyyy-MM-dd') : '';
                                   let agePatch: Partial<PetInfo> = {};
@@ -609,7 +601,7 @@ function PetOwnerWizard() {
                                     agePatch = { age: value, ageUnit: unit };
                                   }
                                   pets[idx] = { ...pets[idx], birthday: val, ...agePatch };
-                                  setFormData(prev=>({ ...prev, pets }));
+                                  setFormData(prev => ({ ...prev, pets }));
                                 }}
                                 initialFocus
                               />
@@ -617,16 +609,16 @@ function PetOwnerWizard() {
                           </Popover>
                         </div>
                         <div className="relative flex gap-2">
-                          <Input type="number" placeholder="Pet Age" value={pet.age || ''} onChange={(e)=>{
+                          <Input type="number" placeholder="Pet Age" value={pet.age || ''} onChange={(e) => {
                             const pets = [...formData.pets];
                             pets[idx] = { ...pets[idx], age: e.target.value };
-                            setFormData(prev=>({ ...prev, pets }));
+                            setFormData(prev => ({ ...prev, pets }));
                           }} className="h-14 rounded-full flex-1" />
                           <div className="relative">
-                            <Select value={pet.ageUnit || 'Years'} onValueChange={(v)=>{
+                            <Select value={pet.ageUnit || 'Years'} onValueChange={(v) => {
                               const pets = [...formData.pets];
                               pets[idx] = { ...pets[idx], ageUnit: v as PetInfo['ageUnit'] };
-                              setFormData(prev=>({ ...prev, pets }));
+                              setFormData(prev => ({ ...prev, pets }));
                             }}>
                               <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
                                 <SelectValue />
@@ -640,16 +632,16 @@ function PetOwnerWizard() {
                           </div>
                         </div>
                         <div className="relative flex gap-2">
-                          <Input type="number" placeholder="Pet Weight" value={pet.weight || ''} onChange={(e)=>{
+                          <Input type="number" placeholder="Pet Weight" value={pet.weight || ''} onChange={(e) => {
                             const pets = [...formData.pets];
                             pets[idx] = { ...pets[idx], weight: e.target.value };
-                            setFormData(prev=>({ ...prev, pets }));
+                            setFormData(prev => ({ ...prev, pets }));
                           }} className="h-14 rounded-full flex-1" />
                           <div className="relative">
-                            <Select value={pet.weightUnit || 'Kgs'} onValueChange={(v)=>{
+                            <Select value={pet.weightUnit || 'Kgs'} onValueChange={(v) => {
                               const pets = [...formData.pets];
                               pets[idx] = { ...pets[idx], weightUnit: v as PetInfo['weightUnit'] };
-                              setFormData(prev=>({ ...prev, pets }));
+                              setFormData(prev => ({ ...prev, pets }));
                             }}>
                               <SelectTrigger className="w-28 h-14 rounded-full pl-4 pr-8">
                                 <SelectValue />
@@ -663,10 +655,10 @@ function PetOwnerWizard() {
                         </div>
                       </div>
 
-                      <Input placeholder="Microchip Number (Optional)" value={pet.microchip || ''} onChange={(e)=>{
+                      <Input placeholder="Microchip Number (Optional)" value={pet.microchip || ''} onChange={(e) => {
                         const pets = [...formData.pets];
                         pets[idx] = { ...pets[idx], microchip: e.target.value };
-                        setFormData(prev=>({ ...prev, pets }));
+                        setFormData(prev => ({ ...prev, pets }));
                       }} className="h-12 rounded-xl" />
 
                       <div className="flex items-center justify-between">
@@ -679,16 +671,15 @@ function PetOwnerWizard() {
                             <button
                               key={opt.key}
                               type="button"
-                              onClick={()=>{
+                              onClick={() => {
                                 const pets = [...formData.pets];
                                 pets[idx] = { ...pets[idx], sterilized: opt.key } as PetInfo;
-                                setFormData(prev=>({ ...prev, pets }));
+                                setFormData(prev => ({ ...prev, pets }));
                               }}
-                              className={`px-3 h-10 rounded-full border transition-colors ${
-                                pet.sterilized === opt.key
-                                  ? 'border-primary text-primary bg-primary/10'
-                                  : 'border-border text-foreground/80 hover:bg-accent'
-                              }`}
+                              className={`px-3 h-10 rounded-full border transition-colors ${pet.sterilized === opt.key
+                                ? 'border-primary text-primary bg-primary/10'
+                                : 'border-border text-foreground/80 hover:bg-accent'
+                                }`}
                             >
                               {opt.label}
                             </button>
@@ -696,16 +687,16 @@ function PetOwnerWizard() {
                         </div>
                         <div className="flex items-center gap-4">
                           {idx > 0 && (
-                            <button type="button" className="text-destructive text-sm hover:underline" onClick={()=>{
+                            <button type="button" className="text-destructive text-sm hover:underline" onClick={() => {
                               const pets = [...formData.pets];
                               pets.splice(idx, 1);
-                              setFormData(prev=>({ ...prev, pets: pets.length ? pets : [{ name: '', gender: 'unknown', species: '', breed: '', birthday: '', age: '', ageUnit: 'Years', weight: '', weightUnit: 'Kgs', microchip: '', sterilized: 'yes' }] }));
+                              setFormData(prev => ({ ...prev, pets: pets.length ? pets : [{ name: '', gender: 'unknown', species: '', breed: '', birthday: '', age: '', ageUnit: 'Years', weight: '', weightUnit: 'Kgs', microchip: '', sterilized: 'yes' }] }));
                             }}>Remove</button>
                           )}
-                          <button type="button" className="text-primary text-sm hover:underline" onClick={()=>{
+                          <button type="button" className="text-primary text-sm hover:underline" onClick={() => {
                             const pets = [...formData.pets];
                             pets.push({ name: '', gender: 'unknown', species: '', breed: '', birthday: '', age: '', ageUnit: 'Years', weight: '', weightUnit: 'Kgs', microchip: '', sterilized: 'yes' });
-                            setFormData(prev=>({ ...prev, pets }));
+                            setFormData(prev => ({ ...prev, pets }));
                           }}>+ Add Pet</button>
                         </div>
                       </div>

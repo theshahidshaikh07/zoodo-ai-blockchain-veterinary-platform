@@ -119,10 +119,10 @@ const DesktopRoleCard = ({ role, index }: { role: typeof roles[0], index: number
       >
         <div className="absolute inset-0 bg-card/30 rounded-2xl transition-colors duration-300 pointer-events-none"></div>
         <div className="absolute inset-[-2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: `linear-gradient(135deg, ${role.color}00, ${role.color}50, ${role.color}00)` }}></div>
-        
+
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-no-repeat opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 50% 0%, ${role.color}40, transparent 80%)` }}></div>
-        
+
         <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-white/20 to-white/5 ring-1 ring-white/10 transition-colors duration-300 transform-gpu" style={{ transform: 'translateZ(40px)' }}>
           <role.icon className="w-12 h-12 lg:w-14 lg:h-14 transition-transform duration-300 group-hover:scale-110" style={{ color: role.color }} />
         </div>
@@ -141,12 +141,7 @@ const DesktopRoleCard = ({ role, index }: { role: typeof roles[0], index: number
 };
 
 export default function RoleSelectionPage() {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -160,7 +155,7 @@ export default function RoleSelectionPage() {
         <header className="flex justify-between items-center p-4 sm:p-6">
           <div className="flex items-center">
             <Image
-              src={mounted && resolvedTheme === 'dark' ? '/Z-light.png' : '/Z.png'}
+              src="/Zoodo.png"
               alt="Zoodo"
               width={120}
               height={40}
@@ -189,7 +184,7 @@ export default function RoleSelectionPage() {
                 </div>
               ))}
             </div>
-            
+
             <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
               {roles.map((role, index) => (
                 <div key={role.name} className={`animate-fade-in-up`} style={{ animationDelay: `${index * 150}ms` }}>

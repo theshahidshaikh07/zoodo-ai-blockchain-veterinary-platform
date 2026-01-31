@@ -7,8 +7,7 @@ import { useTheme } from "next-themes";
 import NoSSR from "./NoSSR";
 import Link from "next/link";
 import Image from "next/image";
-import zoodoLogo from "@/assets/zoodo.png";
-import zoodoLightLogo from "@/assets/Zoodo-light.png";
+
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, User, Settings } from "lucide-react";
@@ -98,15 +97,14 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     { name: "Home", href: "#hero", type: "anchor" as const },
     { name: "Services", href: "#services", type: "anchor" as const },
     { name: "Community", href: "#community", type: "anchor" as const },
-    { name: "AI Consultation", href: "/chat", type: "route" as const },
     { name: "About", href: "/about", type: "route" as const },
     { name: "Contact", href: "/contact", type: "route" as const },
   ];
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
-        ? 'glass-card border-b border-border/30 shadow-elegant backdrop-blur-xl'
-        : 'bg-transparent border-b border-transparent'
+      ? 'glass-card border-b border-border/30 shadow-elegant backdrop-blur-xl'
+      : 'bg-transparent border-b border-transparent'
       }`}>
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
@@ -114,7 +112,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
           <Link href="/" className="flex items-center group">
             <div className="relative group-hover:scale-105 transition-all duration-300">
               <Image
-                src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+                src="/Zoodo.png"
                 alt="Zoodo"
                 width={120}
                 height={40}

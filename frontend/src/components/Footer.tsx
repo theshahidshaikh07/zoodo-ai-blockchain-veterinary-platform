@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import zoodoLogo from "@/assets/zoodo.png";
-import zoodoLightLogo from "@/assets/Zoodo-light.png";
+
 
 const Footer = () => {
   const { resolvedTheme } = useTheme();
@@ -54,7 +53,7 @@ const Footer = () => {
     <footer className="relative overflow-hidden bg-gradient-to-t from-card to-background border-t border-border/20">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-zoodo-purple/5 via-transparent to-zoodo-blue/5" />
-      
+
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Main Footer Content */}
         <div className="grid lg:grid-cols-6 gap-12 py-16">
@@ -62,7 +61,7 @@ const Footer = () => {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center space-x-2">
               <Image
-                src={mounted && resolvedTheme === 'dark' ? zoodoLightLogo : zoodoLogo}
+                src="/Zoodo.png"
                 alt="Zoodo"
                 width={120}
                 height={40}
