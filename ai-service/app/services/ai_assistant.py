@@ -19,7 +19,8 @@ class AIAssistantService:
         self, 
         session_id: str, 
         user_message: str,
-        user_location: Optional[Dict] = None
+        user_location: Optional[Dict] = None,
+        conversation_history: Optional[List[Dict[str, str]]] = None
     ) -> Dict:
         """
         Process user message and generate response
@@ -49,11 +50,17 @@ class AIAssistantService:
             # Get relevant context from datasets (RAG)
             dataset_context = self.dataset.get_context_for_query(user_message)
             
-            # Get conversation history
-            conversation_history = self.session.get_conversation_history(session_id)
+            # Get conversation history (use provided or fetch from session)
+            if conversation_history is None:
+                conversation_history = self.session.get_conversation_history(session_id)
+                # Get pet context from session only if using session history
+                pet_context = self.session.get_pet_context(session_id)
+            else:
+                # If using custom history (branching), ignore stored pet context to prevent mixing
+                # The AI will rely on the provided history to infer context
+                pet_context = {}
             
-            # Get pet context
-            pet_context = self.session.get_pet_context(session_id)
+            # Build enhanced prompt with dataset context
             
             # Build enhanced prompt with dataset context
             enhanced_message = user_message

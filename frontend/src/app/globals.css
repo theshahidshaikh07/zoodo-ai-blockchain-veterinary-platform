@@ -199,6 +199,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -210,6 +211,7 @@
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -221,6 +223,7 @@
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -231,14 +234,22 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes fadeUp {
@@ -249,8 +260,15 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.4); }
-  50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.8); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.8);
+  }
 }
 
 .pulse-glow {
@@ -294,6 +312,34 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.8);
+}
+
+/* Subtle scrollbar for textareas */
+textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 12px 0;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark theme scrollbar adjustments */
+.dark textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Scroll Animation Classes */
@@ -353,11 +399,25 @@
 }
 
 /* Stagger Animation Delays */
-.scroll-stagger-1 { transition-delay: 0.1s; }
-.scroll-stagger-2 { transition-delay: 0.2s; }
-.scroll-stagger-3 { transition-delay: 0.3s; }
-.scroll-stagger-4 { transition-delay: 0.4s; }
-.scroll-stagger-5 { transition-delay: 0.5s; }
+.scroll-stagger-1 {
+  transition-delay: 0.1s;
+}
+
+.scroll-stagger-2 {
+  transition-delay: 0.2s;
+}
+
+.scroll-stagger-3 {
+  transition-delay: 0.3s;
+}
+
+.scroll-stagger-4 {
+  transition-delay: 0.4s;
+}
+
+.scroll-stagger-5 {
+  transition-delay: 0.5s;
+}
 
 /* Hide browser password reveal icons */
 input[type="password"]::-webkit-reveal-password,

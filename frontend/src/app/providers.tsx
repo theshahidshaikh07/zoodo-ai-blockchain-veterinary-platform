@@ -5,6 +5,8 @@ import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/components/providers/NotificationProvider';
+import { ServiceWarmer } from '@/components/shared/ServiceWarmer';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,17 +24,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Always include AuthProvider - it handles dashboard pages gracefully
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="light" 
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
         enableSystem={false}
         disableTransitionOnChange
         storageKey="theme"
       >
-        <AuthProvider>
-          {children}
-          <NotificationProvider />
-        </AuthProvider>
+        <TooltipProvider>
+          <AuthProvider>
+            {children}
+            <NotificationProvider />
+            <ServiceWarmer />
+          </AuthProvider>
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

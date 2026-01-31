@@ -86,6 +86,7 @@ export interface Appointment {
 export interface AIChatRequest {
   message: string;
   session_id?: string;
+  conversation_history?: Array<{ role: string; content: string; }>;
 }
 
 export interface AIChatResponse {
@@ -544,7 +545,7 @@ class ApiService {
   }
 
   // Admin endpoints
-  async getUsersAdmin(params?: {
+  async getAllUsers(params?: {
     page?: number;
     size?: number;
     userType?: string;
