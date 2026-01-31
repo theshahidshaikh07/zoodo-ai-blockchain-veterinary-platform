@@ -6,7 +6,7 @@ Combines LLM, datasets, and session management
 from app.core.llm import GeminiService
 from app.services.dataset_service import DatasetService
 from app.services.session_service import SessionService
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 class AIAssistantService:
     def __init__(self):
