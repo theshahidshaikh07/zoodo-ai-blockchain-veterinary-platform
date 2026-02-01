@@ -62,9 +62,11 @@ export default function AIAssistantPage() {
   const [isEmergency, setIsEmergency] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false); // New state for scroll button
   const [isConsultationPopupOpen, setIsConsultationPopupOpen] = useState(false);
+  const [isHeroScrolled, setIsHeroScrolled] = useState(false);
   const [debugLog, setDebugLog] = useState(""); // Debug state
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const heroContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
   const placeholderMessages = [
@@ -92,7 +94,7 @@ export default function AIAssistantPage() {
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [messages]);
 
   // Start placeholder animation when component mounts and restart when conditions change
@@ -105,6 +107,20 @@ export default function AIAssistantPage() {
     // Start the animation
     setIsPlaceholderTyping(true);
   }, [inputMessage, isTyping, messages.length]);
+
+  // Track hero section scroll for header background
+  useEffect(() => {
+    const heroContainer = heroContainerRef.current;
+    if (!heroContainer || messages.length > 1) return;
+
+    const handleHeroScroll = () => {
+      setIsHeroScrolled(heroContainer.scrollTop > 20);
+    };
+
+    heroContainer.addEventListener('scroll', handleHeroScroll);
+    return () => heroContainer.removeEventListener('scroll', handleHeroScroll);
+  }, [messages.length]);
+
 
   // Handle chat container scroll for header styling
   useEffect(() => {
@@ -604,7 +620,7 @@ export default function AIAssistantPage() {
         `}</style>
       {/* Header - Different for landing vs chat */}
       {messages.length <= 1 ? (
-        <Header />
+        <Header isScrolled={isHeroScrolled} />
       ) : (
         /* Chat Header */
         /* Chat Header - Static in flex container */
@@ -648,7 +664,7 @@ export default function AIAssistantPage() {
       <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
         {messages.length <= 1 ? (
           /* Hero Section - Only show when not chatting */
-          <div key="hero-section" className="flex-1 flex flex-col items-center justify-start px-4 py-20 pt-32 overflow-y-auto custom-scrollbar">
+          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-start px-4 py-20 pt-32 overflow-y-auto custom-scrollbar">
 
 
             {/* Banner */}
@@ -684,7 +700,7 @@ export default function AIAssistantPage() {
                 <Button
                   key={index}
                   variant="outline"
-                  className="w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/40 dark:bg-zinc-800/40 border-white/40 dark:border-white/10 hover:bg-white/60 dark:hover:bg-zinc-800/60 backdrop-blur-sm text-sm text-muted-foreground hover:text-foreground hover:shadow-sm"
+                  className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/40 dark:bg-zinc-800/40 border-white/40 dark:border-white/10 hover:bg-white/60 dark:hover:bg-zinc-800/60 backdrop-blur-sm text-sm text-muted-foreground hover:text-foreground hover:shadow-sm ${index === 3 || index === 4 ? 'hidden sm:flex' : ''}`}
                   onClick={() => handleSendMessage(suggestion.text)}
                 >
                   <span className="flex items-center gap-2">
@@ -698,9 +714,9 @@ export default function AIAssistantPage() {
 
             {/* Large AI Chat Input Area - Centered when not chatting */
             }
-            <div className="w-full max-w-4xl mx-auto px-4 mt-8">
+            <div className="w-full max-w-4xl mx-auto sm:px-4 mt-8">
               <div className="relative">
-                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 max-w-2xl mx-auto">
+                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 sm:max-w-2xl sm:mx-auto">
                   {/* Voice Input Button - Left */}
                   <Button
                     variant="ghost"
@@ -757,7 +773,7 @@ export default function AIAssistantPage() {
 
             {/* Chat Messages Area - Flexible scrollable area */
             }
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 scroll-smooth custom-scrollbar">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 pb-8 scroll-smooth custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.slice(1).map((message) => (
                   <MessageBubble
@@ -770,7 +786,7 @@ export default function AIAssistantPage() {
                 ))}
 
                 {isTyping && (
-                  <div className="flex justify-start">
+                  <div className="flex justify-start mb-6">
                     <div className="bg-muted/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
                       <div className="flex items-center space-x-3">
                         <div className="flex space-x-1">
@@ -791,7 +807,7 @@ export default function AIAssistantPage() {
 
 
             {/* Input Area - Flex Item (Not Fixed) */}
-            <div className="shrink-0 w-full z-50 bg-gradient-to-t from-background via-background/80 to-transparent pt-4">
+            <div className="shrink-0 w-full z-50 bg-transparent pt-4">
               <div className="w-full max-w-4xl mx-auto px-4 pb-4 sm:pb-6 relative">
 
                 {/* Scroll to Bottom Button - Anchored to ride on top of input */}
@@ -896,7 +912,10 @@ export default function AIAssistantPage() {
                   </Button>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent -z-10" />
+                {/* AI Disclaimer */}
+                <p className="text-center text-xs text-muted-foreground mt-3 px-4">
+                  Dr. Salus AI can make mistakes. Always verify important pet health information with a licensed veterinarian.
+                </p>
               </div>
             </div>
           </div>
