@@ -582,6 +582,12 @@ export default function AIAssistantPage() {
   return (
     <div className="h-[100dvh] bg-background relative overflow-hidden flex flex-col">
       <style jsx global>{`
+          html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+          }
           .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
           }
@@ -786,7 +792,7 @@ export default function AIAssistantPage() {
 
             {/* Input Area - Flex Item (Not Fixed) */}
             <div className="shrink-0 w-full z-50 bg-gradient-to-t from-background via-background/80 to-transparent pt-4">
-              <div className="w-full max-w-4xl mx-auto px-4 pb-6 relative">
+              <div className="w-full max-w-4xl mx-auto px-4 pb-2 sm:pb-6 relative">
 
                 {/* Scroll to Bottom Button - Anchored to ride on top of input */}
                 {showScrollButton && (
