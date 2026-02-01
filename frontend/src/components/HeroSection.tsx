@@ -3,20 +3,22 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { 
-  Stethoscope, 
-  Shield, 
-  Heart, 
-  Sparkles, 
-  Zap as Lightning 
+import {
+  Stethoscope,
+  Shield,
+  Heart,
+  Sparkles,
+  Zap as Lightning
 } from "lucide-react";
 import diversePets from "@/assets/diverse-pets.jpg";
 import Link from "next/link";
 import ConsultationPopup from "./ConsultationPopup";
+import CommunityPopup from "./CommunityPopup";
 
 const HeroSection = () => {
   const [mounted, setMounted] = useState(false);
   const [isConsultationPopupOpen, setIsConsultationPopupOpen] = useState(false);
+  const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -33,7 +35,7 @@ const HeroSection = () => {
   }
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-start justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-r from-zoodo-purple/10 via-zoodo-blue/10 to-zoodo-pink/10" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,hsl(var(--zoodo-purple))_0%,transparent_50%)] opacity-20 dark:opacity-10" />
@@ -99,14 +101,14 @@ const HeroSection = () => {
             {/* AI Assistant Badge */}
             <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group hover:shadow-glow transition-all duration-300">
               <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-primary animate-pulse" />
-                            <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet&#39;s Health Guardian</span>
+              <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet&#39;s Health Guardian</span>
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 ml-2 text-primary group-hover:scale-110 transition-transform" />
             </div>
 
             {/* Main Headline */}
             <div className="space-y-2 lg:space-y-3">
               <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Your Pet.<br/><span className="gradient-hero-text dark:text-white">Our Priority.</span>
+                Your Pet.<br /><span className="gradient-hero-text dark:text-white">Our Priority.</span>
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-muted-foreground/80 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
                 Powered by Dr. Salus AI, Zoodo delivers intelligent, secure, and personalized veterinary care anytime, anywhere.
@@ -114,83 +116,73 @@ const HeroSection = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-1 lg:pt-4 justify-center lg:justify-start">
-              <Button 
-                variant="default" 
+            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-1 lg:pt-4 justify-center lg:justify-start max-w-2xl mx-auto lg:mx-0">
+              <Button
+                variant="ghost"
                 size="xl"
-                className="group relative bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-base lg:text-lg px-8 lg:px-12 py-3 lg:py-4 shadow-lg hover:shadow-2xl border-0 overflow-hidden"
+                className="group inline-flex items-center gap-2 px-6 py-2 lg:py-2.5 rounded-full bg-primary hover:bg-primary/80 border border-primary transition-all duration-300 shadow-md text-sm lg:text-base sm:flex-1"
                 asChild
               >
-                <Link href="/ai-assistant">
-                {/* Animated background effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                
-                {/* Glow effect */}
-                <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                
-                <span className="relative z-10">
-                  <Stethoscope 
-                    className="mr-2 animate-pulse" 
-                    style={{ 
-                      width: '1.5rem !important', 
-                      height: '1.5rem !important',
-                      minWidth: '1.5rem',
-                      minHeight: '1.5rem'
+                <Link href="/ai-assistant" className="flex items-center justify-center">
+                  <Stethoscope
+                    className="text-white dark:text-black"
+                    style={{
+                      width: '1.25rem',
+                      height: '1.25rem',
+                      minWidth: '1.25rem',
+                      minHeight: '1.25rem'
                     }}
                   />
-                </span>
-                <span className="relative z-10 font-bold">Try Dr. Salus AI</span>
-                <Sparkles className="w-4 h-4 lg:w-5 lg:h-5 ml-2 relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
-                
-                {/* Ripple effect */}
-                <div className="absolute inset-0 rounded-lg group-hover:animate-ping group-hover:bg-white/20 transition-all duration-300"></div>
+                  <span className="font-semibold text-white dark:text-black">Try Dr. Salus AI</span>
                 </Link>
               </Button>
-              <Button 
-                variant="outline" 
-                size="xl" 
-                className="group relative hover:scale-105 transition-all duration-300 text-base lg:text-lg px-8 lg:px-12 py-3 lg:py-4 border-2 border-primary/40 hover:border-primary/80 hover:bg-primary/10 bg-background/80 hover:bg-primary/10 hover:text-foreground !hover:bg-primary/10 !hover:text-foreground"
+              <Button
+                variant="ghost"
+                size="xl"
+                className="group inline-flex items-center gap-2 px-6 py-2 lg:py-2.5 rounded-full glass-card border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 shadow-md hover:shadow-lg text-sm lg:text-base sm:flex-1"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsConsultationPopupOpen(true);
                 }}
               >
-                <Lightning className="w-5 h-5 lg:w-7 lg:h-7 mr-2 relative z-10 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
-                <span className="relative z-10 font-semibold text-foreground">Get Instant Care</span>
-                <div className="relative ml-2 z-10">
-                  <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse group-hover:scale-125 transition-transform"></div>
+                <div className="relative">
+                  <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse transition-transform"></div>
                   <div className="absolute inset-0 w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-ping"></div>
                 </div>
+                <span className="font-semibold text-foreground">Get Instant Care</span>
               </Button>
-            </div>
-
-            {/* Trust Tags - Visible on all devices */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-4 py-4 lg:py-6">
-              <div className="flex flex-col items-center space-y-1 lg:space-y-2 p-3 lg:p-4 glass-card rounded-xl lg:rounded-2xl">
-                <Stethoscope className="w-4 h-4 lg:w-6 lg:h-6 text-primary" />
-                <span className="text-xs text-center text-muted-foreground">AI-Powered Diagnostics</span>
-              </div>
-              <div className="flex flex-col items-center space-y-1 lg:space-y-2 p-3 lg:p-4 glass-card rounded-xl lg:rounded-2xl">
-                <Shield className="w-4 h-4 lg:w-6 lg:h-6 text-zoodo-blue" />
-                <span className="text-xs text-center text-muted-foreground">Vet-Verified Guidance</span>
-              </div>
-              <div className="flex flex-col items-center space-y-1 lg:space-y-2 p-3 lg:p-4 glass-card rounded-xl lg:rounded-2xl">
-                <Shield className="w-4 h-4 lg:w-6 lg:h-6 text-zoodo-purple" />
-                <span className="text-xs text-center text-muted-foreground">Blockchain Health Records</span>
-              </div>
-              <div className="flex flex-col items-center space-y-1 lg:space-y-2 p-3 lg:p-4 glass-card rounded-xl lg:rounded-2xl">
-                <Heart className="w-4 h-4 lg:w-6 lg:h-6 text-zoodo-pink" />
-                <span className="text-xs text-center text-muted-foreground">10,000+ Pets Cared For</span>
-              </div>
+              <Button
+                variant="ghost"
+                size="xl"
+                className="group inline-flex items-center gap-2 px-6 py-2 lg:py-2.5 rounded-full glass-card border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 shadow-md hover:shadow-lg text-sm lg:text-base sm:flex-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsCommunityPopupOpen(true);
+                }}
+              >
+                <span className="font-semibold text-foreground">Join Community</span>
+                <svg
+                  className="w-4 h-4 transform group-hover:translate-x-1 transition-all duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Consultation Popup */}
-      <ConsultationPopup 
+      <ConsultationPopup
         isOpen={isConsultationPopupOpen}
         onClose={() => setIsConsultationPopupOpen(false)}
+      />
+      <CommunityPopup
+        isOpen={isCommunityPopupOpen}
+        onClose={() => setIsCommunityPopupOpen(false)}
       />
     </section>
   );
