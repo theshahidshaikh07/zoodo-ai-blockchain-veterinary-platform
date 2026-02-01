@@ -748,8 +748,9 @@ export default function AIAssistantPage() {
           /* Chat Interface - Full screen when chatting */
           <div key="chat-interface" className="flex-1 flex flex-col h-full relative overflow-hidden">
 
-            {/* Chat Messages Area - with reduced top padding to avoid header overlap */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 pt-32 pb-4 scroll-smooth custom-scrollbar">
+            {/* Chat Messages Area - with spacer div for header clearance */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 pb-4 scroll-smooth custom-scrollbar">
+              <div className="h-32 w-full flex-shrink-0" aria-hidden="true" />
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.slice(1).map((message) => (
                   <MessageBubble
