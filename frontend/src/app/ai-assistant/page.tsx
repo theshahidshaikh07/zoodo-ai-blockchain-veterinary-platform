@@ -92,7 +92,7 @@ export default function AIAssistantPage() {
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages]);
 
   // Start placeholder animation when component mounts and restart when conditions change
@@ -601,7 +601,8 @@ export default function AIAssistantPage() {
         <Header />
       ) : (
         /* Chat Header */
-        <header className="fixed top-0 w-full z-50 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
+        /* Chat Header - Static in flex container */
+        <header className="shrink-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="flex items-center justify-between h-20 py-4">
               {/* Left side - Back button + Dr. Salus AI */}
@@ -638,7 +639,7 @@ export default function AIAssistantPage() {
       <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
 
       {/* Main Content Area */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
         {messages.length <= 1 ? (
           /* Hero Section - Only show when not chatting */
           <div key="hero-section" className="flex-1 flex flex-col items-center justify-start px-4 py-20 pt-32 overflow-y-auto custom-scrollbar">
@@ -748,9 +749,9 @@ export default function AIAssistantPage() {
           /* Chat Interface - Full screen when chatting */
           <div key="chat-interface" className="flex-1 flex flex-col h-full relative overflow-hidden">
 
-            {/* Chat Messages Area - with spacer div for header clearance */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 pb-4 scroll-smooth custom-scrollbar">
-              <div className="h-32 w-full flex-shrink-0" aria-hidden="true" />
+            {/* Chat Messages Area - Flexible scrollable area */
+            }
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 scroll-smooth custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.slice(1).map((message) => (
                   <MessageBubble
@@ -784,7 +785,7 @@ export default function AIAssistantPage() {
 
 
             {/* Input Area - Flex Item (Not Fixed) */}
-            <div className="w-full z-50 bg-gradient-to-t from-background via-background/80 to-transparent pt-4">
+            <div className="shrink-0 w-full z-50 bg-gradient-to-t from-background via-background/80 to-transparent pt-4">
               <div className="w-full max-w-4xl mx-auto px-4 pb-6 relative">
 
                 {/* Scroll to Bottom Button - Anchored to ride on top of input */}
