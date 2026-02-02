@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import CustomSelect from '@/components/ui/custom-select';
-import { 
-  Search, 
-  MapPin, 
-  Star, 
-  Clock, 
-  Phone, 
+import {
+  Search,
+  MapPin,
+  Star,
+  Clock,
+  Phone,
   SlidersHorizontal,
   GraduationCap,
   ChevronDown,
@@ -26,6 +26,8 @@ import {
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BetaDisclaimerBanner from '@/components/BetaDisclaimerBanner';
+import BetaDisclaimerPopup from '@/components/BetaDisclaimerPopup';
 import trainerImage1 from '@/assets/trainer/trainer.png';
 import trainerImage2 from '@/assets/trainer/pet_trainer.png';
 import trainerImage3 from '@/assets/trainer/service-pet-trainer.jpg';
@@ -166,7 +168,7 @@ const dummyTrainers = [
 const specializations = [
   "All Specializations",
   "Behavioral Training",
-  "Obedience Training", 
+  "Obedience Training",
   "Puppy Training",
   "Agility Training",
   "Therapy Dog Training",
@@ -184,7 +186,7 @@ const consultationTypes = [
 const locations = [
   "All Locations",
   "Mumbai, Maharashtra",
-  "Delhi, NCR", 
+  "Delhi, NCR",
   "Bangalore, Karnataka",
   "Ahmedabad, Gujarat",
   "Pune, Maharashtra",
@@ -206,7 +208,7 @@ export default function FindTrainersPage() {
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(trainer => 
+      filtered = filtered.filter(trainer =>
         trainer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trainer.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trainer.trainingCenter.toLowerCase().includes(searchTerm.toLowerCase())
@@ -236,8 +238,8 @@ export default function FindTrainersPage() {
         case 'distance':
           return parseFloat(a.distance) - parseFloat(b.distance);
         case 'fee':
-          return parseInt(a.sessionFee.replace('₹', '').replace(',', '')) - 
-                 parseInt(b.sessionFee.replace('₹', '').replace(',', ''));
+          return parseInt(a.sessionFee.replace('₹', '').replace(',', '')) -
+            parseInt(b.sessionFee.replace('₹', '').replace(',', ''));
         default:
           return 0;
       }
@@ -273,11 +275,14 @@ export default function FindTrainersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
-      
+
       {/* Search and Filters */}
       <section className="pt-24 pb-8">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-6xl mx-auto">
+            {/* Early Access Banner */}
+            <BetaDisclaimerBanner category="trainers" />
+
             {/* Search Bar */}
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -301,7 +306,7 @@ export default function FindTrainersPage() {
                 Filters
                 <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </Button>
-              
+
               <div className="flex items-center gap-4">
                 <span className="text-sm text-muted-foreground">Sort by:</span>
                 <CustomSelect
@@ -396,11 +401,10 @@ export default function FindTrainersPage() {
                           </Badge>
                         </div>
                         <div className="absolute bottom-3 left-3">
-                          <Badge className={`text-xs ${
-                            trainer.consultationType === 'Home Visit' ? 'bg-green-600 text-white' :
-                            trainer.consultationType === 'Online' ? 'bg-blue-600 text-white' :
-                            'bg-purple-600 text-white'
-                          }`}>
+                          <Badge className={`text-xs ${trainer.consultationType === 'Home Visit' ? 'bg-green-600 text-white' :
+                              trainer.consultationType === 'Online' ? 'bg-blue-600 text-white' :
+                                'bg-purple-600 text-white'
+                            }`}>
                             {trainer.consultationType}
                           </Badge>
                         </div>
@@ -437,7 +441,7 @@ export default function FindTrainersPage() {
                             <p className="text-lg font-bold text-primary">{trainer.sessionFee}</p>
                             <p className="text-xs text-gray-500">Per Session</p>
                           </div>
-                          <Button 
+                          <Button
                             className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
                             onClick={() => setShowBookingPopup(true)}
                           >
@@ -472,14 +476,14 @@ export default function FindTrainersPage() {
               We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
             </p>
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => setShowBookingPopup(false)}
               >
                 Close
               </Button>
-              <Button 
+              <Button
                 className="flex-1"
                 onClick={() => setShowBookingPopup(false)}
               >
@@ -489,6 +493,8 @@ export default function FindTrainersPage() {
           </div>
         </div>
       )}
+
+      <BetaDisclaimerPopup category="trainers" actionVerb="training" />
     </div>
   );
 }

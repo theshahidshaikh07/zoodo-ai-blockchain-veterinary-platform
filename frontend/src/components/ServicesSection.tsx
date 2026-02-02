@@ -64,7 +64,7 @@ const ServicesSection = () => {
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Header */}
-        <div 
+        <div
           ref={headerRef}
           className={`text-center mb-16 space-y-6 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
@@ -83,7 +83,7 @@ const ServicesSection = () => {
         </div>
 
         {/* Services Grid */}
-        <div 
+        <div
           ref={servicesRef}
           className={`grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 mb-20 max-w-7xl mx-auto scroll-fade-in ${servicesVisible ? 'animate' : ''}`}
           style={{ perspective: '1000px' }}
@@ -129,7 +129,7 @@ const ServicesSection = () => {
                 <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
                   {service.description}
                 </p>
-                
+
                 {/* Features */}
                 <div className="space-y-2 mb-6">
                   {service.features.map((feature, idx) => (
@@ -139,8 +139,8 @@ const ServicesSection = () => {
                     </div>
                   ))}
                 </div>
-                
-                <button 
+
+                <button
                   className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-primary-foreground font-medium rounded-md flex items-center justify-center relative z-10"
                   style={{ cursor: 'pointer !important', willChange: 'transform' }}
                   onClick={() => {
@@ -169,7 +169,8 @@ const ServicesSection = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Quick Stats - Commented out for early launch authenticity */}
+        {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="text-center space-y-3 p-6 glass-card rounded-2xl fade-up scale-on-hover group" style={{ willChange: 'transform' }}>
             <div className="text-3xl lg:text-4xl font-bold text-zoodo-purple group-hover:scale-105 transition-transform duration-300 ease-out">500+</div>
             <div className="text-sm text-muted-foreground">Verified Vets</div>
@@ -186,7 +187,7 @@ const ServicesSection = () => {
             <div className="text-3xl lg:text-4xl font-bold text-zoodo-orange group-hover:scale-105 transition-transform duration-300 ease-out">200+</div>
             <div className="text-sm text-muted-foreground">Certified Trainers</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

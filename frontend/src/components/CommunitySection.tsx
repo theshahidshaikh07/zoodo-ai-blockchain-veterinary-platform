@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import CommunityPopup from "./CommunityPopup";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  Users, 
-  Heart, 
-  Calendar, 
+import {
+  Users,
+  Heart,
+  Calendar,
   Gift,
   ArrowRight,
   UserPlus,
@@ -21,6 +23,7 @@ const CommunitySection = () => {
   const { elementRef: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { elementRef: contentRef, isVisible: contentVisible } = useScrollAnimation();
   const { elementRef: testimonialsRef, isVisible: testimonialsVisible } = useScrollAnimation();
+  const [isCommunityPopupOpen, setIsCommunityPopupOpen] = useState(false);
 
   const communityFeatures = [
     {
@@ -78,10 +81,10 @@ const CommunitySection = () => {
     <section id="community" className="py-24 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-r from-zoodo-green/10 via-transparent to-zoodo-orange/10" />
-      
+
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div 
+        <div
           ref={headerRef}
           className={`text-center space-y-6 mb-20 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
@@ -100,7 +103,7 @@ const CommunitySection = () => {
         </div>
 
         {/* Main Community Content */}
-        <div 
+        <div
           ref={contentRef}
           className={`grid lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-20 scroll-fade-in ${contentVisible ? 'animate' : ''}`}
         >
@@ -124,8 +127,8 @@ const CommunitySection = () => {
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="font-bold text-sm">500+</div>
-                  <div className="text-xs text-muted-foreground">Pets Adopted</div>
+                  {/* <div className="font-bold text-sm">500+</div> */}
+                  <div className="text-xs text-muted-foreground font-medium">Pets Adoption</div>
                 </div>
               </div>
             </div>
@@ -136,8 +139,8 @@ const CommunitySection = () => {
                   <Users className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="font-bold text-sm">10K+</div>
-                  <div className="text-xs text-muted-foreground">Community Members</div>
+                  {/* <div className="font-bold text-sm">10K+</div> */}
+                  <div className="text-xs text-muted-foreground font-medium">Active Community</div>
                 </div>
               </div>
             </div>
@@ -165,19 +168,28 @@ const CommunitySection = () => {
                   <feature.icon className={`w-8 h-8 mb-4 ${feature.title === 'Pet Adoption' ? 'text-red-500' : 'text-zoodo-green'}`} />
                   <h4 className="font-bold mb-2">{feature.title}</h4>
                   <p className="text-sm text-muted-foreground mb-3">{feature.description}</p>
-                  <div className="text-xs font-medium text-zoodo-green">{feature.stats}</div>
+                  {/* <div className="text-xs font-medium text-zoodo-green">{feature.stats}</div> */}
                 </div>
               ))}
             </div>
 
             {/* Buttons moved back here - after the cards */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="default" size="lg" className="group">
+              <Button
+                variant="default"
+                size="lg"
+                className="group"
+                onClick={() => setIsCommunityPopupOpen(true)}
+              >
                 <UserPlus className="w-5 h-5 mr-2" />
                 Join Community
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" size="lg">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setIsCommunityPopupOpen(true)}
+              >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Start Discussion
               </Button>
@@ -186,7 +198,7 @@ const CommunitySection = () => {
         </div>
 
         {/* Testimonials */}
-        <div 
+        <div
           ref={testimonialsRef}
           className={`space-y-12 scroll-fade-in ${testimonialsVisible ? 'animate' : ''}`}
         >
@@ -253,6 +265,10 @@ const CommunitySection = () => {
           </Button>
         </div>
       </div>
+      <CommunityPopup
+        isOpen={isCommunityPopupOpen}
+        onClose={() => setIsCommunityPopupOpen(false)}
+      />
     </section>
   );
 };

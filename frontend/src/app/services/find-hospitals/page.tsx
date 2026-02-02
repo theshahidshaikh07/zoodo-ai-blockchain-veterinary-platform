@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CustomSelect from '@/components/ui/custom-select';
-import { 
-  Search, 
-  MapPin, 
-  Star, 
-  Clock, 
-  Phone, 
+import {
+  Search,
+  MapPin,
+  Star,
+  Clock,
+  Phone,
   SlidersHorizontal,
   Building2,
   ChevronDown,
@@ -28,6 +28,8 @@ import {
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BetaDisclaimerBanner from '@/components/BetaDisclaimerBanner';
+import BetaDisclaimerPopup from '@/components/BetaDisclaimerPopup';
 import hospitalImage1 from '@/assets/hospital/hospital.jpg';
 import hospitalImage2 from '@/assets/hospital/service-clinic-hospital.jpg';
 import hospitalImage3 from '@/assets/hospital/vetic.jpg';
@@ -184,7 +186,7 @@ const hospitalTypes = [
 const locations = [
   "All Locations",
   "Mumbai, Maharashtra",
-  "Delhi, NCR", 
+  "Delhi, NCR",
   "Bangalore, Karnataka",
   "Ahmedabad, Gujarat",
   "Pune, Maharashtra",
@@ -224,7 +226,7 @@ function FindHospitalsContent() {
   useEffect(() => {
     const searchParam = searchParams.get('search');
     const typeParam = searchParams.get('type');
-    
+
     if (searchParam) {
       setSearchTerm(searchParam);
     }
@@ -239,7 +241,7 @@ function FindHospitalsContent() {
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(hospital => 
+      filtered = filtered.filter(hospital =>
         hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         hospital.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
         hospital.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -258,7 +260,7 @@ function FindHospitalsContent() {
 
     // Filter by specialization
     if (selectedSpecialization !== 'All Specializations') {
-      filtered = filtered.filter(hospital => 
+      filtered = filtered.filter(hospital =>
         hospital.specializations.includes(selectedSpecialization)
       );
     }
@@ -318,11 +320,14 @@ function FindHospitalsContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
-      
+
       {/* Search and Filters */}
       <section className="pt-24 pb-8">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-6xl mx-auto">
+            {/* Early Access Banner */}
+            <BetaDisclaimerBanner category="hospitals" />
+
             {/* Search Bar */}
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -346,7 +351,7 @@ function FindHospitalsContent() {
                 Filters
                 <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </Button>
-              
+
               <div className="flex items-center gap-4">
                 <span className="text-sm text-muted-foreground">Sort by:</span>
                 <CustomSelect
@@ -457,10 +462,9 @@ function FindHospitalsContent() {
                           </Badge>
                         </div>
                         <div className="absolute bottom-3 left-3">
-                          <Badge className={`text-xs ${
-                            hospital.consultationType === 'In-Person (Clinic/Hospital)' ? 'bg-green-600 text-white' :
-                            'bg-blue-600 text-white'
-                          }`}>
+                          <Badge className={`text-xs ${hospital.consultationType === 'In-Person (Clinic/Hospital)' ? 'bg-green-600 text-white' :
+                              'bg-blue-600 text-white'
+                            }`}>
                             {hospital.consultationType}
                           </Badge>
                         </div>
@@ -499,7 +503,7 @@ function FindHospitalsContent() {
                             <p className="text-lg font-bold text-primary">{hospital.consultationFee}</p>
                             <p className="text-xs text-gray-500">Consultation</p>
                           </div>
-                          <Button 
+                          <Button
                             className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
                             onClick={() => setShowBookingPopup(true)}
                           >
@@ -534,14 +538,14 @@ function FindHospitalsContent() {
               We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
             </p>
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => setShowBookingPopup(false)}
               >
                 Close
               </Button>
-              <Button 
+              <Button
                 className="flex-1"
                 onClick={() => setShowBookingPopup(false)}
               >
@@ -551,6 +555,8 @@ function FindHospitalsContent() {
           </div>
         </div>
       )}
+
+      <BetaDisclaimerPopup category="hospitals" actionVerb="treating" />
     </div>
   );
 }
