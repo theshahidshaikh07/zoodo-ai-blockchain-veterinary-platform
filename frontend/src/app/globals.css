@@ -47,7 +47,9 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
+    /* Premium "Rich Dark" background (Deep Blue-Black) instead of harsh Pure Black */
+    /* Allows shadows to be visible and reduces eye strain */
+    --background: 224 25% 5%;
     --foreground: 210 40% 98%;
     --card: 220 25% 8%;
     --card-foreground: 210 40% 98%;

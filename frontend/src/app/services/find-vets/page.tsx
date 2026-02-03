@@ -73,7 +73,8 @@ const dummyVets = [
     hospital: "Avengers Tower Vet Wing",
     isOnline: true,
     responseTime: "Jarvis Speed",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Jarvis is currently running diagnostics on the Iron Vet suit. Please hold."
   },
   // 2. Emma (London)
   {
@@ -94,12 +95,13 @@ const dummyVets = [
     hospital: "Griffindog House",
     isOnline: true,
     responseTime: "Owl Post Speed",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Owl Post is currently overloaded. Please send a Patronus for urgent requests."
   },
   // 3. King Paw (SRK) (Mumbai)
   {
     id: 3,
-    name: "Dr. King Paw (SRK)",
+    name: "Dr. King Beakhan",
     specialization: "General Practice",
     experience: "30 years",
     rating: 5.0,
@@ -115,12 +117,13 @@ const dummyVets = [
     hospital: "Mannat Pet Care",
     isOnline: true,
     responseTime: "Instant",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Dr. King is shooting a romantic scene. Appointments are only available for DDLJ fans."
   },
   // 4. Cristiano (Miami)
   {
     id: 4,
-    name: "Dr. Cris Pawmnaldo",
+    name: "Dr. Goat Pawmnaldo",
     specialization: "Sports Medicine",
     experience: "20 years",
     rating: 5.0,
@@ -136,7 +139,8 @@ const dummyVets = [
     hospital: "CR7 Pet Wellness",
     isOnline: true,
     responseTime: "90 mins match",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "SIUUUUU! The doctor is currently winning a match. Try again in 90 minutes."
   },
   // 5. Alexandra (LA)
   {
@@ -157,7 +161,8 @@ const dummyVets = [
     hospital: "San Andreas Animal Center",
     isOnline: true,
     responseTime: "20 mins",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Staring contest in progress. Please do not disturb the hypnotic healing session."
   },
   // 6. AB (Mumbai)
   {
@@ -178,7 +183,8 @@ const dummyVets = [
     hospital: "Jalsa Vet Clinic",
     isOnline: false,
     responseTime: "1 hour",
-    consultationType: "In-Clinic"
+    consultationType: "In-Clinic",
+    bookingMessage: "Parampara, Pratishtha, Anushasan. Appointments are only available via KBC lifeline."
   },
   // 7. Ana (LA)
   {
@@ -199,17 +205,18 @@ const dummyVets = [
     hospital: "Hollywood Paws",
     isOnline: true,
     responseTime: "10 mins",
-    consultationType: "Online"
+    consultationType: "Online",
+    bookingMessage: "Currently hunting replicants... I mean, treating fleas. Please wait."
   },
   // 8. Henry (NYC)
   {
     id: 8,
-    name: "Dr. Henry Pawvill",
+    name: "Dr. Henry Hoofill",
     specialization: "Super Strength Therapy",
     experience: "18 years",
     rating: 5.0,
     reviews: 6500,
-    location: "New York City, USA",
+    location: "New York, USA",
     distance: "20 km",
     availability: "Available Now",
     consultationFee: "$220",
@@ -220,12 +227,13 @@ const dummyVets = [
     hospital: "Metropolis Animal Care",
     isOnline: true,
     responseTime: "Faster than a speeding bullet",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Flying around the world to save a cat. Be back in a flash."
   },
   // 9. Madison (Swapped from 18)
   {
     id: 9,
-    name: "Dr. Madison Paws",
+    name: "Dr. Meowdison Beer",
     specialization: "Melody Therapy",
     experience: "5 years",
     rating: 5.0,
@@ -241,12 +249,13 @@ const dummyVets = [
     hospital: "Life Support Clinic",
     isOnline: true,
     responseTime: "Soon",
-    consultationType: "Online"
+    consultationType: "Online",
+    bookingMessage: "Vocal chords resting. Only accepting appointments via melody."
   },
   // 10. Aishwarya (Mumbai)
   {
     id: 10,
-    name: "Dr. Aishpurrya Rai",
+    name: "Dr. Aishscalya Rai",
     specialization: "Dermatology",
     experience: "20 years",
     rating: 5.0,
@@ -262,12 +271,13 @@ const dummyVets = [
     hospital: "Royal Paws",
     isOnline: true,
     responseTime: "15 mins",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Too incredibly beautiful to work right now. The pets are getting distracted."
   },
   // 11. Salman (Mumbai)
   {
     id: 11,
-    name: "Dr. Salman Paw",
+    name: "Dr. Salmon Bhaww",
     specialization: "Orthopedics & Fitness",
     experience: "35 years",
     rating: 5.0,
@@ -283,12 +293,13 @@ const dummyVets = [
     hospital: "Galaxy Pet Hospital",
     isOnline: false,
     responseTime: "45 mins",
-    consultationType: "In-Clinic"
+    consultationType: "In-Clinic",
+    bookingMessage: "Driver is parking the car... might take a while. Being Human takes time."
   },
   // 12. Katrina (Mumbai)
   {
     id: 12,
-    name: "Dr. Katrina Paws",
+    name: "Dr. Kat Beaks",
     specialization: "Nutrition & Diet",
     experience: "15 years",
     rating: 5.0,
@@ -304,12 +315,13 @@ const dummyVets = [
     hospital: "Kay Beauty Vets",
     isOnline: true,
     responseTime: "30 mins",
-    consultationType: "Online"
+    consultationType: "Online",
+    bookingMessage: "Busy eating mangoes. Try again later."
   },
   // 13. Keanu (LA)
   {
     id: 13,
-    name: "Dr. Kitten Reeves",
+    name: "Dr. Pupper Reeves",
     specialization: "Action Recovery",
     experience: "25 years",
     rating: 5.0,
@@ -325,7 +337,8 @@ const dummyVets = [
     hospital: "Wick Animal Haven",
     isOnline: true,
     responseTime: "Yeah.",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Someone touched his dog. He is currently... unavailable. (Run.)"
   },
 
   // Remaining Vets
@@ -348,12 +361,13 @@ const dummyVets = [
     hospital: "Wayne Pet Enterprises",
     isOnline: false,
     responseTime: "Dark Knight Rises",
-    consultationType: "Emergency"
+    consultationType: "Emergency",
+    bookingMessage: "He is the hero Gotham deserves, but not the one it needs right now."
   },
   // 15. Millie (Nashville)
   {
     id: 15,
-    name: "Dr. Millie Pawby Brown",
+    name: "Dr. Millie Tabby Brown",
     specialization: "Puppy Telekinesis",
     experience: "7 years",
     rating: 4.8, // Slightly lower to create tiers? No, keep 5.0 but lower reviews
@@ -369,7 +383,8 @@ const dummyVets = [
     hospital: "Nashville Paws",
     isOnline: true,
     responseTime: "11 mins",
-    consultationType: "Online"
+    consultationType: "Online",
+    bookingMessage: "Nose bleed break. Recharging with waffles."
   },
   // 16. Ariana (Paris)
   {
@@ -390,7 +405,8 @@ const dummyVets = [
     hospital: "7 Rings Clinic",
     isOnline: true,
     responseTime: "Positions (Remote)",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Thank u, next patient! (But not right now)."
   },
   // 17. Cillian (LA)
   {
@@ -411,7 +427,8 @@ const dummyVets = [
     hospital: "Peaky Paws Clinic",
     isOnline: true,
     responseTime: "Immediate",
-    consultationType: "Video Call"
+    consultationType: "Video Call",
+    bookingMessage: "Calculating the atomic weight of a hairball. Appointment chances are near zero."
   },
   // 18. Sadie (Swapped from 9)
   {
@@ -421,7 +438,7 @@ const dummyVets = [
     experience: "5 years",
     rating: 4.8,
     reviews: 1500, // Kept low for position 18
-    location: "New York City, USA",
+    location: "New York, USA",
     distance: "22 km",
     availability: "Available Now",
     consultationFee: "$130",
@@ -432,7 +449,8 @@ const dummyVets = [
     hospital: "Stranger Paws Clinic",
     isOnline: true,
     responseTime: "10 mins",
-    consultationType: "Online"
+    consultationType: "Online",
+    bookingMessage: "Currently in the Upside Down. Walkie-talkie for response."
   }
 ];
 
@@ -450,15 +468,16 @@ const specializations = [
 
 const consultationTypes = [
   "All Types",
+  "In-Person",
   "Home Visit",
-  "Online Consultation"
+  "Teleconsultation"
 ];
 
 const locations = [
   "All Locations",
   "Mumbai, India",
   "Los Angeles, USA",
-  "New York City, USA",
+  "New York, USA",
   "London, UK",
   "Miami, USA",
   "Nashville, USA",
@@ -474,14 +493,14 @@ function FindVetsContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [filteredVets, setFilteredVets] = useState(dummyVets);
   const [sortBy, setSortBy] = useState('rating');
-  const [showBookingPopup, setShowBookingPopup] = useState(false);
+  const [selectedVet, setSelectedVet] = useState<typeof dummyVets[0] | null>(null);
 
 
   // Check for URL parameters on component mount
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam === 'online') {
-      setSelectedConsultationType('Online Consultation');
+      setSelectedConsultationType('Teleconsultation');
       setShowFilters(true); // Auto-show filters when coming from service link
     }
   }, [searchParams]);
@@ -510,7 +529,20 @@ function FindVetsContent() {
 
     // Filter by consultation type
     if (selectedConsultationType !== 'All Types') {
-      filtered = filtered.filter(vet => vet.consultationType === selectedConsultationType);
+      if (selectedConsultationType === 'Teleconsultation') {
+        filtered = filtered.filter(vet =>
+          vet.consultationType === 'Online' ||
+          vet.consultationType === 'Video Call' ||
+          vet.consultationType === 'Online Consultation'
+        );
+      } else if (selectedConsultationType === 'In-Person') {
+        filtered = filtered.filter(vet =>
+          vet.consultationType === 'In-Clinic' ||
+          vet.consultationType === 'Emergency'
+        );
+      } else {
+        filtered = filtered.filter(vet => vet.consultationType === selectedConsultationType);
+      }
     }
 
     // Sort results
@@ -556,7 +588,7 @@ function FindVetsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:bg-background dark:from-transparent dark:via-transparent dark:to-transparent">
       <Header />
 
       {/* Search and Filters */}
@@ -646,18 +678,7 @@ function FindVetsContent() {
             )}
 
             {/* Results Count */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <p className="text-muted-foreground font-medium">
-                  {filteredVets.length} veterinarian{filteredVets.length !== 1 ? 's' : ''} found
-                </p>
-                {selectedConsultationType === 'Online Consultation' && (
-                  <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                    Showing online consultation services
-                  </p>
-                )}
-              </div>
-            </div>
+
           </div>
         </div>
       </section>
@@ -676,7 +697,7 @@ function FindVetsContent() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredVets.map((vet) => (
-                  <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Vet Image */}
                       <div className="relative h-[450px] overflow-hidden">
@@ -686,52 +707,43 @@ function FindVetsContent() {
                           fill
                           className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute top-3 right-3">
-                          <Badge variant={vet.isOnline ? 'default' : 'secondary'} className="text-xs">
-                            {vet.isOnline ? 'Online' : 'Offline'}
-                          </Badge>
-                        </div>
-                        <div className="absolute bottom-3 left-3">
-                          <Badge className={`text-xs ${vet.consultationType === 'Home Visit' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
-                            {vet.consultationType}
-                          </Badge>
-                        </div>
                       </div>
 
                       {/* Vet Details */}
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">{vet.name}</h3>
-                            <p className="text-sm text-primary font-medium">{vet.specialization}</p>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">{vet.rating}</span>
+                      {/* Vet Details - Compact & Readable */}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-0.5">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight truncate pr-2">{vet.name}</h3>
+                          <div className="flex items-center space-x-1 shrink-0 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded-md">
+                            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-500" />
+                            <span className="text-xs font-bold text-yellow-700 dark:text-yellow-400">{vet.rating}</span>
                           </div>
                         </div>
 
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            <span>{vet.location}</span>
+                        <p className="text-sm text-primary dark:text-primary font-medium mb-3">{vet.specialization}</p>
+
+                        <div className="flex items-center gap-3 mb-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          <div className="flex items-center shrink-0">
+                            <MapPin className="w-3.5 h-3.5 mr-1" />
+                            <span className="truncate max-w-[100px]">{vet.location}</span>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Clock className="w-4 h-4 mr-2" />
-                            <span className={vet.isOnline ? 'text-green-600' : 'text-orange-600'}>
+                          <div className="w-px h-3 bg-gray-300 dark:bg-gray-700"></div>
+                          <div className="flex items-center shrink-0">
+                            <Clock className="w-3.5 h-3.5 mr-1" />
+                            <span className={vet.isOnline ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}>
                               {vet.availability}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
                           <div>
-                            <p className="text-lg font-bold text-primary">{vet.consultationFee}</p>
-                            <p className="text-xs text-gray-500">Consultation</p>
+                            <p className="text-lg font-bold text-primary leading-none">{vet.consultationFee}</p>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium mt-0.5">Consultation</p>
                           </div>
                           <Button
-                            className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
-                            onClick={() => setShowBookingPopup(true)}
+                            className="bg-primary hover:bg-primary/90 text-white h-9 px-5 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all"
+                            onClick={() => setSelectedVet(vet)}
                           >
                             Book
                           </Button>
@@ -748,35 +760,54 @@ function FindVetsContent() {
 
       <Footer />
 
-      {/* Booking Popup */}
-      {showBookingPopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+      {/* Creative Booking Popup */}
+      {selectedVet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-card rounded-2xl p-0 max-w-md w-full mx-4 shadow-2xl overflow-hidden border border-border">
+            {/* Header with Image */}
+            <div className="relative h-32 bg-primary/10">
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+                <div className="relative w-32 h-32 rounded-full border-4 border-background overflow-hidden shadow-lg bg-card">
+                  <Image
+                    src={selectedVet.image}
+                    alt={selectedVet.name}
+                    fill
+                    className="object-cover object-top"
+                  />
+                </div>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
-              Booking Temporarily Unavailable
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
-              We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowBookingPopup(false)}
-              >
-                Close
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={() => setShowBookingPopup(false)}
-              >
-                Contact Us
-              </Button>
+
+            <div className="pt-20 pb-8 px-6 text-center">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                {selectedVet.name}
+              </h3>
+              <p className="text-sm text-primary font-medium mb-6 uppercase tracking-wider">
+                {selectedVet.hospital}
+              </p>
+
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6 relative">
+                {/* Quote decorative icon could go here */}
+                <p className="text-gray-700 dark:text-gray-300 text-lg font-medium italic leading-relaxed">
+                  "{selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}"
+                </p>
+              </div>
+
+              <div className="flex gap-3 grid grid-cols-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedVet(null)}
+                  className="w-full border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                >
+                  Close
+                </Button>
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90"
+                  onClick={() => setSelectedVet(null)}
+                >
+                  Notify Me
+                </Button>
+              </div>
             </div>
           </div>
         </div>

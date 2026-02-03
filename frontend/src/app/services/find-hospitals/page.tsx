@@ -318,7 +318,7 @@ function FindHospitalsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:bg-background dark:from-transparent dark:via-transparent dark:to-transparent">
       <Header />
 
       {/* Search and Filters */}
@@ -416,18 +416,7 @@ function FindHospitalsContent() {
             )}
 
             {/* Results Count */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <p className="text-muted-foreground font-medium">
-                  {filteredHospitals.length} hospital{filteredHospitals.length !== 1 ? 's' : ''} found
-                </p>
-                {selectedType === 'Emergency Hospital' && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                    Showing emergency hospitals for urgent care
-                  </p>
-                )}
-              </div>
-            </div>
+
           </div>
         </div>
       </section>
@@ -446,7 +435,7 @@ function FindHospitalsContent() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredHospitals.map((hospital) => (
-                  <Card key={hospital.id} className="group hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <Card key={hospital.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Hospital Image */}
                       <div className="relative h-64 overflow-hidden">
@@ -463,7 +452,7 @@ function FindHospitalsContent() {
                         </div>
                         <div className="absolute bottom-3 left-3">
                           <Badge className={`text-xs ${hospital.consultationType === 'In-Person (Clinic/Hospital)' ? 'bg-green-600 text-white' :
-                              'bg-blue-600 text-white'
+                            'bg-blue-600 text-white'
                             }`}>
                             {hospital.consultationType}
                           </Badge>
@@ -474,25 +463,25 @@ function FindHospitalsContent() {
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">{hospital.name}</h3>
-                            <p className="text-sm text-primary font-medium">{hospital.type}</p>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">{hospital.name}</h3>
+                            <p className="text-sm text-primary dark:text-primary font-medium">{hospital.type}</p>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">{hospital.rating}</span>
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-500" />
+                            <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">{hospital.rating}</span>
                           </div>
                         </div>
 
                         <div className="space-y-2 mb-4">
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <MapPin className="w-4 h-4 mr-2" />
                             <span>{hospital.location}</span>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <Clock className="w-4 h-4 mr-2" />
-                            <span className="text-green-600">{hospital.availability}</span>
+                            <span className="text-green-600 dark:text-green-400">{hospital.availability}</span>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <Users className="w-4 h-4 mr-2" />
                             <span>{hospital.doctors} doctors</span>
                           </div>
@@ -524,8 +513,8 @@ function FindHospitalsContent() {
 
       {/* Booking Popup */}
       {showBookingPopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-border">
             <div className="flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
