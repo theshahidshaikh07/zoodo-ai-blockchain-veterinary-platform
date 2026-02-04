@@ -35,7 +35,7 @@ import trainerBenedict from '@/assets/trainer/benedict.png';
 import trainerBillie from '@/assets/trainer/billie.png';
 import trainerChris from '@/assets/trainer/chirs hemsworth.png';
 import trainerDwayne from '@/assets/trainer/dwayne.png';
-import trainerEmma from '@/assets/trainer/ema stone.png';
+import trainerKaren from '@/assets/trainer/karen jumanji.png';
 import trainerKendall from '@/assets/trainer/kendal jenner.png';
 import trainerKylie from '@/assets/trainer/kylie jenner.png';
 import trainerLeo from '@/assets/trainer/leonardo.png';
@@ -235,28 +235,28 @@ const dummyTrainers = [
     consultationType: "Academy",
     bookingMessage: "Your mission, should you choose to accept it, involves catching this frisbee."
   },
-  // 9. Emma Stone (Quirky/Fun)
+  // 9. Karen Gillan
   {
     id: 16,
-    name: "Emma Bones",
-    specialization: "Trick Training & Drama",
-    experience: "12 years",
+    name: "Karen Paw-lan",
+    specialization: "Dance Fighting & Agility",
+    experience: "10 years",
     rating: 4.9,
     reviews: 8500,
-    location: "Los Angeles, USA",
-    distance: "8 km",
-    availability: "Available Now",
-    sessionFee: "$320",
-    image: trainerEmma,
+    location: "Jungle, Jumanji",
+    distance: "Unknown",
+    availability: "Level 1 Complete",
+    sessionFee: "$350",
+    image: trainerKaren,
     languages: ["English"],
-    services: ["Barking in accents", "Playing Dead (Oscar level)"],
-    education: "La La Land K9s",
-    trainingCenter: "Cruella De Vil's (Reformed)",
+    services: ["Dance Fighting", "High Kicks"],
+    education: "Jumanji Avatar School",
+    trainingCenter: "Ruby Roundhouse Dojos",
     isOnline: true,
-    responseTime: "Quick witted",
+    responseTime: "Critical Hit",
     petsTrained: 2800,
-    consultationType: "Home Visit",
-    bookingMessage: "Here's to the ones who dream... of catching squirrels."
+    consultationType: "Academy",
+    bookingMessage: "Why am I in this outfit? Never mind. Let's train to survive."
   },
   // 10. Leo (Classy)
   {
@@ -502,12 +502,12 @@ export default function FindTrainersPage() {
   const [selectedConsultationType, setSelectedConsultationType] = useState('All Types');
   const [showFilters, setShowFilters] = useState(false);
   const [filteredTrainers, setFilteredTrainers] = useState(dummyTrainers);
-  const [sortBy, setSortBy] = useState('rating');
+  const [sortBy, setSortBy] = useState('featured');
   // State for creative booking popup
   const [selectedTrainer, setSelectedTrainer] = useState<typeof dummyTrainers[0] | null>(null);
 
   useEffect(() => {
-    let filtered = dummyTrainers;
+    let filtered = [...dummyTrainers];
 
     // Filter by search term
     if (searchTerm) {
@@ -549,6 +549,8 @@ export default function FindTrainersPage() {
         case 'fee':
           return parseInt(a.sessionFee.replace('$', '').replace(',', '')) -
             parseInt(b.sessionFee.replace('$', '').replace(',', ''));
+        case 'featured':
+          return 0; // Maintain original curated order
         default:
           return 0;
       }
@@ -562,7 +564,7 @@ export default function FindTrainersPage() {
     setSelectedSpecialization('All Specializations');
     setSelectedLocation('All Locations');
     setSelectedConsultationType('All Types');
-    setSortBy('rating');
+    setSortBy('featured');
     setShowFilters(false);
   };
 
@@ -620,6 +622,7 @@ export default function FindTrainersPage() {
                 <span className="text-sm text-muted-foreground">Sort by:</span>
                 <CustomSelect
                   options={[
+                    { value: 'featured', label: 'Featured' },
                     { value: 'rating', label: 'Rating' },
                     { value: 'distance', label: 'Distance' },
                     { value: 'fee', label: 'Session Fee' }

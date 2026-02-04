@@ -49,6 +49,9 @@ import vetCillian from '@/assets/vets/cillian.png';
 import vetMadison from '@/assets/vets/madison.png';
 import vetKeanu from '@/assets/vets/keeanu.png';
 import vetImage5 from '@/assets/vets/pexels-kooldark-14438790.jpg';
+import vetAndrew from '@/assets/vets/andrew.png';
+import vetEmmaStone from '@/assets/vets/ema stone -.png';
+import vetWeeknd from '@/assets/vets/weekend.png';
 import vetImage6 from '@/assets/hero-vet.jpg';
 
 // Dummy vet data with fictional character personas
@@ -451,6 +454,72 @@ const dummyVets = [
     responseTime: "10 mins",
     consultationType: "Online",
     bookingMessage: "Currently in the Upside Down. Walkie-talkie for response."
+  },
+  // 19. Andrew Garfield
+  {
+    id: 19,
+    name: "Dr. Spidey Gar-fur",
+    specialization: "Emergency Response",
+    experience: "12 years",
+    rating: 4.9,
+    reviews: 8800,
+    location: "New York, USA",
+    distance: "2 km",
+    availability: "Swinging By",
+    consultationFee: "$250",
+    image: vetAndrew,
+    languages: ["English"],
+    services: ["Webbed Feet Care", "High Altitude Rescue"],
+    education: "Midtown Science High",
+    hospital: "Friendly Neighborhood Clinic",
+    isOnline: true,
+    responseTime: "Tingle Speed",
+    consultationType: "Video Call",
+    bookingMessage: "My spidey senses are tingling... looks like your pet needs a treat."
+  },
+  // 20. Emma Stone
+  {
+    id: 20,
+    name: "Dr. Emma St-bone",
+    specialization: "Chemistry & Diagnostics",
+    experience: "10 years",
+    rating: 5.0,
+    reviews: 9000,
+    location: "New York, USA",
+    distance: "3 km",
+    availability: "Available Now",
+    consultationFee: "$280",
+    image: vetEmmaStone,
+    languages: ["English"],
+    services: ["Advanced Lab Tests", "Bio-Chemistry"],
+    education: "Oscorp Intern Program",
+    hospital: "Stacy Animal Hospital",
+    isOnline: true,
+    responseTime: "Smart",
+    consultationType: "Video Call",
+    bookingMessage: "Running some bio-tests. I love science, and puppies."
+  },
+  // 21. The Weeknd
+  {
+    id: 21,
+    name: "Dr. Abel Tes-paw-ye",
+    specialization: "Nocturnal Care",
+    experience: "After Hours",
+    rating: 4.8,
+    reviews: 7777,
+    location: "Toronto, Canada",
+    distance: "100 km",
+    availability: "Weekends Only",
+    consultationFee: "$400",
+    image: vetWeeknd,
+    languages: ["English", "Amharic"],
+    services: ["Vocal Therapy", "Blinding Lights Exam"],
+    education: "House of Balloons Academy",
+    hospital: "XO Vet Clinic",
+    isOnline: true,
+    responseTime: "Late Night",
+    consultationType: "Video Call",
+    bookingMessage: "I said ooh, I'm blinded by the... shine of your dog's coat."
   }
 ];
 
