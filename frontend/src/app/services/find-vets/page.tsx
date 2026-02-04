@@ -766,7 +766,7 @@ function FindVetsContent() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredVets.map((vet) => (
-                  <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border rounded-xl overflow-hidden">
+                  <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Vet Image */}
                       <div className="relative h-[450px] overflow-hidden">

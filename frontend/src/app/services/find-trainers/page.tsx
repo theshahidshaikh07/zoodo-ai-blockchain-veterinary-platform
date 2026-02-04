@@ -693,7 +693,7 @@ export default function FindTrainersPage() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredTrainers.map((trainer) => (
-                  <Card key={trainer.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border rounded-xl overflow-hidden">
+                  <Card key={trainer.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Trainer Image */}
                       <div className="relative h-[450px] overflow-hidden">

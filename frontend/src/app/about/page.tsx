@@ -9,7 +9,7 @@ import { HeartPulse, Award, Users2, BrainCircuit, Mail, Linkedin, Github, ArrowR
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import shahidImage from '@/assets/Shahid-Passport-copy.png';
+import shahidImage from '@/assets/meee.png';
 import aayusheeImage from '@/assets/Aayushee .jpg';
 import khushiImage from '@/assets/khushi.jpg';
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,7 +48,7 @@ const AboutUs: React.FC = () => {
             <Button size="lg" className="mt-8 group" onClick={handleExploreServicesClick}>
               Explore Our Services <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            
+
             {/* Statistics Section */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               <div className="glass-card p-6 rounded-2xl text-center">
@@ -78,7 +78,7 @@ const AboutUs: React.FC = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Story</h2>
               <p className="mt-2 text-lg text-muted-foreground">Transforming pet healthcare through innovation, compassion, and cutting-edge technology</p>
             </div>
-            
+
             {/* Challenge and Solution Cards */}
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {/* Challenge Card */}
@@ -92,7 +92,7 @@ const AboutUs: React.FC = () => {
                   </div>
                   <div className="space-y-4">
                     <p className="text-muted-foreground leading-relaxed">
-                    Many pet parents find it hard to get timely and affordable veterinary care. Emergency visits are stressful, regular check-ups are costly, and long wait times often delay treatment. Without round-the-clock expert guidance, pets don’t always get the care they deserve, leaving families worried and helpless.                    </p>
+                      Many pet parents find it hard to get timely and affordable veterinary care. Emergency visits are stressful, regular check-ups are costly, and long wait times often delay treatment. Without round-the-clock expert guidance, pets don’t always get the care they deserve, leaving families worried and helpless.                    </p>
                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                       <ul className="text-sm text-primary space-y-2">
                         <li className="flex items-center">
@@ -128,7 +128,7 @@ const AboutUs: React.FC = () => {
                   </div>
                   <div className="space-y-4">
                     <p className="text-muted-foreground leading-relaxed">
-                    Zoodo makes pet healthcare simple, accessible, and supportive. With instant AI health checks, 24/7 access to trusted vets, and affordable online consultations, pet parents can make quick, informed decisions. A friendly community platform also ensures knowledge and care are always within reach.                    </p>
+                      Zoodo makes pet healthcare simple, accessible, and supportive. With instant AI health checks, 24/7 access to trusted vets, and affordable online consultations, pet parents can make quick, informed decisions. A friendly community platform also ensures knowledge and care are always within reach.                    </p>
                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                       <ul className="text-sm text-primary space-y-2">
                         <li className="flex items-center">
@@ -164,34 +164,34 @@ const AboutUs: React.FC = () => {
               <p className="mt-2 text-lg text-muted-foreground">The principles that guide everything we do at Zoodo</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div className="glass-card p-8 rounded-3xl text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                        <HeartPulse className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-4">Compassionate Care</h3>
-                    <p className="text-muted-foreground leading-relaxed">Every pet deserves loving, professional care. We bridge the gap between pet parents and veterinary experts.</p>
+              <div className="glass-card p-8 rounded-3xl text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                  <HeartPulse className="w-8 h-8 text-white" />
                 </div>
-                <div className="glass-card p-8 rounded-3xl text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                        <Award className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-4">Excellence</h3>
-                    <p className="text-muted-foreground leading-relaxed">We maintain the highest standards in pet healthcare through continuous innovation and expert partnerships.</p>
+                <h3 className="text-xl font-bold mb-4">Compassionate Care</h3>
+                <p className="text-muted-foreground leading-relaxed">Every pet deserves loving, professional care. We bridge the gap between pet parents and veterinary experts.</p>
+              </div>
+              <div className="glass-card p-8 rounded-3xl text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                  <Award className="w-8 h-8 text-white" />
                 </div>
-                <div className="glass-card p-8 rounded-3xl text-center">
-                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                        <Users2 className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-4">Community</h3>
-                    <p className="text-muted-foreground leading-relaxed">Building a supportive community where pet parents can share experiences and learn from each other.</p>
+                <h3 className="text-xl font-bold mb-4">Excellence</h3>
+                <p className="text-muted-foreground leading-relaxed">We maintain the highest standards in pet healthcare through continuous innovation and expert partnerships.</p>
+              </div>
+              <div className="glass-card p-8 rounded-3xl text-center">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                  <Users2 className="w-8 h-8 text-white" />
                 </div>
-                <div className="glass-card p-8 rounded-3xl text-center">
-                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                        <Lightbulb className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-4">Innovation</h3>
-                    <p className="text-muted-foreground leading-relaxed">Leveraging cutting-edge AI technology to make veterinary care more accessible and efficient.</p>
+                <h3 className="text-xl font-bold mb-4">Community</h3>
+                <p className="text-muted-foreground leading-relaxed">Building a supportive community where pet parents can share experiences and learn from each other.</p>
+              </div>
+              <div className="glass-card p-8 rounded-3xl text-center">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                  <Lightbulb className="w-8 h-8 text-white" />
                 </div>
+                <h3 className="text-xl font-bold mb-4">Innovation</h3>
+                <p className="text-muted-foreground leading-relaxed">Leveraging cutting-edge AI technology to make veterinary care more accessible and efficient.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -219,7 +219,7 @@ const AboutUs: React.FC = () => {
                       <Image
                         src={shahidImage}
                         alt="Shahid Shaikh"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover object-[50%_15%] group-hover:scale-105 transition-transform duration-300"
                         layout="fill"
                       />
                     </div>
@@ -334,8 +334,8 @@ const AboutUs: React.FC = () => {
         <section ref={missionRef} className={`py-20 bg-primary/5 scroll-fade-in ${missionVisible ? 'animate' : ''}`}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border-2 border-primary/30 text-sm font-medium text-primary mb-4">
-                <Zap className="w-4 h-4 mr-2" />
-                Join Us
+              <Zap className="w-4 h-4 mr-2" />
+              Join Us
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Join Our Mission</h2>
             <p className="mt-2 max-w-2xl mx-auto text-lg text-muted-foreground">

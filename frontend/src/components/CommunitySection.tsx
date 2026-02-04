@@ -14,7 +14,7 @@ import {
   Star
 } from "lucide-react";
 import communityPets from "@/assets/community-pets.jpg";
-import pexelsKooldark1 from "@/assets/pexels-kooldark-14438788.jpg";
+import pexelsKooldark1 from "@/assets/vets/rdj.png";
 import pexelsGustavo1 from "@/assets/pexels-edmond-dantes-4342352.jpg";
 import pexelsGustavo2 from "@/assets/pexels-gustavo-fring-4173251.jpg";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -150,7 +150,7 @@ const CommunitySection = () => {
           <div className="space-y-6 order-2 lg:order-2">
             <div className="space-y-4">
               <h3 className="text-3xl lg:text-4xl font-bold">
-                More than a platform—
+                More than a platform
                 <br />
                 <span className="gradient-text">it&#39;s a movement</span>
               </h3>

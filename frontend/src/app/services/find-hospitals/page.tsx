@@ -30,220 +30,363 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BetaDisclaimerBanner from '@/components/BetaDisclaimerBanner';
 import BetaDisclaimerPopup from '@/components/BetaDisclaimerPopup';
-import hospitalImage1 from '@/assets/hospital/hospital.jpg';
-import hospitalImage2 from '@/assets/hospital/service-clinic-hospital.jpg';
-import hospitalImage3 from '@/assets/hospital/vetic.jpg';
-import hospitalImage4 from '@/assets/ai-vet-tech.jpg';
-import hospitalImage5 from '@/assets/ai-petcare.jpg';
-import hospitalImage6 from '@/assets/pexels-kooldark-14438788.jpg';
 
-// Dummy hospital data with actual images
+// New Hospital Images
+import hospFalcon from '@/assets/hospital/abu dhabi falcon hospital.jpg';
+import hospQueens from '@/assets/hospital/Queens mother hospital.jpeg';
+import hospPenn from '@/assets/hospital/pennvet.jpg';
+import hospBluePearl from '@/assets/hospital/bluepearl.jpg';
+import hospCascade from '@/assets/hospital/Cascade Hospitals for Animals.jpeg';
+import hospTownCountry from '@/assets/hospital/town & country animal hospital.jpg';
+import hospClinton from '@/assets/hospital/clinton keith veterinary hospital.jpg';
+import hospMcCaulley from '@/assets/hospital/McCaulley Animal Clinic.jpeg';
+import hospVetic from '@/assets/hospital/vetic.jpg';
+import hospHawk from '@/assets/hospital/hawk bridge animal hospital.jpeg';
+import hospAngell from '@/assets/hospital/Angell Animal Medical Center – Boston, Massachusetts, USA.jpg';
+import hospSchwarzman from '@/assets/hospital/Schwarzman Animal Medical Center Opens Surgical Care Facility in Lenox Hill, Manhattan.jpg';
+import hospChampion from '@/assets/hospital/hospital.jpg';
+
+// Dummy hospital data with real world locations, ranked by global popularity with aligned ratings
 const dummyHospitals = [
-  {
-    id: 1,
-    name: "PetCare Advanced Hospital",
-    type: "Multi-Specialty Hospital",
-    rating: 4.8,
-    reviews: 324,
-    location: "Mumbai, Maharashtra",
-    distance: "2.1 km",
-    availability: "24/7 Emergency",
-    consultationFee: "₹600 - ₹1,500",
-    image: hospitalImage1,
-    facilities: ["Emergency Care", "Surgery", "ICU", "X-Ray", "Lab", "Pharmacy"],
-    specializations: ["General Medicine", "Surgery", "Emergency", "Dermatology"],
-    doctors: 12,
-    established: "2015",
-    languages: ["English", "Hindi", "Marathi"],
-    parking: true,
-    wifi: true,
-    onlinePayment: true,
-    responseTime: "Immediate",
-    consultationType: "In-Person (Clinic/Hospital)"
-  },
+  // 1. RVC / Queen Mother Hospital (Often ranked #1 globally for VetMed)
   {
     id: 2,
-    name: "Animal Emergency Center",
-    type: "Emergency Hospital",
-    rating: 4.9,
-    reviews: 189,
-    location: "Delhi, NCR",
-    distance: "3.4 km",
+    name: "Queen Mother Hospital",
+    type: "Teaching Hospital (RVC)",
+    rating: 5.0,
+    reviews: 3500,
+    location: "London, United Kingdom",
+    distance: "International",
     availability: "24/7 Emergency",
-    consultationFee: "₹800 - ₹2,000",
-    image: hospitalImage2,
-    facilities: ["Emergency Care", "Trauma Center", "ICU", "Blood Bank", "Ambulance"],
-    specializations: ["Emergency Medicine", "Trauma Surgery", "Critical Care"],
-    doctors: 8,
-    established: "2018",
-    languages: ["English", "Hindi", "Punjabi"],
+    consultationFee: "£200 - £800",
+    image: hospQueens,
+    facilities: ["MRI/CT Scan", "Cancer Center", "Hydrotherapy", "Neurology Lab"],
+    specializations: ["Oncology", "Neurology", "Cardiology", "Soft Tissue Surgery"],
+    doctors: 50,
+    established: "1791",
+    languages: ["English"],
+    parking: true,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Referral Only",
+    consultationType: "Referral Hospital"
+  },
+  // 2. Schwarzman / AMC (Largest non-profit in USA)
+  {
+    id: 2,
+    name: "Schwarzman Animal Medical Center",
+    type: "Teaching Hospital",
+    rating: 4.9,
+    reviews: 3200,
+    location: "New York, NY, USA",
+    distance: "International",
+    availability: "24/7",
+    consultationFee: "$250 - $750",
+    image: hospSchwarzman,
+    facilities: ["Surgical Center", "Trauma", "Rehabilitation", "Oncology"],
+    specializations: ["Surgery", "Oncology", "Neurology", "Cardiology"],
+    doctors: 120,
+    established: "1910",
+    languages: ["English", "Spanish"],
+    parking: false,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Triage Based",
+    consultationType: "Teaching Hospital"
+  },
+  // 3. Penn Vet (Top University Hospital)
+  // 3. Penn Vet (Top University Hospital)
+  {
+    id: 3,
+    name: "Penn Vet Ryan Hospital",
+    type: "University Hospital",
+    rating: 4.9,
+    reviews: 4000,
+    location: "Philadelphia, USA",
+    distance: "International",
+    availability: "24/7 Trauma",
+    consultationFee: "$200 - $700",
+    image: hospPenn,
+    facilities: ["Trauma Center", "Genetic Testing", "Behavior Clinic", "Robotic Surgery"],
+    specializations: ["Genetics", "Behavior", "Surgery", "Oncology"],
+    doctors: 60,
+    established: "1884",
+    languages: ["English"],
+    parking: true,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Triage Based",
+    consultationType: "Teaching Hospital"
+  },
+  // 4. Angell Animal Medical Center (One of the oldest/most famous)
+  {
+    id: 4,
+    name: "Angell Animal Medical Center",
+    type: "referral hospital",
+    rating: 4.9,
+    reviews: 2100,
+    location: "Boston, Massachusetts, USA",
+    distance: "International",
+    availability: "24/7 Emergency",
+    consultationFee: "$200 - $600",
+    image: hospAngell,
+    facilities: ["Advanced Care", "Emergency", "Specialty Surgery", "Cardiology"],
+    specializations: ["Emergency", "Critical Care", "Internal Medicine"],
+    doctors: 40,
+    established: "1915",
+    languages: ["English"],
     parking: true,
     wifi: true,
     onlinePayment: true,
     responseTime: "Immediate",
-    consultationType: "In-Person (Clinic/Hospital)"
+    consultationType: "Referral & Emergency"
   },
+  // 5. Abu Dhabi Falcon Hospital (World famous niche hospital)
+  // 5. Abu Dhabi Falcon Hospital (World famous niche hospital)
   {
-    id: 3,
-    name: "Skin & Coat Specialty Clinic",
-    type: "Specialty Clinic",
-    rating: 4.7,
-    reviews: 156,
-    location: "Bangalore, Karnataka",
-    distance: "4.2 km",
-    availability: "Mon-Sat 9AM-7PM",
-    consultationFee: "₹500 - ₹1,200",
-    image: hospitalImage3,
-    facilities: ["Dermatology", "Allergy Testing", "Cosmetic Surgery", "Lab"],
-    specializations: ["Dermatology", "Allergy Medicine", "Cosmetic Surgery"],
-    doctors: 4,
-    established: "2020",
-    languages: ["English", "Hindi", "Kannada"],
+    id: 5,
+    name: "Abu Dhabi Falcon Hospital",
+    type: "Specialized Avian Hospital",
+    rating: 4.8,
+    reviews: 5000,
+    location: "Abu Dhabi, UAE",
+    distance: "International",
+    availability: "Mon-Sat 8AM-8PM",
+    consultationFee: "$150 - $500",
+    image: hospFalcon,
+    facilities: ["Falconry Heritage", "ICU", "Flight Tests", "Surgery", "Museum"],
+    specializations: ["Avian Medicine", "Orthopedics", "Ophthalmology"],
+    doctors: 20,
+    established: "1999",
+    languages: ["English", "Arabic"],
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "30 mins",
-    consultationType: "Online"
+    responseTime: "Immediate",
+    consultationType: "In-Person"
   },
+  // 6. BluePearl (Major US Chain/Specialty)
+  // 6. BluePearl (Major US Chain/Specialty)
   {
-    id: 4,
-    name: "Ortho Pet Center",
-    type: "Specialty Hospital",
-    rating: 4.9,
-    reviews: 267,
-    location: "Ahmedabad, Gujarat",
-    distance: "1.8 km",
-    availability: "Mon-Sun 8AM-8PM",
-    consultationFee: "₹700 - ₹1,800",
-    image: hospitalImage4,
-    facilities: ["Orthopedic Surgery", "Physical Therapy", "X-Ray", "MRI", "Lab"],
-    specializations: ["Orthopedics", "Physical Therapy", "Sports Medicine"],
-    doctors: 6,
-    established: "2017",
-    languages: ["English", "Hindi", "Gujarati"],
+    id: 6,
+    name: "BluePearl Pet Hospital",
+    type: "Specialty & Emergency",
+    rating: 4.8,
+    reviews: 2800,
+    location: "New York, USA",
+    distance: "International",
+    availability: "24/7 Emergency",
+    consultationFee: "$180 - $600",
+    image: hospBluePearl,
+    facilities: ["Emergency ER", "Dialysis", "Blood Bank", "Advanced Imaging"],
+    specializations: ["Emergency", "Critical Care", "Internal Medicine"],
+    doctors: 30,
+    established: "1996",
+    languages: ["English", "Spanish"],
+    parking: true,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Immediate",
+    consultationType: "Emergency"
+  },
+  // 7. Vetic (Rising Tech-First network in India)
+  // 7. Vetic (Rising Tech-First network in India)
+  {
+    id: 7,
+    name: "Vetic Pet Clinic",
+    type: "Modern Tech-First Clinic",
+    rating: 4.7,
+    reviews: 1200,
+    location: "Mumbai, India",
+    distance: "Local",
+    availability: "Mon-Sun 9AM-9PM",
+    consultationFee: "₹499 - ₹1,499",
+    image: hospVetic,
+    facilities: ["Digital Records", "Grooming", "Surgery", "In-house Lab"],
+    specializations: ["Preventive Care", "Dermatology", "General Surgery"],
+    doctors: 15,
+    established: "2022",
+    languages: ["English", "Hindi"],
     parking: true,
     wifi: true,
     onlinePayment: true,
     responseTime: "15 mins",
-    consultationType: "In-Person (Clinic/Hospital)"
+    consultationType: "Hybrid (App/Clinic)"
   },
+  // 8. Cascade Hospital (Regional Excellence)
+  // 8. Cascade Hospital (Regional Excellence)
   {
-    id: 5,
-    name: "Heart Care Veterinary",
-    type: "Cardiology Center",
+    id: 8,
+    name: "Cascade Hospital for Animals",
+    type: "Comprehensive Care",
+    rating: 4.7,
+    reviews: 950,
+    location: "Grand Rapids, Michigan, USA",
+    distance: "Regional",
+    availability: "Mon-Sat 7AM-8PM",
+    consultationFee: "$80 - $250",
+    image: hospCascade,
+    facilities: ["Wellness Plans", "Dental Care", "Ultrasound", "Boarding"],
+    specializations: ["Dentistry", "Wellness", "Geriatric Care"],
+    doctors: 10,
+    established: "1955",
+    languages: ["English"],
+    parking: true,
+    wifi: false,
+    onlinePayment: true,
+    responseTime: "Same Day",
+    consultationType: "Clinic"
+  },
+  // 9. Champion Wood (Regional Excellence)
+  {
+    id: 9,
+    name: "Champion Wood Animal Hospital",
+    type: "Advanced Medical Center",
+    rating: 4.7,
+    reviews: 700,
+    location: "Houston, Texas, USA",
+    distance: "Regional",
+    availability: "Mon-Sat 7AM-7PM",
+    consultationFee: "$85 - $250",
+    image: hospChampion,
+    facilities: ["Surgery", "Dentistry", "Boarding", "Grooming"],
+    specializations: ["General Practice", "Surgery", "Wellness"],
+    doctors: 7,
+    established: "2001",
+    languages: ["English", "Spanish"],
+    parking: true,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Same Day",
+    consultationType: "Clinic"
+  },
+  // 10. Town & Country (Community Focused)
+  {
+    id: 10,
+    name: "Town & Country Animal Hospital",
+    type: "Community Hospital",
     rating: 4.6,
-    reviews: 98,
-    location: "Pune, Maharashtra",
-    distance: "5.1 km",
-    availability: "Mon-Fri 9AM-6PM",
-    consultationFee: "₹1,000 - ₹2,500",
-    image: hospitalImage5,
-    facilities: ["Cardiology", "ECG", "Echocardiography", "Heart Surgery", "ICU"],
-    specializations: ["Cardiology", "Heart Surgery", "Cardiac Care"],
-    doctors: 3,
-    established: "2019",
-    languages: ["English", "Hindi", "Marathi"],
+    reviews: 800,
+    location: "Miami, Florida, USA",
+    distance: "Regional",
+    availability: "Mon-Fri 8AM-6PM",
+    consultationFee: "$90 - $300",
+    image: hospTownCountry,
+    facilities: ["Laser Therapy", "Acupuncture", "Surgery", "Pet Hotel"],
+    specializations: ["Holistic Care", "Rehabilitation", "General Medicine"],
+    doctors: 8,
+    established: "1980",
+    languages: ["English", "Spanish"],
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "45 mins",
-    consultationType: "Online"
+    responseTime: "Appointment",
+    consultationType: "Clinic"
   },
+  // 11. Clinton Keith (General)
   {
-    id: 6,
-    name: "Cancer Care Center",
-    type: "Oncology Hospital",
-    rating: 4.8,
-    reviews: 134,
-    location: "Hyderabad, Telangana",
-    distance: "3.7 km",
+    id: 11,
+    name: "Clinton Keith Veterinary Hospital",
+    type: "General Practice",
+    rating: 4.6,
+    reviews: 650,
+    location: "Wildomar, California, USA",
+    distance: "Regional",
     availability: "Mon-Sat 8AM-6PM",
-    consultationFee: "₹1,500 - ₹3,000",
-    image: hospitalImage6,
-    facilities: ["Oncology", "Chemotherapy", "Radiation Therapy", "Palliative Care", "Lab"],
-    specializations: ["Oncology", "Cancer Treatment", "Palliative Care"],
-    doctors: 5,
-    established: "2021",
-    languages: ["English", "Hindi", "Telugu"],
+    consultationFee: "$95 - $280",
+    image: hospClinton,
+    facilities: ["Preventive Health", "Microchipping", "Nutritional Counseling"],
+    specializations: ["Nutrition", "Internal Medicine", "Parasite Control"],
+    doctors: 6,
+    established: "2005",
+    languages: ["English"],
     parking: true,
     wifi: true,
     onlinePayment: true,
-    responseTime: "1 hour",
-    consultationType: "In-Person (Clinic/Hospital)"
+    responseTime: "24 hrs",
+    consultationType: "Clinic"
+  },
+  // 12. Hawk Ridge (Advanced Local)
+  {
+    id: 12,
+    name: "Hawk Ridge Animal Hospital",
+    type: "Advanced Care",
+    rating: 4.5,
+    reviews: 520,
+    location: "Schererville, Indiana, USA",
+    distance: "Regional",
+    availability: "Mon-Sat 8AM-6PM",
+    consultationFee: "$110 - $350",
+    image: hospHawk,
+    facilities: ["Surgery", "Diagnostics", "Wellness", "Dentistry"],
+    specializations: ["Internal Medicine", "Surgery", "Diagnostics"],
+    doctors: 5,
+    established: "2010",
+    languages: ["English"],
+    parking: true,
+    wifi: true,
+    onlinePayment: true,
+    responseTime: "Same Day",
+    consultationType: "Clinic"
   }
 ];
 
+
 const hospitalTypes = [
   "All Types",
-  "Multi-Specialty Hospital",
-  "Emergency Hospital",
-  "Specialty Clinic",
-  "Specialty Hospital",
-  "Cardiology Center",
-  "Oncology Hospital"
+  "Specialized Avian Hospital",
+  "Teaching Hospital (RVC)",
+  "Specialty & Emergency",
+  "University Hospital",
+  "Modern Tech-First Clinic",
+  "Comprehensive Care",
+  "Community Hospital",
+  "General Practice",
+  "Local Clinic"
 ];
 
 const locations = [
   "All Locations",
-  "Mumbai, Maharashtra",
-  "Delhi, NCR",
-  "Bangalore, Karnataka",
-  "Ahmedabad, Gujarat",
-  "Pune, Maharashtra",
-  "Hyderabad, Telangana"
-];
-
-const specializations = [
-  "All Specializations",
-  "General Medicine",
-  "Emergency Medicine",
-  "Surgery",
-  "Dermatology",
-  "Orthopedics",
-  "Cardiology",
-  "Oncology"
+  "Abu Dhabi, UAE",
+  "London, United Kingdom",
+  "New York, USA",
+  "Philadelphia, USA",
+  "Mumbai, India",
+  "Grand Rapids, Michigan, USA",
+  "Miami, Florida, USA",
+  "Wildomar, California, USA",
+  "St. Peters, Missouri, USA"
 ];
 
 const consultationTypes = [
   "All Types",
-  "In-Person (Clinic/Hospital)",
-  "Online"
+  "In-Person",
+  "Emergency",
+  "Referral Hospital",
+  "Teaching Hospital",
+  "Hybrid (App/Clinic)",
+  "Clinic",
+  "Small Clinic"
 ];
 
-function FindHospitalsContent() {
-  const searchParams = useSearchParams();
+export default function FindHospitalsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
-  const [selectedSpecialization, setSelectedSpecialization] = useState('All Specializations');
   const [selectedConsultationType, setSelectedConsultationType] = useState('All Types');
   const [showFilters, setShowFilters] = useState(false);
   const [filteredHospitals, setFilteredHospitals] = useState(dummyHospitals);
-  const [sortBy, setSortBy] = useState('rating');
-  const [showBookingPopup, setShowBookingPopup] = useState(false);
-
-  // Check for URL parameters on component mount
-  useEffect(() => {
-    const searchParam = searchParams.get('search');
-    const typeParam = searchParams.get('type');
-
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
-    if (typeParam) {
-      setSelectedType(typeParam);
-      setShowFilters(false); // Hide filters when coming from emergency search
-    }
-  }, [searchParams]);
+  const [sortBy, setSortBy] = useState('featured'); // Default sort matches the list order
+  // New state for selected hospital popup
+  const [selectedHospital, setSelectedHospital] = useState<typeof dummyHospitals[0] | null>(null);
 
   useEffect(() => {
-    let filtered = dummyHospitals;
+    let filtered = [...dummyHospitals];
 
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(hospital =>
         hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hospital.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
         hospital.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
@@ -258,13 +401,6 @@ function FindHospitalsContent() {
       filtered = filtered.filter(hospital => hospital.location === selectedLocation);
     }
 
-    // Filter by specialization
-    if (selectedSpecialization !== 'All Specializations') {
-      filtered = filtered.filter(hospital =>
-        hospital.specializations.includes(selectedSpecialization)
-      );
-    }
-
     // Filter by consultation type
     if (selectedConsultationType !== 'All Types') {
       filtered = filtered.filter(hospital => hospital.consultationType === selectedConsultationType);
@@ -274,26 +410,33 @@ function FindHospitalsContent() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
-          return b.rating - a.rating;
-        case 'distance':
-          return parseFloat(a.distance) - parseFloat(b.distance);
-        case 'reviews':
-          return b.reviews - a.reviews;
+          return b.rating - a.rating; // Sort by rating descending
+        // Simplified distance sorting as string parsing is complex with international values
+        case 'fee':
+          // Basic fee sorting logic - extracting first number
+          const getFee = (str: string) => {
+            const match = str.match(/\d+/);
+            return match ? parseInt(match[0]) : 0;
+          };
+          return getFee(a.consultationFee) - getFee(b.consultationFee);
+        case 'featured':
+          // Featured matches the popularity order (which aligns with rating now)
+          // Since the dummy list is already ordered by popularity/rating, we just preserve index
+          return dummyHospitals.indexOf(a) - dummyHospitals.indexOf(b);
         default:
           return 0;
       }
     });
 
     setFilteredHospitals(filtered);
-  }, [searchTerm, selectedType, selectedLocation, selectedSpecialization, selectedConsultationType, sortBy]);
+  }, [searchTerm, selectedType, selectedLocation, selectedConsultationType, sortBy]);
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedType('All Types');
     setSelectedLocation('All Locations');
-    setSelectedSpecialization('All Specializations');
     setSelectedConsultationType('All Types');
-    setSortBy('rating');
+    setSortBy('featured');
     setShowFilters(false);
   };
 
@@ -304,11 +447,6 @@ function FindHospitalsContent() {
 
   const handleLocationChange = (value: string) => {
     setSelectedLocation(value);
-    setShowFilters(false);
-  };
-
-  const handleSpecializationChange = (value: string) => {
-    setSelectedSpecialization(value);
     setShowFilters(false);
   };
 
@@ -333,7 +471,7 @@ function FindHospitalsContent() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search by hospital name, type, or consultation type..."
+                placeholder="Search by hospital name, specialization, or facility..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
@@ -356,9 +494,10 @@ function FindHospitalsContent() {
                 <span className="text-sm text-muted-foreground">Sort by:</span>
                 <CustomSelect
                   options={[
+                    { value: 'featured', label: 'Global Ranking' },
                     { value: 'rating', label: 'Rating' },
                     { value: 'distance', label: 'Distance' },
-                    { value: 'reviews', label: 'Reviews' }
+                    { value: 'fee', label: 'Consultation Fee' }
                   ]}
                   value={sortBy}
                   onChange={setSortBy}
@@ -369,14 +508,14 @@ function FindHospitalsContent() {
 
             {/* Filters */}
             {showFilters && (
-              <div className="grid md:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
+              <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
                 <div>
                   <label className="block text-sm font-medium mb-2">Hospital Type</label>
                   <CustomSelect
                     options={hospitalTypes.map(type => ({ value: type, label: type }))}
                     value={selectedType}
                     onChange={handleTypeChange}
-                    placeholder="Select hospital type"
+                    placeholder="Select type"
                   />
                 </div>
                 <div>
@@ -389,15 +528,6 @@ function FindHospitalsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Specialization</label>
-                  <CustomSelect
-                    options={specializations.map(spec => ({ value: spec, label: spec }))}
-                    value={selectedSpecialization}
-                    onChange={handleSpecializationChange}
-                    placeholder="Select specialization"
-                  />
-                </div>
-                <div>
                   <label className="block text-sm font-medium mb-2">Consultation Type</label>
                   <CustomSelect
                     options={consultationTypes.map(type => ({ value: type, label: type }))}
@@ -406,7 +536,7 @@ function FindHospitalsContent() {
                     placeholder="Select consultation type"
                   />
                 </div>
-                <div className="md:col-span-4 flex justify-end">
+                <div className="md:col-span-3 flex justify-end">
                   <Button variant="ghost" onClick={clearFilters} className="text-sm">
                     <X className="w-4 h-4 mr-1" />
                     Clear Filters
@@ -435,7 +565,7 @@ function FindHospitalsContent() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredHospitals.map((hospital) => (
-                  <Card key={hospital.id} className="group hover:shadow-lg transition-all duration-300 bg-card border border-border rounded-xl overflow-hidden">
+                  <Card key={hospital.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                     <CardContent className="p-0">
                       {/* Hospital Image */}
                       <div className="relative h-64 overflow-hidden">
@@ -447,14 +577,7 @@ function FindHospitalsContent() {
                         />
                         <div className="absolute top-3 right-3">
                           <Badge variant="default" className="text-xs">
-                            Est. {hospital.established}
-                          </Badge>
-                        </div>
-                        <div className="absolute bottom-3 left-3">
-                          <Badge className={`text-xs ${hospital.consultationType === 'In-Person (Clinic/Hospital)' ? 'bg-green-600 text-white' :
-                            'bg-blue-600 text-white'
-                            }`}>
-                            {hospital.consultationType}
+                            {hospital.availability}
                           </Badge>
                         </div>
                       </div>
@@ -479,24 +602,34 @@ function FindHospitalsContent() {
                           </div>
                           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <Clock className="w-4 h-4 mr-2" />
-                            <span className="text-green-600 dark:text-green-400">{hospital.availability}</span>
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <Users className="w-4 h-4 mr-2" />
-                            <span>{hospital.doctors} doctors</span>
+                            <span>{hospital.responseTime} Response</span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        {/* Facilities Tags */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {hospital.facilities.slice(0, 3).map((facility, index) => (
+                            <span key={index} className="text-[10px] bg-secondary/50 text-secondary-foreground px-2 py-1 rounded-full">
+                              {facility}
+                            </span>
+                          ))}
+                          {hospital.facilities.length > 3 && (
+                            <span className="text-[10px] bg-secondary/50 text-secondary-foreground px-2 py-1 rounded-full">
+                              +{hospital.facilities.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
                           <div>
                             <p className="text-lg font-bold text-primary">{hospital.consultationFee}</p>
                             <p className="text-xs text-gray-500">Consultation</p>
                           </div>
                           <Button
                             className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
-                            onClick={() => setShowBookingPopup(true)}
+                            onClick={() => setSelectedHospital(hospital)}
                           >
-                            Book
+                            Details
                           </Button>
                         </div>
                       </div>
@@ -511,56 +644,120 @@ function FindHospitalsContent() {
 
       <Footer />
 
-      {/* Booking Popup */}
-      {showBookingPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-border">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+      {/* Hospital Details Popup */}
+      {selectedHospital && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-card rounded-2xl p-0 max-w-2xl w-full mx-4 shadow-2xl overflow-hidden border border-border flex flex-col max-h-[90vh]">
+
+            <div className="relative h-64 shrink-0">
+              <Image
+                src={selectedHospital.image}
+                alt={selectedHospital.name}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute top-4 right-4">
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="rounded-full w-8 h-8 opacity-90 hover:opacity-100"
+                  onClick={() => setSelectedHospital(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
-              Booking Temporarily Unavailable
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
-              We're currently not accepting new bookings. Please check back later or contact us directly for assistance.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowBookingPopup(false)}
-              >
-                Close
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={() => setShowBookingPopup(false)}
-              >
-                Contact Us
-              </Button>
+
+            <div className="p-6 overflow-y-auto">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{selectedHospital.name}</h2>
+                  <Badge variant="outline" className="border-primary text-primary">{selectedHospital.type}</Badge>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center justify-end space-x-1 mb-1">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />
+                    <span className="text-xl font-bold text-gray-900 dark:text-white">{selectedHospital.rating}</span>
+                  </div>
+                  <p className="text-xs text-gray-500">{selectedHospital.reviews} Reviews</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <MapPin className="w-4 h-4 mr-3 text-primary" />
+                    {selectedHospital.location}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <Clock className="w-4 h-4 mr-3 text-primary" />
+                    {selectedHospital.availability}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <Phone className="w-4 h-4 mr-3 text-primary" />
+                    +1 (555) 123-4567
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <CheckCircle className="w-4 h-4 mr-3 text-green-500" />
+                    Started: {selectedHospital.established}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <Users className="w-4 h-4 mr-3 text-blue-500" />
+                    {selectedHospital.doctors} Doctors
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <CreditCard className="w-4 h-4 mr-3 text-purple-500" />
+                    Fee: {selectedHospital.consultationFee}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">Facilities</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedHospital.facilities.map((fac, i) => (
+                    <Badge key={i} variant="secondary">{fac}</Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">Specializations</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedHospital.specializations.map((spec, i) => (
+                    <span key={i} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">{spec}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mb-8">
+                <div className={`flex flex-col items-center p-3 rounded-lg border ${selectedHospital.parking ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-gray-50 border-gray-200'}`}>
+                  <Car className={`w-5 h-5 mb-1 ${selectedHospital.parking ? 'text-green-600' : 'text-gray-400'}`} />
+                  <span className="text-xs font-medium">Parking</span>
+                </div>
+                <div className={`flex flex-col items-center p-3 rounded-lg border ${selectedHospital.wifi ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-gray-50 border-gray-200'}`}>
+                  <Wifi className={`w-5 h-5 mb-1 ${selectedHospital.wifi ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <span className="text-xs font-medium">Wifi</span>
+                </div>
+                <div className={`flex flex-col items-center p-3 rounded-lg border ${selectedHospital.onlinePayment ? 'bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800' : 'bg-gray-50 border-gray-200'}`}>
+                  <CreditCard className={`w-5 h-5 mb-1 ${selectedHospital.onlinePayment ? 'text-purple-600' : 'text-gray-400'}`} />
+                  <span className="text-xs font-medium">Cashless</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Button className="flex-1 bg-primary hover:bg-primary/90">Book Appointment</Button>
+                <Button variant="outline" className="flex-1">Call Hospital</Button>
+              </div>
+
             </div>
           </div>
         </div>
       )}
 
-      <BetaDisclaimerPopup category="hospitals" actionVerb="treating" />
+      <BetaDisclaimerPopup category="hospitals" actionVerb="treatment" />
     </div>
-  );
-}
-
-export default function FindHospitalsPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading hospitals...</p>
-        </div>
-      </div>
-    }>
-      <FindHospitalsContent />
-    </Suspense>
   );
 }
