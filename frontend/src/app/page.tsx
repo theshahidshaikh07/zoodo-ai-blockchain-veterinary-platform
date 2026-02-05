@@ -17,8 +17,8 @@ export default function HomePage() {
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
           entry.target.classList.add("fade-up");
         }
       });
@@ -36,17 +36,17 @@ export default function HomePage() {
       <Header />
       <main className="relative">
         {/* Hero Section - Priority */}
-        <section id="hero" className="relative z-10">
+        <section id="hero" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
           <HeroSection />
         </section>
-        
+
         {/* Services Section */}
-        <section id="services" className="relative z-5">
+        <section id="services" className="relative z-5 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
           <ServicesSection />
         </section>
-        
+
         {/* Community Section */}
-        <section id="community" className="relative z-5">
+        <section id="community" className="relative z-5 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
           <CommunitySection />
         </section>
       </main>

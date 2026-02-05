@@ -10,8 +10,8 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import shahidImage from '@/assets/meee.png';
-import aayusheeImage from '@/assets/Aayushee .jpg';
-import khushiImage from '@/assets/khushi.jpg';
+import aayusheeImage from '@/assets/aayushees pet.png';
+import khushiImage from '@/assets/khushis pet.png';
 import { Card, CardContent } from "@/components/ui/card";
 
 const AboutUs: React.FC = () => {
@@ -257,7 +257,7 @@ const AboutUs: React.FC = () => {
                       <Image
                         src={aayusheeImage}
                         alt="Aayushee Dhanokar"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover object-[50%_25%] group-hover:scale-105 transition-transform duration-300"
                         layout="fill"
                       />
                     </div>
