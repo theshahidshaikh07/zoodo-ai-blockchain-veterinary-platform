@@ -588,7 +588,7 @@ export default function FindTrainersPage() {
       <Header />
 
       {/* Search and Filters */}
-      <section className="pt-24 pb-8">
+      <section className="pt-32 pb-8">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-6xl mx-auto">
             {/* Early Access Banner */}

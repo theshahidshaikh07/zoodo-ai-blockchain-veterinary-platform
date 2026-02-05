@@ -8,7 +8,9 @@ import {
   Shield,
   Heart,
   Sparkles,
-  Zap as Lightning
+  Zap as Lightning,
+  Users,
+  BadgeCheck
 } from "lucide-react";
 import diversePets from "@/assets/diverse-pets.jpg";
 import Link from "next/link";
@@ -35,9 +37,10 @@ const HeroSection = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-zoodo-purple/10 via-zoodo-blue/10 to-zoodo-pink/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,hsl(var(--zoodo-purple))_0%,transparent_50%)] opacity-20 dark:opacity-10" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,hsl(var(--zoodo-blue))_0%,transparent_50%)] opacity-20 dark:opacity-10" />
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10 min-h-full flex items-start py-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-12 items-center w-full">
@@ -45,18 +48,18 @@ const HeroSection = () => {
           <div className="relative lg:scale-110 fade-up order-2 lg:order-1">
             <div className="relative">
               {/* Floating Elements - Mobile responsive */}
-              <div className="absolute -top-3 -left-3 lg:-top-6 lg:-left-6 w-10 h-10 lg:w-12 lg:h-12 bg-gradient-primary rounded-full flex items-center justify-center floating shadow-elegant">
+              <div className="absolute -top-3 -left-3 lg:-top-6 lg:-left-6 w-10 h-10 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center floating shadow-md">
                 <Stethoscope className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div className="absolute -bottom-3 -right-3 lg:-bottom-6 lg:-right-6 w-12 h-12 lg:w-16 lg:h-16 bg-gradient-secondary rounded-full flex items-center justify-center floating shadow-elegant" style={{ animationDelay: '1s' }}>
+              <div className="absolute -bottom-3 -right-3 lg:-bottom-6 lg:-right-6 w-12 h-12 lg:w-16 lg:h-16 bg-primary rounded-full flex items-center justify-center floating shadow-md" style={{ animationDelay: '1s' }}>
                 <Shield className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
               </div>
-              <div className="absolute top-1/2 -left-4 lg:-left-8 w-8 h-8 lg:w-10 lg:h-10 bg-zoodo-pink rounded-full flex items-center justify-center floating shadow-elegant" style={{ animationDelay: '2s' }}>
+              <div className="absolute top-1/2 -left-4 lg:-left-8 w-8 h-8 lg:w-10 lg:h-10 bg-zoodo-pink rounded-full flex items-center justify-center floating shadow-md" style={{ animationDelay: '2s' }}>
                 <Heart className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
               </div>
 
               {/* Main Image */}
-              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-elegant glow-effect h-40 sm:h-56 md:h-72 lg:h-96">
+              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl h-40 sm:h-56 md:h-72 lg:h-96">
                 <Image
                   src={diversePets}
                   alt="Happy diverse pets in veterinary care"
@@ -68,26 +71,26 @@ const HeroSection = () => {
               </div>
 
               {/* Overlay Cards - Mobile responsive */}
-              <div className="absolute -bottom-2 -left-2 lg:-bottom-4 lg:-left-4 glass-card p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-elegant">
+              <div className="absolute -bottom-2 -left-2 lg:-bottom-4 lg:-left-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-md">
                 <div className="flex items-center space-x-2 lg:space-x-3">
-                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                    <Stethoscope className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
+                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center">
+                    <Users className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
                   </div>
                   <div className="hidden lg:block">
-                    <div className="font-semibold text-sm">Dr. Salus AI</div>
-                    <div className="text-xs text-muted-foreground">Smart diagnosis</div>
+                    <div className="font-semibold text-sm">Community</div>
+                    <div className="text-xs text-muted-foreground">Pet Support</div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -top-2 -right-2 lg:-top-4 lg:-right-4 glass-card p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-elegant">
+              <div className="absolute -top-2 -right-2 lg:-top-4 lg:-right-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-md">
                 <div className="flex items-center space-x-2 lg:space-x-3">
-                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-gradient-secondary rounded-full flex items-center justify-center">
-                    <Shield className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
+                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center">
+                    <BadgeCheck className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
                   </div>
                   <div className="hidden lg:block">
-                    <div className="font-semibold text-sm">Secure Records</div>
-                    <div className="text-xs text-muted-foreground">Blockchain protected</div>
+                    <div className="font-semibold text-sm">Verified Vets</div>
+                    <div className="text-xs text-muted-foreground">Instant Booking</div>
                   </div>
                 </div>
               </div>
@@ -97,9 +100,9 @@ const HeroSection = () => {
           {/* Right Content - Text (Desktop) / Order 1 (Mobile) */}
           <div className="text-center lg:text-left space-y-10 lg:space-y-8 fade-up order-1 lg:order-2">
             {/* AI Assistant Badge */}
-            <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group hover:shadow-glow transition-all duration-300">
-              <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-primary animate-pulse" />
-              <span className="whitespace-nowrap">Meet <strong>Dr. Salus AI</strong> - Your Pet&#39;s Health Guardian</span>
+            <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group transition-all duration-300">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-primary animate-pulse" />
+              <span className="whitespace-nowrap">Experience <strong>Preventive Care</strong> - For a Happier, Healthier Pet</span>
             </div>
 
             {/* Main Headline */}
@@ -117,7 +120,7 @@ const HeroSection = () => {
               <Button
                 variant="ghost"
                 size="xl"
-                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-primary hover:bg-primary/80 border border-primary transition-all duration-300 shadow-md text-base lg:text-lg sm:flex-1"
+                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 text-base lg:text-lg sm:flex-1 text-white dark:text-black"
                 asChild
               >
                 <Link href="/ai-assistant" className="flex items-center justify-center">
@@ -136,7 +139,7 @@ const HeroSection = () => {
               <Button
                 variant="ghost"
                 size="xl"
-                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full glass-card border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 shadow-md hover:shadow-lg text-base lg:text-lg sm:flex-1"
+                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-white dark:bg-black border border-border hover:bg-primary/10 hover:border-primary/40 transition-all duration-300 text-base lg:text-lg sm:flex-1"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsConsultationPopupOpen(true);

@@ -80,7 +80,7 @@ const CommunitySection = () => {
   return (
     <section id="community" className="py-24 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-zoodo-green/10 via-transparent to-zoodo-orange/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-zoodo-purple/5 via-transparent to-zoodo-blue/5" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -88,7 +88,7 @@ const CommunitySection = () => {
           ref={headerRef}
           className={`text-center space-y-6 mb-20 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-zoodo-green/10 border-2 border-primary/30 text-sm font-medium text-zoodo-green">
+          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-zoodo-green">
             <Users className="w-4 h-4 mr-2" />
             Community & Welfare
           </div>
@@ -109,7 +109,7 @@ const CommunitySection = () => {
         >
           {/* Left - Image - Shows first on mobile */}
           <div className="relative order-1 lg:order-1 lg:sticky lg:top-8">
-            <div className="relative rounded-3xl overflow-hidden shadow-elegant glow-effect h-80 lg:h-[500px]">
+            <div className="relative rounded-3xl overflow-hidden shadow-xl h-80 lg:h-[500px]">
               <Image
                 src={communityPets}
                 alt="Community of pet owners"
@@ -121,7 +121,7 @@ const CommunitySection = () => {
             </div>
 
             {/* Floating Community Stats */}
-            <div className="absolute -top-6 -left-6 glass-card p-4 rounded-2xl shadow-elegant floating border-2 border-primary/30">
+            <div className="absolute -top-6 -left-6 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-4 rounded-2xl shadow-md">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                   <Heart className="w-5 h-5 text-white" />
@@ -133,7 +133,7 @@ const CommunitySection = () => {
               </div>
             </div>
 
-            <div className="absolute -bottom-6 -right-6 glass-card p-4 rounded-2xl shadow-elegant floating border-2 border-primary/30" style={{ animationDelay: '1s' }}>
+            <div className="absolute -bottom-6 -right-6 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-4 rounded-2xl shadow-md" style={{ animationDelay: '1s' }}>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                   <Users className="w-5 h-5 text-white" />
@@ -160,10 +160,10 @@ const CommunitySection = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {communityFeatures.map((feature) => (
+              {communityFeatures.map((feature, index) => (
                 <div
                   key={feature.title}
-                  className="p-6 glass-card rounded-2xl hover:shadow-elegant transition-all duration-300 scale-on-hover border border-primary/20 hover:border-primary/40"
+                  className={`p-6 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md rounded-3xl transition-all duration-300 scale-on-hover border border-primary/20 hover:border-primary/40 fade-up scroll-stagger-${index + 1} ${contentVisible ? 'animate' : ''}`}
                 >
                   <feature.icon className={`w-8 h-8 mb-4 ${feature.title === 'Pet Adoption' ? 'text-red-500' : 'text-zoodo-green'}`} />
                   <h4 className="font-bold mb-2">{feature.title}</h4>
@@ -176,9 +176,9 @@ const CommunitySection = () => {
             {/* Buttons moved back here - after the cards */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                variant="default"
+                variant="ghost"
                 size="lg"
-                className="group"
+                className="group bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 text-white dark:text-black hover:text-white dark:hover:text-black transition-all duration-300"
                 onClick={() => setIsCommunityPopupOpen(true)}
               >
                 <UserPlus className="w-5 h-5 mr-2" />
@@ -186,9 +186,10 @@ const CommunitySection = () => {
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="lg"
                 onClick={() => setIsCommunityPopupOpen(true)}
+                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 hover:bg-primary/10 hover:border-primary/40 text-slate-900 dark:text-white transition-all duration-300"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Start Discussion
@@ -215,7 +216,7 @@ const CommunitySection = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.name}
-                className="glass-card p-8 rounded-3xl hover:shadow-elegant transition-all duration-300 scale-on-hover fade-up border border-primary/20 hover:border-primary/40"
+                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md p-8 rounded-3xl transition-all duration-300 scale-on-hover fade-up border border-primary/20 hover:border-primary/40"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="flex items-center space-x-1 mb-4">
@@ -256,7 +257,7 @@ const CommunitySection = () => {
               Be part of a community that&#39;s transforming pet healthcare and welfare, one paw at a time.
             </p>
           </div>
-          <Button asChild variant="default" size="xl" className="group">
+          <Button asChild variant="ghost" size="xl" className="group bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 text-white dark:text-black hover:text-white dark:hover:text-black transition-all duration-300 rounded-full">
             <Link href="/role-selection">
               <Heart className="w-5 h-5 mr-2" />
               Get Started Today

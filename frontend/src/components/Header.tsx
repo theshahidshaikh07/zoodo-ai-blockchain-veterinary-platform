@@ -102,10 +102,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   ];
 
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
-      ? 'glass-card border-b border-border/30 shadow-elegant backdrop-blur-xl'
-      : 'bg-transparent border-b border-transparent'
-      }`}>
+    <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
           {/* Logo */}
@@ -223,7 +220,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                   <Button
                     variant="default"
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                    className="bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
                     asChild
                   >
                     <Link href="/role-selection">Get Started</Link>
@@ -316,7 +313,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       <Button
                         variant="default"
                         size="sm"
-                        className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-glow transition-all duration-300"
+                        className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300"
                         asChild
                       >
                         <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>

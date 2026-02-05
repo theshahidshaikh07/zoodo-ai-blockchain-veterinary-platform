@@ -664,7 +664,7 @@ export default function AIAssistantPage() {
       <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
         {messages.length <= 1 ? (
           /* Hero Section - Only show when not chatting */
-          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-start px-4 py-20 pt-32 overflow-y-auto custom-scrollbar">
+          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-12 overflow-y-auto custom-scrollbar">
 
 
             {/* Banner */}

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import {
-  Stethoscope, Building2, Video, Heart, MapPin, Clock, ArrowRight, Zap, Search, UserCheck, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap
+  Stethoscope, Building2, Video, Heart, MapPin, Clock, ArrowRight, Zap, Search, UserCheck, Search as MagnifyingGlass, MapPin as Location, Video as TeleIcon, GraduationCap, PawPrint
 } from "lucide-react";
 import serviceFindVet from "@/assets/find-vet.png";
 import serviceClinicHospital from "@/assets/hospital.jpg";
@@ -68,8 +68,8 @@ const ServicesSection = () => {
           ref={headerRef}
           className={`text-center mb-16 space-y-6 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-primary/10 border-2 border-primary/30 text-sm font-medium">
-            <Zap className="w-4 h-4 mr-2 text-primary" />
+          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium">
+            <PawPrint className="w-4 h-4 mr-2 text-primary" />
             Our Services
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">
@@ -91,7 +91,7 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className={`group relative glass-card rounded-3xl hover:shadow-elegant hover:shadow-2xl scale-on-hover overflow-hidden border border-border/20 hover:border-primary/30 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
+              className={`group relative glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md shadow-lg rounded-3xl scale-on-hover overflow-hidden border border-primary/20 hover:border-primary/40 transition-colors duration-200 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
               style={{ willChange: 'transform' }}
             >
               {/* Service Image */}
@@ -111,7 +111,7 @@ const ServicesSection = () => {
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-3 group-hover:gradient-text transition-colors duration-300 flex items-center">
+                <h3 className="text-xl font-bold mb-3 transition-colors duration-300 flex items-center">
                   {service.title === "Find Vet" && (
                     <MagnifyingGlass className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
                   )}
@@ -141,7 +141,7 @@ const ServicesSection = () => {
                 </div>
 
                 <button
-                  className="w-full group/btn text-sm py-3 bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 ease-out cursor-pointer text-primary-foreground font-medium rounded-md flex items-center justify-center relative z-10"
+                  className="w-full group/btn text-sm py-3 bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 transition-all duration-300 ease-out cursor-pointer text-white dark:text-black font-medium rounded-md flex items-center justify-center relative z-10"
                   style={{ cursor: 'pointer !important', willChange: 'transform' }}
                   onClick={() => {
                     // Navigate to specific service pages

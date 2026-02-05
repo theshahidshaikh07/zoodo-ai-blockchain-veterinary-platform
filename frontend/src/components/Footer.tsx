@@ -1,6 +1,8 @@
 'use client';
 
-import { Heart, Mail, MapPin, Phone, Github, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Heart, Mail, MapPin, Phone } from "lucide-react";
+import { FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -43,10 +45,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: Github, href: "#", label: "GitHub" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" }
+    { icon: FaFacebook, href: "#", label: "Facebook" },
+    { icon: FaXTwitter, href: "#", label: "X" },
+    { icon: FaLinkedin, href: "#", label: "LinkedIn" },
+    { icon: FaInstagram, href: "#", label: "Instagram" }
   ];
 
   return (
@@ -76,14 +78,6 @@ const Footer = () => {
               <div className="flex items-center space-x-3 text-sm">
                 <Mail className="w-4 h-4 text-zoodo-blue" />
                 <span>zoodo.care@gmail.com</span>
-              </div>
-              <div className="flex items-center space-x-3 text-sm">
-                <Phone className="w-4 h-4 text-zoodo-green" />
-                <span>+91 7620944018</span>
-              </div>
-              <div className="flex items-center space-x-3 text-sm">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>Global Platform</span>
               </div>
             </div>
           </div>
@@ -188,7 +182,7 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             {/* Copyright */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>© 2025 Zoodo. Made with</span>
+              <span>© 2026 Zoodo. Made with</span>
               <Heart className="w-4 h-4 text-red-500 fill-current" />
               <span>for pets everywhere.</span>
             </div>
@@ -199,10 +193,10 @@ const Footer = () => {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 bg-card border border-border rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300 group"
+                  className="w-10 h-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-300 group"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <social.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 </a>
               ))}
             </div>
