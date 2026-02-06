@@ -73,25 +73,30 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+
+    // Close mobile menu immediately
+    setIsMenuOpen(false);
+
     if (pathname !== '/') {
       router.push('/' + href);
       return;
     }
-    const targetId = href.replace('#', '');
-    const element = document.getElementById(targetId);
 
-    if (element) {
-      const headerHeight = 96; // Approximate header height
-      const elementPosition = element.offsetTop - headerHeight;
+    // Delay scroll to allow mobile menu to close and layout to stabilize
+    setTimeout(() => {
+      const targetId = href.replace('#', '');
+      const element = document.getElementById(targetId);
 
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
-      });
-    }
+      if (element) {
+        const headerHeight = 80; // Exact header height (h-20)
+        const elementPosition = element.offsetTop - headerHeight;
 
-    // Close mobile menu if open
-    setIsMenuOpen(false);
+        window.scrollTo({
+          top: elementPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 300);
   };
 
   const navItems = [
@@ -107,7 +112,14 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link
+            href="/"
+            className="flex items-center group"
+            onClick={() => {
+              setIsMenuOpen(false);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             <div className="relative group-hover:scale-105 transition-all duration-300">
               <Image
                 src="/Zoodo.png"

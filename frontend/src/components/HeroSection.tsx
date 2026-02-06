@@ -37,26 +37,18 @@ const HeroSection = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
       {/* Background Effects */}
-      {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
+
+
+
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10 min-h-full flex items-center py-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-12 items-center w-full">
           {/* Left Content - Hero Image (Desktop) / Order 2 (Mobile) */}
           <div className="relative lg:scale-110 fade-up order-2 lg:order-1">
             <div className="relative">
-              {/* Floating Elements - Mobile responsive */}
-              <div className="absolute -top-3 -left-3 lg:-top-6 lg:-left-6 w-10 h-10 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center floating shadow-md">
-                <Stethoscope className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div className="absolute -bottom-3 -right-3 lg:-bottom-6 lg:-right-6 w-12 h-12 lg:w-16 lg:h-16 bg-primary rounded-full flex items-center justify-center floating shadow-md" style={{ animationDelay: '1s' }}>
-                <Shield className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
-              </div>
-              <div className="absolute top-1/2 -left-4 lg:-left-8 w-8 h-8 lg:w-10 lg:h-10 bg-zoodo-pink rounded-full flex items-center justify-center floating shadow-md" style={{ animationDelay: '2s' }}>
-                <Heart className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
-              </div>
 
               {/* Main Image */}
               <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl h-48 sm:h-56 md:h-72 lg:h-96">
