@@ -91,7 +91,7 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className={`group relative glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md shadow-lg rounded-3xl scale-on-hover overflow-hidden border border-primary/20 hover:border-primary/40 transition-colors duration-200 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
+              className={`group relative glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md shadow-lg rounded-3xl scale-on-hover overflow-hidden border border-border hover:border-primary/40 transition-colors duration-200 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
               style={{ willChange: 'transform' }}
             >
               {/* Service Image */}

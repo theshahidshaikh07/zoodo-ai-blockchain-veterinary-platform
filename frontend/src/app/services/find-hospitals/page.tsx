@@ -50,7 +50,7 @@ import hospChampion from '@/assets/hospital/hospital.jpg';
 const dummyHospitals = [
   // 1. RVC / Queen Mother Hospital (Often ranked #1 globally for VetMed)
   {
-    id: 2,
+    id: 1,
     name: "Queen Mother Hospital",
     type: "Teaching Hospital (RVC)",
     rating: 5.0,
@@ -74,7 +74,7 @@ const dummyHospitals = [
   // 2. Schwarzman / AMC (Largest non-profit in USA)
   {
     id: 2,
-    name: "Schwarzman Animal Medical Center",
+    name: "Schwarzman Medical Center",
     type: "Teaching Hospital",
     rating: 4.9,
     reviews: 3200,

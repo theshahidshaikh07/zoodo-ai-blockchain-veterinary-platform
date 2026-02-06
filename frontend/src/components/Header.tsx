@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -246,85 +247,103 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden glass-card border border-border/30 rounded-2xl mt-4 p-6 shadow-elegant backdrop-blur-xl">
-            <nav className="flex flex-col space-y-4">
-              {navItems.map((item, index) => (
-                item.type === 'route' ? (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg"
-                    style={{ animationDelay: `${index * 100}ms` }}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="lg:hidden overflow-hidden"
+            >
+              <div className="glass-card border border-border/30 rounded-2xl p-6 shadow-elegant backdrop-blur-xl">
+                <nav className="flex flex-col space-y-4">
+                  {navItems.map((item, index) => (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {item.type === 'route' ? (
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-sm font-medium text-foreground hover:text-primary hover:translate-x-2 transition-all duration-300 py-2 px-3 rounded-lg hover:bg-primary/5"
+                        >
+                          {item.name}
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          onClick={(e) => handleNavClick(e, item.href)}
+                          className="block text-sm font-medium text-foreground hover:text-primary hover:translate-x-2 transition-all duration-300 py-2 px-3 rounded-lg hover:bg-primary/5"
+                        >
+                          {item.name}
+                        </a>
+                      )}
+                    </motion.div>
+                  ))}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: navItems.length * 0.1 }}
+                    className="pt-4 border-t border-border/30"
                   >
-                    {item.name}
-                  </Link>
-                ) : (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className="text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {item.name}
-                  </a>
-                )
-              ))}
-              <div className="pt-4 border-t border-border/30">
-                <div className="flex flex-col space-y-3">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Welcome, {user?.firstName}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
-                        asChild
-                      >
-                        <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          logout();
-                          setIsMenuOpen(false);
-                        }}
-                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="justify-start hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
-                        asChild
-                      >
-                        <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="justify-start bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300"
-                        asChild
-                      >
-                        <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
-                      </Button>
-                    </>
-                  )}
-                </div>
+                    <div className="flex flex-col space-y-3">
+                      {isAuthenticated ? (
+                        <>
+                          <div className="text-sm text-muted-foreground mb-2 px-3">
+                            Welcome, {user?.firstName}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                            asChild
+                          >
+                            <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              logout();
+                              setIsMenuOpen(false);
+                            }}
+                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                          >
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Logout
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                            asChild
+                          >
+                            <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="justify-start w-full bg-primary hover:bg-primary/90 transition-all duration-300"
+                            asChild
+                          >
+                            <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                </nav>
               </div>
-            </nav>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );
