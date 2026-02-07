@@ -44,6 +44,14 @@
 
     /* Hero Background */
     --hero-bg: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.5));
+
+    /* Enhanced Backgrounds */
+    --bg-dot-pattern: radial-gradient(hsl(var(--primary) / 0.15) 1px, transparent 1px);
+    --bg-grid-pattern: linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    --bg-subtle-mesh: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.05) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.05) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.05) 0, transparent 50%);
   }
 
   .dark {
@@ -82,6 +90,14 @@
 
     /* Hero Background - Dark mode */
     --hero-bg: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.5));
+
+    /* Enhanced Backgrounds - Dark mode */
+    --bg-dot-pattern: radial-gradient(hsl(var(--primary) / 0.2) 1px, transparent 1px);
+    --bg-grid-pattern: linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
+    --bg-subtle-mesh: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.15) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.15) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.15) 0, transparent 50%);
   }
 }
 

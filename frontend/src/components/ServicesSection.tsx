@@ -57,12 +57,11 @@ const ServicesSection = () => {
 
   return (
     <section id="services" className="py-24 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zoodo-purple/5 via-zoodo-blue/5 to-zoodo-pink/5" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      {/* Seamless Ghost Light - no breaks */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none" style={{ animationDelay: '2s' }} />
 
-      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 lg:px-8 relative z-20">
         {/* Header */}
         <div
           ref={headerRef}

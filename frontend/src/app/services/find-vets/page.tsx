@@ -657,236 +657,243 @@ function FindVetsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:bg-background dark:from-transparent dark:via-transparent dark:to-transparent">
-      <Header />
+    <div className="min-h-screen bg-background overflow-hidden relative">
+      {/* Ghost Light - Unified with landing page */}
+      <div className="fixed inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
+      <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
+      <div className="fixed inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
 
-      {/* Search and Filters */}
-      <section className="pt-32 pb-8">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-6xl mx-auto">
+      <div className="relative z-10">
+        <Header />
 
-            {/* Early Access Banner */}
-            <BetaDisclaimerBanner category={searchParams.get('type') === 'online' || selectedConsultationType.includes('Online') ? 'teleconsultation experts' : 'veterinarians'} />
+        {/* Search and Filters */}
+        <section className="pt-32 pb-8">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="max-w-6xl mx-auto">
 
-            {/* Search Bar */}
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Search by vet name, specialization, or consultation type..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
-              />
-            </div>
+              {/* Early Access Banner */}
+              <BetaDisclaimerBanner category={searchParams.get('type') === 'online' || selectedConsultationType.includes('Online') ? 'teleconsultation experts' : 'veterinarians'} />
 
-            {/* Filter Toggle */}
-            <div className="flex items-center justify-between mb-6">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 h-10"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filters
-                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </Button>
-
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
-                <CustomSelect
-                  options={[
-                    { value: 'rating', label: 'Rating' },
-                    { value: 'distance', label: 'Distance' },
-                    { value: 'fee', label: 'Consultation Fee' }
-                  ]}
-                  value={sortBy}
-                  onChange={setSortBy}
-                  className="w-40"
+              {/* Search Bar */}
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Search by vet name, specialization, or consultation type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
                 />
               </div>
-            </div>
 
-            {/* Filters */}
-            {showFilters && (
-              <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Specialization</label>
+              {/* Filter Toggle */}
+              <div className="flex items-center justify-between mb-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 h-10"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filters
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                </Button>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">Sort by:</span>
                   <CustomSelect
-                    options={specializations.map(spec => ({ value: spec, label: spec }))}
-                    value={selectedSpecialization}
-                    onChange={handleSpecializationChange}
-                    placeholder="Select specialization"
+                    options={[
+                      { value: 'rating', label: 'Rating' },
+                      { value: 'distance', label: 'Distance' },
+                      { value: 'fee', label: 'Consultation Fee' }
+                    ]}
+                    value={sortBy}
+                    onChange={setSortBy}
+                    className="w-40"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Location</label>
-                  <CustomSelect
-                    options={locations.map(location => ({ value: location, label: location }))}
-                    value={selectedLocation}
-                    onChange={handleLocationChange}
-                    placeholder="Select location"
-                  />
+              </div>
+
+              {/* Filters */}
+              {showFilters && (
+                <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mb-6 border">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Specialization</label>
+                    <CustomSelect
+                      options={specializations.map(spec => ({ value: spec, label: spec }))}
+                      value={selectedSpecialization}
+                      onChange={handleSpecializationChange}
+                      placeholder="Select specialization"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Location</label>
+                    <CustomSelect
+                      options={locations.map(location => ({ value: location, label: location }))}
+                      value={selectedLocation}
+                      onChange={handleLocationChange}
+                      placeholder="Select location"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Consultation Type</label>
+                    <CustomSelect
+                      options={consultationTypes.map(type => ({ value: type, label: type }))}
+                      value={selectedConsultationType}
+                      onChange={handleConsultationTypeChange}
+                      placeholder="Select consultation type"
+                    />
+                  </div>
+                  <div className="md:col-span-3 flex justify-end">
+                    <Button variant="ghost" onClick={clearFilters} className="text-sm">
+                      <X className="w-4 h-4 mr-1" />
+                      Clear Filters
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Consultation Type</label>
-                  <CustomSelect
-                    options={consultationTypes.map(type => ({ value: type, label: type }))}
-                    value={selectedConsultationType}
-                    onChange={handleConsultationTypeChange}
-                    placeholder="Select consultation type"
-                  />
+              )}
+
+              {/* Results Count */}
+
+            </div>
+          </div>
+        </section>
+
+        {/* Vets List */}
+        <section className="pb-12">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+              {filteredVets.length === 0 ? (
+                <div className="text-center py-16">
+                  <Stethoscope className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No veterinarians found</h3>
+                  <p className="text-muted-foreground mb-4">Try adjusting your search criteria</p>
+                  <Button onClick={clearFilters}>Clear Filters</Button>
                 </div>
-                <div className="md:col-span-3 flex justify-end">
-                  <Button variant="ghost" onClick={clearFilters} className="text-sm">
-                    <X className="w-4 h-4 mr-1" />
-                    Clear Filters
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredVets.map((vet) => (
+                    <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                      <CardContent className="p-0">
+                        {/* Vet Image */}
+                        <div className="relative h-[450px] overflow-hidden">
+                          <Image
+                            src={vet.image}
+                            alt={vet.name}
+                            fill
+                            className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+
+                        {/* Vet Details */}
+                        {/* Vet Details - Compact & Readable */}
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-0.5">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight truncate pr-2">{vet.name}</h3>
+                            <div className="flex items-center space-x-1 shrink-0 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded-md">
+                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-500" />
+                              <span className="text-xs font-bold text-yellow-700 dark:text-yellow-400">{vet.rating}</span>
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-primary dark:text-primary font-medium mb-3">{vet.specialization}</p>
+
+                          <div className="flex items-center gap-3 mb-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            <div className="flex items-center shrink-0">
+                              <MapPin className="w-3.5 h-3.5 mr-1" />
+                              <span className="truncate max-w-[100px]">{vet.location}</span>
+                            </div>
+                            <div className="w-px h-3 bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="flex items-center shrink-0">
+                              <Clock className="w-3.5 h-3.5 mr-1" />
+                              <span className={vet.isOnline ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}>
+                                {vet.availability}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                            <div>
+                              <p className="text-lg font-bold text-primary leading-none">{vet.consultationFee}</p>
+                              <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium mt-0.5">Consultation</p>
+                            </div>
+                            <Button
+                              className="bg-primary hover:bg-primary/90 text-white h-9 px-5 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all"
+                              onClick={() => setSelectedVet(vet)}
+                            >
+                              Book
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <Footer />
+
+        {/* Creative Booking Popup */}
+        {selectedVet && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+            <div className="bg-card rounded-2xl p-0 max-w-md w-full mx-4 shadow-2xl overflow-hidden border border-border">
+              {/* Header with Image */}
+              <div className="relative h-32 bg-primary/10">
+                <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+                  <div className="relative w-32 h-32 rounded-full border-4 border-background overflow-hidden shadow-lg bg-card">
+                    <Image
+                      src={selectedVet.image}
+                      alt={selectedVet.name}
+                      fill
+                      className="object-cover object-top"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-20 pb-8 px-6 text-center">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  {selectedVet.name}
+                </h3>
+                <p className="text-sm text-primary font-medium mb-6 uppercase tracking-wider">
+                  {selectedVet.hospital}
+                </p>
+
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6 relative">
+                  {/* Quote decorative icon could go here */}
+                  <p className="text-gray-700 dark:text-gray-300 text-lg font-medium italic leading-relaxed">
+                    "{selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}"
+                  </p>
+                </div>
+
+                <div className="flex gap-3 grid grid-cols-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedVet(null)}
+                    className="w-full border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90"
+                    onClick={() => setSelectedVet(null)}
+                  >
+                    Notify Me
                   </Button>
                 </div>
               </div>
-            )}
-
-            {/* Results Count */}
-
-          </div>
-        </div>
-      </section>
-
-      {/* Vets List */}
-      <section className="pb-12">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            {filteredVets.length === 0 ? (
-              <div className="text-center py-16">
-                <Stethoscope className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No veterinarians found</h3>
-                <p className="text-muted-foreground mb-4">Try adjusting your search criteria</p>
-                <Button onClick={clearFilters}>Clear Filters</Button>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredVets.map((vet) => (
-                  <Card key={vet.id} className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-                    <CardContent className="p-0">
-                      {/* Vet Image */}
-                      <div className="relative h-[450px] overflow-hidden">
-                        <Image
-                          src={vet.image}
-                          alt={vet.name}
-                          fill
-                          className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-
-                      {/* Vet Details */}
-                      {/* Vet Details - Compact & Readable */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between mb-0.5">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight truncate pr-2">{vet.name}</h3>
-                          <div className="flex items-center space-x-1 shrink-0 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded-md">
-                            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-500" />
-                            <span className="text-xs font-bold text-yellow-700 dark:text-yellow-400">{vet.rating}</span>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-primary dark:text-primary font-medium mb-3">{vet.specialization}</p>
-
-                        <div className="flex items-center gap-3 mb-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                          <div className="flex items-center shrink-0">
-                            <MapPin className="w-3.5 h-3.5 mr-1" />
-                            <span className="truncate max-w-[100px]">{vet.location}</span>
-                          </div>
-                          <div className="w-px h-3 bg-gray-300 dark:bg-gray-700"></div>
-                          <div className="flex items-center shrink-0">
-                            <Clock className="w-3.5 h-3.5 mr-1" />
-                            <span className={vet.isOnline ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}>
-                              {vet.availability}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
-                          <div>
-                            <p className="text-lg font-bold text-primary leading-none">{vet.consultationFee}</p>
-                            <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium mt-0.5">Consultation</p>
-                          </div>
-                          <Button
-                            className="bg-primary hover:bg-primary/90 text-white h-9 px-5 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all"
-                            onClick={() => setSelectedVet(vet)}
-                          >
-                            Book
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-
-      {/* Creative Booking Popup */}
-      {selectedVet && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-card rounded-2xl p-0 max-w-md w-full mx-4 shadow-2xl overflow-hidden border border-border">
-            {/* Header with Image */}
-            <div className="relative h-32 bg-primary/10">
-              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
-                <div className="relative w-32 h-32 rounded-full border-4 border-background overflow-hidden shadow-lg bg-card">
-                  <Image
-                    src={selectedVet.image}
-                    alt={selectedVet.name}
-                    fill
-                    className="object-cover object-top"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-20 pb-8 px-6 text-center">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                {selectedVet.name}
-              </h3>
-              <p className="text-sm text-primary font-medium mb-6 uppercase tracking-wider">
-                {selectedVet.hospital}
-              </p>
-
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6 relative">
-                {/* Quote decorative icon could go here */}
-                <p className="text-gray-700 dark:text-gray-300 text-lg font-medium italic leading-relaxed">
-                  "{selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}"
-                </p>
-              </div>
-
-              <div className="flex gap-3 grid grid-cols-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedVet(null)}
-                  className="w-full border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-                >
-                  Close
-                </Button>
-                <Button
-                  className="w-full bg-primary hover:bg-primary/90"
-                  onClick={() => setSelectedVet(null)}
-                >
-                  Notify Me
-                </Button>
-              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Beta Disclaimer Popup */}
-      <BetaDisclaimerPopup
-        category={searchParams.get('type') === 'online' || selectedConsultationType.includes('Online') ? 'teleconsultation experts' : 'veterinarians'}
-        actionVerb="treating"
-      />
+        {/* Beta Disclaimer Popup */}
+        <BetaDisclaimerPopup
+          category={searchParams.get('type') === 'online' || selectedConsultationType.includes('Online') ? 'teleconsultation experts' : 'veterinarians'}
+          actionVerb="treating"
+        />
+      </div>
     </div>
   );
 }

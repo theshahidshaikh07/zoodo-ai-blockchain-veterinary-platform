@@ -52,9 +52,8 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-t from-card to-background border-t border-border/20">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zoodo-purple/5 via-transparent to-zoodo-blue/5" />
+    <footer className="relative overflow-hidden bg-background/40 backdrop-blur-sm border-t border-white/10">
+      {/* Ghost Light shows through - glass effect only */}
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Main Footer Content */}

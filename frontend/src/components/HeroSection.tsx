@@ -35,11 +35,8 @@ const HeroSection = () => {
   }
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--hero-bg)] pt-20 sm:pt-16 lg:pt-24">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-16 lg:pt-24">
+      {/* Background now handled by parent page layout */}
 
 
 
@@ -117,7 +114,7 @@ const HeroSection = () => {
               >
                 <Link href="/ai-assistant" className="flex items-center justify-center">
                   <Stethoscope
-                    className="text-white dark:text-black"
+                    className="text-white dark:text-black mr-2"
                     style={{
                       width: '1.5rem',
                       height: '1.5rem',
@@ -131,7 +128,7 @@ const HeroSection = () => {
               <Button
                 variant="ghost"
                 size="xl"
-                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-white dark:bg-black border border-border hover:bg-primary/10 hover:border-primary/40 transition-all duration-300 text-base lg:text-lg sm:flex-1 shadow-md"
+                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-white dark:bg-black border border-border hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 text-base lg:text-lg sm:flex-1 shadow-md hover:shadow-lg"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsConsultationPopupOpen(true);

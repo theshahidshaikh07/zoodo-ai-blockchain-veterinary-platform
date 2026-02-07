@@ -655,10 +655,10 @@ export default function AIAssistantPage() {
         </header>
       )}
 
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/5 to-transparent"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-primary/3 via-transparent to-primary/3"></div>
+      {/* Refined Background - "Ghost Light" Parametric Mesh - Unified with landing page */}
+      <div className="fixed inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
+      <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
+      <div className="fixed inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
 
       {/* Main Content Area */}
       <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -700,7 +700,7 @@ export default function AIAssistantPage() {
                 <Button
                   key={index}
                   variant="outline"
-                  className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/40 dark:bg-zinc-800/40 border-white/40 dark:border-white/10 hover:bg-white/60 dark:hover:bg-zinc-800/60 backdrop-blur-sm text-sm text-muted-foreground hover:text-foreground hover:shadow-sm ${index === 3 || index === 4 ? 'hidden sm:flex' : ''}`}
+                  className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/50 dark:bg-zinc-800/40 border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800/60 backdrop-blur-md transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground shadow-sm hover:shadow-md hover:border-black/20 dark:hover:border-white/20 active:scale-[0.98] ${index === 3 || index === 4 ? 'hidden sm:flex' : ''}`}
                   onClick={() => handleSendMessage(suggestion.text)}
                 >
                   <span className="flex items-center gap-2">
@@ -716,7 +716,7 @@ export default function AIAssistantPage() {
             }
             <div className="w-full max-w-4xl mx-auto sm:px-4 mt-8">
               <div className="relative">
-                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 sm:max-w-2xl sm:mx-auto">
+                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 dark:focus-within:ring-primary/40 sm:max-w-2xl sm:mx-auto">
                   {/* Voice Input Button - Left */}
                   <Button
                     variant="ghost"
@@ -786,15 +786,12 @@ export default function AIAssistantPage() {
                 ))}
 
                 {isTyping && (
-                  <div className="flex justify-start mb-6">
-                    <div className="bg-muted/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">Dr. Salus is thinking...</span>
+                  <div className="flex justify-start mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md border border-zinc-200/80 dark:border-white/10 rounded-full px-6 py-4 shadow-sm">
+                      <div className="flex items-center space-x-1.5">
+                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDuration: '1s' }}></div>
+                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '1s' }}></div>
+                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '1s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -863,7 +860,7 @@ export default function AIAssistantPage() {
                 )}
 
                 {/* Main Input Box - Sleek Single Row Design */}
-                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20">
+                <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/95 dark:hover:bg-zinc-800/95">
 
                   {/* Voice Input Button - Left */}
                   <Button

@@ -122,7 +122,7 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
                         ? isEditing
                             ? 'bg-primary text-primary-foreground rounded-3xl rounded-tr-sm shadow-md p-3'
                             : 'px-6 py-4 rounded-3xl shadow-sm text-base leading-relaxed bg-primary text-primary-foreground rounded-tr-sm shadow-md background-blur-none'
-                        : 'px-6 py-4 rounded-3xl shadow-sm text-base leading-relaxed bg-white/70 dark:bg-zinc-800/70 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-sm rounded-tl-sm'
+                        : 'px-6 py-4 rounded-3xl text-base leading-relaxed bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md border border-zinc-200/80 dark:border-white/10 rounded-tl-sm'
                 )}>
                     {message.type === 'user' ? (
                         isEditing ? (

@@ -79,10 +79,9 @@ const CommunitySection = () => {
 
   return (
     <section id="community" className="py-24 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zoodo-purple/5 via-transparent to-zoodo-blue/5" />
+      {/* Seamless Ghost Light - no breaks */}
 
-      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 lg:px-8 relative z-20">
         {/* Section Header */}
         <div
           ref={headerRef}
