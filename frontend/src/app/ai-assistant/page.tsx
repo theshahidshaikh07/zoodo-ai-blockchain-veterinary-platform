@@ -733,11 +733,11 @@ export default function AIAssistantPage() {
       <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
         {messages.length <= 1 ? (
           /* Hero Section - Only show when not chatting */
-          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-12 overflow-y-auto custom-scrollbar">
+          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-center px-4 pt-28 sm:pt-32 pb-6 overflow-y-auto custom-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
 
             {/* Banner */}
-            <div className="mb-8">
+            <div className="mb-6">
               <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5">
                 Introducing Dr. Salus AI
                 <ArrowUp className="h-3 w-3 ml-1" />
@@ -745,7 +745,7 @@ export default function AIAssistantPage() {
             </div>
 
             {/* Main Headline */}
-            <div className="text-center mb-8 max-w-4xl">
+            <div className="text-center mb-6 max-w-4xl">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                 <span className="block sm:inline">Your Pet's Personal</span>{' '}
                 <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
@@ -758,7 +758,7 @@ export default function AIAssistantPage() {
             </div>
 
             {/* Quick Suggestions */}
-            <div className="mt-8 flex flex-wrap justify-center gap-3 px-2 max-w-4xl mx-auto">
+            <div className="mt-6 flex flex-wrap justify-center gap-3 px-2 max-w-4xl mx-auto">
               {[
                 { icon: <Stethoscope className="w-4 h-4" />, text: "Find a nearby vet clinic" },
                 { icon: <Utensils className="w-4 h-4" />, text: "Diet plan for a puppy" },
@@ -783,7 +783,7 @@ export default function AIAssistantPage() {
 
             {/* Large AI Chat Input Area - Centered when not chatting */
             }
-            <div className="w-full max-w-4xl mx-auto sm:px-4 mt-8">
+            <div className="w-full max-w-4xl mx-auto sm:px-4 mt-6">
               <div className="relative">
                 <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 dark:focus-within:ring-primary/40 sm:max-w-2xl sm:mx-auto">
                   {/* Voice Input Button - Left */}

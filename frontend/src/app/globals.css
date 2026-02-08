@@ -111,6 +111,21 @@
     scroll-behavior: smooth;
   }
 
+  /* Hide scrollbars on mobile devices */
+  @media (max-width: 768px) {
+    * {
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+      /* IE and Edge */
+    }
+
+    *::-webkit-scrollbar {
+      display: none;
+      /* Chrome, Safari, Opera */
+    }
+  }
+
   /* Ensure HeroSection loads first */
   #hero {
     position: relative;

@@ -77,7 +77,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Jarvis Speed",
     consultationType: "Video Call",
-    bookingMessage: "Jarvis is currently running diagnostics on the Iron Vet suit. Please hold."
+    bookingMessage: "Proof that Dr. Pawbert has a heart... for animals.\nJarvis says I'm fully booked.\nHit notify and he'll call you back.\nLove you 3000!"
   },
   // 2. Emma (London)
   {
@@ -90,7 +90,7 @@ const dummyVets = [
     location: "London, UK",
     distance: "50 km",
     availability: "Available Now",
-    consultationFee: "$200",
+    consultationFee: "£160",
     image: vetEmma,
     languages: ["English", "French"],
     services: ["General Medicine", "Potion Mixing"],
@@ -99,7 +99,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Owl Post Speed",
     consultationType: "Video Call",
-    bookingMessage: "Owl Post is currently overloaded. Please send a Patronus for urgent requests."
+    bookingMessage: "Expecto Patronum! \n My schedule is cursed - fully booked.\nSend your Patronus to the waitlist,\nI'll Apparate when available."
   },
   // 3. King Paw (SRK) (Mumbai)
   {
@@ -112,7 +112,7 @@ const dummyVets = [
     location: "Mumbai, India",
     distance: "2.3 km",
     availability: "Available Now",
-    consultationFee: "$100",
+    consultationFee: "₹8,000",
     image: vetSRK,
     languages: ["English", "Hindi"],
     services: ["General Checkup", "Vaccination", "Romantic Stares"],
@@ -121,7 +121,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Instant",
     consultationType: "Video Call",
-    bookingMessage: "Dr. King is shooting a romantic scene. Appointments are only available for DDLJ fans."
+    bookingMessage: "Palat... palat... palat!\nYou turned around but I'm still not available.\nHit notify and wait like Simran did."
   },
   // 4. Cristiano (Miami)
   {
@@ -143,7 +143,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "90 mins match",
     consultationType: "Video Call",
-    bookingMessage: "SIUUUUU! The doctor is currently winning a match. Try again in 90 minutes."
+    bookingMessage: "SIUUUUU! \n I'm the GOAT but even GOATs need rest.\nFully booked - Hit notify and maybe I'll respond before I retire... again."
   },
   // 5. Alexandra (LA)
   {
@@ -165,7 +165,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "20 mins",
     consultationType: "Video Call",
-    bookingMessage: "Staring contest in progress. Please do not disturb the hypnotic healing session."
+    bookingMessage: "People say my eyes are mesmerizing.\nThey could cure anything... except my fully booked schedule.\nHit notify and try not to stare."
   },
   // 6. AB (Mumbai)
   {
@@ -178,7 +178,7 @@ const dummyVets = [
     location: "Mumbai, India",
     distance: "5.1 km",
     availability: "Weekends Only",
-    consultationFee: "$120",
+    consultationFee: "₹10,000",
     image: vetAB,
     languages: ["English", "Hindi"],
     services: ["Surgery", "Baritone Diagnosis"],
@@ -187,7 +187,7 @@ const dummyVets = [
     isOnline: false,
     responseTime: "1 hour",
     consultationType: "In-Clinic",
-    bookingMessage: "Parampara, Pratishtha, Anushasan. Appointments are only available via KBC lifeline."
+    bookingMessage: "Parampara, Pratishtha, Anushasan! \nJaya says no appointments...\n Rekha might help - Hit notify.\nMaa ka bharosa... AAAAGGG!!"
   },
   // 7. Ana (LA)
   {
@@ -205,11 +205,11 @@ const dummyVets = [
     languages: ["English", "Spanish"],
     services: ["Checkups", "Vaccination"],
     education: "Blade Runner Bio-Vets",
-    hospital: "Hollywood Paws",
+    hospital: "007 Vet Care",
     isOnline: true,
     responseTime: "10 mins",
     consultationType: "Online",
-    bookingMessage: "Currently hunting replicants... I mean, treating fleas. Please wait."
+    bookingMessage: "Paloma here! Booked for three weeks... actually three months.\nNo time to die - Hit notify, 007 will call back."
   },
   // 8. Henry (NYC)
   {
@@ -227,11 +227,11 @@ const dummyVets = [
     languages: ["English"],
     services: ["Rehabilitation", "Steel Grooming"],
     education: "Krypton Vet Science",
-    hospital: "Metropolis Animal Care",
+    hospital: "Krypton Vet Care",
     isOnline: true,
     responseTime: "Faster than a speeding bullet",
     consultationType: "Video Call",
-    bookingMessage: "Flying around the world to save a cat. Be back in a flash."
+    bookingMessage: "Krypton exploded, so did my availability.\nZero slots available, Man of Steel fully booked.\nHit notify, I'll cape back to you."
   },
   // 9. Madison (Swapped from 18)
   {
@@ -253,7 +253,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Soon",
     consultationType: "Online",
-    bookingMessage: "Vocal chords resting. Only accepting appointments via melody."
+    bookingMessage: "Baby I'm a wreck... and so is my schedule!\nHit notify, I'll sing your pet a lullaby when I'm free."
   },
   // 10. Aishwarya (Mumbai)
   {
@@ -266,16 +266,16 @@ const dummyVets = [
     location: "Mumbai, India",
     distance: "3.5 km",
     availability: "Available Now",
-    consultationFee: "$110",
+    consultationFee: "₹9,000",
     image: vetAish,
     languages: ["English", "Tulu", "Hindi"],
     services: ["Skin Care", "Grooming", "Miss World Class Treatment"],
     education: "MVSc (Dermatology)",
-    hospital: "Royal Paws",
+    hospital: "Blue Eye Clinic",
     isOnline: true,
     responseTime: "15 mins",
     consultationType: "Video Call",
-    bookingMessage: "Too incredibly beautiful to work right now. The pets are getting distracted."
+    bookingMessage: "Booked till Cannes and beyond.\nNo slots right now - Tap Notify! \n The Comeback will be cinematic."
   },
   // 11. Salman (Mumbai)
   {
@@ -288,7 +288,7 @@ const dummyVets = [
     location: "Mumbai, India",
     distance: "6.0 km",
     availability: "Being Human Time",
-    consultationFee: "$95",
+    consultationFee: "₹7,500",
     image: vetSalman,
     languages: ["English", "Hindi"],
     services: ["Muscle Building", "Joint Surgery"],
@@ -297,7 +297,7 @@ const dummyVets = [
     isOnline: false,
     responseTime: "45 mins",
     consultationType: "In-Clinic",
-    bookingMessage: "Driver is parking the car... might take a while. Being Human takes time."
+    bookingMessage: "Driving the car... might take a while.\nParking on the sidewalk takes skill.\nHit Notify! Being Human takes time.\n(P.S. Don't sleep on the pavement)."
   },
   // 12. Katrina (Mumbai)
   {
@@ -310,16 +310,16 @@ const dummyVets = [
     location: "Mumbai, India",
     distance: "4.0 km",
     availability: "Available Now",
-    consultationFee: "$90",
+    consultationFee: "₹7,000",
     image: vetKat,
     languages: ["English", "Hindi"],
     services: ["Diet Planning", "Fitness Training"],
     education: "Certified Pet Nutritionist",
-    hospital: "Kay Beauty Vets",
+    hospital: "Slice of Life Care",
     isOnline: true,
     responseTime: "30 mins",
     consultationType: "Online",
-    bookingMessage: "Busy eating mangoes. Try again later."
+    bookingMessage: "Sheila Here!\nJab Tak Hai Jaan.... I'll treat Animals!\n But my schedule went Bang Bang!\nTap Notify!"
   },
   // 13. Keanu (LA)
   {
@@ -341,7 +341,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Yeah.",
     consultationType: "Video Call",
-    bookingMessage: "Someone touched his dog. He is currently... unavailable. (Run.)"
+    bookingMessage: "Someone touched his Dog.\nHe is currently 'resolving' the issue with a pencil.\nAppointment? Hit Notify if you dare. (Run.)"
   },
 
   // Remaining Vets
@@ -356,16 +356,16 @@ const dummyVets = [
     location: "London, UK",
     distance: "55 km",
     availability: "Only at Night",
-    consultationFee: "$250",
+    consultationFee: "£200",
     image: vetBale,
     languages: ["English"],
     services: ["Emergency Surgery", "Bat-Veterinary"],
     education: "Gotham Vet U",
-    hospital: "Wayne Pet Enterprises",
+    hospital: "Wayne Animal Care",
     isOnline: false,
     responseTime: "Dark Knight Rises",
     consultationType: "Emergency",
-    bookingMessage: "He is the hero Gotham deserves, but not the one it needs right now."
+    bookingMessage: "Saving pets from Gotham's streets,\n It's not who I am underneath, \n but what I do that defines me.\nHit Notify - I'll connect when I'm free."
   },
   // 15. Millie (Nashville)
   {
@@ -373,7 +373,7 @@ const dummyVets = [
     name: "Dr. Millie Tabby Brown",
     specialization: "Puppy Telekinesis",
     experience: "7 years",
-    rating: 4.8, // Slightly lower to create tiers? No, keep 5.0 but lower reviews
+    rating: 4.9,
     reviews: 3000,
     location: "Nashville, USA",
     distance: "40 km",
@@ -383,11 +383,11 @@ const dummyVets = [
     languages: ["English"],
     services: ["Psychic Diagnosis", "Waffles Nutrition"],
     education: "Eleven Vet School",
-    hospital: "Nashville Paws",
+    hospital: "Hawkins Lab",
     isOnline: true,
     responseTime: "11 mins",
     consultationType: "Online",
-    bookingMessage: "Nose bleed break. Recharging with waffles."
+    bookingMessage: "Vecna took my free time! Fully booked! \n Hit notify before my nose bleeds again."
   },
   // 16. Ariana (Paris)
   {
@@ -395,12 +395,12 @@ const dummyVets = [
     name: "Dr. Furiana Grande",
     specialization: "Vocal Therapy",
     experience: "10 years",
-    rating: 4.8,
+    rating: 4.9,
     reviews: 2500,
     location: "Paris, France",
     distance: "100 km",
     availability: "Available Now",
-    consultationFee: "$180",
+    consultationFee: "€165",
     image: vetAriana,
     languages: ["English", "French"],
     services: ["Soothing Lullabies", "High Note Healing"],
@@ -409,7 +409,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Positions (Remote)",
     consultationType: "Video Call",
-    bookingMessage: "Thank u, next patient! (But not right now)."
+    bookingMessage: "I've got 7 rings, but 0 open slots.\nFully booked - Hit Notify, Thank U, Next."
   },
   // 17. Cillian (LA)
   {
@@ -417,7 +417,7 @@ const dummyVets = [
     name: "Dr. Cillian Meowphy",
     specialization: "Nuclear Radiology",
     experience: "20 years",
-    rating: 4.8,
+    rating: 4.9,
     reviews: 2000,
     location: "Los Angeles, USA",
     distance: "15 km",
@@ -431,7 +431,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Immediate",
     consultationType: "Video Call",
-    bookingMessage: "Calculating the atomic weight of a hairball. Appointment chances are near zero."
+    bookingMessage: "I have become... unavailable. \nThe destroyer of your plans.\nHit Notify... by order of the Peaky Blinders."
   },
   // 18. Sadie (Swapped from 9)
   {
@@ -439,8 +439,8 @@ const dummyVets = [
     name: "Dr. Sadie Paws",
     specialization: "Behavioral Analysis",
     experience: "5 years",
-    rating: 4.8,
-    reviews: 1500, // Kept low for position 18
+    rating: 4.9,
+    reviews: 1500,
     location: "New York, USA",
     distance: "22 km",
     availability: "Available Now",
@@ -449,20 +449,20 @@ const dummyVets = [
     languages: ["English"],
     services: ["Trauma Care", "Upside Down Therapy"],
     education: "Hawkins Lab",
-    hospital: "Stranger Paws Clinic",
+    hospital: "Max's Arcade Care",
     isOnline: true,
     responseTime: "10 mins",
     consultationType: "Online",
-    bookingMessage: "Currently in the Upside Down. Walkie-talkie for response."
+    bookingMessage: "Currently stuck in the Upside Down.\nTap notify, keep your walkie-talkie on."
   },
   // 19. Andrew Garfield
   {
     id: 19,
-    name: "Dr. Spidey Gar-fur",
+    name: "Dr. Peter Barker",
     specialization: "Emergency Response",
     experience: "12 years",
-    rating: 4.9,
-    reviews: 8800,
+    rating: 4.8,
+    reviews: 1200,
     location: "New York, USA",
     distance: "2 km",
     availability: "Swinging By",
@@ -471,20 +471,20 @@ const dummyVets = [
     languages: ["English"],
     services: ["Webbed Feet Care", "High Altitude Rescue"],
     education: "Midtown Science High",
-    hospital: "Friendly Neighborhood Clinic",
+    hospital: "No Way Vet",
     isOnline: true,
     responseTime: "Tingle Speed",
     consultationType: "Video Call",
-    bookingMessage: "My spidey senses are tingling... looks like your pet needs a treat."
+    bookingMessage: "I'm still trying to catch Gwen in every universe.\nHit notify, maybe I'll catch your request later."
   },
   // 20. Emma Stone
   {
     id: 20,
-    name: "Dr. Emma St-bone",
+    name: "Dr. Gwen Stecat",
     specialization: "Chemistry & Diagnostics",
     experience: "10 years",
-    rating: 5.0,
-    reviews: 9000,
+    rating: 4.8,
+    reviews: 1000,
     location: "New York, USA",
     distance: "3 km",
     availability: "Available Now",
@@ -497,20 +497,20 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Smart",
     consultationType: "Video Call",
-    bookingMessage: "Running some bio-tests. I love science, and puppies."
+    bookingMessage: "I won an Oscar for Poor Things, \nbut I have Poor Availability.\nNo slots - Tap Notify."
   },
   // 21. The Weeknd
   {
     id: 21,
-    name: "Dr. Abel Tes-paw-ye",
+    name: "Dr. The Woofnd",
     specialization: "Nocturnal Care",
     experience: "After Hours",
-    rating: 4.8,
-    reviews: 7777,
+    rating: 4.7,
+    reviews: 800,
     location: "Toronto, Canada",
     distance: "100 km",
     availability: "Weekends Only",
-    consultationFee: "$400",
+    consultationFee: "C$540",
     image: vetWeeknd,
     languages: ["English", "Amharic"],
     services: ["Vocal Therapy", "Blinding Lights Exam"],
@@ -519,7 +519,7 @@ const dummyVets = [
     isOnline: true,
     responseTime: "Late Night",
     consultationType: "Video Call",
-    bookingMessage: "I said ooh, I'm blinded by the... shine of your dog's coat."
+    bookingMessage: "I said ooh, I'm blinded by the waitlist.\nNo slots available - Tap Notify."
   }
 ];
 
@@ -582,13 +582,39 @@ function FindVetsContent() {
       filtered = filtered.filter(vet =>
         vet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vet.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vet.hospital.toLowerCase().includes(searchTerm.toLowerCase())
+        vet.hospital.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vet.location.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by specialization
+    // Filter by specialization - use partial matching for flexibility
     if (selectedSpecialization !== 'All Specializations') {
-      filtered = filtered.filter(vet => vet.specialization === selectedSpecialization);
+      filtered = filtered.filter(vet => {
+        const spec = vet.specialization.toLowerCase();
+        const selected = selectedSpecialization.toLowerCase();
+
+        // Handle common specialization mappings
+        if (selected === 'general practice') {
+          return spec.includes('general');
+        } else if (selected === 'surgery') {
+          return spec.includes('surgery') || spec.includes('surgical');
+        } else if (selected === 'orthopedics') {
+          return spec.includes('orthopedic') || spec.includes('fitness') || spec.includes('sports');
+        } else if (selected === 'emergency medicine') {
+          return spec.includes('emergency') || spec.includes('urgent');
+        } else if (selected === 'dermatology') {
+          return spec.includes('derma') || spec.includes('skin');
+        } else if (selected === 'cardiology') {
+          return spec.includes('cardio') || spec.includes('heart');
+        } else if (selected === 'oncology') {
+          return spec.includes('oncology') || spec.includes('cancer');
+        } else if (selected === 'internal medicine') {
+          return spec.includes('internal') || spec.includes('medicine');
+        }
+
+        // Fallback to partial match
+        return spec.includes(selected);
+      });
     }
 
     // Filter by location
@@ -609,6 +635,10 @@ function FindVetsContent() {
           vet.consultationType === 'In-Clinic' ||
           vet.consultationType === 'Emergency'
         );
+      } else if (selectedConsultationType === 'Home Visit') {
+        filtered = filtered.filter(vet =>
+          vet.consultationType === 'Home Visit'
+        );
       } else {
         filtered = filtered.filter(vet => vet.consultationType === selectedConsultationType);
       }
@@ -618,12 +648,28 @@ function FindVetsContent() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
-          return b.rating - a.rating || b.reviews - a.reviews;
+          // Sort by rating first, then by number of reviews as tiebreaker
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating;
+          }
+          return b.reviews - a.reviews;
+
         case 'distance':
-          return parseFloat(a.distance) - parseFloat(b.distance);
+          // Extract numeric value from distance string (e.g., "12 km" -> 12)
+          const parseDistance = (dist: string): number => {
+            const match = dist.match(/(\d+\.?\d*)/);
+            return match ? parseFloat(match[1]) : Infinity;
+          };
+          return parseDistance(a.distance) - parseDistance(b.distance);
+
         case 'fee':
-          return parseInt(a.consultationFee.replace('$', '').replace(',', '')) -
-            parseInt(b.consultationFee.replace('$', '').replace(',', ''));
+          // Extract numeric value from fee string (e.g., "$1,200" -> 1200)
+          const parseFee = (fee: string): number => {
+            const cleaned = fee.replace(/[^0-9.]/g, ''); // Remove all non-numeric except decimal
+            return parseFloat(cleaned) || 0;
+          };
+          return parseFee(a.consultationFee) - parseFee(b.consultationFee);
+
         default:
           return 0;
       }
@@ -703,7 +749,6 @@ function FindVetsContent() {
                   <CustomSelect
                     options={[
                       { value: 'rating', label: 'Rating' },
-                      { value: 'distance', label: 'Distance' },
                       { value: 'fee', label: 'Consultation Fee' }
                     ]}
                     value={sortBy}
@@ -861,10 +906,10 @@ function FindVetsContent() {
                   {selectedVet.hospital}
                 </p>
 
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6 relative">
+                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-6 mb-6 relative shadow-sm">
                   {/* Quote decorative icon could go here */}
-                  <p className="text-gray-700 dark:text-gray-300 text-lg font-medium italic leading-relaxed">
-                    "{selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}"
+                  <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-base font-medium italic leading-5 sm:leading-7 whitespace-pre-line">
+                    {selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}
                   </p>
                 </div>
 

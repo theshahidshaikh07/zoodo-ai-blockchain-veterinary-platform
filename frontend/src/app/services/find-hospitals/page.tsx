@@ -387,13 +387,19 @@ export default function FindHospitalsPage() {
     if (searchTerm) {
       filtered = filtered.filter(hospital =>
         hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hospital.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
+        hospital.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        hospital.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hospital.type.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by type
+    // Filter by type - use partial matching for flexibility
     if (selectedType !== 'All Types') {
-      filtered = filtered.filter(hospital => hospital.type === selectedType);
+      filtered = filtered.filter(hospital => {
+        const type = hospital.type.toLowerCase();
+        const selected = selectedType.toLowerCase();
+        return type.includes(selected) || selected.includes(type);
+      });
     }
 
     // Filter by location
@@ -410,19 +416,26 @@ export default function FindHospitalsPage() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
-          return b.rating - a.rating; // Sort by rating descending
-        // Simplified distance sorting as string parsing is complex with international values
+          // Sort by rating first, then by number of reviews as tiebreaker
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating;
+          }
+          return b.reviews - a.reviews;
+
         case 'fee':
-          // Basic fee sorting logic - extracting first number
-          const getFee = (str: string) => {
-            const match = str.match(/\d+/);
-            return match ? parseInt(match[0]) : 0;
+          // Extract minimum fee from range (e.g., "$250 - $750" -> 250)
+          const parseFee = (fee: string): number => {
+            const cleaned = fee.replace(/[^0-9.,-]/g, ''); // Keep numbers, decimals, commas, and hyphens
+            const parts = cleaned.split('-'); // Split range
+            const firstValue = parts[0].replace(/,/g, ''); // Remove commas from first value
+            return parseFloat(firstValue) || 0;
           };
-          return getFee(a.consultationFee) - getFee(b.consultationFee);
+          return parseFee(a.consultationFee) - parseFee(b.consultationFee);
+
         case 'featured':
-          // Featured matches the popularity order (which aligns with rating now)
-          // Since the dummy list is already ordered by popularity/rating, we just preserve index
+          // Featured matches the popularity order (preserve original index)
           return dummyHospitals.indexOf(a) - dummyHospitals.indexOf(b);
+
         default:
           return 0;
       }
@@ -502,7 +515,6 @@ export default function FindHospitalsPage() {
                     options={[
                       { value: 'featured', label: 'Global Ranking' },
                       { value: 'rating', label: 'Rating' },
-                      { value: 'distance', label: 'Distance' },
                       { value: 'fee', label: 'Consultation Fee' }
                     ]}
                     value={sortBy}

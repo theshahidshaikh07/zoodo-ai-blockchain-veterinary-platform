@@ -514,13 +514,37 @@ export default function FindTrainersPage() {
       filtered = filtered.filter(trainer =>
         trainer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trainer.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        trainer.trainingCenter.toLowerCase().includes(searchTerm.toLowerCase())
+        trainer.trainingCenter.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        trainer.location.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by specialization
+    // Filter by specialization - use partial matching for flexibility
     if (selectedSpecialization !== 'All Specializations') {
-      filtered = filtered.filter(trainer => trainer.specialization === selectedSpecialization);
+      filtered = filtered.filter(trainer => {
+        const spec = trainer.specialization.toLowerCase();
+        const selected = selectedSpecialization.toLowerCase();
+
+        // Handle common specialization mappings
+        if (selected.includes('strength') || selected.includes('muscle')) {
+          return spec.includes('strength') || spec.includes('muscle') || spec.includes('lifting');
+        } else if (selected.includes('agility') || selected.includes('stunt')) {
+          return spec.includes('agility') || spec.includes('stunt') || spec.includes('jump');
+        } else if (selected.includes('guard') || selected.includes('security')) {
+          return spec.includes('guard') || spec.includes('security') || spec.includes('tactical');
+        } else if (selected.includes('obedience')) {
+          return spec.includes('obedience') || spec.includes('discipline') || spec.includes('stay');
+        } else if (selected.includes('behavioral')) {
+          return spec.includes('behavior') || spec.includes('rehabilitation') || spec.includes('therapy');
+        } else if (selected.includes('puppy')) {
+          return spec.includes('puppy') || spec.includes('basic');
+        } else if (selected.includes('show')) {
+          return spec.includes('show') || spec.includes('runway') || spec.includes('poise');
+        }
+
+        // Fallback to partial match
+        return spec.includes(selected);
+      });
     }
 
     // Filter by location
@@ -543,14 +567,32 @@ export default function FindTrainersPage() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
-          return b.rating - a.rating;
+          // Sort by rating first, then by number of reviews as tiebreaker
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating;
+          }
+          return b.reviews - a.reviews;
+
         case 'distance':
-          return parseFloat(a.distance) - parseFloat(b.distance);
+          // Extract numeric value from distance string (e.g., "12 km" -> 12)
+          const parseDistance = (dist: string): number => {
+            const match = dist.match(/(\d+\.?\d*)/);
+            return match ? parseFloat(match[1]) : Infinity;
+          };
+          return parseDistance(a.distance) - parseDistance(b.distance);
+
         case 'fee':
-          return parseInt(a.sessionFee.replace('$', '').replace(',', '')) -
-            parseInt(b.sessionFee.replace('$', '').replace(',', ''));
+          // Extract numeric value from fee string (e.g., "$1,200" -> 1200)
+          const parseFee = (fee: string): number => {
+            const cleaned = fee.replace(/[^0-9.]/g, ''); // Remove all non-numeric except decimal
+            return parseFloat(cleaned) || 0;
+          };
+          return parseFee(a.sessionFee) - parseFee(b.sessionFee);
+
         case 'featured':
-          return 0; // Maintain original curated order
+          // Maintain original curated order
+          return dummyTrainers.indexOf(a) - dummyTrainers.indexOf(b);
+
         default:
           return 0;
       }
@@ -630,7 +672,6 @@ export default function FindTrainersPage() {
                     options={[
                       { value: 'featured', label: 'Featured' },
                       { value: 'rating', label: 'Rating' },
-                      { value: 'distance', label: 'Distance' },
                       { value: 'fee', label: 'Session Fee' }
                     ]}
                     value={sortBy}

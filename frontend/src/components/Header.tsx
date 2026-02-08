@@ -296,8 +296,8 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="fixed inset-0 z-[45] bg-background overflow-y-auto pt-24 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            <div className="container mx-auto px-6 py-8 flex flex-col min-h-[calc(100vh-80px)]">
-              <nav className="flex flex-col space-y-2">
+            <div className="container mx-auto px-6 py-4 flex flex-col h-full">
+              <nav className="flex flex-col space-y-2 flex-shrink-0">
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.name}
@@ -311,7 +311,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                         <Link
                           href={item.href}
                           onClick={() => setIsMenuOpen(false)}
-                          className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                          className="flex-1 text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {item.name}
                         </Link>
@@ -319,7 +319,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                         <a
                           href={item.href}
                           onClick={(e) => handleNavClick(e, item.href)}
-                          className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          className="flex-1 text-base font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
                           {item.name}
                         </a>
@@ -332,7 +332,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                             e.stopPropagation();
                             handleSubmenuToggle(item.name);
                           }}
-                          className="p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground"
+                          className="p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground ml-2 flex-shrink-0"
                         >
                           <div className="relative w-4 h-4 flex items-center justify-center">
                             <span className="absolute w-3.5 h-[1.5px] bg-current rounded-full" />
@@ -387,7 +387,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="mt-auto pt-8 space-y-4"
+                className="mt-auto pt-4 pb-6 space-y-4 flex-shrink-0"
               >
                 {isAuthenticated ? (
                   <>
