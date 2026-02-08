@@ -644,7 +644,7 @@ export default function FindHospitalsPage() {
                               <p className="text-xs text-gray-500">Consultation</p>
                             </div>
                             <Button
-                              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm"
+                              className="bg-primary hover:bg-primary/90 text-white dark:text-gray-900 px-4 py-2 rounded-lg text-sm"
                               onClick={() => setSelectedHospital(hospital)}
                             >
                               Details
@@ -766,7 +766,7 @@ export default function FindHospitalsPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <Button className="flex-1 bg-primary hover:bg-primary/90">Book Appointment</Button>
+                  <Button className="flex-1 bg-primary hover:bg-primary/90 text-white dark:text-gray-900">Book Appointment</Button>
                   <Button variant="outline" className="flex-1">Call Hospital</Button>
                 </div>
 

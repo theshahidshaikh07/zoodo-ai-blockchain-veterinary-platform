@@ -61,7 +61,7 @@ const dummyTrainers = [
     reviews: 15000,
     location: "New York, USA",
     distance: "2 km",
-    availability: "Fashion Week Only",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$900",
     image: trainerKendall,
     languages: ["English"],
@@ -72,7 +72,7 @@ const dummyTrainers = [
     responseTime: "Runway Speed",
     petsTrained: 2000,
     consultationType: "Academy",
-    bookingMessage: "Walking the runway. Do not touch the couture."
+    bookingMessage: "I can't even cut a cucumber properly.\nBut I can make your pet do a ramp walk.\nNo slots available.\nTap Notify!"
   },
   // 2. The Rock (Tough/Friendly)
   {
@@ -84,7 +84,7 @@ const dummyTrainers = [
     reviews: 14000,
     location: "Miami, USA",
     distance: "5 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$450",
     image: trainerDwayne,
     languages: ["English"],
@@ -95,19 +95,19 @@ const dummyTrainers = [
     responseTime: "Can you smell...",
     petsTrained: 4500,
     consultationType: "Home Visit",
-    bookingMessage: "Can you smell... what The Bark is cooking? It's protein treats."
+    bookingMessage: "IT DOESN'T MATTER what your breed is!\nI can train any jabroni.\nBut my schedule is harder than my cheat day,\nTighter than my turtleneck fannypack photo.\n No slots available. Tap Notify!"
   },
   // 3. Megan Fox (Exotic/Edgy)
   {
     id: 15,
-    name: "Megan Fox-Terrier",
+    name: "Megan Pawx",
     specialization: "Exotic Pet Training",
     experience: "10 years",
     rating: 4.8,
     reviews: 7000,
     location: "Los Angeles, USA",
     distance: "12 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$350",
     image: trainerMegan,
     languages: ["English"],
@@ -118,7 +118,7 @@ const dummyTrainers = [
     responseTime: "Fast",
     petsTrained: 1500,
     consultationType: "Online",
-    bookingMessage: "Looking for Decepticons. My fox terrier smelled one."
+    bookingMessage: "Transformers are easier to handle than untrained pets. Luckily, I handle both.\nUnfortunately, my schedule self-destructed.\nTap Notify!"
   },
   // 4. Scarlett (Action/Stealth)
   {
@@ -130,7 +130,7 @@ const dummyTrainers = [
     reviews: 9500,
     location: "New York, USA",
     distance: "5 km",
-    availability: "Undercover",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$400",
     image: trainerScarlett,
     languages: ["English", "Russian"],
@@ -141,7 +141,7 @@ const dummyTrainers = [
     responseTime: "Stealthy",
     petsTrained: 3000,
     consultationType: "Academy",
-    bookingMessage: "Currently on a secret mission. If you are an alien, look away."
+    bookingMessage: "Trying to wipe the red from my ledger.\nAnd clear my schedule, Failing at both.\nHit Notify, Agent."
   },
   // 5. Benedict (Mystic/Calm)
   {
@@ -153,7 +153,7 @@ const dummyTrainers = [
     reviews: 9000,
     location: "New York, USA",
     distance: "2 km",
-    availability: "In the Multiverse",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$450",
     image: trainerBenedict,
     languages: ["English", "Mystic Arts"],
@@ -164,7 +164,7 @@ const dummyTrainers = [
     responseTime: "Instant",
     petsTrained: 14000605,
     consultationType: "Online",
-    bookingMessage: "Dormammu, I've come to bargain... for more treats."
+    bookingMessage: "I observe. I deduce. I train.\nI'll make your dog smarter than Watson.\nBut the timeline says 'No'. Tap Notify!"
   },
   // 6. Taylor Swift (Icon/Pop)
   {
@@ -176,7 +176,7 @@ const dummyTrainers = [
     reviews: 50000,
     location: "Nashville, USA",
     distance: "100 km",
-    availability: "On Tour",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$1989",
     image: trainerTaylor,
     languages: ["English"],
@@ -187,7 +187,7 @@ const dummyTrainers = [
     responseTime: "Swift",
     petsTrained: 13000,
     consultationType: "Online",
-    bookingMessage: "Shake it off! (The fleas, that is). Currently on the Eras Tour."
+    bookingMessage: "My schedule is more complicated than \n getting Eras Tour tickets.\nYou are in the queue (position: 23,405).\nGood luck. Tap Notify!"
   },
   // 7. Billie Eilish (Cool/Alternative)
   {
@@ -199,7 +199,7 @@ const dummyTrainers = [
     reviews: 8000,
     location: "Los Angeles, USA",
     distance: "12 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$250",
     image: trainerBillie,
     languages: ["English"],
@@ -210,7 +210,7 @@ const dummyTrainers = [
     responseTime: "Duh",
     petsTrained: 2000,
     consultationType: "Online",
-    bookingMessage: "I'm the baaad guy... playing with puppies. Leave a message."
+    bookingMessage: "I'm the baaad guy at declining appointments.\nDuh.\nSchedule is full. Tap Notify! \n Don't smile at me."
   },
   // 8. Tom Cruise (Action/Stunts)
   {
@@ -222,7 +222,7 @@ const dummyTrainers = [
     reviews: 11000,
     location: "Los Angeles, USA",
     distance: "15 km",
-    availability: "Mission Ready",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$600",
     image: trainerTom,
     languages: ["English"],
@@ -233,7 +233,7 @@ const dummyTrainers = [
     responseTime: "Running fast",
     petsTrained: 2500,
     consultationType: "Academy",
-    bookingMessage: "Your mission, should you choose to accept it, involves catching this frisbee."
+    bookingMessage: "I'm hanging off the side of a plane right now.\nCan't check the calendar.\nActually, I checked. It's full. Hit Notify!"
   },
   // 9. Karen Gillan
   {
@@ -245,7 +245,7 @@ const dummyTrainers = [
     reviews: 8500,
     location: "Jungle, Jumanji",
     distance: "Unknown",
-    availability: "Level 1 Complete",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$350",
     image: trainerKaren,
     languages: ["English"],
@@ -256,7 +256,7 @@ const dummyTrainers = [
     responseTime: "Critical Hit",
     petsTrained: 2800,
     consultationType: "Academy",
-    bookingMessage: "Why am I in this outfit? Never mind. Let's train to survive."
+    bookingMessage: "I'm stuck in the Jumanji jungle.\nI have a weakness: Venom... and full schedules.\nWait for the drums to stop. Tap Notify!"
   },
   // 10. Leo (Classy)
   {
@@ -268,7 +268,7 @@ const dummyTrainers = [
     reviews: 13000,
     location: "Hollywood Hills, USA",
     distance: "10 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$550",
     image: trainerLeo,
     languages: ["English"],
@@ -279,7 +279,7 @@ const dummyTrainers = [
     responseTime: "Eventually (got an Oscar)",
     petsTrained: 3500,
     consultationType: "Online",
-    bookingMessage: "Toasting a glass of champagne to your good boy. One moment."
+    bookingMessage: "Sell me this pen. No? Can't do it?\nThen you can't book this f**king slot.\nSupply and Demand, my friend. Tap Notify."
   },
   // 11. Selena (Charm)
   {
@@ -291,7 +291,7 @@ const dummyTrainers = [
     reviews: 11000,
     location: "Los Angeles, USA",
     distance: "10 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$300",
     image: trainerSelena,
     languages: ["English", "Spanish"],
@@ -302,7 +302,7 @@ const dummyTrainers = [
     responseTime: "Same Old Love",
     petsTrained: 4000,
     consultationType: "Online",
-    bookingMessage: "Killing 'em with kindness. And healthy treats."
+    bookingMessage: "Baby, calm down, calm down.\nI see you looking for a slot.\nBut it's a lo-lo-lo-long wait.\nSo no-no-no availability. Tap Notify!"
   },
   // 12. Chris (Muscle/Action)
   {
@@ -314,7 +314,7 @@ const dummyTrainers = [
     reviews: 12000,
     location: "New Asgard (Norway)",
     distance: "50 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$400",
     image: trainerChris,
     languages: ["English", "Norse", "Groot"],
@@ -325,7 +325,7 @@ const dummyTrainers = [
     responseTime: "Lightning Fast",
     petsTrained: 3000,
     consultationType: "Academy",
-    bookingMessage: "This hammer is too heavy for you... wait, he just picked it up. Looking for Mjolnir, please hold."
+    bookingMessage: "Tyler Rake requesting extraction.\nMy schedule is under heavy fire.\nMission aborted (no slots).Hit Notify!"
   },
   // 13. Kylie (Glam/Social)
   {
@@ -337,7 +337,7 @@ const dummyTrainers = [
     reviews: 20000,
     location: "Calabasas, USA",
     distance: "20 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$800",
     image: trainerKylie,
     languages: ["English"],
@@ -348,7 +348,7 @@ const dummyTrainers = [
     responseTime: "Viral",
     petsTrained: 5000,
     consultationType: "Teleconsultation",
-    bookingMessage: "Rise and shiine! Getting the lighting right for my dog's selfie."
+    bookingMessage: "Riiise and shiiine!\nI feel like this year is really about realizing stuff.\nLike realizing my calendar is packed.\nIt's crazy. Tap Notify."
   },
   // 14. Arnold (Legend)
   {
@@ -360,7 +360,7 @@ const dummyTrainers = [
     reviews: 15000,
     location: "Los Angeles, USA",
     distance: "12 km",
-    availability: "Available Now",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$500",
     image: trainerArnold,
     languages: ["English", "German"],
@@ -371,7 +371,7 @@ const dummyTrainers = [
     responseTime: "Get to the chopper speed",
     petsTrained: 5000,
     consultationType: "Academy",
-    bookingMessage: "Get to the chopper! I mean... the park! We train now."
+    bookingMessage: "Hasta la vista, baby...\nTo your appointment request.\nI'll be back... when I have a slot.\nTap Notify!"
   },
   // 15. Preity (Sweet/Local)
   {
@@ -383,8 +383,8 @@ const dummyTrainers = [
     reviews: 10000,
     location: "Mumbai, India",
     distance: "5 km",
-    availability: "Available Now",
-    sessionFee: "$200",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
+    sessionFee: "₹15,000",
     image: trainerPreity,
     languages: ["English", "Hindi"],
     services: ["Cheerleading for Pups", "Smile Therapy"],
@@ -394,7 +394,7 @@ const dummyTrainers = [
     responseTime: "Bubbly",
     petsTrained: 6000,
     consultationType: "In-Person",
-    bookingMessage: "Ting! Currently cheering for my team. Call you back in an over."
+    bookingMessage: "I waited 22 years in Veer-Zaara.\nYou might have to wait 22 mins or days for slot.\nMy love is eternal, but my time is limited.\nTap Notify!"
   },
   // 16. Jason (Tough/Discipline)
   {
@@ -406,8 +406,8 @@ const dummyTrainers = [
     reviews: 11500,
     location: "London, UK",
     distance: "10 km",
-    availability: "Available Now",
-    sessionFee: "$480",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
+    sessionFee: "£380",
     image: trainerJason,
     languages: ["English"],
     services: ["The 'Stay' Command", "Intense Staring"],
@@ -417,20 +417,20 @@ const dummyTrainers = [
     responseTime: "Immediate",
     petsTrained: 3200,
     consultationType: "Academy",
-    bookingMessage: "I told him to stay. He is still staying. I will be back when he moves."
+    bookingMessage: "I punched a Megalodon in the face.\nBut I can't punch an opening into this schedule.\nIt's tougher than the shark. Tap Notify!"
   },
   // 17. MS Dhoni (Sport/Leader)
   {
     id: 8,
-    name: "M.S. Pawni",
+    name: "Captain Cool Canine",
     specialization: "Focus & Catching",
     experience: "15 years",
     rating: 5.0,
     reviews: 20000,
     location: "Ranchi, India",
     distance: "0 km (Helicopter)",
-    availability: "Cool & Calm",
-    sessionFee: "$300",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
+    sessionFee: "₹25,000",
     image: trainerDhoni,
     languages: ["English", "Hindi"],
     services: ["Wicket Keeping (Fetch)", "Finishing Moves"],
@@ -440,7 +440,7 @@ const dummyTrainers = [
     responseTime: "0.08 seconds (stumping)",
     petsTrained: 7000,
     consultationType: "Academy",
-    bookingMessage: "Definitely not out. But the trainer is currently finishing a match."
+    bookingMessage: "Behind the stumps, I miss nothing.\nI'll ensure your pet misses no commands either.\nBut currently, the schedule is spinning too much.\nTap Notify!"
   },
   // 18. Vin Diesel (Family/Race)
   {
@@ -452,7 +452,7 @@ const dummyTrainers = [
     reviews: 10500,
     location: "Los Angeles, USA",
     distance: "8 km",
-    availability: "Quarter Mile at a time",
+    availability: "Mon - Fri, 10:00 AM - 7:00 PM",
     sessionFee: "$350",
     image: trainerVin,
     languages: ["English", "Groot"],
@@ -463,7 +463,7 @@ const dummyTrainers = [
     responseTime: "Family First",
     petsTrained: 4000,
     consultationType: "Home Visit",
-    bookingMessage: "We don't need training. We have Family."
+    bookingMessage: "I live my life a quarter mile at a time.\nAnd I train dogs the same way... \n Fast and Furious.\nBut right now, my schedule is stalled.\nTap Notify!"
   }
 ];
 
@@ -784,7 +784,7 @@ export default function FindTrainersPage() {
                               <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mt-0.5">Per Session</p>
                             </div>
                             <Button
-                              className="bg-primary hover:bg-primary/90 text-white h-9 px-5 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all"
+                              className="bg-primary hover:bg-primary/90 text-white dark:text-gray-900 h-9 px-5 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all"
                               onClick={() => setSelectedTrainer(trainer)}
                             >
                               Book
@@ -828,9 +828,10 @@ export default function FindTrainersPage() {
                   {selectedTrainer.trainingCenter}
                 </p>
 
-                <div className="bg-secondary/30 rounded-xl p-4 mb-6 relative">
-                  <p className="text-gray-700 dark:text-gray-300 text-lg font-medium italic leading-relaxed">
-                    "{selectedTrainer.bookingMessage || "Currently unavailable due to high demand."}"
+                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-6 mb-6 relative shadow-sm">
+                  {/* Quote decorative icon could go here */}
+                  <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-base font-medium italic leading-5 sm:leading-7 whitespace-pre-line">
+                    {selectedTrainer.bookingMessage || "Currently unavailable due to high demand."}
                   </p>
                 </div>
 
