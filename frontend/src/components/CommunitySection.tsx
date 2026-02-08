@@ -87,7 +87,7 @@ const CommunitySection = () => {
           ref={headerRef}
           className={`text-center space-y-6 mb-20 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
-          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-zoodo-green">
+          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-primary">
             <Users className="w-4 h-4 mr-2" />
             Community & Welfare
           </div>
@@ -162,9 +162,9 @@ const CommunitySection = () => {
               {communityFeatures.map((feature, index) => (
                 <div
                   key={feature.title}
-                  className={`p-6 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md rounded-3xl transition-all duration-300 scale-on-hover border border-primary/20 hover:border-primary/40 fade-up scroll-stagger-${index + 1} ${contentVisible ? 'animate' : ''}`}
+                  className={`p-6 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md rounded-3xl transition-all duration-300 scale-on-hover border border-border hover:border-primary/40 fade-up scroll-stagger-${index + 1} ${contentVisible ? 'animate' : ''}`}
                 >
-                  <feature.icon className={`w-8 h-8 mb-4 ${feature.title === 'Pet Adoption' ? 'text-red-500' : 'text-zoodo-green'}`} />
+                  <feature.icon className={`w-8 h-8 mb-4 ${feature.title === 'Pet Adoption' ? 'text-red-500' : 'text-primary'}`} />
                   <h4 className="font-bold mb-2">{feature.title}</h4>
                   <p className="text-sm text-muted-foreground mb-3">{feature.description}</p>
                   {/* <div className="text-xs font-medium text-zoodo-green">{feature.stats}</div> */}
@@ -188,7 +188,7 @@ const CommunitySection = () => {
                 variant="ghost"
                 size="lg"
                 onClick={() => setIsCommunityPopupOpen(true)}
-                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 hover:bg-primary/10 hover:border-primary/40 text-slate-900 dark:text-white transition-all duration-300"
+                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-border hover:bg-primary/10 hover:border-primary/40 text-slate-900 dark:text-white transition-all duration-300"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Start Discussion
@@ -215,12 +215,12 @@ const CommunitySection = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.name}
-                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md p-8 rounded-3xl transition-all duration-300 scale-on-hover fade-up border border-primary/20 hover:border-primary/40"
+                className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md p-8 rounded-3xl transition-all duration-300 scale-on-hover fade-up border border-border hover:border-primary/40"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="flex items-center space-x-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, index) => (
-                    <Star key={index} className="w-4 h-4 text-zoodo-orange fill-current" />
+                    <Star key={index} className="w-4 h-4 text-yellow-400 fill-current" />
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-6 italic">

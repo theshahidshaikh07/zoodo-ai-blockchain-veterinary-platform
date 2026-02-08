@@ -42,6 +42,7 @@ interface Message {
   content: string;
   timestamp: Date;
   isNew?: boolean; // For typing effect
+  places_data?: any[];
   versions?: string[]; // All versions of this message
   currentVersionIndex?: number; // Current version being displayed
   aiResponseVersions?: Map<number, Message>; // Map of version index to AI response
@@ -191,19 +192,87 @@ export default function AIAssistantPage() {
       console.log('Frontend received response:', response); // Debug log
 
       if (response.success && response.data) {
-        console.log('Response data:', response.data); // Debug log
-        console.log('Response field:', response.data.response); // Debug log
+        console.log('Response data:', response.data);
+
+        // Handle Location Request
+        if (response.data.action_required === 'request_location') {
+          // Ask for location
+          if ("geolocation" in navigator) {
+            try {
+              const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+              });
+
+              const locationData = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              };
+
+              console.log("Got location:", locationData);
+
+              // Re-send original message with location
+              const retryRequest: AIChatRequest = {
+                message: currentMessage,
+                session_id: sessionId,
+                location: locationData
+              };
+
+              const retryResponse = await apiService.chatWithAI(retryRequest);
+
+              if (retryResponse.success && retryResponse.data) {
+                const aiResponse: Message = {
+                  id: (Date.now() + 1).toString(),
+                  type: 'ai',
+                  content: retryResponse.data.response,
+                  timestamp: new Date(),
+                  isNew: true,
+                  places_data: retryResponse.data.places_data
+                };
+                setMessages(prev => [...prev, aiResponse]);
+                if (retryResponse.data.emergency_detected) {
+                  setIsEmergency(true);
+                }
+
+                return; // Exit early
+              }
+
+            } catch (locationError) {
+              console.error("Location access denied or error:", locationError);
+              const errorResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'ai',
+                content: "I couldn't access your location. Please check your browser settings or try searching manually on Google Maps.",
+                timestamp: new Date(),
+                isNew: true
+              };
+              setMessages(prev => [...prev, errorResponse]);
+              return;
+            }
+          } else {
+            const errorResponse: Message = {
+              id: (Date.now() + 1).toString(),
+              type: 'ai',
+              content: "Geolocation is not supported by your browser.",
+              timestamp: new Date(),
+              isNew: true
+            };
+            setMessages(prev => [...prev, errorResponse]);
+            return;
+          }
+        }
 
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
           content: response.data.response,
           timestamp: new Date(),
-          isNew: true // Trigger typing effect
+          isNew: true, // Trigger typing effect
+          places_data: response.data.places_data
         };
-        console.log('Creating AI message:', aiResponse); // Debug log
-        // Check for emergency keywords in the response
-        if (response.data.response.includes("EMERGENCY") || response.data.response.includes("emergency")) {
+        console.log('Creating AI message:', aiResponse);
+
+        // Check for emergency flag directly from API
+        if (response.data.emergency_detected) {
           setIsEmergency(true);
         }
 
@@ -840,10 +909,10 @@ export default function AIAssistantPage() {
                         <Button
                           className="w-full bg-red-600 hover:bg-red-700 text-white shadow-md group"
                           size="lg"
-                          onClick={() => window.open('/services/find-hospitals?search=emergency&type=Emergency%20Hospital', '_blank')}
+                          onClick={() => window.open('https://www.google.com/maps/search/emergency+vet+clinic+near+me', '_blank')}
                         >
                           <MapPin className="h-5 w-5 mr-2 group-hover:animate-bounce" />
-                          Find Clinic Nearby
+                          Find Clinic Nearby on Maps
                         </Button>
                         <Button
                           className="w-full bg-background border-2 border-primary text-primary hover:bg-primary/5 shadow-sm group"

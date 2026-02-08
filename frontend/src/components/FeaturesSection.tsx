@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { 
-  Brain, 
-  Calendar, 
-  Shield, 
-  Users, 
-  MapPin, 
+import {
+  Brain,
+  Calendar,
+  Shield,
+  Users,
+  MapPin,
   Heart,
   Smartphone,
   ChartBar,
@@ -32,13 +32,13 @@ const features = [
     icon: Shield,
     title: "Blockchain Records",
     description: "Secure, immutable medical records that you own and control.",
-    color: "zoodo-green"
+    color: "zoodo-pink"
   },
   {
     icon: Users,
     title: "Community Hub",
     description: "Connect with pet owners, find adoption opportunities, and join welfare events.",
-    color: "zoodo-orange"
+    color: "zoodo-purple"
   },
   {
     icon: MapPin,
@@ -66,7 +66,7 @@ const FeaturesSection = () => {
     <section id="features" className="py-24 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
-      
+
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center space-y-6 mb-20">

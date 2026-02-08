@@ -63,8 +63,7 @@ export default {
         zoodo: {
           purple: 'hsl(var(--zoodo-purple))',
           blue: 'hsl(var(--zoodo-blue))',
-          pink: 'hsl(var(--zoodo-pink))',
-          orange: 'hsl(var(--zoodo-orange))'
+          pink: 'hsl(var(--zoodo-pink))'
         }
       },
       backgroundImage: {

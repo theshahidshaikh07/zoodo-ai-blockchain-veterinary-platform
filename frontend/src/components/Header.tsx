@@ -11,7 +11,7 @@ import Image from "next/image";
 
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, Plus, Minus, ChevronRight } from "lucide-react";
 
 interface HeaderProps {
   isScrolled?: boolean;
@@ -20,6 +20,7 @@ interface HeaderProps {
 const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   const { setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -101,187 +102,216 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
   const navItems = [
     { name: "Home", href: "#hero", type: "anchor" as const },
-    { name: "Services", href: "#services", type: "anchor" as const },
+    {
+      name: "Services",
+      href: "#services",
+      type: "anchor" as const,
+      subItems: [
+        { name: "Find Vet", href: "/services/find-vets" },
+        { name: "Veterinary Clinics", href: "/services/find-hospitals" },
+        { name: "Teleconsultation", href: "/services/find-vets?type=online" },
+        { name: "Pet Training", href: "/services/find-trainers" },
+      ]
+    },
     { name: "Community", href: "#community", type: "anchor" as const },
     { name: "About", href: "/about", type: "route" as const },
     { name: "Contact", href: "/contact", type: "route" as const },
   ];
 
+  const handleSubmenuToggle = (name: string) => {
+    setOpenSubmenu(openSubmenu === name ? null : name);
+  };
+
   return (
-    <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center group"
-            onClick={() => {
-              setIsMenuOpen(false);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          >
-            <div className="relative group-hover:scale-105 transition-all duration-300">
-              <Image
-                src="/Zoodo.png"
-                alt="Zoodo"
-                width={120}
-                height={40}
-                className="h-3 md:h-4 lg:h-5 w-auto"
-                priority
-              />
-            </div>
-            <span className="ml-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-              BETA
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-            {navItems.map((item, index) => (
-              item.type === 'route' ? (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <span className="relative z-10 block">
-                    {item.name}
-                  </span>
-                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
-                </Link>
-              ) : (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <span className="relative z-10 block">
-                    {item.name}
-                  </span>
-                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
-                </a>
-              )
-            ))}
-          </nav>
-
-          {/* Right Section */}
-          <div className="flex items-center space-x-2 md:space-x-3 lg:space-x-4">
-            {/* Theme Toggle - Wrapped in NoSSR */}
-            <NoSSR fallback={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
-              >
-                <div className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-              </Button>
-            }>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
-              >
-                {mounted && resolvedTheme === 'dark' ? (
-                  <Sun className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
-                ) : (
-                  <Moon className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
-                )}
-              </Button>
-            </NoSSR>
-
-            {/* CTA Buttons */}
-            <div className="flex items-center space-x-2 lg:space-x-3">
-              {isAuthenticated ? (
-                <>
-                  <div className="hidden md:flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground">
-                      Welcome, {user?.firstName}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                    asChild
-                  >
-                    <Link href={getDashboardUrl()}>Dashboard</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={logout}
-                    className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                  >
-                    <LogOut className="h-4 w-4 mr-1" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                    asChild
-                  >
-                    <Link href="/login">Log In</Link>
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
-                    asChild
-                  >
-                    <Link href="/role-selection">Get Started</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden w-8 h-8 md:w-10 md:h-10 hover:bg-primary/10 hover:scale-105 transition-all duration-300"
+    <>
+      <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="flex items-center group"
+              onClick={() => {
+                setIsMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             >
-              {isMenuOpen ? (
-                <X className="h-5 w-5 md:h-6 md:w-6" />
-              ) : (
-                <Menu className="h-5 w-5 md:h-6 md:w-6" />
-              )}
-            </Button>
+              <div className="relative group-hover:scale-105 transition-all duration-300">
+                <Image
+                  src="/Zoodo.png"
+                  alt="Zoodo"
+                  width={120}
+                  height={40}
+                  className="h-3 md:h-4 lg:h-5 w-auto"
+                  priority
+                />
+              </div>
+              <span className="ml-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                BETA
+              </span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+              {navItems.map((item, index) => (
+                item.type === 'route' ? (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <span className="relative z-10 block">
+                      {item.name}
+                    </span>
+                    <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
+                  </Link>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <span className="relative z-10 block">
+                      {item.name}
+                    </span>
+                    <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
+                  </a>
+                )
+              ))}
+            </nav>
+
+            {/* Right Section */}
+            <div className="flex items-center space-x-2 md:space-x-3 lg:space-x-4">
+              {/* Theme Toggle - Wrapped in NoSSR */}
+              <NoSSR fallback={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
+                >
+                  <div className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+                </Button>
+              }>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 hover:bg-primary/10 relative"
+                >
+                  {mounted && resolvedTheme === 'dark' ? (
+                    <Sun className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
+                  ) : (
+                    <Moon className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground" />
+                  )}
+                </Button>
+              </NoSSR>
+
+              {/* CTA Buttons */}
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                {isAuthenticated ? (
+                  <>
+                    <div className="hidden md:flex items-center space-x-2">
+                      <span className="text-sm text-muted-foreground">
+                        Welcome, {user?.firstName}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      asChild
+                    >
+                      <Link href={getDashboardUrl()}>Dashboard</Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={logout}
+                      className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                    >
+                      <LogOut className="h-4 w-4 mr-1" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      asChild
+                    >
+                      <Link href="/login">Log In</Link>
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      asChild
+                    >
+                      <Link href="/role-selection">Get Started</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="lg:hidden relative z-50 w-10 h-10 flex items-center justify-center text-foreground focus:outline-none"
+                aria-label="Toggle menu"
+              >
+                <div className="relative w-4 h-3.5">
+                  <motion.span
+                    animate={isMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute top-0 left-0 w-full h-0.5 bg-current rounded-full origin-center"
+                  />
+                  <motion.span
+                    animate={isMenuOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute top-[6px] left-0 w-full h-0.5 bg-current rounded-full"
+                  />
+                  <motion.span
+                    animate={isMenuOpen ? { rotate: -45, y: -6, width: "100%" } : { rotate: 0, y: 0, width: "50%" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute bottom-0 left-0 h-0.5 bg-current rounded-full origin-center"
+                  />
+                </div>
+              </button>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: "auto", marginTop: 16 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="lg:hidden overflow-hidden"
-            >
-              <div className="glass-card border border-border/30 rounded-2xl p-6 shadow-elegant backdrop-blur-xl">
-                <nav className="flex flex-col space-y-4">
-                  {navItems.map((item, index) => (
-                    <motion.div
-                      key={item.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
+      {/* Mobile Menu Overlay - Moved outside header to escape creating a new stacking context that clips fixed children */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 z-[45] bg-background overflow-y-auto pt-24 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            <div className="container mx-auto px-6 py-8 flex flex-col min-h-[calc(100vh-80px)]">
+              <nav className="flex flex-col space-y-2">
+                {navItems.map((item, index) => (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 + 0.1 }}
+                    className="border-b border-black/10 dark:border-white/10 last:border-0"
+                  >
+                    <div className="flex items-center justify-between py-3 group">
                       {item.type === 'route' ? (
                         <Link
                           href={item.href}
                           onClick={() => setIsMenuOpen(false)}
-                          className="block text-sm font-medium text-foreground hover:text-primary hover:translate-x-2 transition-all duration-300 py-2 px-3 rounded-lg hover:bg-primary/5"
+                          className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {item.name}
                         </Link>
@@ -289,75 +319,138 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                         <a
                           href={item.href}
                           onClick={(e) => handleNavClick(e, item.href)}
-                          className="block text-sm font-medium text-foreground hover:text-primary hover:translate-x-2 transition-all duration-300 py-2 px-3 rounded-lg hover:bg-primary/5"
+                          className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
                           {item.name}
                         </a>
                       )}
-                    </motion.div>
-                  ))}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: navItems.length * 0.1 }}
-                    className="pt-4 border-t border-border/30"
-                  >
-                    <div className="flex flex-col space-y-3">
-                      {isAuthenticated ? (
-                        <>
-                          <div className="text-sm text-muted-foreground mb-2 px-3">
-                            Welcome, {user?.firstName}
+
+                      {item.subItems && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSubmenuToggle(item.name);
+                          }}
+                          className="p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground"
+                        >
+                          <div className="relative w-4 h-4 flex items-center justify-center">
+                            <span className="absolute w-3.5 h-[1.5px] bg-current rounded-full" />
+                            <motion.span
+                              animate={{ rotate: openSubmenu === item.name ? 90 : 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="absolute w-[1.5px] h-3.5 bg-current rounded-full"
+                            />
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                            asChild
-                          >
-                            <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              logout();
-                              setIsMenuOpen(false);
-                            }}
-                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                          >
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Logout
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="justify-start w-full hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                            asChild
-                          >
-                            <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
-                          </Button>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="justify-start w-full bg-primary hover:bg-primary/90 transition-all duration-300"
-                            asChild
-                          >
-                            <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
-                          </Button>
-                        </>
+                        </button>
                       )}
                     </div>
+
+                    {/* Submenu */}
+                    <AnimatePresence>
+                      {item.subItems && openSubmenu === item.name && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-2 px-4 pb-6 space-y-3">
+                            {item.subItems.map((subItem, subIndex) => (
+                              <motion.div
+                                key={subItem.name}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: subIndex * 0.05 }}
+                              >
+                                <Link
+                                  href={subItem.href}
+                                  onClick={() => setIsMenuOpen(false)}
+                                  className="flex items-center text-sm text-muted-foreground/80 hover:text-foreground transition-colors"
+                                >
+                                  <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                  {subItem.name}
+                                </Link>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
-                </nav>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </header>
+                ))}
+              </nav>
+
+              {/* Mobile Footer Actions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mt-auto pt-8 space-y-4"
+              >
+                {isAuthenticated ? (
+                  <>
+                    <div className="flex items-center space-x-4 mb-4 p-4 bg-muted/30 rounded-2xl">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg">
+                        {user?.firstName?.charAt(0) || <User className="w-6 h-6" />}
+                      </div>
+                      <div>
+                        <div className="font-medium text-lg">Welcome, {user?.firstName}</div>
+                        <div className="text-sm text-muted-foreground">Manage your account</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full text-base h-12 rounded-xl"
+                        asChild
+                      >
+                        <Link href={getDashboardUrl()} onClick={() => setIsMenuOpen(false)}>
+                          Dashboard
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full text-base h-12 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-500"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full text-sm h-10 rounded-lg border-input"
+                      asChild
+                    >
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="lg"
+                      className="w-full text-sm h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                      asChild
+                    >
+                      <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

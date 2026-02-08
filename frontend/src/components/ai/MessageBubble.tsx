@@ -14,6 +14,7 @@ interface Message {
     content: string;
     timestamp: Date;
     isNew?: boolean; // Trigger typing effect
+    places_data?: any[];
     versions?: string[];
     currentVersionIndex?: number;
 }
@@ -179,6 +180,50 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
                                 {displayedContent}
                             </ReactMarkdown>
 
+                        </div>
+                    )}
+
+                    {/* Places Data Display */}
+                    {message.places_data && message.places_data.length > 0 && (
+                        <div className="mt-4 space-y-3">
+                            <p className="text-sm font-semibold text-muted-foreground mb-2">Nearby Locations:</p>
+                            <div className="flex gap-3 overflow-x-auto pb-4 snap-x custom-scrollbar">
+                                {message.places_data.map((place: any, index: number) => (
+                                    <div key={index} className="min-w-[280px] max-w-[280px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-4 shadow-sm snap-center flex flex-col h-full hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-bold text-foreground line-clamp-1" title={place.name}>{place.name}</h3>
+                                            {place.rating && place.rating !== "N/A" && (
+                                                <div className="flex items-center text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded">
+                                                    ★ {place.rating} ({place.user_ratings_total})
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 h-8">{place.address}</p>
+
+                                        <div className="mt-auto pt-2 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+                                            <div className="flex items-center gap-2">
+                                                {place.open_now !== null && (
+                                                    <span className={cn("text-[10px] uppercase font-bold px-1.5 py-0.5 rounded", place.open_now ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400")}>
+                                                        {place.open_now ? "Open" : "Closed"}
+                                                    </span>
+                                                )}
+                                                {place.distance && (
+                                                    <span className="text-xs text-muted-foreground">{place.distance}</span>
+                                                )}
+                                            </div>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-7 text-xs hover:bg-primary/10 hover:text-primary p-0 px-2"
+                                                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`, '_blank')}
+                                            >
+                                                Directions
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>

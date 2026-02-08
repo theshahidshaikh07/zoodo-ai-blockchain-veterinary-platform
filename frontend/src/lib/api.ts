@@ -87,6 +87,7 @@ export interface AIChatRequest {
   message: string;
   session_id?: string;
   conversation_history?: Array<{ role: string; content: string; }>;
+  location?: { latitude: number; longitude: number; };
 }
 
 export interface AIChatResponse {
@@ -106,6 +107,8 @@ export interface AIChatResponse {
   };
   location_set: boolean;
   emergency_detected: boolean;
+  action_required?: string;
+  places_data?: any[];
 }
 
 export interface AIHealthCheck {

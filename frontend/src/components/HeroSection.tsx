@@ -109,7 +109,7 @@ const HeroSection = () => {
               <Button
                 variant="ghost"
                 size="xl"
-                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 text-base lg:text-lg sm:flex-1 text-white dark:text-black shadow-lg"
+                className="w-full sm:w-auto justify-center group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-primary text-white dark:text-black hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 text-base lg:text-lg sm:flex-1 shadow-none lg:shadow-lg lg:hover:shadow-xl"
                 asChild
               >
                 <Link href="/ai-assistant" className="flex items-center justify-center">
@@ -128,15 +128,15 @@ const HeroSection = () => {
               <Button
                 variant="ghost"
                 size="xl"
-                className="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-white dark:bg-black border border-border hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 text-base lg:text-lg sm:flex-1 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto justify-center group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-card dark:bg-black/80 backdrop-blur-md border border-black/20 dark:border-primary/40 hover:border-primary/40 dark:hover:border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 text-base lg:text-lg sm:flex-1 text-foreground shadow-none lg:shadow-lg lg:hover:shadow-xl active:scale-[0.98]"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsConsultationPopupOpen(true);
                 }}
               >
                 <div className="relative mr-2">
-                  <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse transition-transform"></div>
-                  <div className="absolute inset-0 w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-ping"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse transition-transform"></div>
+                  <div className="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
                 </div>
                 <span className="font-semibold text-foreground">Get Instant Care</span>
               </Button>

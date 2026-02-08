@@ -29,7 +29,6 @@
     --zoodo-purple: 280 100% 70%;
     --zoodo-blue: 220 100% 65%;
     --zoodo-pink: 330 100% 70%;
-    --zoodo-orange: 30 100% 60%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(330 100% 70%), hsl(280 100% 70%), hsl(220 100% 65%));
@@ -314,22 +313,49 @@
   animation: float 6s ease-in-out infinite;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - Custom with Larger Arrows */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
+  background: hsl(var(--secondary));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary));
-  border-radius: 4px;
+  background-color: hsl(var(--muted-foreground) / 0.5);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary) / 0.8);
+  background-color: hsl(var(--muted-foreground) / 0.8);
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: hsl(var(--secondary));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+
+/* Up Arrow - Larger Triangle */
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M3 15l9-9 9 9H3z'/%3E%3C/svg%3E");
+}
+
+/* Down Arrow - Larger Triangle */
+::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M3 9l9 9 9-9H3z'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:hover {
+  background-color: hsl(var(--muted));
 }
 
 /* Subtle scrollbar for textareas */
