@@ -906,9 +906,9 @@ function FindVetsContent() {
                   {selectedVet.hospital}
                 </p>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-6 mb-6 relative shadow-sm">
+                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-3 sm:p-6 mb-6 relative shadow-sm">
                   {/* Quote decorative icon could go here */}
-                  <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-base font-medium italic leading-5 sm:leading-7 whitespace-pre-line">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base font-medium italic leading-6 sm:leading-7 whitespace-pre-line">
                     {selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}
                   </p>
                 </div>
