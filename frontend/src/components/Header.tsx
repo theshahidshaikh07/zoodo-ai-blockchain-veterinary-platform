@@ -154,32 +154,59 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
               {navItems.map((item, index) => (
-                item.type === 'route' ? (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <span className="relative z-10 block">
-                      {item.name}
-                    </span>
-                    <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
-                  </Link>
-                ) : (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 group py-2 px-3 rounded-lg"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <span className="relative z-10 block">
-                      {item.name}
-                    </span>
-                    <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out"></div>
-                  </a>
-                )
+                <div key={item.name} className="relative group">
+                  {item.subItems ? (
+                    // Dropdown Trigger & Menu
+                    <>
+                      <button
+                        className="relative flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors duration-300 py-2 px-3 rounded-lg group"
+                      >
+                        <span className="relative z-10 flex items-center">
+                          {item.name}
+                          <svg className="w-4 h-4 ml-1 transform group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </span>
+                      </button>
+
+                      {/* Dropdown Content */}
+                      <div className="absolute top-full left-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 min-w-[220px]">
+                        <div className="bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 overflow-hidden">
+                          {item.subItems.map((subItem) => (
+                            <Link
+                              key={subItem.name}
+                              href={subItem.href}
+                              className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                            >
+                              {subItem.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : item.type === 'route' ? (
+                    <Link
+                      href={item.href}
+                      className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
+                    >
+                      <span className="relative z-10 block">
+                        {item.name}
+                      </span>
+                    </Link>
+                  ) : (
+                    <a
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                      className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
+                    >
+                      <span className="relative z-10 block">
+                        {item.name}
+                      </span>
+                    </a>
+                  )}
+                  {/* Hover Background - Only for non-dropdown items or main trigger */}
+                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out -z-10"></div>
+                </div>
               ))}
             </nav>
 
