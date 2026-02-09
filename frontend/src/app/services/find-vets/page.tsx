@@ -570,7 +570,7 @@ function FindVetsContent() {
     const typeParam = searchParams.get('type');
     if (typeParam === 'online') {
       setSelectedConsultationType('Teleconsultation');
-      setShowFilters(true); // Auto-show filters when coming from service link
+      setShowFilters(false); // Keep filters collapsed when coming from service link
     }
   }, [searchParams]);
 
