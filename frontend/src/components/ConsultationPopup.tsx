@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,202 +12,181 @@ import {
 } from '@/components/ui/dialog';
 import {
   Video,
-  DollarSign,
-  CheckCircle,
-  XCircle,
+  AlertTriangle,
   Loader2,
-  IndianRupee
+  XCircle,
+  Calendar,
+  Zap,
+  MapPin,
+  DollarSign
 } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 
 interface ConsultationPopupProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type Step = 'initial' | 'fee' | 'searching' | 'no-results';
+
 const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchComplete, setSearchComplete] = useState(false);
-  const [doctorsFound, setDoctorsFound] = useState(0);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [step, setStep] = useState<Step>('initial');
 
-  const handleScheduleConsultation = async () => {
-    setIsSearching(true);
-    setSearchComplete(false);
+  // Reset state when valid
+  useEffect(() => {
+    if (isOpen) {
+      setStep('initial');
+    }
+  }, [isOpen]);
 
-    // Simulate searching for available doctors
+  const handleProceedToFee = () => {
+    setStep('fee');
+  };
+
+  const handleConfirmFee = () => {
+    setStep('searching');
+    // Simulate search delay then fail
     setTimeout(() => {
-      setIsSearching(false);
-      setSearchComplete(true);
-      // For now, always show no doctors available (dummy implementation)
-      setDoctorsFound(0);
-    }, 3000);
+      setStep('no-results');
+    }, 4000);
   };
 
   const handleClose = () => {
-    setIsSearching(false);
-    setSearchComplete(false);
-    setDoctorsFound(0);
-    setTermsAccepted(false);
     onClose();
+    // Reset after transition
+    setTimeout(() => setStep('initial'), 300);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md w-[90%] rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Video className="w-5 h-5 text-red-500" />
-            Emergency Consultation
-          </DialogTitle>
-          <DialogDescription>
-            Get immediate emergency veterinary care from qualified professionals at a fixed rate.
-          </DialogDescription>
-        </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Consultation Details */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border">
-              <div className="flex items-center gap-3">
-                <IndianRupee className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium">Fixed Rate</p>
-                  <p className="text-sm text-muted-foreground">₹500</p>
+        {/* STEP 1: INITIAL WARNING */}
+        {step === 'initial' && (
+          <>
+            <DialogHeader className="text-left">
+              <DialogTitle className="flex items-center gap-3 text-xl">
+                <div className="relative flex h-2 w-2 items-center justify-center mt-1">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 animate-pulse" />
                 </div>
+                Instant Care
+              </DialogTitle>
+              <DialogDescription className="text-sm sm:text-base pt-1 sm:pt-2 ml-5">
+                For urgent pet medical needs.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 sm:space-y-6 py-1 sm:py-4">
+              <div className="bg-muted/40 p-2.5 sm:p-5 rounded-xl border border-border/50">
+                <p className="text-sm sm:text-base leading-snug sm:leading-relaxed font-semibold text-foreground">
+                  We’ll connect you immediately with the first available veterinarian for an urgent video consultation.
+                </p>
               </div>
-            </div>
-          </div>
 
-          {/* Search Results */}
-          {isSearching && (
-            <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary mb-4" />
-              <p className="text-lg font-medium">Searching for emergency veterinarians...</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Please wait while we find an available emergency vet for your pet.
-              </p>
-            </div>
-          )}
-
-          {searchComplete && (
-            <div className="text-center py-6">
-              {doctorsFound > 0 ? (
-                <div className="space-y-4">
-                  <CheckCircle className="w-12 h-12 text-green-600 mx-auto" />
-                  <div>
-                    <p className="text-lg font-medium text-green-600">Emergency Vet Found!</p>
-                    <p className="text-sm text-muted-foreground">
-                      {doctorsFound} emergency veterinarian{doctorsFound > 1 ? 's' : ''} available for immediate consultation
-                    </p>
-                  </div>
-                  <Button className="w-full" size="lg">
-                    <Video className="w-4 h-4 mr-2" />
-                    Start Consultation
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <XCircle className="w-12 h-12 text-red-500 mx-auto" />
-                  <div>
-                    <p className="text-lg font-medium text-red-500">No Emergency Vets Available</p>
-                    <p className="text-sm text-muted-foreground">
-                      Sorry, no emergency veterinarians are currently online. Please try again or contact your local emergency vet clinic.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Button variant="outline" className="w-full" onClick={handleScheduleConsultation}>
-                      <Video className="w-4 h-4 mr-2" />
-                      Try Again
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full"
-                      onClick={() => {
-                        handleClose();
-                        window.location.href = '/services/find-hospitals?search=emergency&type=Emergency%20Hospital';
-                      }}
-                    >
-                      Find Local Emergency Clinic
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Terms and Conditions */}
-          {!isSearching && !searchComplete && (
-            <div
-              className={`flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-all duration-200 ${termsAccepted
-                  ? 'bg-primary/10 border-primary/30'
-                  : 'bg-muted/50 border-border hover:bg-muted/70'
-                }`}
-              onClick={() => setTermsAccepted(!termsAccepted)}
-            >
-              <Checkbox
-                id="terms"
-                checked={termsAccepted}
-                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                className="mt-0.5"
-              />
-              <div className="space-y-1 flex-1">
-                <label
-                  htmlFor="terms"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  I accept the terms and conditions
-                </label>
-                <p className="text-xs text-muted-foreground">
-                  I agree to pay ₹500 for the emergency consultation service and understand that this is a fixed rate for immediate veterinary care.
+              <div className="text-center px-0 sm:px-4">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-snug sm:leading-relaxed">
+                  For routine check-ups, please schedule a standard <span className="font-medium text-primary">Teleconsultation</span> instead. You can tap ‘Schedule Later’ to book at your convenience.
                 </p>
               </div>
             </div>
-          )}
 
-          {/* Benefits */}
-          {!isSearching && !searchComplete && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm">What's included:</h4>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Immediate video consultation with emergency vet</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Urgent diagnosis and emergency treatment advice</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Emergency prescription recommendations</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Immediate care instructions and next steps</span>
-                </div>
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-2">
+              <Button variant="outline" className="w-full sm:flex-1" asChild>
+                <Link href="/services/find-vets?type=online">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule Later
+                </Link>
+              </Button>
+              <Button
+                onClick={handleProceedToFee}
+                className="w-full sm:flex-1"
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Proceed
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {/* STEP 2: FEE CONFIRMATION */}
+        {step === 'fee' && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                Confirm Fee
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
+              <div className="bg-muted/40 p-4 sm:p-6 rounded-xl border border-border/50 text-center">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Consultation Fee</p>
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">$50</p>
+              </div>
+
+              <div className="text-center px-0 sm:px-4">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-snug sm:leading-relaxed">
+                  You will be charged <span className="font-semibold text-foreground">$50</span>. Do you wish to proceed?
+                </p>
               </div>
             </div>
-          )}
-        </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {!isSearching && !searchComplete && (
-            <>
-              <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-2">
+              <Button variant="outline" onClick={handleClose} className="w-full sm:flex-1">
                 Cancel
               </Button>
               <Button
-                onClick={handleScheduleConsultation}
-                disabled={!termsAccepted}
-                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                onClick={handleConfirmFee}
+                className="w-full sm:flex-1"
               >
-                <Video className="w-4 h-4 mr-2" />
-                Get Emergency Care
+                Yes, Proceed
               </Button>
-            </>
-          )}
-        </DialogFooter>
+            </DialogFooter>
+          </>
+        )}
+
+        {/* STEP 3: SEARCHING */}
+        {step === 'searching' && (
+          <div className="text-center py-12">
+            <div className="relative w-16 h-16 mx-auto mb-6">
+              <div className="absolute inset-0 border-4 border-muted/30 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <Video className="absolute inset-0 m-auto w-6 h-6 text-primary animate-pulse" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Connecting to Vet Network...</h3>
+            <p className="text-muted-foreground animate-pulse">
+              Locating available emergency specialists nearby...
+            </p>
+          </div>
+        )}
+
+        {/* STEP 4: NO RESULTS */}
+        {step === 'no-results' && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <AlertTriangle className="w-6 h-6" />
+                No Veterinarians Available
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="py-6 space-y-4">
+              <p className="text-center text-muted-foreground">
+                Sorry, but there are no veterinarians currently online to take your request.
+              </p>
+            </div>
+
+            <DialogFooter className="flex-col gap-2">
+              <Button variant="default" className="w-full" asChild>
+                <Link href="/services/find-hospitals">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Emergency Clinic Nearby
+                </Link>
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
       </DialogContent>
     </Dialog>
   );
