@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CustomSelect from '@/components/ui/custom-select';
 import {
   Search,
+  ArrowUpDown,
   MapPin,
   Star,
   Clock,
@@ -25,6 +26,12 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -423,14 +430,20 @@ export default function FindHospitalsPage() {
           return b.reviews - a.reviews;
 
         case 'fee':
-          // Extract minimum fee from range (e.g., "$250 - $750" -> 250)
-          const parseFee = (fee: string): number => {
-            const cleaned = fee.replace(/[^0-9.,-]/g, ''); // Keep numbers, decimals, commas, and hyphens
+          // Normalize to USD for comparison
+          const getNormalizedFee = (feeStr: string): number => {
+            const cleaned = feeStr.replace(/[^0-9.,-]/g, ''); // Keep numbers, decimals, commas, and hyphens
             const parts = cleaned.split('-'); // Split range
-            const firstValue = parts[0].replace(/,/g, ''); // Remove commas from first value
-            return parseFloat(firstValue) || 0;
+            const firstValue = parseFloat(parts[0].replace(/,/g, '')) || 0;
+
+            if (feeStr.includes('₹')) return firstValue * 0.012; // INR to USD
+            if (feeStr.includes('£')) return firstValue * 1.27;  // GBP to USD
+            if (feeStr.includes('€')) return firstValue * 1.08;  // EUR to USD
+            if (feeStr.includes('C$')) return firstValue * 0.74; // CAD to USD
+
+            return firstValue; // Default to USD
           };
-          return parseFee(a.consultationFee) - parseFee(b.consultationFee);
+          return getNormalizedFee(a.consultationFee) - getNormalizedFee(b.consultationFee);
 
         case 'featured':
           // Featured matches the popularity order (preserve original index)
@@ -479,49 +492,55 @@ export default function FindHospitalsPage() {
         <Header />
 
         {/* Search and Filters */}
-        <section className="pt-32 pb-8">
+        <section className="pt-24 md:pt-32 pb-2">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-6xl mx-auto">
               {/* Early Access Banner */}
               <BetaDisclaimerBanner category="hospitals" />
 
-              {/* Search Bar */}
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder="Search by hospital name, specialization, or facility..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
-                />
-              </div>
-
-              {/* Filter Toggle */}
-              <div className="flex items-center justify-between mb-6">
+              {/* Search, Filter, and Sort Bar */}
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                {/* Filter Toggle (Left) */}
                 <Button
                   variant="outline"
+                  size="icon"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 h-10"
+                  className={`shrink-0 ${showFilters ? 'bg-secondary' : ''}`}
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Filters
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                  <SlidersHorizontal className="h-4 w-4" />
                 </Button>
 
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">Sort by:</span>
-                  <CustomSelect
-                    options={[
-                      { value: 'featured', label: 'Global Ranking' },
-                      { value: 'rating', label: 'Rating' },
-                      { value: 'fee', label: 'Consultation Fee' }
-                    ]}
-                    value={sortBy}
-                    onChange={setSortBy}
-                    className="w-40"
+                {/* Search Bar (Middle) */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search hospitals..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input w-full"
                   />
                 </div>
+
+                {/* Sort Toggle (Right) */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="shrink-0">
+                      <ArrowUpDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setSortBy('featured')}>
+                      Sort by Global Ranking
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('rating')}>
+                      Sort by Rating
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('fee')}>
+                      Sort by Fee
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Filters */}

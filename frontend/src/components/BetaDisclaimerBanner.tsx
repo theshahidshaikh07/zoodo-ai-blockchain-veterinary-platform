@@ -14,27 +14,23 @@ export default function BetaDisclaimerBanner({ category }: BetaDisclaimerBannerP
     if (!showBanner) return null;
 
     return (
-        <div className="relative mb-6 sm:mb-8 p-3 sm:p-4 rounded-xl border border-primary/20 bg-primary/5 animate-fade-in shadow-sm flex flex-col gap-2">
+        <div className="relative mb-6 p-3 bg-primary/5 border border-primary/20 rounded-lg text-muted-foreground animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm pr-6">
+                <AlertCircle className="w-4 h-4 text-primary shrink-0" />
+                <div className="leading-tight text-center">
+                    <span className="font-medium text-foreground mr-1">Early Access:</span>
+                    Profiles below are placeholders. <span className="inline-block sm:inline"><span className="capitalize">{category}</span> are currently onboarding.</span>
+                    <span className="hidden sm:inline ml-1 text-primary/80">
+                        Try <Link href="/ai-assistant" className="font-semibold hover:underline text-primary">Dr. Salus AI</Link> for real help.
+                    </span>
+                </div>
+            </div>
             <button
                 onClick={() => setShowBanner(false)}
-                className="absolute top-2 right-2 p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/10 z-10"
+                className="absolute top-1/2 -translate-y-1/2 right-3 text-muted-foreground hover:text-foreground transition-colors p-1"
             >
                 <X className="w-4 h-4" />
             </button>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 pr-6 sm:pr-0">
-                <div className="p-2 bg-primary/10 rounded-full shrink-0">
-                    <AlertCircle className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-sm text-foreground/80 leading-relaxed text-center">
-                    <span className="font-semibold text-foreground">Early Access Preview:</span> Top-tier {category} are currently onboarding.
-                    The profiles below are <span className="text-primary font-medium">placeholder examples</span> for Beta testing.
-                </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 text-sm italic border-t border-primary/10 pt-2 mt-1 text-foreground/80">
-                <Bot className="w-4 h-4 text-primary" />
-                <span><Link href="/ai-assistant" className="font-bold text-primary hover:underline not-italic">Dr. Salus AI</Link> is fully operational & ready to help!</span>
-            </div>
         </div>
     );
 }

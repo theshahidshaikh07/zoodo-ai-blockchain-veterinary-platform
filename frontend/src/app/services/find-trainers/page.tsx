@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import CustomSelect from '@/components/ui/custom-select';
 import {
   Search,
+  ArrowUpDown,
   MapPin,
   Star,
   Clock,
@@ -23,6 +24,12 @@ import {
   Heart,
   AlertCircle
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -582,12 +589,18 @@ export default function FindTrainersPage() {
           return parseDistance(a.distance) - parseDistance(b.distance);
 
         case 'fee':
-          // Extract numeric value from fee string (e.g., "$1,200" -> 1200)
-          const parseFee = (fee: string): number => {
-            const cleaned = fee.replace(/[^0-9.]/g, ''); // Remove all non-numeric except decimal
-            return parseFloat(cleaned) || 0;
+          // Normalize to USD for comparison
+          const getNormalizedFee = (feeStr: string): number => {
+            const value = parseFloat(feeStr.replace(/[^0-9.]/g, '')) || 0;
+
+            if (feeStr.includes('₹')) return value * 0.012; // INR to USD
+            if (feeStr.includes('£')) return value * 1.27;  // GBP to USD
+            if (feeStr.includes('€')) return value * 1.08;  // EUR to USD
+            if (feeStr.includes('C$')) return value * 0.74; // CAD to USD
+
+            return value; // Default to USD
           };
-          return parseFee(a.sessionFee) - parseFee(b.sessionFee);
+          return getNormalizedFee(a.sessionFee) - getNormalizedFee(b.sessionFee);
 
         case 'featured':
           // Maintain original curated order
@@ -636,49 +649,55 @@ export default function FindTrainersPage() {
         <Header />
 
         {/* Search and Filters */}
-        <section className="pt-32 pb-8">
+        <section className="pt-24 md:pt-32 pb-2">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-6xl mx-auto">
               {/* Early Access Banner */}
               <BetaDisclaimerBanner category="trainers" />
 
-              {/* Search Bar */}
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder="Search by trainer name, specialization, or training type..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input"
-                />
-              </div>
-
-              {/* Filter Toggle */}
-              <div className="flex items-center justify-between mb-6">
+              {/* Search, Filter, and Sort Bar */}
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                {/* Filter Toggle (Left) */}
                 <Button
                   variant="outline"
+                  size="icon"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 h-10"
+                  className={`shrink-0 ${showFilters ? 'bg-secondary' : ''}`}
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Filters
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                  <SlidersHorizontal className="h-4 w-4" />
                 </Button>
 
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">Sort by:</span>
-                  <CustomSelect
-                    options={[
-                      { value: 'featured', label: 'Featured' },
-                      { value: 'rating', label: 'Rating' },
-                      { value: 'fee', label: 'Session Fee' }
-                    ]}
-                    value={sortBy}
-                    onChange={setSortBy}
-                    className="w-40"
+                {/* Search Bar (Middle) */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search trainers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-10 text-sm border border-input bg-background rounded-md focus:ring-0 focus:ring-offset-0 focus:border-input w-full"
                   />
                 </div>
+
+                {/* Sort Toggle (Right) */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="shrink-0">
+                      <ArrowUpDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setSortBy('featured')}>
+                      Sort by Featured
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('rating')}>
+                      Sort by Rating
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('fee')}>
+                      Sort by Fee
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Filters */}
