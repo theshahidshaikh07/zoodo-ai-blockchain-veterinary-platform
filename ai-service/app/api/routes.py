@@ -23,6 +23,8 @@ class ChatResponse(BaseModel):
     success: bool
     data: Optional[Dict] = None
     error: Optional[str] = None
+    action_required: Optional[str] = None
+    places_data: Optional[List[Dict]] = None
 
 class NutritionRequest(BaseModel):
     session_id: str
@@ -51,7 +53,9 @@ async def chat(request: ChatRequest):
         
         return ChatResponse(
             success=True,
-            data=result
+            data=result,
+            action_required=result.get("action_required"),
+            places_data=result.get("places_data")
         )
     
     except Exception as e:

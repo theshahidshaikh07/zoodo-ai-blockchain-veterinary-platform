@@ -19,3 +19,4 @@ python-multipart==0.0.6
 
 # Redis
 redis==5.0.1
+requests>=2.31.0

@@ -67,6 +67,7 @@ export default function AIAssistantPage() {
   const [debugLog, setDebugLog] = useState(""); // Debug state
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isUserScrolledUp = useRef<boolean>(false); // Track if user manually scrolled up
   const heroContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -94,8 +95,11 @@ export default function AIAssistantPage() {
   }, []);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Auto-scroll to bottom ONLY if user hasn't manually scrolled up
+    // This prevents the glitch where scrolling during typing jumps back to bottom
+    if (!isUserScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
   }, [messages]);
 
   // Start placeholder animation when component mounts and restart when conditions change
@@ -123,7 +127,7 @@ export default function AIAssistantPage() {
   }, [messages.length]);
 
 
-  // Handle chat container scroll for header styling
+  // Handle chat container scroll — track if user scrolled up manually
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
     if (!chatContainer || messages.length <= 1) return;
@@ -135,19 +139,21 @@ export default function AIAssistantPage() {
       const scrolled = chatContainer.scrollTop > 20;
       setIsChatScrolled(scrolled);
 
-      // Scroll to bottom button logic
+      // Detect if user scrolled up manually vs. being at the bottom
       const { scrollTop, scrollHeight, clientHeight } = chatContainer;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const isNearBottom = distanceFromBottom < 120;
 
-      // Update debug info
+      // If user is near bottom → they haven't scrolled up, allow auto-scroll
+      // If user scrolled up → lock auto-scroll so typing doesn't jump them back
+      isUserScrolledUp.current = !isNearBottom;
+
       setDebugLog(`ST:${Math.round(scrollTop)} SH:${scrollHeight} CH:${clientHeight} NB:${isNearBottom}`);
-
       setShowScrollButton(!isNearBottom);
     };
 
-    // Set initial state
-    chatContainer.addEventListener('scroll', handleChatScroll);
-    handleChatScroll(); // Call immediately to check initial state
+    chatContainer.addEventListener('scroll', handleChatScroll, { passive: true });
+    handleChatScroll();
     return () => chatContainer.removeEventListener('scroll', handleChatScroll);
   }, [messages.length]);
 
@@ -180,6 +186,7 @@ export default function AIAssistantPage() {
     const currentMessage = finalContent;
     setInputMessage('');
     setIsTyping(true);
+    isUserScrolledUp.current = false; // Reset scroll lock — always scroll to new AI response
 
     try {
       // Call the real AI service
@@ -200,7 +207,11 @@ export default function AIAssistantPage() {
           if ("geolocation" in navigator) {
             try {
               const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject);
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                  maximumAge: 0,
+                  timeout: 10000,
+                  enableHighAccuracy: true
+                });
               });
 
               const locationData = {
@@ -726,7 +737,9 @@ export default function AIAssistantPage() {
 
       {/* Refined Background - "Ghost Light" Parametric Mesh - Unified with landing page */}
       <div className="fixed inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
-      <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
+      {messages.length <= 1 && (
+        <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
+      )}
       <div className="fixed inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
 
       {/* Main Content Area */}

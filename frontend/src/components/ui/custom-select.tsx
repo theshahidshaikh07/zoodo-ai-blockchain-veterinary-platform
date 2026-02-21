@@ -33,7 +33,7 @@ export default function CustomSelect({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      if (selectRef.current && event.target instanceof Node && !selectRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
