@@ -206,13 +206,19 @@ export default function AIAssistantPage() {
           // Ask for location
           if ("geolocation" in navigator) {
             try {
-              const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                  maximumAge: 0,
-                  timeout: 10000,
-                  enableHighAccuracy: true
-                });
-              });
+              // Helper to get position with given options
+              const getPos = (opts: PositionOptions): Promise<GeolocationPosition> =>
+                new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, opts));
+
+              let position: GeolocationPosition;
+              try {
+                // Attempt 1: High accuracy GPS (best for mobile outdoors)
+                position = await getPos({ enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+              } catch {
+                // Attempt 2: Fast network/IP-based fallback (works indoors & on desktop)
+                console.warn("High-accuracy GPS failed, falling back to network location...");
+                position = await getPos({ enableHighAccuracy: false, maximumAge: 30000, timeout: 8000 });
+              }
 
               const locationData = {
                 latitude: position.coords.latitude,
@@ -247,12 +253,19 @@ export default function AIAssistantPage() {
                 return; // Exit early
               }
 
-            } catch (locationError) {
+            } catch (locationError: any) {
               console.error("Location access denied or error:", locationError);
+              // Provide specific error message based on error code
+              let errMsg = "I couldn't access your location. Please ensure location permission is granted in your browser settings and try again.";
+              if (locationError?.code === 1) {
+                errMsg = "Location permission was denied. Please allow location access in your browser settings and try again.";
+              } else if (locationError?.code === 3) {
+                errMsg = "Location request timed out. Please try again or move to an area with better signal.";
+              }
               const errorResponse: Message = {
                 id: (Date.now() + 1).toString(),
                 type: 'ai',
-                content: "I couldn't access your location. Please check your browser settings or try searching manually on Google Maps.",
+                content: errMsg,
                 timestamp: new Date(),
                 isNew: true
               };
