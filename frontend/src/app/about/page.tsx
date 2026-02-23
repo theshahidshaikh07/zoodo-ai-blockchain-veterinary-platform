@@ -32,14 +32,14 @@ const AboutUs: React.FC = () => {
       <main className="flex-grow">
         {/* Hero Section */}
         <section ref={heroRef} className={`relative text-center pt-40 pb-20 overflow-hidden scroll-fade-in ${heroVisible ? 'animate' : ''}`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20" />
+          <div className="absolute inset-0 bg-secondary/30 dark:bg-secondary/10" />
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="inline-flex items-center px-4 py-2 rounded-full glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-primary mb-4">
               <HeartPulse className="w-4 h-4 mr-2" />
               About Zoodo
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground">
-              Revolutionizing Pet <span className="gradient-text">Healthcare</span>
+              Revolutionizing Pet <span className="text-primary">Healthcare</span>
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
               We're on a mission to make quality veterinary care accessible to every pet parent
@@ -52,19 +52,19 @@ const AboutUs: React.FC = () => {
             {/* Statistics Section */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 shadow-lg p-6 rounded-3xl text-center">
-                <p className="text-4xl font-bold gradient-text">500+</p>
+                <p className="text-4xl font-bold text-primary">500+</p>
                 <p className="text-muted-foreground">Veterinarians</p>
               </div>
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 shadow-lg p-6 rounded-3xl text-center">
-                <p className="text-4xl font-bold gradient-text">10K+</p>
+                <p className="text-4xl font-bold text-primary">10K+</p>
                 <p className="text-muted-foreground">Pets Helped</p>
               </div>
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 shadow-lg p-6 rounded-3xl text-center">
-                <p className="text-4xl font-bold gradient-text">50+</p>
+                <p className="text-4xl font-bold text-primary">50+</p>
                 <p className="text-muted-foreground">Cities</p>
               </div>
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 shadow-lg p-6 rounded-3xl text-center">
-                <p className="text-4xl font-bold gradient-text">24/7</p>
+                <p className="text-4xl font-bold text-primary">24/7</p>
                 <p className="text-muted-foreground">Support</p>
               </div>
             </div>
@@ -85,7 +85,7 @@ const AboutUs: React.FC = () => {
               <Card className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md hover:glow-effect transition-all duration-300 group border border-primary/20 hover:border-primary/40 shadow-lg rounded-3xl">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4">
                       <ChartNoAxesCombined className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground">The Challenge</h3>
@@ -121,7 +121,7 @@ const AboutUs: React.FC = () => {
               <Card className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md hover:glow-effect transition-all duration-300 group border border-primary/20 hover:border-primary/40 shadow-lg rounded-3xl">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4">
                       <Lightbulb className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground">Our Solution</h3>
@@ -157,7 +157,7 @@ const AboutUs: React.FC = () => {
         </section>
 
         {/* Our Values Section */}
-        <section ref={valuesRef} className={`py-20 bg-gradient-to-br from-zoodo-purple/5 via-zoodo-blue/5 to-zoodo-pink/5 scroll-fade-in ${valuesVisible ? 'animate' : ''}`}>
+        <section ref={valuesRef} className={`py-20 bg-primary/5 scroll-fade-in ${valuesVisible ? 'animate' : ''}`}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Values</h2>
@@ -165,14 +165,14 @@ const AboutUs: React.FC = () => {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 hover:border-primary/40 shadow-lg p-8 rounded-3xl text-center transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-105 transition-transform duration-300">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-105 transition-transform duration-300">
                   <HeartPulse className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Compassionate Care</h3>
                 <p className="text-muted-foreground leading-relaxed">Every pet deserves loving, professional care. We bridge the gap between pet parents and veterinary experts.</p>
               </div>
               <div className="glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 hover:border-primary/40 shadow-lg p-8 rounded-3xl text-center transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-105 transition-transform duration-300">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-105 transition-transform duration-300">
                   <Award className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Excellence</h3>
@@ -331,7 +331,7 @@ const AboutUs: React.FC = () => {
         </section>
 
         {/* Join Our Mission Section */}
-        <section ref={missionRef} className={`py-20 bg-gradient-to-br from-zoodo-purple/5 via-zoodo-blue/5 to-zoodo-pink/5 scroll-fade-in ${missionVisible ? 'animate' : ''}`}>
+        <section ref={missionRef} className={`py-20 bg-primary/5 scroll-fade-in ${missionVisible ? 'animate' : ''}`}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-flex items-center px-4 py-2 rounded-full glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-primary mb-4">
               <Zap className="w-4 h-4 mr-2" />

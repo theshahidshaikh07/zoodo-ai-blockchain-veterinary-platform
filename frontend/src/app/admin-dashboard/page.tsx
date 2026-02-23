@@ -357,7 +357,7 @@ function AdminDashboardContent() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Image
-                src="/Zoodo.png"
+                src="/logo-slate.png"
                 alt="Zoodo Admin"
                 width={120}
                 height={40}

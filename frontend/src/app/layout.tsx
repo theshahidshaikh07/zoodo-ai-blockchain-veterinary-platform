@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.png',
     shortcut: '/favicon.png',
-    apple: '/Zoodo.png',
+    apple: '/logo-slate.png',
   },
 };
 
@@ -44,31 +45,10 @@ export default function RootLayout({
           name="format-detection"
           content="telephone=no, date=no, email=no, address=no"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  
-                  // Only set theme if it's explicitly set, otherwise let next-themes handle it
-                  if (theme && theme !== 'system') {
-                    if (theme === 'dark') {
-                      document.documentElement.classList.add('dark');
-                    } else {
-                      document.documentElement.classList.remove('dark');
-                    }
-                  }
-                } catch (e) {
-                  // Silent fallback
-                }
-              })();
-            `,
-          }}
-        />
+
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full min-h-screen bg-background`}
+        className={`${inter.variable} ${nunito.variable} font-sans antialiased h-full min-h-screen bg-background`}
         suppressHydrationWarning
       >
         <Providers>

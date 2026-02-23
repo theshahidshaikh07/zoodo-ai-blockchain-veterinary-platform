@@ -115,13 +115,13 @@ const EnhancedToast = React.forwardRef<HTMLDivElement, EnhancedToastProps>(
             )}
           </div>
         </div>
-        
+
         {action && (
           <div className="flex-shrink-0">
             {action}
           </div>
         )}
-        
+
         <button
           onClick={onClose}
           className="absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100"
@@ -131,7 +131,7 @@ const EnhancedToast = React.forwardRef<HTMLDivElement, EnhancedToastProps>(
 
         {showProgress && duration && (
           <div className="absolute bottom-0 left-0 h-1 bg-current opacity-20 transition-all duration-100 ease-linear"
-               style={{ width: `${progress}%` }} />
+            style={{ width: `${progress}%` }} />
         )}
       </div>
     );

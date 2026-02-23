@@ -1,102 +1,116 @@
+@layer base {
+  :root {
+    --font-sans: var(--font-inter);
+    --font-heading: var(--font-nunito);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 40% 98%;
+    /* #F8FAFC Digital Ivory */
+    --foreground: 222 47% 11%;
+    /* #0F172A Carbon Navy */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 16% 47%;
+    /* #64748B Slate Finish */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 280 100% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 215 16% 47%;
+    --primary: 183 75% 47%;
+    /* #1ECAD3 Zoodo Cyan */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 188 52% 93%;
+    /* #E3F5F8 Soft Mist */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 58%;
+    /* Soft Slate */
+    --accent: 210 40% 96%;
+    /* Clean highlight */
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 280 100% 60%;
-    --radius: 1rem;
+    --border: 210 40% 92%;
+    --input: 210 40% 92%;
+    --ring: 183 75% 47%;
+    --radius: 1.25rem;
 
-    /* Zoodo Brand Colors */
-    --zoodo-purple: 280 100% 70%;
-    --zoodo-blue: 220 100% 65%;
-    --zoodo-pink: 330 100% 70%;
+    /* Professional Surfaces */
+    --section-card: 222 47% 11%;
+    /* Navy Cards */
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(330 100% 70%), hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-secondary: linear-gradient(135deg, hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(330 100% 70%), hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 96.1%));
+    /* Zoodo Brand Colors (Strategic Usage) */
+    --zoodo-purple: 250 89% 65%;
+    --zoodo-blue: 217 91% 60%;
+    --zoodo-pink: 326 100% 74%;
 
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(280 100% 60% / 0.2);
-    --shadow-card: 0 10px 30px -10px hsl(220 30% 5% / 0.1);
-    --shadow-elegant: 0 20px 60px -20px hsl(280 100% 70% / 0.4);
+    /* Shadows - Deep & Premium */
+    --shadow-glow: 0 0 40px hsl(183 75% 47% / 0.15);
+    --shadow-card: 0 12px 40px -12px hsl(222 47% 11% / 0.08);
+    --shadow-elegant: 0 20px 80px -20px hsl(222 47% 11% / 0.12);
 
-    /* Hero Background */
-    --hero-bg: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.5));
-
-    /* Enhanced Backgrounds */
-    --bg-dot-pattern: radial-gradient(hsl(var(--primary) / 0.15) 1px, transparent 1px);
-    --bg-grid-pattern: linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
-    --bg-subtle-mesh: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.05) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.05) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.05) 0, transparent 50%);
+    /* UI State Variables */
+    --hero-bg: hsl(var(--background));
+    --bg-dot-pattern: none;
+    --bg-grid-pattern: none;
+    --bg-subtle-mesh: none;
   }
 
   .dark {
     /* Premium "Rich Dark" background (Deep Blue-Black) instead of harsh Pure Black */
     /* Allows shadows to be visible and reduces eye strain */
-    --background: 224 25% 5%;
-    --foreground: 210 40% 98%;
-    --card: 220 25% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 220 25% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 280 100% 70%;
-    --primary-foreground: 220 30% 5%;
-    --secondary: 220 20% 15%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 220 20% 12%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 280 100% 70%;
-    --accent-foreground: 220 30% 5%;
+    --background: 212 33% 12%;
+    /* Darker version of headings */
+    --foreground: 200 33% 98%;
+    --card: 212 25% 15%;
+    --card-foreground: 200 10% 80%;
+    --popover: 212 25% 15%;
+    --popover-foreground: 200 33% 98%;
+    --primary: 183 75% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 188 52% 30%;
+    --secondary-foreground: 200 33% 98%;
+    --muted: 212 20% 20%;
+    --muted-foreground: 200 10% 64%;
+    --accent: 40 86% 75%;
+    --accent-foreground: 212 33% 18%;
     --destructive: 0 62.8% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 220 20% 15%;
-    --input: 220 20% 12%;
-    --ring: 280 100% 70%;
+    --border: 212 20% 25%;
+    --input: 212 20% 25%;
+    --ring: 183 75% 47%;
 
-    /* Gradients - Dark mode */
-    --gradient-primary: linear-gradient(135deg, hsl(330 100% 70%), hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-secondary: linear-gradient(135deg, hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(330 100% 70%), hsl(280 100% 70%), hsl(220 100% 65%));
-    --gradient-card: linear-gradient(135deg, hsl(220 25% 8%), hsl(220 20% 12%));
+    /* Professional Flat Backgrounds - Dark mode */
+    --gradient-primary: hsl(var(--primary));
+    --gradient-secondary: hsl(var(--secondary));
+    --gradient-hero: hsl(var(--foreground));
+    --gradient-card: hsl(var(--card));
 
     /* Shadows - Dark mode */
-    --shadow-glow: 0 0 40px hsl(280 100% 70% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(220 30% 5% / 0.8);
-    --shadow-elegant: 0 20px 60px -20px hsl(280 100% 70% / 0.4);
+    --shadow-glow: 0 0 40px hsl(183 75% 47% / 0.3);
+    --shadow-card: 0 10px 30px -10px hsl(212 33% 5% / 0.8);
+    --shadow-elegant: 0 20px 60px -20px hsl(183 75% 47% / 0.4);
 
     /* Hero Background - Dark mode */
-    --hero-bg: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.5));
+    --hero-bg: hsl(var(--background));
 
-    /* Enhanced Backgrounds - Dark mode */
-    --bg-dot-pattern: radial-gradient(hsl(var(--primary) / 0.2) 1px, transparent 1px);
-    --bg-grid-pattern: linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
-    --bg-subtle-mesh: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.15) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.15) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.15) 0, transparent 50%);
+    /* Background Patterns - Dark mode Minimal */
+    --bg-dot-pattern: none;
+    --bg-grid-pattern: none;
+    --bg-subtle-mesh: none;
   }
 }
 
@@ -141,17 +155,11 @@
   }
 
   .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: hsl(var(--primary));
   }
 
   .gradient-hero-text {
-    background: var(--gradient-hero);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: hsl(var(--primary));
   }
 
   .glass-card {

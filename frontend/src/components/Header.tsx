@@ -124,7 +124,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
   return (
     <>
-      <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-sm' : 'bg-transparent border-transparent'}`}>
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
             {/* Logo */}
@@ -138,17 +138,14 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             >
               <div className="relative group-hover:scale-105 transition-all duration-300">
                 <Image
-                  src="/Zoodo.png"
+                  src="/pacifico-zoodo.png"
                   alt="Zoodo"
-                  width={120}
-                  height={40}
-                  className="h-3 md:h-4 lg:h-5 w-auto"
+                  width={180}
+                  height={60}
+                  className="h-6 md:h-8 lg:h-10 w-auto"
                   priority
                 />
               </div>
-              <span className="ml-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                BETA
-              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -205,14 +202,14 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     </a>
                   )}
                   {/* Hover Background - Only for non-dropdown items or main trigger */}
-                  <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out -z-10"></div>
+                  <div className={`absolute inset-0 ${isScrolled ? 'bg-primary/10' : 'bg-white/60'} rounded-lg opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out -z-10`}></div>
                 </div>
               ))}
             </nav>
 
             {/* Right Section */}
             <div className="flex items-center space-x-2 md:space-x-3 lg:space-x-4">
-              {/* Theme Toggle - Wrapped in NoSSR */}
+              {/* Theme Toggle - Hidden as dark mode is disabled
               <NoSSR fallback={
                 <Button
                   variant="ghost"
@@ -235,6 +232,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                   )}
                 </Button>
               </NoSSR>
+              */}
 
               {/* CTA Buttons */}
               <div className="flex items-center space-x-2 lg:space-x-3">
@@ -248,7 +246,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      className={`hidden md:flex ${isScrolled ? 'hover:bg-primary/10' : 'hover:bg-white/60'} hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2`}
                       asChild
                     >
                       <Link href={getDashboardUrl()}>Dashboard</Link>
@@ -268,15 +266,15 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="hidden md:flex hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      className={`hidden md:flex ${isScrolled ? 'hover:bg-primary/10' : 'hover:bg-white/60'} hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2`}
                       asChild
                     >
                       <Link href="/login">Log In</Link>
                     </Button>
                     <Button
-                      variant="default"
+                      variant="ghost"
                       size="sm"
-                      className="bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2"
+                      className="bg-primary hover:bg-primary/90 transition-all duration-300 text-xs lg:text-sm px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] font-bold uppercase tracking-wider text-white shadow-sm hover:shadow-lg"
                       asChild
                     >
                       <Link href="/role-selection">Get Started</Link>

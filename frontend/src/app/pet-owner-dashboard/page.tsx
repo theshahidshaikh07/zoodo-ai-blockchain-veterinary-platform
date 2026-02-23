@@ -302,7 +302,7 @@ export default function PetOwnerDashboard() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Image
-                src="/Zoodo.png"
+                src="/logo-slate.png"
                 alt="Zoodo Pet Owner"
                 width={120}
                 height={40}
@@ -745,8 +745,8 @@ export default function PetOwnerDashboard() {
                     type="button"
                     onClick={() => setPetFormData(prev => ({ ...prev, gender: g }))}
                     className={`flex-1 h-12 rounded-xl border ${petFormData.gender === g
-                        ? 'border-primary text-primary bg-primary/10'
-                        : 'border-border text-foreground/80 hover:bg-accent'
+                      ? 'border-primary text-primary bg-primary/10'
+                      : 'border-border text-foreground/80 hover:bg-accent'
                       }`}
                   >
                     {g.charAt(0).toUpperCase() + g.slice(1)}
@@ -861,8 +861,8 @@ export default function PetOwnerDashboard() {
                     type="button"
                     onClick={() => setPetFormData(prev => ({ ...prev, sterilized: opt.key }))}
                     className={`px-3 h-10 rounded-full border transition-colors ${petFormData.sterilized === opt.key
-                        ? 'border-primary text-primary bg-primary/10'
-                        : 'border-border text-foreground/80 hover:bg-accent'
+                      ? 'border-primary text-primary bg-primary/10'
+                      : 'border-border text-foreground/80 hover:bg-accent'
                       }`}
                   >
                     {opt.label}

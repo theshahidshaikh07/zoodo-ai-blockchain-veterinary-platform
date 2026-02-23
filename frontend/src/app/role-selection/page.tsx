@@ -118,12 +118,12 @@ const DesktopRoleCard = ({ role, index }: { role: typeof roles[0], index: number
         style={{ transformStyle: 'preserve-3d' }}
       >
         <div className="absolute inset-0 bg-card/30 rounded-2xl transition-colors duration-300 pointer-events-none"></div>
-        <div className="absolute inset-[-2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: `linear-gradient(135deg, ${role.color}00, ${role.color}50, ${role.color}00)` }}></div>
+        <div className="absolute inset-[-2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-primary/20"></div>
 
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-no-repeat opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 50% 0%, ${role.color}40, transparent 80%)` }}></div>
+        <div className="absolute inset-0 bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-no-repeat opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-primary/5"></div>
 
-        <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-white/20 to-white/5 ring-1 ring-white/10 transition-colors duration-300 transform-gpu" style={{ transform: 'translateZ(40px)' }}>
+        <div className="mb-4 p-4 rounded-full bg-primary/5 ring-1 ring-primary/10 transition-colors duration-300 transform-gpu" style={{ transform: 'translateZ(40px)' }}>
           <role.icon className="w-12 h-12 lg:w-14 lg:h-14 transition-transform duration-300 group-hover:scale-110" style={{ color: role.color }} />
         </div>
         <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2 transform-gpu" style={{ transform: 'translateZ(30px)' }}>{role.name}</h3>
@@ -145,17 +145,13 @@ export default function RoleSelectionPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-500/20 rounded-full filter blur-3xl animate-blob"></div>
-        <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-500/20 rounded-full filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-1/4 -left-1/4 w-1/3 h-1/3 bg-pink-500/20 rounded-full filter blur-3xl animate-blob animation-delay-4000"></div>
-      </div>
+      <div className="absolute inset-0 z-0 bg-secondary/30 dark:bg-secondary/10 opacity-50"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <header className="flex justify-between items-center p-4 sm:p-6">
           <div className="flex items-center">
             <Image
-              src="/Zoodo.png"
+              src="/logo-slate.png"
               alt="Zoodo"
               width={120}
               height={40}

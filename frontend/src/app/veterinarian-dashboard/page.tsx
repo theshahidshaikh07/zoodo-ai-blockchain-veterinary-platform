@@ -238,7 +238,7 @@ export default function VetDashboardPage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
-              src="/Zoodo.png"
+              src="/logo-slate.png"
               alt="Zoodo"
               width={120}
               height={32}

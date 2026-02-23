@@ -16,6 +16,11 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "sans-serif"],
+        heading: ["var(--font-nunito)", "sans-serif"],
+        accent: ["var(--font-nunito)", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: 'hsl(var(--input))',
@@ -64,7 +69,9 @@ export default {
           purple: 'hsl(var(--zoodo-purple))',
           blue: 'hsl(var(--zoodo-blue))',
           pink: 'hsl(var(--zoodo-pink))'
-        }
+        },
+        'section-card': 'hsl(var(--section-card))',
+        'warm-accent': 'hsl(var(--accent))'
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',

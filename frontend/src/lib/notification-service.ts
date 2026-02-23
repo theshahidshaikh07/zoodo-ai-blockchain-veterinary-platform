@@ -86,7 +86,7 @@ class NotificationService {
   // Success notifications
   success(config: NotificationConfig & { type?: string }) {
     const icon = this.getSuccessIcon(config.type);
-    
+
     toast.success(config.title, {
       description: config.description,
       duration: config.duration || 4000,
@@ -94,9 +94,9 @@ class NotificationService {
         label: config.action.label,
         onClick: config.action.onClick,
       } : undefined,
-      className: "border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 text-green-900 dark:border-green-800 dark:from-green-950/50 dark:to-emerald-950/50 dark:text-green-100",
+      className: "border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950/50 dark:text-green-100",
       style: {
-        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
+        background: 'rgba(34, 197, 94, 0.05)',
         border: '1px solid rgba(34, 197, 94, 0.2)',
         backdropFilter: 'blur(10px)',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -109,9 +109,9 @@ class NotificationService {
     const icon = this.getErrorIcon(config.errorDetails?.code);
     const isAuthError = config.errorDetails?.code?.startsWith('AUTH_');
     const isRegError = config.errorDetails?.code?.startsWith('REG_');
-    
+
     let enhancedDescription = config.description;
-    
+
     // Add helpful suggestions based on error type
     if (isAuthError) {
       enhancedDescription += '\n\n💡 Try checking your credentials or contact support if the issue persists.';
@@ -126,9 +126,9 @@ class NotificationService {
         label: config.action.label,
         onClick: config.action.onClick,
       } : undefined,
-      className: "border-red-200 bg-gradient-to-r from-red-50 to-rose-50 text-red-900 dark:border-red-800 dark:from-red-950/50 dark:to-rose-950/50 dark:text-red-100",
+      className: "border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-100",
       style: {
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(244, 63, 94, 0.1) 100%)',
+        background: 'rgba(239, 68, 68, 0.05)',
         border: '1px solid rgba(239, 68, 68, 0.2)',
         backdropFilter: 'blur(10px)',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -139,7 +139,7 @@ class NotificationService {
   // Warning notifications
   warning(config: NotificationConfig & { type?: string }) {
     const icon = this.getWarningIcon(config.type);
-    
+
     toast.warning(config.title, {
       description: config.description,
       duration: config.duration || 5000,
@@ -147,9 +147,9 @@ class NotificationService {
         label: config.action.label,
         onClick: config.action.onClick,
       } : undefined,
-      className: "border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-900 dark:border-yellow-800 dark:from-yellow-950/50 dark:to-amber-950/50 dark:text-yellow-100",
+      className: "border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-100",
       style: {
-        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
+        background: 'rgba(234, 179, 8, 0.05)',
         border: '1px solid rgba(234, 179, 8, 0.2)',
         backdropFilter: 'blur(10px)',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -160,7 +160,7 @@ class NotificationService {
   // Info notifications
   info(config: NotificationConfig & { type?: string }) {
     const icon = this.getInfoIcon(config.type);
-    
+
     toast.info(config.title, {
       description: config.description,
       duration: config.duration || 4000,
@@ -168,9 +168,9 @@ class NotificationService {
         label: config.action.label,
         onClick: config.action.onClick,
       } : undefined,
-      className: "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-900 dark:border-blue-800 dark:from-blue-950/50 dark:to-cyan-950/50 dark:text-blue-100",
+      className: "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-100",
       style: {
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
+        background: 'rgba(59, 130, 246, 0.05)',
         border: '1px solid rgba(59, 130, 246, 0.2)',
         backdropFilter: 'blur(10px)',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -183,9 +183,9 @@ class NotificationService {
     toast.loading(config.title, {
       description: config.description,
       duration: config.duration || 3000,
-      className: "border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 text-purple-900 dark:border-purple-800 dark:from-purple-950/50 dark:to-violet-950/50 dark:text-purple-100",
+      className: "border-purple-200 bg-purple-50 text-purple-900 dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-100",
       style: {
-        background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+        background: 'rgba(147, 51, 234, 0.05)',
         border: '1px solid rgba(147, 51, 234, 0.2)',
         backdropFilter: 'blur(10px)',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -204,21 +204,21 @@ class NotificationService {
   }
 
   loginError(errorDetails?: ErrorDetails) {
-    const title = errorDetails?.code === 'AUTH_003' 
-      ? 'Account Disabled' 
+    const title = errorDetails?.code === 'AUTH_003'
+      ? 'Account Disabled'
       : errorDetails?.code === 'AUTH_002'
-      ? 'Account Locked'
-      : 'Login Failed';
-    
+        ? 'Account Locked'
+        : 'Login Failed';
+
     this.error({
       title,
-      description: errorDetails?.code === 'AUTH_001' 
+      description: errorDetails?.code === 'AUTH_001'
         ? 'Invalid username or password. Please check your credentials and try again.'
         : errorDetails?.code === 'AUTH_003'
-        ? 'Your account has been disabled. Please contact support for assistance.'
-        : errorDetails?.code === 'AUTH_002'
-        ? 'Your account has been temporarily locked due to multiple failed login attempts. Please try again later.'
-        : 'Unable to log in. Please check your credentials and try again.',
+          ? 'Your account has been disabled. Please contact support for assistance.'
+          : errorDetails?.code === 'AUTH_002'
+            ? 'Your account has been temporarily locked due to multiple failed login attempts. Please try again later.'
+            : 'Unable to log in. Please check your credentials and try again.',
       errorDetails,
     });
   }
@@ -233,23 +233,23 @@ class NotificationService {
   }
 
   registrationError(errorDetails?: ErrorDetails) {
-    const title = errorDetails?.code === 'REG_001' 
+    const title = errorDetails?.code === 'REG_001'
       ? 'Username Already Exists'
       : errorDetails?.code === 'REG_002'
-      ? 'Email Already Exists'
-      : errorDetails?.code === 'REG_003'
-      ? 'License Already Exists'
-      : 'Registration Failed';
-    
+        ? 'Email Already Exists'
+        : errorDetails?.code === 'REG_003'
+          ? 'License Already Exists'
+          : 'Registration Failed';
+
     this.error({
       title,
       description: errorDetails?.code === 'REG_001'
         ? 'This username is already taken. Please choose a different username.'
         : errorDetails?.code === 'REG_002'
-        ? 'An account with this email already exists. Please sign in or use a different email.'
-        : errorDetails?.code === 'REG_003'
-        ? 'This license number is already registered. Please check your license number or contact support.'
-        : 'Registration failed. Please check your information and try again.',
+          ? 'An account with this email already exists. Please sign in or use a different email.'
+          : errorDetails?.code === 'REG_003'
+            ? 'This license number is already registered. Please check your license number or contact support.'
+            : 'Registration failed. Please check your information and try again.',
       errorDetails,
     });
   }

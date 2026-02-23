@@ -38,7 +38,7 @@ export default function ContactPage() {
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20 pt-40 pb-24 overflow-hidden">
+        <div className="relative bg-secondary/30 dark:bg-secondary/10 pt-40 pb-24 overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <motion.div
@@ -56,7 +56,7 @@ export default function ContactPage() {
                 transition={{ delay: 0.1 }}
                 className="text-5xl md:text-7xl font-bold text-foreground mb-6 tracking-tight"
               >
-                Get in <span className="gradient-text">Touch</span>
+                Get in <span className="text-primary">Touch</span>
               </motion.h1>
 
               <motion.p
@@ -113,7 +113,7 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Form Section */}
-        <div className="py-16 md:py-24 bg-gradient-to-br from-zoodo-purple/5 via-zoodo-blue/5 to-zoodo-pink/5">
+        <div className="py-16 md:py-24 bg-primary/5">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
               <motion.div
@@ -232,7 +232,7 @@ export default function ContactPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-background/20 z-10 pointer-events-none"></div>
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.237496760631!2d73.8341417749604!3d18.51562218256976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c1f4c9d6e8b5%3A0x3f4a3c4f9c4f4f4f!2sG.%20H.%20Raisoni%20College%20of%20Engineering%20and%20Management!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
                 width="100%"

@@ -306,7 +306,7 @@ function PetOwnerWizard() {
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
           <Image
-            src="/Zoodo.png"
+            src="/logo-slate.png"
             alt="Zoodo"
             width={120}
             height={40}

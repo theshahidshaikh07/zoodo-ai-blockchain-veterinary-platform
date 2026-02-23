@@ -774,7 +774,7 @@ export default function AIAssistantPage() {
             <div className="text-center mb-6 max-w-4xl">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                 <span className="block sm:inline">Your Pet's Personal</span>{' '}
-                <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-primary">
                   Health Guide
                 </span>
               </h1>

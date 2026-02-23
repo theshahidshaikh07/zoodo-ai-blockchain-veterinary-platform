@@ -67,16 +67,16 @@ const ServicesSection = () => {
           ref={headerRef}
           className={`text-center mb-16 space-y-6 scroll-fade-in ${headerVisible ? 'animate' : ''}`}
         >
-          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium">
-            <PawPrint className="w-4 h-4 mr-2 text-primary" />
+          <div className="inline-flex items-center px-4 py-2 rounded-full relative z-10 glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md border border-primary/20 text-sm font-medium text-primary">
+            <PawPrint className="w-4 h-4 mr-2" />
             Our Services
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight text-foreground">
             <span className="block lg:inline">Comprehensive </span>
-            <span className="gradient-text">pet care services</span><br className="hidden lg:block" />
+            <span className="text-primary">pet care services</span><br className="hidden lg:block" />
             <span className="mt-1 sm:mt-2 lg:mt-0 lg:inline block">at your fingertips</span>
           </h2>
-          <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg lg:text-xl text-slate-500 max-w-3xl mx-auto">
             From finding the right veterinarian to emergency care and training, we&#39;ve got all your pet&#39;s needs covered.
           </p>
         </div>
@@ -90,7 +90,7 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className={`group relative glass-card bg-white/10 dark:bg-black/10 backdrop-blur-md shadow-lg rounded-3xl scale-on-hover overflow-hidden border border-border hover:border-primary/40 transition-colors duration-200 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
+              className={`group relative glass-card bg-white shadow-card-elegant rounded-[2.5rem] scale-on-hover overflow-hidden border border-secondary/50 hover:border-primary/40 transition-all duration-300 z-10 hover:z-20 scroll-scale-in scroll-stagger-${index + 1} ${servicesVisible ? 'animate' : ''}`}
               style={{ willChange: 'transform' }}
             >
               {/* Service Image */}
@@ -99,49 +99,49 @@ const ServicesSection = () => {
                   src={service.image}
                   alt={service.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   style={{ willChange: 'transform' }}
                 />
                 {/* Main Icon */}
-                <div className="absolute top-4 left-4 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-elegant group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }}>
+                <div className="absolute top-5 left-5 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }}>
                   <service.icon className="w-6 h-6 text-white" />
                 </div>
               </div>
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-3 transition-colors duration-300 flex items-center">
+              <div className="p-7">
+                <h3 className="text-xl font-bold mb-3 transition-colors duration-300 flex items-center text-foreground">
                   {service.title === "Find Vet" && (
-                    <MagnifyingGlass className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
+                    <MagnifyingGlass className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300" />
                   )}
                   {service.title === "Clinic & Hospital" && (
-                    <Location className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
+                    <Location className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300" />
                   )}
                   {service.title === "Teleconsultation" && (
-                    <TeleIcon className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
+                    <TeleIcon className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300" />
                   )}
                   {service.title === "Pet Trainer" && (
-                    <GraduationCap className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300 ease-out" style={{ willChange: 'transform' }} />
+                    <GraduationCap className="w-5 h-5 mr-2 text-primary group-hover:scale-105 transition-transform duration-300" />
                   )}
                   {service.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3">
                   {service.description}
                 </p>
 
                 {/* Features */}
-                <div className="space-y-2 mb-6">
+                <div className="space-y-2.5 mb-8">
                   {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <span className="text-xs text-muted-foreground">{feature}</span>
+                    <div key={idx} className="flex items-center space-x-2.5">
+                      <div className="w-1.5 h-1.5 bg-primary/40 rounded-full" />
+                      <span className="text-xs text-slate-400 font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <button
-                  className="w-full group/btn text-sm py-3 bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 transition-all duration-300 ease-out cursor-pointer text-white dark:text-black font-medium rounded-md flex items-center justify-center relative z-10"
-                  style={{ cursor: 'pointer !important', willChange: 'transform' }}
+                  className="w-full group/btn text-xs py-3.5 bg-primary text-white hover:bg-primary/90 transition-all duration-300 font-bold uppercase tracking-wider rounded-tl-[1.5rem] rounded-tr-[0.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem] flex items-center justify-center relative z-10 shadow-sm hover:shadow-lg"
+                  style={{ cursor: 'pointer', willChange: 'transform' }}
                   onClick={() => {
                     // Navigate to specific service pages
                     const serviceRoutes = {
@@ -157,7 +157,7 @@ const ServicesSection = () => {
                   }}
                 >
                   Explore Service
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" />
+                  <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" />
                 </button>
               </div>
 

@@ -12,7 +12,7 @@ import {
   Users,
   BadgeCheck
 } from "lucide-react";
-import diversePets from "@/assets/diverse-pets.jpg";
+import diversePets from "@/assets/transparent_diverse_petss.png";
 import Link from "next/link";
 import ConsultationPopup from "./ConsultationPopup";
 
@@ -35,111 +35,72 @@ const HeroSection = () => {
   }
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-16 lg:pt-24">
-      {/* Background now handled by parent page layout */}
+    <section id="hero" className="relative transition-colors duration-500">
+      <div className="bg-[#bde4e9] dark:bg-primary/10 rounded-b-[4rem] lg:rounded-b-[6rem] overflow-hidden min-h-[90vh] flex items-center relative">
+        {/* Decorative Background Curve - Custom SVG 'S' Path matching user's pen line exactly */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <svg 
+            viewBox="0 0 100 100" 
+            preserveAspectRatio="none" 
+            className="w-full h-full opacity-40 select-none"
+          >
+            <path 
+              d="M72,0 C65,25 35,65 48,100 L100,100 L100,0 Z" 
+              fill="white"
+            />
+          </svg>
+        </div>
+        
+        <div className="container mx-auto px-6 lg:px-12 relative z-10 py-20 lg:py-0">
+          <div className="grid lg:grid-cols-2 gap-8 items-center w-full">
+            {/* Left Content - Text */}
+            <div className="text-left space-y-10 fade-up order-1 lg:order-1 max-w-2xl">
+              {/* Main Headline */}
+              <div className="space-y-6 pt-16 lg:pt-28">
+                <h1 className="text-6xl lg:text-8xl font-bold font-heading leading-[1.1] text-slate-900 dark:text-white tracking-tight">
+                  Your Pet.<br />Our Priority.
+                </h1>
+                <p className="text-lg lg:text-xl text-slate-700/80 dark:text-slate-300 leading-relaxed max-w-lg">
+                  Powered by Dr. Salus AI, Zoodo delivers intelligent, secure, and personalized veterinary care anytime, anywhere.
+                </p>
+              </div>
 
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 transition-all duration-300">
+                <Button
+                  size="xl"
+                  className="px-10 py-5 rounded-tl-[99px] rounded-bl-[99px] rounded-br-[99px] rounded-tr-[30px] bg-slate-900 text-white hover:bg-slate-800 hover:text-white transition-all duration-300 text-base font-bold uppercase tracking-wider shadow-lg"
+                  asChild
+                >
+                  <Link href="/ai-assistant">
+                    Try Dr. Salus AI
+                  </Link>
+                </Button>
+                <Button
+                  size="xl"
+                  className="px-10 py-5 rounded-tl-[30px] rounded-tr-[99px] rounded-bl-[99px] rounded-br-[99px] bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900 transition-all duration-300 text-base font-bold uppercase tracking-wider shadow-sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsConsultationPopupOpen(true);
+                  }}
+                >
+                  Get Instant Care
+                </Button>
+              </div>
+            </div>
 
-
-
-      <div className="container mx-auto px-4 lg:px-8 relative z-10 min-h-full flex items-center py-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-12 items-center w-full">
-          {/* Left Content - Hero Image (Desktop) / Order 2 (Mobile) */}
-          <div className="relative lg:scale-110 fade-up order-2 lg:order-1">
-            <div className="relative">
-
-              {/* Main Image */}
-              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl h-48 sm:h-56 md:h-72 lg:h-96">
+            {/* Right Content - Hero Image */}
+            <div className="relative fade-up order-2 lg:order-2 flex justify-end overflow-visible">
+              <div className="relative h-[300px] sm:h-[400px] lg:h-[650px] w-full max-w-[850px]">
                 <Image
                   src={diversePets}
                   alt="Happy diverse pets in veterinary care"
                   fill
-                  className="object-cover"
+                  className="object-contain object-bottom select-none pointer-events-none scale-110 lg:scale-125 origin-bottom"
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
               </div>
-
-              {/* Overlay Cards - Mobile responsive */}
-              <div className="absolute -bottom-2 -left-2 lg:-bottom-4 lg:-left-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-md">
-                <div className="flex items-center space-x-2 lg:space-x-3">
-                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center">
-                    <Users className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
-                  </div>
-                  <div className="hidden lg:block">
-                    <div className="font-semibold text-sm">Community</div>
-                    <div className="text-xs text-muted-foreground">Pet Support</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -top-2 -right-2 lg:-top-4 lg:-right-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 lg:p-4 rounded-xl lg:rounded-2xl shadow-md">
-                <div className="flex items-center space-x-2 lg:space-x-3">
-                  <div className="w-8 h-8 lg:w-12 lg:h-12 bg-primary rounded-full flex items-center justify-center">
-                    <BadgeCheck className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
-                  </div>
-                  <div className="hidden lg:block">
-                    <div className="font-semibold text-sm">Verified Vets</div>
-                    <div className="text-xs text-muted-foreground">Instant Booking</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Content - Text (Desktop) / Order 1 (Mobile) */}
-          <div className="text-center lg:text-left space-y-6 lg:space-y-8 fade-up order-1 lg:order-2">
-            {/* AI Assistant Badge */}
-            <div className="inline-flex items-center px-3 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-primary/10 border border-primary/20 text-xs sm:text-sm font-medium group transition-all duration-300">
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 text-primary animate-pulse" />
-              <span className="whitespace-nowrap">Your Pet's <strong>Health Partner</strong></span>
-            </div>
-
-            {/* Main Headline */}
-            <div className="space-y-6 lg:space-y-6">
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Your Pet.<br /><span className="gradient-hero-text dark:text-white">Our Priority.</span>
-              </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground/80 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Powered by Dr. Salus AI, Zoodo delivers intelligent, secure, and personalized veterinary care anytime, anywhere.
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2 lg:pt-4 justify-center lg:justify-start max-w-2xl mx-auto lg:mx-0">
-              <Button
-                variant="ghost"
-                size="xl"
-                className="w-full sm:w-auto justify-center group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-primary text-white dark:text-black hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 text-base lg:text-lg sm:flex-1 shadow-none lg:shadow-lg lg:hover:shadow-xl"
-                asChild
-              >
-                <Link href="/ai-assistant" className="flex items-center justify-center">
-                  <Stethoscope
-                    className="text-white dark:text-black mr-2"
-                    style={{
-                      width: '1.5rem',
-                      height: '1.5rem',
-                      minWidth: '1.5rem',
-                      minHeight: '1.5rem'
-                    }}
-                  />
-                  <span className="font-semibold text-white dark:text-black">Try Dr. Salus AI</span>
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="xl"
-                className="w-full sm:w-auto justify-center group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-card dark:bg-black/80 backdrop-blur-md border border-black/20 dark:border-primary/40 hover:border-primary/40 dark:hover:border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all duration-300 text-base lg:text-lg sm:flex-1 text-foreground shadow-none lg:shadow-lg lg:hover:shadow-xl active:scale-[0.98]"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsConsultationPopupOpen(true);
-                }}
-              >
-                <div className="relative mr-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse transition-transform"></div>
-                  <div className="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
-                </div>
-                <span className="font-semibold text-foreground">Get Instant Care</span>
-              </Button>
             </div>
           </div>
         </div>
