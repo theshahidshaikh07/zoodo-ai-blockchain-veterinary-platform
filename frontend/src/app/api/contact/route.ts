@@ -1,22 +1,21 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
-    try {
-        const { name, email, subject, message } = await req.json();
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  try {
+    const { name, email, subject, message } = await req.json();
 
-        if (!name || !email || !subject || !message) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-        }
+    if (!name || !email || !subject || !message) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
-        const { data, error } = await resend.emails.send({
-            from: 'Zoodo Contact <onboarding@resend.dev>',
-            to: 'zoodo.care@gmail.com',
-            replyTo: email,
-            subject: `New Contact Form Submission: ${subject}`,
-            html: `
+    const { data, error } = await resend.emails.send({
+      from: 'Zoodo Contact <onboarding@resend.dev>',
+      to: 'zoodo.care@gmail.com',
+      replyTo: email,
+      subject: `New Contact Form Submission: ${subject}`,
+      html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #ffffff; margin: 0; padding: 20px 0;">
           <div style="max-width: 600px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);">
             <!-- Header -->
@@ -56,15 +55,15 @@ export async function POST(req: Request) {
           </div>
         </div>
       `,
-        });
+    });
 
-        if (error) {
-            return NextResponse.json({ error }, { status: 400 });
-        }
-
-        return NextResponse.json({ success: true, data });
-    } catch (error: any) {
-        console.error('Contact form error:', error);
-        return NextResponse.json({ error: error.message || 'Something went wrong' }, { status: 500 });
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
     }
+
+    return NextResponse.json({ success: true, data });
+  } catch (error: any) {
+    console.error('Contact form error:', error);
+    return NextResponse.json({ error: error.message || 'Something went wrong' }, { status: 500 });
+  }
 }
