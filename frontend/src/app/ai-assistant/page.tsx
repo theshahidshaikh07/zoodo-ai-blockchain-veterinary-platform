@@ -23,19 +23,46 @@ import {
   Cat,
   GraduationCap,
   Timer,
-  Dog
+  Dog,
+  MessageSquare,
+  Settings,
+  LogOut,
+  User,
+  PanelLeft,
+  HelpCircle,
+  Paperclip,
+  Globe,
+  BookOpen,
+  Image as ImageIcon,
+  Search as SearchIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
-import Header from '@/components/Header';
 import { apiService, AIChatRequest } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MessageBubble } from '@/components/ai/MessageBubble';
 import { ProcessLoader } from '@/components/ai/ProcessLoader';
 import ConsultationPopup from '@/components/ConsultationPopup';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface Message {
   id: string;
@@ -89,7 +116,7 @@ export default function AIAssistantPage() {
       {
         id: '1',
         type: 'ai',
-        content: "Hello! I'm Dr. Salus AI. I'm here to help with your pet's health. How can I assist you today?",
+        content: "Hello! I'm Salus AI. I'm here to help with your pet's health. How can I assist you today?",
         timestamp: new Date(),
       }
     ]);
@@ -674,9 +701,9 @@ export default function AIAssistantPage() {
 
     return (
       <span className="text-muted-foreground">
-        <span className="sm:hidden">Ask Dr. Salus AI</span>
+        <span className="sm:hidden">Ask Salus AI</span>
         <span className="hidden sm:inline">
-          {messages.length > 1 ? "Ask Dr. Salus AI" : `Ask Dr. Salus AI : ${displayText}`}
+          {messages.length > 1 ? "Ask Salus AI" : `Ask Salus AI : ${displayText}`}
           {messages.length <= 1 && <span className="animate-pulse">|</span>}
         </span>
       </span>
@@ -690,13 +717,13 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
-      <style jsx global>{`
+    <SidebarProvider>
+      <div className="flex h-screen w-full bg-background overflow-hidden">
+        <style jsx global>{`
           html, body {
             height: 100%;
             width: 100%;
             overflow: hidden;
-            position: fixed; /* Lock body scroll */
           }
           .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
@@ -712,304 +739,352 @@ export default function AIAssistantPage() {
             background-color: rgba(255, 255, 255, 0.2);
           }
         `}</style>
-      {/* Header - Different for landing vs chat */}
-      {messages.length <= 1 ? (
-        <Header isScrolled={isHeroScrolled} />
-      ) : (
-        /* Chat Header */
-        /* Chat Header - Static in flex container */
-        <header className="shrink-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
-          <div className="container mx-auto px-8 lg:px-20">
-            <div className="flex items-center justify-between h-20 py-4">
-              {/* Left side - Back button + Dr. Salus AI */}
-              <div className="flex items-center space-x-4">
 
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <Heart className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h1 className="font-semibold text-foreground">Dr. Salus AI</h1>
-                    <p className="text-xs text-muted-foreground">AI Powered Veterinary Assistant</p>
-                  </div>
-                </div>
+        {/* ChatGPT Style Sidebar */}
+        <Sidebar variant="sidebar" collapsible="offcanvas" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl">
+          <SidebarHeader className="p-4">
+            <Link href="/" className="flex items-center gap-3 px-2 mb-4 group transition-transform hover:scale-105">
+              <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                <Heart className="h-4 w-4 text-primary-foreground fill-current text-white" />
               </div>
+              <span className="font-bold text-xl tracking-tight text-foreground">Salus</span>
+            </Link>
+            <Button
+              onClick={() => window.location.reload()}
+              className="w-full justify-start gap-3 h-11 rounded-xl bg-background border border-border/50 shadow-sm hover:shadow-md hover:bg-accent transition-all duration-300 group"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4 text-primary group-hover:rotate-90 transition-transform duration-300" />
+              <span className="font-medium">New Chat</span>
+            </Button>
+          </SidebarHeader>
 
-              {/* Right side - New Chat button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.reload()}
-                className="hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all duration-300"
-              >
-                New Chat
-              </Button>
-            </div>
-          </div>
-        </header>
-      )}
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Recent Chats</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton isActive className="px-4 py-6 rounded-xl transition-all duration-200">
+                      <MessageSquare className="h-4 w-4 mr-2 text-primary" />
+                      <span className="truncate">Current Conversation</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {/* Additional chat history items would go here */}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
-      {/* Refined Background - "Ghost Light" Parametric Mesh - Unified with landing page */}
-      <div className="fixed inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
-      {messages.length <= 1 && (
-        <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
-      )}
-      <div className="fixed inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
+            <SidebarGroup className="mt-auto">
+              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Quick Actions</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton className="px-4 py-2 opacity-70 hover:opacity-100 transition-opacity" asChild>
+                      <Link href="/services/find-vets">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Find Nearby Vets
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
 
-      {/* Main Content Area */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
-        {messages.length <= 1 ? (
-          /* Hero Section - Only show when not chatting */
-          <div ref={heroContainerRef} key="hero-section" className="flex-1 flex flex-col items-center justify-center px-4 pt-28 sm:pt-32 pb-6 overflow-y-auto custom-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-
-
-            {/* Banner */}
-            <div className="mb-6">
-              <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5">
-                Introducing Dr. Salus AI
-                <ArrowUp className="h-3 w-3 ml-1" />
-              </Badge>
-            </div>
-
-            {/* Main Headline */}
-            <div className="text-center mb-6 max-w-4xl">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                <span className="block sm:inline">Your Pet's Personal</span>{' '}
-                <span className="text-primary">
-                  Health Guide
-                </span>
-              </h1>
-              <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
-                Get instant pet health advice, personalized diet plans, and recommendations for the best vets, trainers, hospitals, and clinics nearby.
-              </p>
-            </div>
-
-            {/* Quick Suggestions */}
-            <div className="mt-6 flex flex-wrap justify-center gap-3 px-2 max-w-4xl mx-auto">
-              {[
-                { icon: <Stethoscope className="w-4 h-4" />, text: "Find a nearby vet clinic" },
-                { icon: <Utensils className="w-4 h-4" />, text: "Diet plan for a puppy" },
-                { icon: <Cat className="w-4 h-4" />, text: "Why is my cat sneezing?" },
-                { icon: <Dog className="w-4 h-4" />, text: "Dog vaccination guide" },
-                { icon: <Timer className="w-4 h-4" />, text: "Dog training tips" },
-              ].map((suggestion, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/50 dark:bg-zinc-800/40 border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800/60 backdrop-blur-md transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground shadow-sm hover:shadow-md hover:border-black/20 dark:hover:border-white/20 active:scale-[0.98] ${index === 3 || index === 4 ? 'hidden sm:flex' : ''}`}
-                  onClick={() => handleSendMessage(suggestion.text)}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="opacity-70 p-1 bg-primary/10 rounded-full text-primary">{suggestion.icon}</span>
-                    <span>{suggestion.text}</span>
-                  </span>
-                  <ArrowRight className="w-4 h-4 opacity-50 ml-2 sm:hidden" />
+          <SidebarFooter className="p-4 border-t border-border/50">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <div className="flex items-center gap-3 px-2 py-3 rounded-xl hover:bg-accent/50 transition-colors cursor-pointer group">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform">
+                    <User className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">Guest User</p>
+                    <p className="text-xs text-muted-foreground truncate">Zoodo Platform</p>
+                  </div>
+                  <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                </div>
+              </SidebarMenuItem>
+              <SidebarMenuItem className="mt-2">
+                <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-lg h-9" asChild>
+                  <Link href="/">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Exit to Zoodo
+                  </Link>
                 </Button>
-              ))}
-            </div>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
 
-            {/* Large AI Chat Input Area - Centered when not chatting */
-            }
-            <div className="w-full max-w-4xl mx-auto sm:px-4 mt-6">
-              <div className="relative">
-                <div className="relative bg-white/60 dark:bg-zinc-800/40 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/70 dark:hover:bg-zinc-800/60 focus-within:ring-2 focus-within:ring-primary/20 dark:focus-within:ring-primary/40 sm:max-w-2xl sm:mx-auto">
-                  {/* Voice Input Button - Left */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleVoiceInput}
-                    className={`rounded-full h-12 w-12 shrink-0 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20 animate-pulse' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}
-                    title="Voice Input"
-                  >
-                    {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                  </Button>
-
-                  {/* Input Field - Middle */}
-                  <div className="flex-1 relative flex items-center min-h-[3rem]">
-                    <textarea
-                      ref={textareaRef}
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      rows={1}
-                      placeholder=""
-                      className="w-full bg-transparent text-base focus:outline-none focus:ring-0 text-foreground px-2 resize-none max-h-[200px] self-center leading-relaxed custom-scrollbar"
-                    />
-                    {!inputMessage && (
-                      <div className="absolute inset-0 flex items-center pointer-events-none px-3">
-                        <AnimatedPlaceholder />
-                      </div>
-                    )}
+        {/* Main Content Area */}
+        <SidebarInset className="flex flex-col relative w-full overflow-hidden bg-background">
+          {/* Top Navigation Bar (Minimal) */}
+          <header className={`shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' : 'bg-transparent'}`}>
+            <div className="flex items-center justify-between h-14 px-4 md:px-6">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="hover:bg-accent rounded-lg" />
+                <div className={`flex items-center gap-2 transition-opacity duration-300 ${messages.length > 1 ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
+                    <Heart className="h-3 w-3 text-white fill-current" />
                   </div>
-
-                  {/* Send Button - Right */}
-                  <Button
-                    onClick={() => handleSendMessage()}
-                    disabled={!inputMessage.trim() || isTyping}
-                    className="rounded-full h-12 w-12 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-105 active:scale-95"
-                    size="icon"
-                  >
-                    <ArrowUp className="h-6 w-6" />
-                  </Button>
+                  <span className="font-semibold text-sm">Salus AI</span>
                 </div>
               </div>
-            </div>
 
-
-          </div>
-
-        ) : (
-          /* Chat Interface - Full screen when chatting */
-          <div key="chat-interface" className="flex-1 flex flex-col h-full relative overflow-hidden">
-
-            {/* Chat Messages Area - Flexible scrollable area */
-            }
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 pb-8 scroll-smooth custom-scrollbar">
-              <div className="max-w-4xl mx-auto space-y-6">
-                {messages.slice(1).map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    onEdit={handleEditMessage}
-                    onTypingComplete={handleTypingComplete}
-                    onVersionChange={handleVersionChange}
-                  />
-                ))}
-
-                {isTyping && <ProcessLoader />}
-              </div>
-              <div ref={messagesEndRef} />
-            </div>
-            {/* Scroll to Bottom Button */}
-
-
-
-            {/* Input Area - Flex Item (Not Fixed) */}
-            <div className="shrink-0 w-full z-50 bg-transparent pt-4">
-              <div className="w-full max-w-4xl mx-auto px-4 pb-4 sm:pb-6 relative">
-
-                {/* Scroll to Bottom Button - Anchored to ride on top of input */}
-                {showScrollButton && (
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    onClick={scrollToBottom}
-                    className="absolute left-1/2 -translate-x-1/2 -top-16 z-[60] rounded-full shadow-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all animate-in fade-in zoom-in duration-300"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
+              <div className="flex items-center gap-2">
+                {messages.length <= 1 ? (
+                  <>
+                    <Button variant="ghost" size="sm" className="hidden sm:flex font-medium hover:bg-accent px-4 h-9 rounded-lg" asChild>
+                      <Link href="/login">Log in</Link>
+                    </Button>
+                    <Button size="sm" className="hidden sm:flex bg-primary text-primary-foreground hover:opacity-90 font-medium px-4 h-9 rounded-full" asChild>
+                      <Link href="/signup">Sign up for free</Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-accent h-9 w-9">
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="icon" className="rounded-xl hover:bg-accent">
+                      <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </>
                 )}
+              </div>
+            </div>
+          </header>
 
-                {isEmergency && (
-                  <div className="mb-4 animate-in slide-in-from-bottom-5 duration-500">
-                    <div className="bg-red-500/20 backdrop-blur-2xl border border-red-500/30 rounded-2xl p-4 shadow-xl shadow-red-500/10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
-                          <AlertTriangle className="h-5 w-5 animate-pulse" />
-                          <span className="font-semibold">Emergency Mode Active</span>
+          <main className="flex-1 flex flex-col relative overflow-hidden">
+            {/* Unified Background */}
+            <div className="absolute inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
+            {messages.length <= 1 && (
+              <div className="absolute inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
+            )}
+            <div className="absolute inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
+
+            <div className="relative z-10 flex-1 flex flex-col min-h-0">
+              {messages.length <= 1 ? (
+                /* Hero Section */
+                <div ref={heroContainerRef} className="flex-1 flex flex-col items-center justify-center px-4 overflow-y-auto custom-scrollbar pt-10 pb-20">
+                  <div className="mb-6 animate-in zoom-in duration-700">
+                    <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5 rounded-full">
+                      Introducing Salus AI
+                      <ArrowUp className="h-3 w-3 ml-1" />
+                    </Badge>
+                  </div>
+
+                  <div className="text-center mb-6 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                      <span className="block sm:inline">Your Pet's Personal</span>{' '}
+                      <span className="text-primary">
+                        Health Guide
+                      </span>
+                    </h1>
+                    <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
+                      Get instant pet health advice, personalized diet plans, and recommendations for the best vets, trainers, hospitals, and clinics nearby.
+                    </p>
+                  </div>
+
+                  <div className="w-full max-w-4xl mx-auto sm:px-4 mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                    <div className="relative group">
+                      <div className="relative bg-white/70 dark:bg-zinc-900/60 backdrop-blur-3xl rounded-[28px] border border-white/20 ring-1 ring-black/5 dark:ring-white/5 p-4 flex flex-col transition-all duration-300 sm:max-w-2xl sm:mx-auto">
+                        <div className="flex-1 relative flex items-center min-h-[44px]">
+                          <textarea
+                            ref={textareaRef}
+                            value={inputMessage}
+                            onChange={(e) => setInputMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage();
+                              }
+                            }}
+                            rows={1}
+                            placeholder=""
+                            className="w-full bg-transparent text-base focus:outline-none text-foreground px-1 py-1 resize-none max-h-[200px] leading-relaxed custom-scrollbar"
+                          />
+                          {!inputMessage && (
+                            <div className="absolute inset-0 flex items-center pointer-events-none px-1 py-1">
+                              <AnimatedPlaceholder />
+                            </div>
+                          )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsEmergency(false)}
-                          className="text-muted-foreground hover:text-foreground h-6 w-6 p-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <Button
-                          className="w-full bg-red-600 hover:bg-red-700 text-white shadow-md group"
-                          size="lg"
-                          onClick={() => window.open('https://www.google.com/maps/search/emergency+vet+clinic+near+me', '_blank')}
-                        >
-                          <MapPin className="h-5 w-5 mr-2 group-hover:animate-bounce" />
-                          Find Clinic Nearby on Maps
-                        </Button>
-                        <Button
-                          className="w-full bg-background border-2 border-primary text-primary hover:bg-primary/5 shadow-sm group"
-                          variant="outline"
-                          size="lg"
-                          onClick={() => setIsConsultationPopupOpen(true)}
-                        >
-                          <Video className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                          Connect Vet Online
-                        </Button>
+
+                        {/* Bottom: Action Bar (Compact) */}
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/5 dark:border-white/5">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={handleVoiceInput}
+                              className={`rounded-full h-8 w-8 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 animate-pulse' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}
+                            >
+                              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() => handleSendMessage()}
+                              disabled={!inputMessage.trim() || isTyping}
+                              className="rounded-full h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-30"
+                              size="icon"
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
 
-                {/* Main Input Box - Sleek Single Row Design */}
-                <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/40 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5 p-2 flex items-end gap-2 transition-all duration-300 hover:bg-white/95 dark:hover:bg-zinc-800/95">
-
-                  {/* Voice Input Button - Left */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleVoiceInput}
-                    className={`rounded-full h-12 w-12 shrink-0 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20 animate-pulse' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}
-                    title="Voice Input"
-                  >
-                    {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                  </Button>
-
-                  {/* Input Field - Middle */}
-                  <div className="flex-1 relative flex items-center min-h-[3rem] py-2">
-                    <textarea
-                      ref={textareaRef}
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      rows={1}
-                      className="w-full bg-transparent text-base focus:outline-none focus:ring-0 text-foreground px-2 resize-none max-h-[200px] self-center leading-relaxed custom-scrollbar"
-                      style={{
-                        minHeight: '24px'
-                      }}
-                    />
-                    {!inputMessage && (
-                      <div className="absolute inset-0 flex items-center pointer-events-none px-2">
-                        <AnimatedPlaceholder />
-                      </div>
-                    )}
+                  {/* Hero Suggestions */}
+                  <div className="mt-10 flex flex-wrap justify-center gap-3 px-2 max-w-4xl mx-auto">
+                    {[
+                      { icon: <Stethoscope className="w-4 h-4" />, text: "Find a nearby vet clinic" },
+                      { icon: <Utensils className="w-4 h-4" />, text: "Diet plan for a puppy" },
+                      { icon: <Cat className="w-4 h-4" />, text: "Why is my cat sneezing?" },
+                      { icon: <Dog className="w-4 h-4" />, text: "Dog vaccination guide" },
+                      { icon: <Timer className="w-4 h-4" />, text: "Dog training tips" },
+                    ].map((suggestion, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/50 dark:bg-zinc-800/40 border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800/60 backdrop-blur-md transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground hover:border-black/20 dark:hover:border-white/20 active:scale-[0.98] ${index === 3 || index === 4 ? 'hidden sm:flex' : ''} animate-in fade-in slide-in-from-top-4`}
+                        style={{ animationDelay: `${500 + (index * 100)}ms` }}
+                        onClick={() => handleSendMessage(suggestion.text)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="opacity-70 p-1 bg-primary/10 rounded-full text-primary">{suggestion.icon}</span>
+                          <span>{suggestion.text}</span>
+                        </span>
+                        <ArrowRight className="w-4 h-4 opacity-50 ml-2 sm:hidden" />
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* Chat Interface */
+                <div key="chat-interface" className="flex-1 flex flex-col h-full relative overflow-hidden">
+                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth custom-scrollbar">
+                    <div className="max-w-3xl mx-auto space-y-8">
+                      {messages.slice(1).map((message) => (
+                        <MessageBubble
+                          key={message.id}
+                          message={message}
+                          onEdit={handleEditMessage}
+                          onTypingComplete={handleTypingComplete}
+                          onVersionChange={handleVersionChange}
+                        />
+                      ))}
+                      {isTyping && <ProcessLoader />}
+                    </div>
+                    <div ref={messagesEndRef} className="h-4" />
                   </div>
 
-                  {/* Send Button - Right */}
-                  <Button
-                    onClick={() => handleSendMessage()}
-                    disabled={!inputMessage.trim() || isTyping}
-                    className="rounded-full h-12 w-12 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-105 active:scale-95"
-                    size="icon"
-                  >
-                    <ArrowUp className="h-6 w-6" />
-                  </Button>
-                </div>
+                  {/* Chat Input Area */}
+                  <div className="shrink-0 w-full bg-gradient-to-t from-background via-background/95 to-transparent pt-10 pb-6 px-4">
+                    <div className="w-full max-w-3xl mx-auto relative px-2">
+                      {showScrollButton && (
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          onClick={scrollToBottom}
+                          className="absolute left-1/2 -translate-x-1/2 -top-14 z-50 rounded-full bg-background border border-border hover:bg-accent hover:scale-110 transition-all animate-in fade-in zoom-in duration-300"
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                      )}
 
-                {/* AI Disclaimer */}
-                <p className="text-center text-xs text-muted-foreground mt-3 px-4">
-                  Dr. Salus AI can make mistakes. Always verify important pet health information with a licensed veterinarian.
-                </p>
-              </div>
+                      {isEmergency && (
+                        <div className="mb-4 animate-in slide-in-from-bottom-6 duration-500">
+                          <div className="bg-destructive/5 dark:bg-destructive/10 backdrop-blur-3xl border border-destructive/20 rounded-[28px] p-5 shadow-2xl shadow-destructive/10">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3 text-destructive">
+                                <AlertTriangle className="h-6 w-6 animate-pulse" />
+                                <span className="font-bold text-lg">Emergency Mode Active</span>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => setIsEmergency(false)} className="rounded-xl h-8 w-8 p-0 hover:bg-destructive/10">
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <Button
+                                className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold h-12 rounded-2xl shadow-lg shadow-destructive/20"
+                                onClick={() => window.open('https://www.google.com/maps/search/emergency+vet+clinic+near+me', '_blank')}
+                                size="lg"
+                              >
+                                <MapPin className="h-5 w-5 mr-3" />
+                                Open Maps Now
+                              </Button>
+                              <Button
+                                className="w-full bg-background border-2 border-primary text-primary hover:bg-primary/5 font-bold h-12 rounded-2xl transition-all"
+                                size="lg"
+                                onClick={() => setIsConsultationPopupOpen(true)}
+                              >
+                                <Video className="h-5 w-5 mr-3" />
+                                Instant Video Call
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="relative bg-white/80 dark:bg-zinc-900/60 backdrop-blur-3xl rounded-[32px] border border-white/20 ring-1 ring-black/[0.05] p-2 flex items-end gap-2 transition-all duration-300">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleVoiceInput}
+                          className={`rounded-full h-11 w-11 shrink-0 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 animate-pulse' : 'text-muted-foreground hover:text-primary'}`}
+                        >
+                          {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                        </Button>
+
+                        <div className="flex-1 relative flex items-center min-h-[2.75rem] py-2">
+                          <textarea
+                            ref={textareaRef}
+                            value={inputMessage}
+                            onChange={(e) => setInputMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage();
+                              }
+                            }}
+                            rows={1}
+                            className="w-full bg-transparent text-base focus:outline-none text-foreground px-2 resize-none max-h-[200px] self-center leading-relaxed custom-scrollbar"
+                            placeholder="Message Salus..."
+                          />
+                        </div>
+
+                        <Button
+                          onClick={() => handleSendMessage()}
+                          disabled={!inputMessage.trim() || isTyping}
+                          className="rounded-full h-11 w-11 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-105 active:scale-95"
+                          size="icon"
+                        >
+                          <ArrowUp className="h-5 w-5" />
+                        </Button>
+                      </div>
+
+                      <p className="text-center text-xs text-muted-foreground mt-4 opacity-70">
+                        Salus AI is an AI assistant and may occasionally provide inaccurate information. For critical emergencies, please consult a professional veterinarian.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          </main>
+        </SidebarInset>
       </div>
 
-      {/* Consultation Popup */}
       <ConsultationPopup
         isOpen={isConsultationPopupOpen}
         onClose={() => setIsConsultationPopupOpen(false)}
       />
-    </div >
+    </SidebarProvider>
   );
-} 
+}

@@ -86,7 +86,7 @@ const HeroSection = () => {
                   asChild
                 >
                   <Link href="/ai-assistant">
-                    Try Dr. Salus AI
+                    Try Salus AI
                   </Link>
                 </Button>
                 <Button
@@ -102,8 +102,8 @@ const HeroSection = () => {
               </div>
             </div>
 
-            <div className="relative fade-up order-2 lg:order-2 flex justify-end overflow-visible">
-              <div className="relative h-[420px] sm:h-[480px] lg:h-[650px] w-full lg:max-w-none max-w-[850px] -mt-36 lg:mt-0 lg:translate-x-20">
+            <div className="relative fade-up order-2 lg:order-2 flex justify-end overflow-visible pointer-events-none">
+              <div className="relative h-[420px] sm:h-[480px] lg:h-[650px] w-full lg:max-w-none max-w-[850px] -mt-36 lg:mt-0 lg:translate-x-20 pointer-events-none">
                 <Image
                   src={diversePets}
                   alt="Happy diverse pets in veterinary care"
