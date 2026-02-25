@@ -170,6 +170,12 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
                         )
                     ) : (
                         <div className="prose prose-sm dark:prose-invert max-w-none w-full">
+                            {isTyping && displayedContent === '' ? (
+                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse pb-4">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                                    <span>Generating response...</span>
+                                </div>
+                            ) : null}
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{

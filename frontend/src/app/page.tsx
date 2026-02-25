@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
-// import FeaturesSection from '@/components/FeaturesSection'; // Commented out
+
 import CommunitySection from '@/components/CommunitySection';
 import Footer from '@/components/Footer';
 

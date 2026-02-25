@@ -81,7 +81,7 @@ const CommunitySection = () => {
     <section id="community" className="py-24 relative overflow-hidden">
       {/* Seamless Ghost Light - no breaks */}
 
-      <div className="container mx-auto px-4 lg:px-8 relative z-20">
+      <div className="container mx-auto px-8 lg:px-20 relative z-20">
         {/* Section Header */}
         <div
           ref={headerRef}
@@ -91,7 +91,7 @@ const CommunitySection = () => {
             <Users className="w-4 h-4 mr-2" />
             Community & Welfare
           </div>
-          <h2 className="text-4xl lg:text-6xl font-bold">
+          <h2 className="text-4xl lg:text-6xl font-bold text-slate-900">
             Building a <span className="gradient-text">caring community</span>
             <br />
             for pets and their families.
@@ -148,7 +148,7 @@ const CommunitySection = () => {
           {/* Right - Content - Shows second on mobile */}
           <div className="space-y-6 order-2 lg:order-2">
             <div className="space-y-4">
-              <h3 className="text-3xl lg:text-4xl font-bold">
+              <h3 className="text-3xl lg:text-4xl font-bold text-slate-900">
                 More than a platform
                 <br />
                 <span className="gradient-text">it&#39;s a movement</span>
@@ -203,7 +203,7 @@ const CommunitySection = () => {
           className={`space-y-12 scroll-fade-in ${testimonialsVisible ? 'animate' : ''}`}
         >
           <div className="text-center">
-            <h3 className="text-3xl lg:text-4xl font-bold mb-6">
+            <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-slate-900">
               What our <span className="gradient-text">community</span> says
             </h3>
             <p className="text-muted-foreground">
@@ -249,11 +249,11 @@ const CommunitySection = () => {
         {/* CTA Section */}
         <div className="text-center space-y-8 pt-20">
           <div className="space-y-4">
-            <h3 className="text-3xl lg:text-4xl font-bold">
+            <h3 className="text-3xl lg:text-4xl font-bold text-slate-900">
               Ready to join the <span className="gradient-text">Zoodo family ?</span>
             </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Be part of a community that&#39;s transforming pet healthcare and welfare, one paw at a time.
+              Be part of a community that&#39;s transforming pet care and welfare, one paw at a time.
             </p>
           </div>
           <Button asChild variant="ghost" size="xl" className="group bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 text-white dark:text-black hover:text-white dark:hover:text-black transition-all duration-300 rounded-full">

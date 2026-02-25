@@ -34,6 +34,7 @@ import { apiService, AIChatRequest } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MessageBubble } from '@/components/ai/MessageBubble';
+import { ProcessLoader } from '@/components/ai/ProcessLoader';
 import ConsultationPopup from '@/components/ConsultationPopup';
 
 interface Message {
@@ -718,7 +719,7 @@ export default function AIAssistantPage() {
         /* Chat Header */
         /* Chat Header - Static in flex container */
         <header className="shrink-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm">
-          <div className="container mx-auto px-4 lg:px-8">
+          <div className="container mx-auto px-8 lg:px-20">
             <div className="flex items-center justify-between h-20 py-4">
               {/* Left side - Back button + Dr. Salus AI */}
               <div className="flex items-center space-x-4">
@@ -880,17 +881,7 @@ export default function AIAssistantPage() {
                   />
                 ))}
 
-                {isTyping && (
-                  <div className="flex justify-start mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md border border-zinc-200/80 dark:border-white/10 rounded-full px-6 py-4 shadow-sm">
-                      <div className="flex items-center space-x-1.5">
-                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDuration: '1s' }}></div>
-                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '1s' }}></div>
-                        <div className="w-2 h-2 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '1s' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {isTyping && <ProcessLoader />}
               </div>
               <div ref={messagesEndRef} />
             </div>

@@ -101,21 +101,29 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   };
 
   const navItems = [
-    { name: "Home", href: "#hero", type: "anchor" as const },
     {
-      name: "Services",
-      href: "#services",
+      name: "Health",
+      href: "#health",
       type: "anchor" as const,
       subItems: [
-        { name: "Find Vet", href: "/services/find-vets" },
-        { name: "Veterinary Clinics", href: "/services/find-hospitals" },
-        { name: "Teleconsultation", href: "/services/find-vets?type=online" },
-        { name: "Pet Training", href: "/services/find-trainers" },
+        {
+          name: "Vet Consultation",
+          href: "#",
+          subItems: [
+            { name: "Online", href: "/services/find-vets?type=online" },
+            { name: "Home Visit", href: "/services/find-vets?type=home_visit" },
+            { name: "Physical Visit", href: "/services/find-hospitals" },
+          ]
+        },
+        { name: "Surgery", href: "/services/find-hospitals" },
+        { name: "Emergency", href: "/services/find-hospitals" },
       ]
     },
+    { name: "Training", href: "/services/find-trainers", type: "route" as const },
+    { name: "Grooming", href: "/services/find-vets", type: "route" as const },
+    { name: "Shop", href: "#", type: "route" as const },
     { name: "Community", href: "#community", type: "anchor" as const },
     { name: "About", href: "/about", type: "route" as const },
-    { name: "Contact", href: "/contact", type: "route" as const },
   ];
 
   const handleSubmenuToggle = (name: string) => {
@@ -125,7 +133,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   return (
     <>
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-sm' : 'bg-transparent border-transparent'}`}>
-        <div className="container mx-auto px-4 lg:px-8">
+        <div className="container mx-auto px-8 lg:px-20">
           <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
             {/* Logo */}
             <Link
@@ -156,7 +164,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     // Dropdown Trigger & Menu
                     <>
                       <button
-                        className="relative flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors duration-300 py-2 px-3 rounded-lg group"
+                        className="relative flex items-center text-sm font-medium text-slate-900 hover:text-primary transition-colors duration-300 py-2 px-3 rounded-lg group"
                       >
                         <span className="relative z-10 flex items-center">
                           {item.name}
@@ -168,23 +176,52 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
                       {/* Dropdown Content */}
                       <div className="absolute top-full left-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 min-w-[220px]">
-                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 overflow-hidden">
-                          {item.subItems.map((subItem) => (
-                            <Link
-                              key={subItem.name}
-                              href={subItem.href}
-                              className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                            >
-                              {subItem.name}
-                            </Link>
-                          ))}
+                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2">
+                          {item.subItems.map((subItem: any) => {
+                            if (subItem.subItems) {
+                              return (
+                                <div key={subItem.name} className="relative group/nested">
+                                  <div className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-foreground/90 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+                                    {subItem.name}
+                                    <ChevronRight className="w-4 h-4 ml-2" />
+                                  </div>
+
+                                  {/* Nested Flyout */}
+                                  <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/nested:opacity-100 group-hover/nested:translate-x-0 group-hover/nested:pointer-events-auto transition-all duration-300 min-w-[190px] z-50">
+                                    <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
+                                      {/* Transparent bridge to prevent menu from closing on gap hover */}
+                                      <div className="absolute top-0 -left-4 w-4 h-full" />
+                                      {subItem.subItems.map((nestedItem: any) => (
+                                        <Link
+                                          key={nestedItem.name}
+                                          href={nestedItem.href}
+                                          className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                        >
+                                          {nestedItem.name}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <Link
+                                key={subItem.name}
+                                href={subItem.href}
+                                className="block px-4 py-2.5 text-sm font-medium text-foreground/90 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                              >
+                                {subItem.name}
+                              </Link>
+                            );
+                          })}
                         </div>
                       </div>
                     </>
                   ) : item.type === 'route' ? (
                     <Link
                       href={item.href}
-                      className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
+                      className="relative text-sm font-medium text-slate-900 hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
                     >
                       <span className="relative z-10 block">
                         {item.name}
@@ -194,7 +231,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     <a
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item.href)}
-                      className="relative text-sm font-medium text-foreground hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
+                      className="relative text-sm font-medium text-slate-900 hover:text-primary hover:scale-105 transition-all duration-300 py-2 px-3 rounded-lg block"
                     >
                       <span className="relative z-10 block">
                         {item.name}
@@ -208,7 +245,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             </nav>
 
             {/* Right Section */}
-            <div className="flex items-center space-x-2 md:space-x-3 lg:space-x-4">
+            <div className="flex items-center space-x-3 md:space-x-3 lg:space-x-4">
               {/* Theme Toggle - Hidden as dark mode is disabled
               <NoSSR fallback={
                 <Button
@@ -235,7 +272,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
               */}
 
               {/* CTA Buttons */}
-              <div className="flex items-center space-x-2 lg:space-x-3">
+              <div className={`items-center space-x-2 lg:space-x-3 transition-all duration-300 ${isMenuOpen ? 'hidden lg:flex' : 'flex'}`}>
                 {isAuthenticated ? (
                   <>
                     <div className="hidden md:flex items-center space-x-2">
@@ -266,15 +303,15 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`hidden md:flex ${isScrolled ? 'hover:bg-primary/10' : 'hover:bg-white/60'} hover:text-primary hover:scale-105 transition-all duration-300 text-xs lg:text-sm px-3 lg:px-4 py-1 lg:py-2`}
+                      className={`hidden md:flex ${isScrolled ? 'hover:bg-primary/10' : 'hover:bg-white/60'} text-slate-900 hover:text-primary hover:scale-105 transition-all duration-300 text-sm font-medium px-3 lg:px-4 py-2 rounded-lg`}
                       asChild
                     >
                       <Link href="/login">Log In</Link>
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="default"
                       size="sm"
-                      className="bg-primary hover:bg-primary/90 transition-all duration-300 text-xs lg:text-sm px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] font-bold uppercase tracking-wider text-white shadow-sm hover:shadow-lg"
+                      className="bg-primary hover:bg-primary/90 transition-all duration-300 text-sm font-medium px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] text-white"
                       asChild
                     >
                       <Link href="/role-selection">Get Started</Link>
@@ -321,7 +358,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="fixed inset-0 z-[45] bg-background overflow-y-auto pt-24 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            <div className="container mx-auto px-6 py-4 flex flex-col h-full">
+            <div className="container mx-auto px-8 py-4 flex flex-col h-full">
               <nav className="flex flex-col space-y-2 flex-shrink-0">
                 {navItems.map((item, index) => (
                   <motion.div
@@ -362,7 +399,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                           <div className="relative w-4 h-4 flex items-center justify-center">
                             <span className="absolute w-3.5 h-[1.5px] bg-current rounded-full" />
                             <motion.span
-                              animate={{ rotate: openSubmenu === item.name ? 90 : 0 }}
+                              animate={{ rotate: openSubmenu?.startsWith(item.name) ? 90 : 0 }}
                               transition={{ duration: 0.2 }}
                               className="absolute w-[1.5px] h-3.5 bg-current rounded-full"
                             />
@@ -373,7 +410,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
                     {/* Submenu */}
                     <AnimatePresence>
-                      {item.subItems && openSubmenu === item.name && (
+                      {item.subItems && openSubmenu?.startsWith(item.name) && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -382,23 +419,73 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                           className="overflow-hidden"
                         >
                           <div className="pt-2 px-4 pb-6 space-y-3">
-                            {item.subItems.map((subItem, subIndex) => (
-                              <motion.div
-                                key={subItem.name}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: subIndex * 0.05 }}
-                              >
-                                <Link
-                                  href={subItem.href}
-                                  onClick={() => setIsMenuOpen(false)}
-                                  className="flex items-center text-sm text-muted-foreground/80 hover:text-foreground transition-colors"
+                            {item.subItems.map((subItem: any, subIndex: number) => {
+                              return (
+                                <motion.div
+                                  key={subItem.name}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: subIndex * 0.05 }}
                                 >
-                                  <ChevronRight className="w-3.5 h-3.5 mr-2" />
-                                  {subItem.name}
-                                </Link>
-                              </motion.div>
-                            ))}
+                                  <div className="flex items-center justify-between py-1 group/nested">
+                                    <Link
+                                      href={subItem.href}
+                                      onClick={() => !subItem.subItems && setIsMenuOpen(false)}
+                                      className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center"
+                                    >
+                                      <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                      {subItem.name}
+                                    </Link>
+
+                                    {subItem.subItems && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setOpenSubmenu(openSubmenu === `${item.name}-${subItem.name}` ? item.name : `${item.name}-${subItem.name}`);
+                                        }}
+                                        className="p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground ml-2"
+                                      >
+                                        <div className="relative w-3.5 h-3.5 flex items-center justify-center">
+                                          <span className="absolute w-3 h-[1.5px] bg-current rounded-full" />
+                                          <motion.span
+                                            animate={{ rotate: openSubmenu?.includes(subItem.name) ? 90 : 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="absolute w-[1.5px] h-3 bg-current rounded-full"
+                                          />
+                                        </div>
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  {/* Nested Submenu */}
+                                  <AnimatePresence>
+                                    {subItem.subItems && openSubmenu?.includes(subItem.name) && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="pl-6 space-y-2 py-2">
+                                          {subItem.subItems.map((nestedItem: any) => (
+                                            <Link
+                                              key={nestedItem.name}
+                                              href={nestedItem.href}
+                                              onClick={() => setIsMenuOpen(false)}
+                                              className="block text-sm text-muted-foreground/70 hover:text-foreground transition-colors py-1"
+                                            >
+                                              • {nestedItem.name}
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </motion.div>
+                              );
+                            })}
                           </div>
                         </motion.div>
                       )}

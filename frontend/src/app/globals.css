@@ -1,7 +1,7 @@
 @layer base {
   :root {
     --font-sans: var(--font-inter);
-    --font-heading: var(--font-nunito);
+    --font-heading: var(--font-figtree);
   }
 
   h1,

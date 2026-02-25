@@ -164,7 +164,7 @@ export default function RoleSelectionPage() {
           </Link>
         </header>
 
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <main className="flex-1 flex items-center justify-center px-8 lg:px-20 py-12">
           <div className="max-w-6xl w-full text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 animate-fade-in-down">
               How are you joining us?

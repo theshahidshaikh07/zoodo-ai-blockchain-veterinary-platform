@@ -577,7 +577,8 @@ function FindVetsContent() {
     const typeParam = searchParams.get('type');
     if (typeParam === 'online') {
       setSelectedConsultationType('Teleconsultation');
-      setShowFilters(false); // Keep filters collapsed when coming from service link
+    } else if (typeParam === 'home_visit') {
+      setSelectedConsultationType('Home Visit');
     }
   }, [searchParams]);
 
@@ -727,7 +728,7 @@ function FindVetsContent() {
 
         {/* Search and Filters */}
         <section className="pt-24 md:pt-32 pb-2">
-          <div className="container mx-auto px-4 lg:px-8">
+          <div className="container mx-auto px-8 lg:px-20">
             <div className="max-w-6xl mx-auto">
 
               {/* Early Access Banner */}
@@ -822,7 +823,7 @@ function FindVetsContent() {
 
         {/* Vets List */}
         <section className="pb-12">
-          <div className="container mx-auto px-4 lg:px-8">
+          <div className="container mx-auto px-8 lg:px-20">
             <div className="max-w-6xl mx-auto">
               {filteredVets.length === 0 ? (
                 <div className="text-center py-16">

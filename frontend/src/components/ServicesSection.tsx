@@ -61,7 +61,7 @@ const ServicesSection = () => {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none" style={{ animationDelay: '2s' }} />
 
-      <div className="container mx-auto px-4 lg:px-8 relative z-20">
+      <div className="container mx-auto px-8 lg:px-20 relative z-20">
         {/* Header */}
         <div
           ref={headerRef}
@@ -71,10 +71,10 @@ const ServicesSection = () => {
             <PawPrint className="w-4 h-4 mr-2" />
             Our Services
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight text-foreground">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight text-slate-900">
             <span className="block lg:inline">Comprehensive </span>
             <span className="text-primary">pet care services</span><br className="hidden lg:block" />
-            <span className="mt-1 sm:mt-2 lg:mt-0 lg:inline block">at your fingertips</span>
+            <span className="mt-1 sm:mt-2 lg:mt-0 lg:inline block opacity-95">at your fingertips</span>
           </h2>
           <p className="text-lg lg:text-xl text-slate-500 max-w-3xl mx-auto">
             From finding the right veterinarian to emergency care and training, we&#39;ve got all your pet&#39;s needs covered.

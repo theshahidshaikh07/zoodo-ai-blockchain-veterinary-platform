@@ -493,7 +493,7 @@ export default function FindHospitalsPage() {
 
         {/* Search and Filters */}
         <section className="pt-24 md:pt-32 pb-2">
-          <div className="container mx-auto px-4 lg:px-8">
+          <div className="container mx-auto px-8 lg:px-20">
             <div className="max-w-6xl mx-auto">
               {/* Early Access Banner */}
               <BetaDisclaimerBanner category="hospitals" />
@@ -590,7 +590,7 @@ export default function FindHospitalsPage() {
 
         {/* Hospitals List */}
         <section className="pb-12">
-          <div className="container mx-auto px-4 lg:px-8">
+          <div className="container mx-auto px-8 lg:px-20">
             <div className="max-w-6xl mx-auto">
               {filteredHospitals.length === 0 ? (
                 <div className="text-center py-16">
