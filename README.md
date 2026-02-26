@@ -16,7 +16,7 @@ A comprehensive digital ecosystem for pet healthcare that unites pet owners, vet
 - **Training Intelligence**: AI understands behavioral issues and recommends appropriate trainers with specializations
 - **Care Routines**: Personalized care and diet recommendations based on breed, age, and health conditions
 - **Emergency Assessment**: Real-time emergency evaluation with immediate action recommendations
-- **Conversational AI**: Advanced chatbot (Dr. Salus AI) trained on veterinary knowledge
+- **Conversational AI**: Advanced chatbot (Salus AI) trained on veterinary knowledge
 - **Multi-modal Processing**: Text, images, and speech-to-text analysis capabilities
 - **Custom Dataset Training**: AI models trained on veterinary-specific datasets
 - **Continuous Learning**: AI models improve with more data and feedback
@@ -70,7 +70,7 @@ A comprehensive digital ecosystem for pet healthcare that unites pet owners, vet
 ┌─────────────────▼───────────────────────────────────────────────────────────┐
 │                        APPLICATION LAYER                                   │
 │  Backend API (Spring Boot 3.4.5)    AI Service (FastAPI + Python 3.12)   │
-│  • User Management                 • Dr. Salus AI Assistant               │
+│  • User Management                 • Salus AI Assistant               │
 │  • Medical Records                 • Google Gemini AI Integration         │
 │  • Payment Processing              • Multi-modal Processing               │
 │  • Video Call Management           • Conversational AI                    │
@@ -272,7 +272,7 @@ python start_conversational_ai.py
 ```
 
 #### AI Service Features
-- **Dr. Salus AI**: Conversational AI assistant for pet health with intelligent provider recommendations
+- **Salus AI**: Conversational AI assistant for pet health with intelligent provider recommendations
 - **Smart Provider Matching**: AI-powered geolocation-based vet, hospital, clinic, and trainer recommendations
 - **Service Type Intelligence**: Automatic detection of online consultations, in-person visits, and home visits
 - **Training Intelligence**: AI understands behavioral issues and matches pets with appropriate trainers
@@ -411,7 +411,7 @@ curl -X POST -H "Content-Type: application/json" \
 
 ### ✅ **IMPLEMENTED**
 - **Database Architecture**: PostgreSQL, MongoDB 8.0+, Redis 7.x
-- **AI Service**: Dr. Salus conversational AI with multi-modal support
+- **AI Service**: Salus conversational AI with multi-modal support
 - **Smart Provider Recommendations**: AI-powered geolocation-based vet, hospital, clinic, and trainer matching
 - **Service Type Intelligence**: Automatic detection of online, in-person, and home visit services
 - **Training Intelligence**: AI-powered trainer recommendations with behavioral specialization matching

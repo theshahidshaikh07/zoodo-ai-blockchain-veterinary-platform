@@ -38,7 +38,7 @@ The platform follows a **comprehensive microservices architecture** with blockch
 ┌─────────────────▼───────────────────────────────────────────────────────────┐
 │                        APPLICATION LAYER                                   │
 │  Backend API (Spring Boot 3.4.5)    AI Service (FastAPI + Python 3.12)   │
-│  • User Management                 • Dr. Salus AI Assistant               │
+│  • User Management                 • Salus AI Assistant               │
 │  • Medical Records                 • Google Gemini AI Integration         │
 │  • Payment Processing              • Multi-modal Processing               │
 │  • Video Call Management           • Conversational AI                    │
@@ -150,7 +150,7 @@ The platform follows a **comprehensive microservices architecture** with blockch
 
 ## 🎯 **Core Features & Capabilities**
 
-### 🤖 **AI-Powered Pet Care Assistant (Dr. Salus AI)**
+### 🤖 **AI-Powered Pet Care Assistant (Salus AI)**
 
 **Revolutionary Conversational AI** that provides natural, step-by-step veterinary consultations:
 
@@ -352,7 +352,7 @@ STAGE 7: Local Resources → Location-based vet recommendations
 
 ## 🤖 **AI Service Deep Dive**
 
-### **Dr. Salus AI - Conversational Veterinary Assistant**
+### **Salus AI - Conversational Veterinary Assistant**
 
 **Revolutionary AI Implementation** that provides natural, human-like veterinary consultations:
 
@@ -568,7 +568,7 @@ Medical Record → PostgreSQL (Full Data) → Backend → Hash Creation → Smar
 
 ### **✅ Completed Features**
 - **Database Architecture**: PostgreSQL, MongoDB, Redis fully configured
-- **AI Service**: Dr. Salus conversational AI with multi-modal support
+- **AI Service**: Salus conversational AI with multi-modal support
 - **Smart Provider Recommendations**: AI-powered geolocation-based matching
 - **Service Type Intelligence**: Automatic detection of service needs
 - **Training Intelligence**: AI-powered trainer recommendations

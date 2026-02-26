@@ -1,8 +1,8 @@
-# Dr. Salus AI - Complete Implementation Guide
+# Salus AI - Complete Implementation Guide
 
 ## 🎯 Overview
 
-Dr. Salus AI is a comprehensive AI-powered veterinary assistant designed to help pet parents with health guidance, emergency detection, nutrition advice, and location-based services.
+Salus AI is a comprehensive AI-powered veterinary assistant designed to help pet parents with health guidance, emergency detection, nutrition advice, and location-based services.
 
 ## ✨ Key Features Implemented
 
@@ -126,7 +126,7 @@ Visit `http://localhost:8000/docs` for interactive API documentation (Swagger UI
 ## 📡 API Endpoints
 
 ### POST `/api/v1/chat`
-Main chat endpoint for conversing with Dr. Salus AI.
+Main chat endpoint for conversing with Salus AI.
 
 **Request:**
 ```json
@@ -200,7 +200,7 @@ Health check endpoint.
 
 ## 🎨 Frontend Integration
 
-The frontend is already set up to work with Dr. Salus AI. The integration is in:
+The frontend is already set up to work with Salus AI. The integration is in:
 - `frontend/src/app/ai-assistant/page.tsx` - Main chat interface
 - `frontend/src/lib/api.ts` - API service (updated to use `/api/v1/chat`)
 
@@ -264,21 +264,21 @@ curl -X POST http://localhost:8000/api/v1/nutrition \
 
 **User:** "My dog seems sick"
 
-**Dr. Salus AI:** "I'm sorry to hear your dog isn't feeling well. I'm here to help. What's your dog's name?"
+**Salus AI:** "I'm sorry to hear your dog isn't feeling well. I'm here to help. What's your dog's name?"
 
 **User:** "Max"
 
-**Dr. Salus AI:** "Thanks! What symptoms is Max showing? For example, is he vomiting, having diarrhea, not eating, or something else?"
+**Salus AI:** "Thanks! What symptoms is Max showing? For example, is he vomiting, having diarrhea, not eating, or something else?"
 
 **User:** "He's been vomiting"
 
-**Dr. Salus AI:** "I understand. To help Max better, could you tell me his age and breed?"
+**Salus AI:** "I understand. To help Max better, could you tell me his age and breed?"
 
 ### Example 2: Emergency Detection
 
 **User:** "My dog ate chocolate and is shaking!"
 
-**Dr. Salus AI:** "⚠️ EMERGENCY: Chocolate toxicity is a serious emergency in dogs. Here's what you need to do RIGHT NOW:
+**Salus AI:** "⚠️ EMERGENCY: Chocolate toxicity is a serious emergency in dogs. Here's what you need to do RIGHT NOW:
 
 **Immediate Actions:**
 1. Do NOT induce vomiting unless directed by a vet
@@ -299,7 +299,7 @@ Please seek veterinary care immediately. Would you like me to help you find a ne
 
 **User:** "What's the weather today?"
 
-**Dr. Salus AI:** "I'm Dr. Salus AI, specialized in pet health and care. I can only help with questions about your pets. How can I assist with your pet's health today?"
+**Salus AI:** "I'm Salus AI, specialized in pet health and care. I can only help with questions about your pets. How can I assist with your pet's health today?"
 
 ## 🔧 Customization Options
 

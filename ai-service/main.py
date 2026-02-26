@@ -1,5 +1,5 @@
 """
-Dr. Salus AI - Main FastAPI Application
+Salus AI - Main FastAPI Application
 AI-powered veterinary assistant for pet parents
 """
 
@@ -13,7 +13,7 @@ from app.api.routes import router
 import uvicorn
 
 app = FastAPI(
-    title="Dr. Salus AI",
+    title="Salus AI",
     description="AI-powered veterinary assistant for pet health guidance",
     version="1.0.0"
 )
@@ -37,7 +37,7 @@ app.include_router(router, prefix="/api/v1")
 @app.get("/")
 async def root():
     return {
-        "message": "Dr. Salus AI - Veterinary Assistant API",
+        "message": "Salus AI - Veterinary Assistant API",
         "status": "active",
         "version": "1.0.0"
     }

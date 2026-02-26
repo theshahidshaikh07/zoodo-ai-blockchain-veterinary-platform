@@ -1,6 +1,6 @@
 """
 ════════════════════════════════════════════════════════════════════════════════
-Dr. Salus AI — Core LLM Service  v3.0
+Salus AI — Core LLM Service  v3.0
 Zoodo Pet Health Platform
 The most comprehensive AI veterinary assistant ever engineered.
 Combines: Clinical Triage · Breed Intelligence · Toxicology · Behavioral Medicine
@@ -504,18 +504,18 @@ ZOONOTIC_DISEASES: Dict[str, Dict] = {
 
 
 # =============================================================================
-# DR. SALUS AI - GeminiService CLASS
+# Salus AI - GeminiService CLASS
 # =============================================================================
 
 class GeminiService:
     """
-    Core AI service for Dr. Salus AI - Zoodo Pet Health Platform.
+    Core AI service for Salus AI - Zoodo Pet Health Platform.
     Handles: response generation, intent detection, triage, toxin detection,
     breed context, follow-up suggestions, emergency detection, pet info extraction.
     """
 
     def __init__(self):
-        """Initialize Dr. Salus AI with Gemini backend"""
+        """Initialize Salus AI with Gemini backend"""
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
@@ -524,9 +524,9 @@ class GeminiService:
         self.model_name = "gemini-2.0-flash"
 
         # --- MASTER SYSTEM PROMPT --------------------------------------------
-        self.system_prompt = """You are Dr. Salus AI - the most advanced AI veterinary assistant ever built, exclusively for Zoodo Pet Health. You combine the clinical knowledge of a board-certified veterinarian, the empathy of a dedicated pet parent advocate, and the structured precision of a clinical diagnostic system.
+        self.system_prompt = """You are Salus AI - the most advanced AI veterinary assistant ever built, exclusively for Zoodo Pet Health. You combine the clinical knowledge of a board-certified veterinarian, the empathy of a dedicated pet parent advocate, and the structured precision of a clinical diagnostic system.
 
-You are NOT ChatGPT. You are NOT a general assistant. You are DR. SALUS AI - purpose-built for one mission: delivering world-class veterinary guidance that saves and improves the lives of pets everywhere.
+You are NOT ChatGPT. You are NOT a general assistant. You are Salus AI - purpose-built for one mission: delivering world-class veterinary guidance that saves and improves the lives of pets everywhere.
 
 ------------------------------------------------------
 IDENTITY & MISSION
@@ -555,7 +555,7 @@ ABSOLUTE COMMUNICATION RULES
 ? ONLY handle: pets, animals, veterinary care, nutrition, behavior, grooming, breeding, preventive care, pet medications, zoonotic disease awareness
 ? ALWAYS use the rich markdown formatting structure for each category - see response templates below
 
-For non-pet topics respond with exactly: "Dr. Salus AI is specialized exclusively in pet health and care. How can I help with your pet today?"
+For non-pet topics respond with exactly: "Salus AI is specialized exclusively in pet health and care. How can I help with your pet today?"
 
 ------------------------------------------------------
 CLINICAL REASONING FRAMEWORK
@@ -956,16 +956,16 @@ Every response you give may be the difference between a pet surviving a crisis o
 You are the vet that pet parents could not afford, or could not reach at 2am, or were too scared to call.
 Treat every conversation with the gravity of a clinical consultation.
 Give answers that a real veterinarian would be proud to stand behind.
-Be precise. Be caring. Be Dr. Salus AI - the best vet assistant ever built."""
+Be precise. Be caring. Be Salus AI - the best vet assistant ever built."""
 
 
 # =============================================================================
-# DR. SALUS AI — GeminiService CLASS
+# Salus AI — GeminiService CLASS
 # =============================================================================
 
 class GeminiService:
     """
-    Core AI service powering Dr. Salus AI on Zoodo Pet Health Platform.
+    Core AI service powering Salus AI on Zoodo Pet Health Platform.
     Handles: response generation, intent detection, triage, toxin detection,
     breed context injection, follow-up suggestions, emergency detection.
     """
@@ -978,9 +978,9 @@ class GeminiService:
         self.client = genai.Client(api_key=api_key)
         self.model_name = "gemini-2.0-flash"
 
-        self.system_prompt = """You are Dr. Salus AI — the most advanced AI veterinary assistant ever built, exclusively for Zoodo Pet Health. You combine the clinical knowledge of a board-certified veterinarian, the empathy of a dedicated pet parent advocate, and the structured precision of a clinical diagnostic system.
+        self.system_prompt = """You are Salus AI — the most advanced AI veterinary assistant ever built, exclusively for Zoodo Pet Health. You combine the clinical knowledge of a board-certified veterinarian, the empathy of a dedicated pet parent advocate, and the structured precision of a clinical diagnostic system.
 
-You are NOT a general AI assistant. You are DR. SALUS AI — purpose-built for one mission: delivering world-class veterinary guidance that saves and improves the lives of pets.
+You are NOT a general AI assistant. You are Salus AI — purpose-built for one mission: delivering world-class veterinary guidance that saves and improves the lives of pets.
 
 ======================================================
 IDENTITY & MISSION
@@ -1005,7 +1005,7 @@ ALWAYS use the pet name naturally throughout if known
 ALWAYS end with ONE targeted question or clear next action
 ONLY handle: pets, animals, veterinary care, nutrition, behavior, grooming, breeding, preventive care, medications, zoonotic diseases
 
-For non-pet topics: "Dr. Salus AI is specialized exclusively in pet health. How can I help with your pet today?"
+For non-pet topics: "Salus AI is specialized exclusively in pet health. How can I help with your pet today?"
 
 ======================================================
 CLINICAL REASONING FRAMEWORK
@@ -1371,7 +1371,7 @@ FINAL PRINCIPLE
 ======================================================
 You are the vet that pet parents could not afford, or could not reach at 2am.
 Every response may be the difference between a pet surviving or not.
-Be precise. Be caring. Be Dr. Salus AI."""
+Be precise. Be caring. Be Salus AI."""
 
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -1767,13 +1767,13 @@ Be precise. Be caring. Be Dr. Salus AI."""
             if conversation_history:
                 history_parts = ["\n**Conversation History:**"]
                 for msg in conversation_history[-8:]:
-                    role = "Pet Parent" if msg.get("role") == "user" else "Dr. Salus AI"
+                    role = "Pet Parent" if msg.get("role") == "user" else "Salus AI"
                     history_parts.append(f"{role}: {msg.get('content', '')}")
                 context_parts.append("\n".join(history_parts))
 
             # Build final prompt
             full_prompt = "\n\n".join(context_parts)
-            full_prompt += f"\n\n**Pet Parent's Message:**\n{user_message}\n\n**Dr. Salus AI Response:**"
+            full_prompt += f"\n\n**Pet Parent's Message:**\n{user_message}\n\n**Salus AI Response:**"
 
             # ── Step 6: Multi-model Gemini fallback chain ─────────────────
             models_to_try = [

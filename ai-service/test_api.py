@@ -1,5 +1,5 @@
 """
-Quick API Test Script for Dr. Salus AI
+Quick API Test Script for Salus AI
 Tests if the service is running and responding correctly
 """
 
@@ -75,7 +75,7 @@ def test_emergency_detection():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Dr. Salus AI - API Test Suite")
+    print("Salus AI - API Test Suite")
     print("=" * 60)
     
     # Test 1: Health Check
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     print("=" * 60)
     
     if health_ok and chat_ok and emergency_ok:
-        print("\n🎉 All tests passed! Dr. Salus AI is ready!")
+        print("\n🎉 All tests passed! Salus AI is ready!")
         print("\n📱 Open frontend: http://localhost:3000/ai-assistant")
     else:
         print("\n⚠️  Some tests failed. Check the errors above.")

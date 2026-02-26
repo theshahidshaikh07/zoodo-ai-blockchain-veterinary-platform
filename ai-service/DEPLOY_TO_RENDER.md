@@ -1,4 +1,4 @@
-# 🚀 Deploying Dr. Salus AI to Render
+# 🚀 Deploying Salus AI to Render
 
 This backend service is ready to be deployed to Render.com (a free cloud hosting provider).
 

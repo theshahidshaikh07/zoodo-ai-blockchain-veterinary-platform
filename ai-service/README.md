@@ -1,8 +1,8 @@
-# Dr. Salus AI - AI-Powered Veterinary Assistant
+# Salus AI - AI-Powered Veterinary Assistant
 
 ## Overview
 
-Dr. Salus AI is an intelligent veterinary assistant designed to help pet parents with:
+Salus AI is an intelligent veterinary assistant designed to help pet parents with:
 - **Emergency Detection**: Identifies urgent health situations and provides immediate guidance
 - **Symptom Analysis**: Analyzes pet symptoms using veterinary datasets
 - **Nutrition Advice**: Provides personalized diet recommendations
@@ -71,7 +71,7 @@ Dr. Salus AI is an intelligent veterinary assistant designed to help pet parents
 ## API Endpoints
 
 ### POST `/api/v1/chat`
-Main chat endpoint for conversing with Dr. Salus AI.
+Main chat endpoint for conversing with Salus AI.
 
 **Request:**
 ```json
@@ -251,4 +251,4 @@ Part of the Zoodo AI Blockchain Veterinary Platform
 
 ## Contact
 
-For support or questions about Dr. Salus AI, please contact the development team.
+For support or questions about Salus AI, please contact the development team.

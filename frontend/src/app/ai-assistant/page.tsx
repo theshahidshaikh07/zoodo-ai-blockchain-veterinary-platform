@@ -34,7 +34,12 @@ import {
   Globe,
   BookOpen,
   Image as ImageIcon,
-  Search as SearchIcon
+  ChevronDown,
+  Search as SearchIcon,
+  SquarePen,
+  LayoutGrid,
+  Terminal,
+  FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,9 +65,11 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
 import Link from 'next/link';
+import SalusLogo from '@/assets/Salus.png';
 
 interface Message {
   id: string;
@@ -76,6 +83,23 @@ interface Message {
   aiResponseVersions?: Map<number, Message>; // Map of version index to AI response
   historyVersions?: Map<number, Message[]>; // Map of version index to the entire subsequent conversation history
 }
+
+const TopBarLogo = () => {
+  const { isMobile, state, openMobile } = useSidebar();
+
+  // Hide top logo when sidebar is expanded on desktop OR when mobile drawer is open
+  const isHidden = (isMobile && openMobile) || (!isMobile && state === "expanded");
+
+  return (
+    <Link
+      href="/"
+      className={`flex items-center transition-all duration-300 ${isHidden ? "w-0 opacity-0 overflow-hidden pointer-events-none" : "w-auto opacity-100"}`}
+      title="Salus AI"
+    >
+      <Image src={SalusLogo} alt="Salus AI" className="h-6 w-auto" priority />
+    </Link>
+  );
+};
 
 export default function AIAssistantPage() {
   const { resolvedTheme } = useTheme();
@@ -717,7 +741,7 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
         <style jsx global>{`
           html, body {
@@ -741,78 +765,65 @@ export default function AIAssistantPage() {
         `}</style>
 
         {/* ChatGPT Style Sidebar */}
-        <Sidebar variant="sidebar" collapsible="offcanvas" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl">
-          <SidebarHeader className="p-4">
-            <Link href="/" className="flex items-center gap-3 px-2 mb-4 group transition-transform hover:scale-105">
-              <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <Heart className="h-4 w-4 text-primary-foreground fill-current text-white" />
-              </div>
-              <span className="font-bold text-xl tracking-tight text-foreground">Salus</span>
-            </Link>
-            <Button
-              onClick={() => window.location.reload()}
-              className="w-full justify-start gap-3 h-11 rounded-xl bg-background border border-border/50 shadow-sm hover:shadow-md hover:bg-accent transition-all duration-300 group"
-              variant="outline"
-            >
-              <Plus className="h-4 w-4 text-primary group-hover:rotate-90 transition-transform duration-300" />
-              <span className="font-medium">New Chat</span>
-            </Button>
+        <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl border-t-0 shadow-none">
+          <SidebarHeader className="p-3 transition-all duration-300 ease-in-out">
+            {/* Top row: Logo + Toggle */}
+            <div className="flex w-full items-center h-9 mb-4 group-data-[collapsible=icon]:mb-2 group-data-[collapsible=icon]:justify-center">
+              <Link href="/" className="flex items-center transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 overflow-hidden" title="Salus AI">
+                <Image src={SalusLogo} alt="Salus AI Logo" className="h-6 w-auto pl-1" priority />
+              </Link>
+              <SidebarTrigger className="hover:bg-accent rounded-lg text-foreground/80 h-9 w-9 shrink-0 transition-all duration-300 ml-auto group-data-[collapsible=icon]:m-0 [&>svg]:w-[18px] [&>svg]:h-[18px]" />
+            </div>
+
+            {/* Menu items row */}
+            <div className="flex flex-col gap-1 w-full relative">
+              <Button
+                onClick={() => window.location.reload()}
+                variant="ghost"
+                className="w-full justify-start gap-3 h-[38px] px-2 font-medium text-[14px] hover:bg-accent text-foreground/90 rounded-lg transition-all duration-300 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:mx-auto"
+                title="New Chat"
+              >
+                <div className="flex items-center justify-center shrink-0 w-[22px] h-[22px] rounded-full bg-accent/30 border border-border/80 text-foreground group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:h-full group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:bg-transparent transition-all duration-300">
+                  <Plus className="h-[14px] w-[14px] shrink-0 group-data-[collapsible=icon]:w-5 group-data-[collapsible=icon]:h-5" />
+                </div>
+                <span className="truncate whitespace-nowrap group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 transition-all duration-300">New chat</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-[38px] px-2 font-medium text-[14px] hover:bg-accent text-foreground/90 rounded-lg transition-all duration-300 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:mx-auto"
+                title="Search"
+              >
+                <div className="flex items-center justify-center shrink-0 w-[22px] text-foreground">
+                  <Search className="h-[17px] w-[17px] shrink-0" />
+                </div>
+                <span className="truncate whitespace-nowrap group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 transition-all duration-300">Search</span>
+              </Button>
+            </div>
           </SidebarHeader>
 
-          <SidebarContent>
+          <SidebarContent className="transition-all duration-300 overflow-hidden group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0">
             <SidebarGroup>
-              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Recent Chats</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground/80 mb-1 group-data-[collapsible=icon]:hidden">Your chats</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton isActive className="px-4 py-6 rounded-xl transition-all duration-200">
-                      <MessageSquare className="h-4 w-4 mr-2 text-primary" />
-                      <span className="truncate">Current Conversation</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  {/* Additional chat history items would go here */}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Quick Actions</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton className="px-4 py-2 opacity-70 hover:opacity-100 transition-opacity" asChild>
-                      <Link href="/services/find-vets">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        Find Nearby Vets
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {/* Real chats will map here */}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="p-4 border-t border-border/50">
+          <SidebarFooter className="p-3 transition-all duration-300">
             <SidebarMenu>
               <SidebarMenuItem>
-                <div className="flex items-center gap-3 px-2 py-3 rounded-xl hover:bg-accent/50 transition-colors cursor-pointer group">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform">
-                    <User className="h-4 w-4 text-primary" />
+                <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-accent/50 transition-all duration-300 cursor-pointer group group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:mx-auto bg-transparent">
+                  <div className="w-8 h-8 shrink-0 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-medium text-xs border border-border">
+                    GU
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">Guest User</p>
-                    <p className="text-xs text-muted-foreground truncate">Zoodo Platform</p>
+                  <div className="flex flex-col min-w-0 transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 overflow-hidden whitespace-nowrap">
+                    <p className="text-[14px] font-medium truncate leading-tight">Guest User</p>
+                    <p className="text-[12px] text-muted-foreground truncate opacity-80">Free plan</p>
                   </div>
-                  <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </div>
-              </SidebarMenuItem>
-              <SidebarMenuItem className="mt-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-lg h-9" asChild>
-                  <Link href="/">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Exit to Zoodo
-                  </Link>
-                </Button>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
@@ -823,14 +834,9 @@ export default function AIAssistantPage() {
           {/* Top Navigation Bar (Minimal) */}
           <header className={`shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' : 'bg-transparent'}`}>
             <div className="flex items-center justify-between h-14 px-4 md:px-6">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger className="hover:bg-accent rounded-lg" />
-                <div className={`flex items-center gap-2 transition-opacity duration-300 ${messages.length > 1 ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
-                    <Heart className="h-3 w-3 text-white fill-current" />
-                  </div>
-                  <span className="font-semibold text-sm">Salus AI</span>
-                </div>
+              <div className="flex items-center gap-1 md:gap-3">
+                <SidebarTrigger className="md:hidden hover:bg-accent rounded-lg" />
+                <TopBarLogo />
               </div>
 
               <div className="flex items-center gap-2">
@@ -869,22 +875,14 @@ export default function AIAssistantPage() {
               {messages.length <= 1 ? (
                 /* Hero Section */
                 <div ref={heroContainerRef} className="flex-1 flex flex-col items-center justify-center px-4 overflow-y-auto custom-scrollbar pt-10 pb-20">
-                  <div className="mb-6 animate-in zoom-in duration-700">
-                    <Badge variant="outline" className="px-4 py-2 text-sm border-primary/30 text-primary bg-primary/5 rounded-full">
-                      Introducing Salus AI
-                      <ArrowUp className="h-3 w-3 ml-1" />
-                    </Badge>
-                  </div>
+
 
                   <div className="text-center mb-6 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                     <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                      <span className="block sm:inline">Your Pet's Personal</span>{' '}
-                      <span className="text-primary">
-                        Health Guide
-                      </span>
+                      What can I help you with?
                     </h1>
                     <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
-                      Get instant pet health advice, personalized diet plans, and recommendations for the best vets, trainers, hospitals, and clinics nearby.
+                      Ask anything about pet health, training, local services, or community.
                     </p>
                   </div>
 
@@ -920,19 +918,19 @@ export default function AIAssistantPage() {
                               variant="ghost"
                               size="icon"
                               onClick={handleVoiceInput}
-                              className={`rounded-full h-8 w-8 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 animate-pulse' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}
+                              className={`rounded-full h-11 w-11 transition-all duration-300 ${isRecording ? 'bg-red-500/10 text-red-500 animate-pulse' : 'text-muted-foreground hover:text-primary'}`}
                             >
-                              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                              {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                             </Button>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
                               onClick={() => handleSendMessage()}
                               disabled={!inputMessage.trim() || isTyping}
-                              className="rounded-full h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-30"
+                              className="rounded-full h-11 w-11 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-30"
                               size="icon"
                             >
-                              <ArrowUp className="h-4 w-4" />
+                              <ArrowUp className="h-5 w-5" />
                             </Button>
                           </div>
                         </div>
@@ -1070,7 +1068,7 @@ export default function AIAssistantPage() {
                       </div>
 
                       <p className="text-center text-xs text-muted-foreground mt-4 opacity-70">
-                        Salus AI is an AI assistant and may occasionally provide inaccurate information. For critical emergencies, please consult a professional veterinarian.
+                        Salus AI can make mistakes. Always verify important pet health information with a licensed veterinarian.
                       </p>
                     </div>
                   </div>

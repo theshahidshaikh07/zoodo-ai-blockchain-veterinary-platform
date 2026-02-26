@@ -77,7 +77,7 @@ const BetaDisclaimerPopup = ({ category, actionVerb = "treating" }: BetaDisclaim
                     {/* Dr Salus Note - Subtle */}
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Bot className="w-5 h-5 text-primary" />
-                        <span><Link href="/ai-assistant" className="font-bold text-primary hover:underline hover:text-primary/80 transition-colors">Dr. Salus AI</Link> is fully operational & ready to help!</span>
+                        <span><Link href="/ai-assistant" className="font-bold text-primary hover:underline hover:text-primary/80 transition-colors">Salus AI</Link> is fully operational & ready to help!</span>
                     </div>
                 </div>
 

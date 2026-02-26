@@ -1,5 +1,5 @@
 """
-API Routes for Dr. Salus AI
+API Routes for Salus AI
 """
 
 from fastapi import APIRouter, HTTPException, Body
@@ -39,7 +39,7 @@ class SessionRequest(BaseModel):
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
-    Main chat endpoint for Dr. Salus AI
+    Main chat endpoint for Salus AI
     
     Processes user messages and returns AI-generated responses
     """
@@ -136,6 +136,6 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "service": "Dr. Salus AI",
+        "service": "Salus AI",
         "version": "1.0.0"
     }

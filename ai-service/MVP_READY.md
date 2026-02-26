@@ -1,4 +1,4 @@
-# 🎯 Dr. Salus AI - MVP Setup Complete!
+# 🎯 Salus AI - MVP Setup Complete!
 
 ## ✅ What We've Built
 
@@ -124,12 +124,12 @@ Expected output:
 🔍 Testing Chat Endpoint...
 ✅ Status Code: 200
 ✅ Success: True
-✅ AI Response: Hello! I'm Dr. Salus AI...
+✅ AI Response: Hello! I'm Salus AI...
 
 🔍 Testing Emergency Detection...
 ✅ Emergency Detected: True
 
-🎉 All tests passed! Dr. Salus AI is ready!
+🎉 All tests passed! Salus AI is ready!
 ```
 
 ### Step 5: Test in Frontend
@@ -142,32 +142,32 @@ Expected output:
 ### Test 1: Normal Conversation
 ```
 You: "Hi, I have a question about my puppy"
-Dr. Salus: "Hello! I'm Dr. Salus AI, happy to help..."
+Salus: "Hello! I'm Salus AI, happy to help..."
 ```
 
 ### Test 2: Emergency
 ```
 You: "My dog ate chocolate and is shaking!"
-Dr. Salus: "⚠️ EMERGENCY: Chocolate toxicity..."
+Salus: "⚠️ EMERGENCY: Chocolate toxicity..."
 [Shows emergency buttons]
 ```
 
 ### Test 3: Symptom Analysis
 ```
 You: "My cat is scratching her ears a lot"
-Dr. Salus: [Searches datasets and provides detailed response]
+Salus: [Searches datasets and provides detailed response]
 ```
 
 ### Test 4: Nutrition
 ```
 You: "What should I feed my Golden Retriever puppy?"
-Dr. Salus: [Provides breed and age-specific nutrition advice]
+Salus: [Provides breed and age-specific nutrition advice]
 ```
 
 ### Test 5: Scope Limitation
 ```
 You: "What's the weather today?"
-Dr. Salus: "I'm Dr. Salus AI, specialized in pet health..."
+Salus: "I'm Salus AI, specialized in pet health..."
 ```
 
 ## 🔧 Troubleshooting
@@ -260,7 +260,7 @@ docker run -d -p 6379:6379 --name redis redis:latest
 
 ## 🎉 You're Ready!
 
-Your Dr. Salus AI is **production-ready** for MVP testing!
+Your Salus AI is **production-ready** for MVP testing!
 
 **Next:** 
 1. Install dependencies

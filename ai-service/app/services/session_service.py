@@ -1,5 +1,5 @@
 """
-Session Service - Redis-based session management for Dr. Salus AI
+Session Service - Redis-based session management for Salus AI
 Provides fast, scalable session storage with automatic expiration
 """
 

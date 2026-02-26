@@ -522,7 +522,7 @@ Updated: page.tsx
 Updated: BetaDisclaimerBanner.tsx
 Updated: BetaDisclaimerPopup.tsx
 Updated: HeroSection.tsx
-Now verify — zero Dr. Salus remaining:
+Now verify — zero Salus remaining:
 
 0 results
 ✅ All 11 occurrences replaced across 4 files:
