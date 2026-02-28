@@ -100,29 +100,78 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     }, 300);
   };
 
-  const navItems = [
+  interface NavItem {
+    name: string;
+    href: string;
+    type?: 'anchor' | 'route';
+    icon?: any;
+    subItems?: NavItem[];
+  }
+
+  const navItems: NavItem[] = [
     {
-      name: "Health",
-      href: "#health",
+      name: "Care",
+      href: "#care",
       type: "anchor" as const,
       subItems: [
         {
-          name: "Vet Consultation",
+          name: "Veterinary Care",
           href: "#",
           subItems: [
-            { name: "Online", href: "/services/find-vets?type=online" },
-            { name: "Home Visit", href: "/services/find-vets?type=home_visit" },
-            { name: "Physical Visit", href: "/services/find-hospitals" },
+            {
+              name: "Consultation",
+              href: "#",
+              subItems: [
+                { name: "Online", href: "/services/find-vets?type=online" },
+                { name: "Home Visit", href: "/services/find-vets?type=home_visit" },
+                { name: "Physical Visit", href: "/services/find-hospitals" },
+              ]
+            },
+            { name: "Surgery", href: "/services/find-hospitals" },
+            { name: "Emergency", href: "/services/find-hospitals" },
+            { name: "Vaccination", href: "/services/find-hospitals?type=vaccination" },
+            { name: "Lab Tests", href: "/services/find-hospitals?type=lab_tests" },
           ]
         },
-        { name: "Surgery", href: "/services/find-hospitals" },
-        { name: "Emergency", href: "/services/find-hospitals" },
+        {
+          name: "Training & Behavior",
+          href: "#training-behavior",
+          subItems: [
+            { name: "Early Development", href: "/services/find-trainers?specialty=early-development" },
+            { name: "Basic Training", href: "/services/find-trainers?specialty=basic-training" },
+            { name: "Behavior Issues", href: "/services/find-trainers?specialty=behavior-issues" },
+            { name: "Anxiety & Stress", href: "/services/find-trainers?specialty=anxiety-stress" },
+            { name: "Aggression", href: "/services/find-trainers?specialty=aggression" },
+          ]
+        },
+        {
+          name: "Grooming",
+          href: "#grooming",
+          subItems: [
+            { name: "Complete Grooming", href: "/services/find-groomers?service=complete" },
+            { name: "Bath & Brush", href: "/services/find-groomers?service=bath-brush" },
+            { name: "Styling & Haircuts", href: "/services/find-groomers?service=styling" },
+            { name: "Spa & Hygiene", href: "/services/find-groomers?service=spa-hygiene" },
+            { name: "Flea & Tick Treatment", href: "/services/find-groomers?service=flea-tick" },
+          ]
+        },
       ]
     },
-    { name: "Training", href: "/services/find-trainers", type: "route" as const },
-    { name: "Grooming", href: "/services/find-vets", type: "route" as const },
+    { name: "Insurance", href: "#", type: "route" as const },
     { name: "Shop", href: "#", type: "route" as const },
-    { name: "Community", href: "#community", type: "anchor" as const },
+    {
+      name: "Community",
+      href: "#community",
+      type: "anchor" as const,
+      subItems: [
+        { name: "Pet Adoption", href: "/community/adoption" },
+        { name: "Lost & Found", href: "/community/lost-and-found" },
+        { name: "Medical Fundraising", href: "/community/fundraising" },
+        { name: "Events & Meetups", href: "/community/events" },
+        { name: "NGOs & Rescues", href: "/community/ngos" },
+        { name: "Discussion Forums", href: "/community/discussion" },
+      ]
+    },
     { name: "About", href: "/about", type: "route" as const },
   ];
 
@@ -191,15 +240,50 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                     <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
                                       {/* Transparent bridge to prevent menu from closing on gap hover */}
                                       <div className="absolute top-0 -left-4 w-4 h-full" />
-                                      {subItem.subItems.map((nestedItem: any) => (
-                                        <Link
-                                          key={nestedItem.name}
-                                          href={nestedItem.href}
-                                          className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                        >
-                                          {nestedItem.name}
-                                        </Link>
-                                      ))}
+                                      {subItem.subItems.map((nestedItem: any) => {
+                                        if (nestedItem.subItems) {
+                                          return (
+                                            <div key={nestedItem.name} className="relative group/supernested">
+                                              <div className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer whitespace-nowrap">
+                                                <span className="flex items-center">
+                                                  {nestedItem.name}
+                                                </span>
+                                                <ChevronRight className="w-4 h-4 ml-2" />
+                                              </div>
+
+                                              {/* Super Nested Flyout (4th level) */}
+                                              <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/supernested:opacity-100 group-hover/supernested:translate-x-0 group-hover/supernested:pointer-events-auto transition-all duration-300 min-w-[200px] z-[60]">
+                                                <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
+                                                  <div className="absolute top-0 -left-4 w-4 h-full" />
+                                                  {nestedItem.subItems.map((superNestedItem: any) => (
+                                                    <Link
+                                                      key={superNestedItem.name}
+                                                      href={superNestedItem.href}
+                                                      className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors whitespace-nowrap"
+                                                    >
+                                                      <span className="flex items-center">
+                                                        {superNestedItem.name}
+                                                      </span>
+                                                    </Link>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
+
+                                        return (
+                                          <Link
+                                            key={nestedItem.name}
+                                            href={nestedItem.href}
+                                            className="block px-4 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors whitespace-nowrap"
+                                          >
+                                            <span className="flex items-center">
+                                              {nestedItem.name}
+                                            </span>
+                                          </Link>
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 </div>
@@ -470,14 +554,66 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                       >
                                         <div className="pl-6 space-y-2 py-2">
                                           {subItem.subItems.map((nestedItem: any) => (
-                                            <Link
-                                              key={nestedItem.name}
-                                              href={nestedItem.href}
-                                              onClick={() => setIsMenuOpen(false)}
-                                              className="block text-sm text-muted-foreground/70 hover:text-foreground transition-colors py-1"
-                                            >
-                                              • {nestedItem.name}
-                                            </Link>
+                                            <div key={nestedItem.name} className="flex flex-col">
+                                              <div className="flex items-center justify-between">
+                                                <Link
+                                                  href={nestedItem.href}
+                                                  onClick={() => !nestedItem.subItems && setIsMenuOpen(false)}
+                                                  className="flex-1 block text-sm text-muted-foreground/80 hover:text-foreground transition-colors py-1.5"
+                                                >
+                                                  • {nestedItem.name}
+                                                </Link>
+                                                {nestedItem.subItems && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.preventDefault();
+                                                      e.stopPropagation();
+                                                      setOpenSubmenu(
+                                                        openSubmenu === `${item.name}-${subItem.name}-${nestedItem.name}`
+                                                          ? `${item.name}-${subItem.name}`
+                                                          : `${item.name}-${subItem.name}-${nestedItem.name}`
+                                                      );
+                                                    }}
+                                                    className="p-1 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground ml-2"
+                                                  >
+                                                    <div className="relative w-3.5 h-3.5 flex items-center justify-center">
+                                                      <span className="absolute w-3 h-[1.5px] bg-current rounded-full" />
+                                                      <motion.span
+                                                        animate={{ rotate: openSubmenu?.includes(nestedItem.name) ? 90 : 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                        className="absolute w-[1.5px] h-3 bg-current rounded-full"
+                                                      />
+                                                    </div>
+                                                  </button>
+                                                )}
+                                              </div>
+
+                                              {/* Super Nested Menu (4th level) */}
+                                              <AnimatePresence>
+                                                {nestedItem.subItems && openSubmenu?.includes(nestedItem.name) && (
+                                                  <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                    className="overflow-hidden"
+                                                  >
+                                                    <div className="pl-4 space-y-2 py-1">
+                                                      {nestedItem.subItems.map((superNestedItem: any) => (
+                                                        <Link
+                                                          key={superNestedItem.name}
+                                                          href={superNestedItem.href}
+                                                          onClick={() => setIsMenuOpen(false)}
+                                                          className="block text-[13px] text-muted-foreground/60 hover:text-foreground transition-colors py-1"
+                                                        >
+                                                          - {superNestedItem.name}
+                                                        </Link>
+                                                      ))}
+                                                    </div>
+                                                  </motion.div>
+                                                )}
+                                              </AnimatePresence>
+                                            </div>
                                           ))}
                                         </div>
                                       </motion.div>
