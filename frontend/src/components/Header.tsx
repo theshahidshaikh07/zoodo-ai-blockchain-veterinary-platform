@@ -212,7 +212,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                   alt="Zoodo"
                   width={180}
                   height={60}
-                  className="h-6 md:h-8 lg:h-10 w-auto"
+                  className="h-6 md:h-6 lg:h-7 w-auto"
                   priority
                 />
               </div>
