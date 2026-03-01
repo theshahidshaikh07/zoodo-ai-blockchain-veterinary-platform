@@ -246,7 +246,7 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
                                                         <Copy className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
-                                                <div className="w-full overflow-x-auto overflow-y-auto max-h-[420px] rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                                <div className="w-full overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                                                     <table
                                                         className="w-full min-w-[520px] border-collapse text-sm"
                                                         {...props}

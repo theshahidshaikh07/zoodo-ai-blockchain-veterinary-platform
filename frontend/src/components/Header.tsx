@@ -166,7 +166,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
       subItems: [
         { name: "Pet Adoption", href: "/community/adoption" },
         { name: "Lost & Found", href: "/community/lost-and-found" },
-        { name: "Medical Fundraising", href: "/community/fundraising" },
+        { name: "Fundraising", href: "/community/fundraising" },
         { name: "Events & Meetups", href: "/community/events" },
         { name: "NGOs & Rescues", href: "/community/ngos" },
         { name: "Discussion Forums", href: "/community/discussion" },

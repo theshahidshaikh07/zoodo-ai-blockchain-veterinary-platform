@@ -6,17 +6,67 @@ import { FaXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 
 
 const Footer = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState("");
+  const [subscribeSuccess, setSubscribeSuccess] = useState<boolean | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleSubscribe = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const email = newsletterEmail.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setSubscribeSuccess(false);
+      setSubscribeMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setIsSubscribing(true);
+    setSubscribeMessage("");
+    setSubscribeSuccess(null);
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, honeypot: "" }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      const success = Boolean(data?.success);
+
+      setSubscribeSuccess(success);
+      setSubscribeMessage(
+        typeof data?.message === "string"
+          ? data.message
+          : success
+            ? "Subscribed successfully."
+            : "Unable to subscribe right now. Please try again."
+      );
+
+      if (success) {
+        setNewsletterEmail("");
+      }
+    } catch {
+      setSubscribeSuccess(false);
+      setSubscribeMessage("Network error. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   const footerLinks = {
     platform: [
@@ -34,8 +84,8 @@ const Footer = () => {
     support: [
       { name: "About Us", href: "/about" },
       { name: "Contact Us", href: "/contact" },
-      { name: "Privacy Policy", href: "#privacy" },
-      { name: "Terms of Service", href: "#terms" }
+      { name: "Privacy Policy", href: "/privacy-policy" },
+      { name: "Terms of Service", href: "/terms-of-service" }
     ],
     professionals: [
       { name: "For Veterinarians", href: "#vets" },
@@ -145,18 +195,28 @@ const Footer = () => {
                   Get the latest updates on pet healthcare innovations, community events, and platform features.
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <form className="flex flex-col sm:flex-row gap-3" onSubmit={handleSubscribe}>
                 <div className="flex-1">
                   <input
                     type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="Enter your email"
                     className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300"
+                    disabled={isSubscribing}
                   />
                 </div>
-                <Button variant="default" size="lg">
-                  Subscribe
+                <Button variant="default" size="lg" type="submit" disabled={isSubscribing}>
+                  {isSubscribing ? "Subscribing..." : "Subscribe"}
                 </Button>
-              </div>
+              </form>
+              {subscribeMessage ? (
+                <p
+                  className={`text-sm mt-3 ${subscribeSuccess ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                >
+                  {subscribeMessage}
+                </p>
+              ) : null}
             </div>
           </div>
 
