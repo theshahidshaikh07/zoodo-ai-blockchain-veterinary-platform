@@ -790,7 +790,7 @@ export default function AIAssistantPage() {
           height: 0;
         }
       `}</style>
-      <div className="flex h-screen w-full bg-background overflow-hidden">
+      <div className="flex h-[100dvh] min-h-[100svh] w-full bg-background overflow-hidden">
         {/* ChatGPT Style Sidebar */}
         <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl border-t-0 shadow-none">
           <SidebarHeader className="p-3 transition-all duration-300 ease-in-out">
@@ -947,7 +947,10 @@ export default function AIAssistantPage() {
                     ))}
                   </div>
 
-                  <div className="fixed bottom-0 left-0 right-0 z-20 w-full px-4 sm:static sm:z-auto sm:max-w-4xl sm:mx-auto sm:px-4 mt-8 sm:mt-8 bg-gradient-to-t from-background via-background/95 to-transparent sm:bg-none pt-2 pb-4 sm:pt-0 sm:pb-0 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                  <div
+                    className="fixed bottom-0 left-0 right-0 z-20 w-full px-4 sm:static sm:z-auto sm:max-w-4xl sm:mx-auto sm:px-4 mt-8 sm:mt-8 bg-gradient-to-t from-background via-background/95 to-transparent sm:bg-none pt-2 pb-4 sm:pt-0 sm:pb-0 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300"
+                    style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
+                  >
                     <div className="relative group">
                       <div className="relative bg-white/80 dark:bg-zinc-900/60 backdrop-blur-3xl rounded-[32px] border border-white/20 ring-1 ring-black/[0.05] p-2 flex items-end gap-2 transition-all duration-300 sm:max-w-2xl sm:mx-auto sm:bg-white/70 sm:rounded-[28px] sm:p-4 sm:flex-col sm:items-stretch sm:gap-0 sm:ring-black/5 sm:dark:ring-white/5">
                         <Button
@@ -1056,7 +1059,10 @@ export default function AIAssistantPage() {
                     </div>
 
                     {/* Chat Input Area */}
-                    <div className="sticky bottom-0 z-20 w-full bg-gradient-to-t from-background via-background/95 to-transparent pt-3 pb-1 px-4 md:pt-4 md:pb-2">
+                    <div
+                      className="sticky bottom-0 z-20 w-full bg-gradient-to-t from-background via-background/95 to-transparent pt-3 pb-1 px-4 md:pt-4 md:pb-2"
+                      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)" }}
+                    >
                       <div className="w-full max-w-3xl mx-auto relative px-2">
                       {showScrollButton && (
                         <Button
@@ -1160,7 +1166,7 @@ export default function AIAssistantPage() {
 
       <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
         <DialogContent className="w-[94vw] max-w-xl rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
-          <div className="p-5 md:p-6">
+          <div className="p-4 md:p-6">
             <DialogHeader className="space-y-2 text-left">
               <DialogTitle className="text-xl font-bold">How To Use Salus AI</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
@@ -1169,8 +1175,8 @@ export default function AIAssistantPage() {
             </DialogHeader>
           </div>
 
-          <div className="px-5 md:px-6 pb-5 md:pb-6 space-y-4 max-h-[70vh] overflow-y-auto">
-            <div className="rounded-xl border border-border bg-background/70 p-4 space-y-2">
+          <div className="px-4 md:px-6 pb-4 md:pb-6 space-y-3 md:space-y-4 max-h-[62vh] sm:max-h-[70vh] overflow-y-auto">
+            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-2">
               <h3 className="text-sm font-semibold">Ask Better Questions</h3>
               <ul className="text-sm text-muted-foreground space-y-1 list-disc list-outside pl-4">
                 <li>Include pet type, age, weight, and symptoms.</li>
@@ -1179,14 +1185,14 @@ export default function AIAssistantPage() {
               </ul>
             </div>
 
-            <div className="rounded-xl border border-amber-300/50 bg-amber-50/60 dark:bg-amber-500/10 p-4 space-y-2">
+            <div className="rounded-xl border border-amber-300/50 bg-amber-50/60 dark:bg-amber-500/10 p-3.5 md:p-4 space-y-2">
               <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Safety First</h3>
               <p className="text-sm text-amber-900/80 dark:text-amber-200/80">
                 Salus AI can help with guidance, but it is not a medical diagnosis. For urgent or worsening symptoms, contact a licensed veterinarian immediately.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/70 p-4 space-y-3">
+            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-3">
               <h3 className="text-sm font-semibold">Need Immediate Help?</h3>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -1210,7 +1216,7 @@ export default function AIAssistantPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/70 p-4">
+            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4">
               <p className="text-sm text-muted-foreground">
                 Need support or want to report an issue?{" "}
                 <Link href="/contact" className="font-medium text-primary hover:underline" onClick={() => setIsHelpOpen(false)}>

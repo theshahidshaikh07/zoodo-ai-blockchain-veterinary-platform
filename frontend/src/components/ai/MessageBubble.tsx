@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Copy, Check, Edit2, ChevronLeft, ChevronRight, MapPin, CornerUpRight } from 'lucide-react';
@@ -27,20 +27,60 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChange }: MessageBubbleProps) {
-    const [displayedContent, setDisplayedContent] = useState(message.type === 'ai' && message.isNew ? '' : message.content);
+    const hasMarkdownTable = useMemo(() => {
+        const lines = message.content.split('\n');
+
+        for (let i = 0; i < lines.length - 1; i++) {
+            const header = lines[i].trim();
+            const separator = lines[i + 1].trim();
+
+            // Basic markdown table detection:
+            // header row with pipes + separator row made of pipes/colons/hyphens/spaces.
+            if (!header.includes('|') || !separator.includes('|')) continue;
+
+            const separatorWithoutPipes = separator.replace(/\|/g, '').trim();
+            const isSeparatorRow = separatorWithoutPipes.length > 0
+                && [...separatorWithoutPipes].every((ch) => ch === '-' || ch === ':' || ch === ' ');
+
+            if (isSeparatorRow) return true;
+        }
+
+        return false;
+    }, [message.content]);
+    const shouldType = message.type === 'ai' && message.isNew && !hasMarkdownTable;
+
+    const [displayedContent, setDisplayedContent] = useState(shouldType ? '' : message.content);
     const [isCopied, setIsCopied] = useState(false);
-    const [isTyping, setIsTyping] = useState(message.type === 'ai' && message.isNew);
+    const [isTyping, setIsTyping] = useState(shouldType);
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(message.content);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const tableCompleteNotifiedRef = useRef(false);
 
     // Typing Effect State Ref
     const typingIndex = useRef(0);
+
+    useEffect(() => {
+        typingIndex.current = 0;
+        tableCompleteNotifiedRef.current = false;
+    }, [message.id]);
 
     // Typing Effect
     useEffect(() => {
         if (message.type === 'user' || !message.isNew) {
             setDisplayedContent(message.content);
+            setIsTyping(false);
+            return;
+        }
+
+        // Tables are rendered instantly to prevent horizontal scroll resets while streaming.
+        if (hasMarkdownTable) {
+            setDisplayedContent(message.content);
+            setIsTyping(false);
+            if (!tableCompleteNotifiedRef.current && onTypingComplete) {
+                tableCompleteNotifiedRef.current = true;
+                onTypingComplete(message.id);
+            }
             return;
         }
 
@@ -63,7 +103,7 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
         }, speed);
 
         return () => clearInterval(timer);
-    }, [message.content, message.isNew, message.type, message.id, onTypingComplete]);
+    }, [message.content, message.isNew, message.type, message.id, hasMarkdownTable, onTypingComplete]);
 
     const handleCopy = async () => {
         try {
@@ -246,7 +286,7 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
                                                         <Copy className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
-                                                <div className="w-full overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                                <div className="w-full overflow-x-auto overscroll-x-contain rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm touch-pan-x">
                                                     <table
                                                         className="w-full min-w-[520px] border-collapse text-sm"
                                                         {...props}
