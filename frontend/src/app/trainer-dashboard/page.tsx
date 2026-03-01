@@ -284,7 +284,7 @@ export default function TrainerDashboard() {
             <TabsTrigger value="clients">Clients</TabsTrigger>
             <TabsTrigger value="sessions">Sessions</TabsTrigger>
             <TabsTrigger value="assessments">Assessments</TabsTrigger>
-            <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
+            <TabsTrigger value="salus">Salus</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -533,7 +533,7 @@ export default function TrainerDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="ai-assistant" className="space-y-6">
+          <TabsContent value="salus" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>

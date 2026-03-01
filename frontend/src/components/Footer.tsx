@@ -72,7 +72,7 @@ const Footer = () => {
     platform: [
       { name: "Features", href: "#features" },
       { name: "How it Works", href: "#how-it-works" },
-      { name: "AI Assistant", href: "#ai" },
+      { name: "Salus", href: "#ai" },
       { name: "Pricing", href: "#pricing" }
     ],
     community: [

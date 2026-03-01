@@ -21,7 +21,7 @@ export default function BetaDisclaimerBanner({ category }: BetaDisclaimerBannerP
                     <span className="font-medium text-foreground mr-1">Early Access:</span>
                     Profiles below are placeholders. <span className="inline-block sm:inline"><span className="capitalize">{category}</span> are currently onboarding.</span>
                     <span className="hidden sm:inline ml-1 text-primary/80">
-                        Try <Link href="/ai-assistant" className="font-semibold hover:underline text-primary">Salus AI</Link> for real help.
+                        Try <Link href="/salus" className="font-semibold hover:underline text-primary">Salus AI</Link> for real help.
                     </span>
                 </div>
             </div>
@@ -34,3 +34,4 @@ export default function BetaDisclaimerBanner({ category }: BetaDisclaimerBannerP
         </div>
     );
 }
+

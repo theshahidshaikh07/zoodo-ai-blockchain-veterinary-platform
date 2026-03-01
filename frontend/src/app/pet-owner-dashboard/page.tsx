@@ -172,7 +172,7 @@ export default function PetOwnerDashboard() {
 
   // Navigation handlers
   const handleAIClick = () => {
-    router.push('/ai-assistant');
+    router.push('/salus');
   };
 
   const handleBookAppointment = () => {
@@ -395,7 +395,7 @@ export default function PetOwnerDashboard() {
             <TabsTrigger value="pets">My Pets</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="health-records">Health Records</TabsTrigger>
-            <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
+            <TabsTrigger value="salus">Salus</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -637,7 +637,7 @@ export default function PetOwnerDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="ai-assistant" className="space-y-6">
+          <TabsContent value="salus" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -899,3 +899,4 @@ export default function PetOwnerDashboard() {
     </div>
   );
 } 
+

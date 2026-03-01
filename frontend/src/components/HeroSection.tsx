@@ -85,7 +85,7 @@ const HeroSection = () => {
                   className="w-full sm:w-[240px] px-0 py-5 rounded-tl-[99px] rounded-bl-[99px] rounded-br-[99px] rounded-tr-[30px] bg-slate-900 text-white hover:bg-slate-800 hover:text-white transition-all duration-300 text-lg font-semibold shadow-lg"
                   asChild
                 >
-                  <Link href="/ai-assistant">
+                  <Link href="/salus">
                     Try Salus AI
                   </Link>
                 </Button>

@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Output standalone for better compatibility
   output: 'standalone',
+  async redirects() {
+    return [
+      {
+        source: '/ai-assistant',
+        destination: '/salus',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

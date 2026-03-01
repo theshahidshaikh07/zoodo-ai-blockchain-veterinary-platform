@@ -99,7 +99,7 @@ const TopBarLogo = () => {
 
   return (
     <Link
-      href="/ai-assistant"
+      href="/salus"
       className={`flex items-center transition-all duration-300 ${isHidden ? "w-0 opacity-0 overflow-hidden pointer-events-none" : "w-auto opacity-100"}`}
       title="Salus AI"
       onClick={(e) => {
@@ -132,7 +132,7 @@ const MobileMenuTrigger = () => {
   );
 };
 
-export default function AIAssistantPage() {
+export default function SalusPage() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -173,6 +173,10 @@ export default function AIAssistantPage() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    document.title = "Salus";
   }, []);
 
   // Lock document scrolling on AI page to prevent mobile browser chrome collapse
@@ -813,7 +817,7 @@ export default function AIAssistantPage() {
             {/* Top row: Logo + Toggle */}
             <div className="flex w-full items-center h-9 mb-4 group-data-[collapsible=icon]:mb-2 group-data-[collapsible=icon]:justify-center">
               <Link
-                href="/ai-assistant"
+                href="/salus"
                 className="flex items-center transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 overflow-hidden"
                 title="Salus AI"
                 onClick={(e) => {
@@ -1246,4 +1250,5 @@ export default function AIAssistantPage() {
     </SidebarProvider>
   );
 }
+
 
