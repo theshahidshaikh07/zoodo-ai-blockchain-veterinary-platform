@@ -119,17 +119,9 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
           href: "#",
           icon: Cross,
           subItems: [
-            {
-              name: "Consultation",
-              href: "#",
-              subItems: [
-                { name: "Online", href: "/services/find-vets?type=online" },
-                { name: "Home Visit", href: "/services/find-vets?type=home_visit" },
-                { name: "Physical Visit", href: "/services/find-hospitals" },
-              ]
-            },
-            { name: "Surgery", href: "/services/find-hospitals" },
+            { name: "Consultation", href: "/services/find-vets" },
             { name: "Emergency", href: "/services/find-hospitals" },
+            { name: "Surgery", href: "/services/find-hospitals" },
             { name: "Vaccination", href: "/services/find-hospitals?type=vaccination" },
             { name: "Lab Tests", href: "/services/find-hospitals?type=lab_tests" },
           ]

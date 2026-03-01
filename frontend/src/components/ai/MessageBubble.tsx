@@ -76,7 +76,7 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
         if (typingIndex.current >= message.content.length) return;
 
         setIsTyping(true);
-        const speed = 20; // ms per char (slightly slower so typing stays visible)
+        const speed = 10; // ms per char (faster typing)
 
         const timer = setInterval(() => {
             if (typingIndex.current < message.content.length) {
