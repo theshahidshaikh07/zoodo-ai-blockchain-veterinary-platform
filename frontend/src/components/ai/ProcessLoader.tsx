@@ -7,10 +7,14 @@ export function ProcessLoader() {
     return (
         <div className="flex flex-col gap-2 px-1 py-4 animate-in fade-in duration-700">
             <div className="flex items-center gap-2">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-800 border-t-slate-600 dark:border-t-slate-300"
+                <motion.span
+                    className="w-2 h-2 rounded-full bg-slate-500/80 dark:bg-slate-300/80"
+                    animate={{ opacity: [0.35, 1, 0.35], scale: [0.9, 1.15, 0.9] }}
+                    transition={{
+                        duration: 1.1,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                    }}
                 />
 
                 {/* Slightly lightened "Thinking" Text - Middle Ground Profile */}
