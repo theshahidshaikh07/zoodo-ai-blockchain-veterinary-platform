@@ -28,6 +28,9 @@ import {
   Settings,
   LogOut,
   User,
+  Sun,
+  Moon,
+  Monitor,
   PanelLeft,
   HelpCircle,
   Paperclip,
@@ -44,7 +47,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useTheme } from 'next-themes';
 import { apiService, AIChatRequest } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -68,7 +70,6 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
@@ -107,7 +108,7 @@ const TopBarLogo = () => {
         window.location.reload();
       }}
     >
-      <Image src={SalusLogo} alt="Salus AI" className="h-6 w-auto" priority />
+      <Image src={SalusLogo} alt="Salus AI" className="h-6 w-auto dark:brightness-0 dark:invert" priority />
     </Link>
   );
 };
@@ -133,7 +134,7 @@ const MobileMenuTrigger = () => {
 };
 
 export default function SalusPage() {
-  const { resolvedTheme } = useTheme();
+  type SalusThemeMode = 'light' | 'dark' | 'system';
   const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -147,6 +148,9 @@ export default function SalusPage() {
   const [showScrollButton, setShowScrollButton] = useState(false); // New state for scroll button
   const [isConsultationPopupOpen, setIsConsultationPopupOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [salusThemeMode, setSalusThemeMode] = useState<SalusThemeMode>('system');
+  const [systemPrefersDark, setSystemPrefersDark] = useState(false);
   const [isHeroScrolled, setIsHeroScrolled] = useState(false);
   const [debugLog, setDebugLog] = useState(""); // Debug state
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -154,6 +158,10 @@ export default function SalusPage() {
   const isUserScrolledUp = useRef<boolean>(false); // Track if user manually scrolled up
   const heroContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const initialHtmlDarkRef = useRef<boolean | null>(null);
+
+  const isSalusDark =
+    salusThemeMode === 'dark' || (salusThemeMode === 'system' && systemPrefersDark);
   const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
   const placeholderMessages = [
@@ -174,6 +182,55 @@ export default function SalusPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('salus_theme_mode');
+      if (stored === 'light' || stored === 'dark' || stored === 'system') {
+        setSalusThemeMode(stored);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const update = () => setSystemPrefersDark(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('salus_theme_mode', salusThemeMode);
+    } catch {
+      // ignore storage errors
+    }
+  }, [salusThemeMode]);
+
+  // Apply theme only while Salus page is mounted.
+  useEffect(() => {
+    const html = document.documentElement;
+    if (initialHtmlDarkRef.current === null) {
+      initialHtmlDarkRef.current = html.classList.contains('dark');
+    }
+
+    if (isSalusDark) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+
+    return () => {
+      if (initialHtmlDarkRef.current) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    };
+  }, [isSalusDark]);
 
   useEffect(() => {
     document.title = "Salus";
@@ -825,7 +882,7 @@ export default function SalusPage() {
                   window.location.reload();
                 }}
               >
-                <Image src={SalusLogo} alt="Salus AI Logo" className="h-6 w-auto pl-1" priority />
+                <Image src={SalusLogo} alt="Salus AI Logo" className="h-6 w-auto pl-1 dark:brightness-0 dark:invert" priority />
               </Link>
               <SidebarTrigger className="hover:bg-accent rounded-lg text-foreground/80 h-9 w-9 shrink-0 transition-all duration-300 ml-auto group-data-[collapsible=icon]:m-0 [&>svg]:w-[18px] [&>svg]:h-[18px]" />
             </div>
@@ -838,8 +895,8 @@ export default function SalusPage() {
                 className="w-full justify-start gap-3 h-[38px] px-2 font-medium text-[14px] hover:bg-accent text-foreground/90 rounded-lg transition-all duration-300 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:mx-auto"
                 title="New Chat"
               >
-                <div className="flex items-center justify-center shrink-0 w-[22px] h-[22px] rounded-full bg-accent/30 border border-border/80 text-foreground group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:h-full group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:bg-transparent transition-all duration-300">
-                  <Plus className="h-[14px] w-[14px] shrink-0 group-data-[collapsible=icon]:w-5 group-data-[collapsible=icon]:h-5" />
+                <div className="flex items-center justify-center shrink-0 w-[22px] h-[22px] text-foreground transition-all duration-300">
+                  <Plus className="h-[16px] w-[16px] shrink-0" />
                 </div>
                 <span className="truncate whitespace-nowrap group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 transition-all duration-300">New chat</span>
               </Button>
@@ -869,6 +926,21 @@ export default function SalusPage() {
 
           <SidebarFooter className="p-3 transition-all duration-300">
             <SidebarMenu>
+              <SidebarMenuItem>
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="w-full justify-start gap-3 h-[38px] px-2 font-medium text-[14px] hover:bg-accent text-foreground/90 rounded-lg transition-all duration-300 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:mx-auto"
+                  title="Settings"
+                >
+                  <div className="flex items-center justify-center shrink-0 w-[22px] text-foreground">
+                    <Settings className="h-[17px] w-[17px] shrink-0" />
+                  </div>
+                  <span className="truncate whitespace-nowrap group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 transition-all duration-300">
+                    Settings
+                  </span>
+                </Button>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-accent/50 transition-all duration-300 cursor-pointer group group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:mx-auto bg-transparent">
                   <div className="w-8 h-8 shrink-0 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-medium text-xs border border-border">
@@ -901,12 +973,12 @@ export default function SalusPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex font-medium px-3 sm:px-4 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 sm:bg-transparent sm:text-foreground sm:hover:bg-accent"
+                  className="flex font-medium px-3 sm:px-4 h-9 rounded-lg bg-primary text-primary-foreground dark:text-black hover:bg-primary/90 sm:bg-transparent sm:text-foreground sm:dark:text-foreground sm:hover:bg-accent"
                   asChild
                 >
                   <Link href="/login">Log in</Link>
                 </Button>
-                <Button size="sm" className="hidden sm:flex bg-primary text-primary-foreground hover:opacity-90 font-medium px-4 h-9 rounded-full" asChild>
+                <Button size="sm" className="hidden sm:flex bg-primary text-primary-foreground dark:text-black hover:opacity-90 font-medium px-4 h-9 rounded-full" asChild>
                   <Link href="/signup">Sign up for free</Link>
                 </Button>
                 <Button
@@ -1205,9 +1277,9 @@ export default function SalusPage() {
               </ul>
             </div>
 
-            <div className="rounded-xl border border-amber-300/50 bg-amber-50/60 dark:bg-amber-500/10 p-3.5 md:p-4 space-y-2">
-              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Safety First</h3>
-              <p className="text-sm text-amber-900/80 dark:text-amber-200/80">
+            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-2">
+              <h3 className="text-sm font-semibold">Safety First</h3>
+              <p className="text-sm text-muted-foreground">
                 Salus AI can help with guidance, but it is not a medical diagnosis. For urgent or worsening symptoms, contact a licensed veterinarian immediately.
               </p>
             </div>
@@ -1243,6 +1315,49 @@ export default function SalusPage() {
                   Contact Zoodo Support
                 </Link>
               </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="w-[94vw] max-w-md rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
+          <div className="p-4 md:p-6 space-y-4">
+            <DialogHeader className="space-y-2 text-left">
+              <DialogTitle className="text-xl font-bold">Settings</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Customize your Salus chat experience.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-3">
+              <p className="text-sm font-semibold">Appearance</p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant={salusThemeMode === 'light' ? 'default' : 'outline'}
+                  className="justify-start"
+                  onClick={() => setSalusThemeMode('light')}
+                >
+                  <Sun className="h-4 w-4 mr-2" />
+                  Light
+                </Button>
+                <Button
+                  variant={salusThemeMode === 'dark' ? 'default' : 'outline'}
+                  className="justify-start"
+                  onClick={() => setSalusThemeMode('dark')}
+                >
+                  <Moon className="h-4 w-4 mr-2" />
+                  Dark
+                </Button>
+                <Button
+                  variant={salusThemeMode === 'system' ? 'default' : 'outline'}
+                  className="justify-start"
+                  onClick={() => setSalusThemeMode('system')}
+                >
+                  <Monitor className="h-4 w-4 mr-2" />
+                  System
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
