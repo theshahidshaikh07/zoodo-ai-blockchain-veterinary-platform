@@ -174,6 +174,21 @@ export default function AIAssistantPage() {
     setMounted(true);
   }, []);
 
+  // Lock document scrolling on AI page to prevent mobile browser chrome collapse
+  // when users gesture-scroll in non-scrollable pre-chat state.
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     // Initialize with welcome message
     setMessages([
@@ -790,7 +805,7 @@ export default function AIAssistantPage() {
           height: 0;
         }
       `}</style>
-      <div className="flex h-[100dvh] min-h-[100svh] w-full bg-background overflow-hidden">
+      <div className="fixed inset-0 flex h-[100dvh] min-h-[100svh] w-full bg-background overflow-hidden">
         {/* ChatGPT Style Sidebar */}
         <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl border-t-0 shadow-none">
           <SidebarHeader className="p-3 transition-all duration-300 ease-in-out">
@@ -867,7 +882,7 @@ export default function AIAssistantPage() {
         {/* Main Content Area */}
         <SidebarInset
           ref={chatContainerRef}
-          className={`flex flex-col relative w-full bg-background ${messages.length > 1 ? 'overflow-y-auto chat-scrollbar' : 'overflow-hidden'}`}
+          className={`flex flex-col relative w-full bg-background overscroll-none ${messages.length > 1 ? 'overflow-y-auto chat-scrollbar' : 'overflow-hidden'}`}
         >
           {/* Top Navigation Bar (Minimal) */}
           <header className={`sticky top-0 shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' : 'bg-transparent'}`}>
@@ -929,7 +944,7 @@ export default function AIAssistantPage() {
                     </p>
                   </div>
 
-                  <div className="mt-6 flex flex-col gap-3 px-2 w-full max-w-4xl mx-auto sm:hidden max-[380px]:max-h-[30vh] max-[380px]:overflow-y-auto max-[380px]:overscroll-contain max-[380px]:scroll-smooth max-[380px]:custom-scrollbar max-[380px]:pr-1">
+                  <div className="mt-6 flex flex-col gap-3 px-2 w-full max-w-4xl mx-auto sm:hidden">
                     {heroSuggestions.map((suggestion, index) => (
                       <Button
                         key={index}
