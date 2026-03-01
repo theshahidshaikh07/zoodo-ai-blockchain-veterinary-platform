@@ -31,23 +31,24 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
         const lines = message.content.split('\n');
 
         for (let i = 0; i < lines.length - 1; i++) {
-            const header = lines[i].trim();
-            const separator = lines[i + 1].trim();
+            const headerLine = lines[i].trim();
+            const separatorLine = lines[i + 1].trim();
 
-            // Basic markdown table detection:
-            // header row with pipes + separator row made of pipes/colons/hyphens/spaces.
-            if (!header.includes('|') || !separator.includes('|')) continue;
+            if (!headerLine.includes('|')) continue;
+            if (!separatorLine.includes('-')) continue;
+            if (!/^[:\-\|\s]+$/.test(separatorLine)) continue;
 
-            const separatorWithoutPipes = separator.replace(/\|/g, '').trim();
-            const isSeparatorRow = separatorWithoutPipes.length > 0
-                && [...separatorWithoutPipes].every((ch) => ch === '-' || ch === ':' || ch === ' ');
+            const headerCells = headerLine.split('|').map((cell) => cell.trim()).filter(Boolean);
+            const separatorCells = separatorLine.split('|').map((cell) => cell.trim()).filter(Boolean);
 
-            if (isSeparatorRow) return true;
+            if (headerCells.length >= 2 && separatorCells.length >= 2) {
+                return true;
+            }
         }
 
         return false;
     }, [message.content]);
-    const shouldType = message.type === 'ai' && message.isNew && !hasMarkdownTable;
+    const shouldType = message.type === 'ai' && message.isNew;
 
     const [displayedContent, setDisplayedContent] = useState(shouldType ? '' : message.content);
     const [isCopied, setIsCopied] = useState(false);
@@ -55,14 +56,12 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(message.content);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const tableCompleteNotifiedRef = useRef(false);
 
     // Typing Effect State Ref
     const typingIndex = useRef(0);
 
     useEffect(() => {
         typingIndex.current = 0;
-        tableCompleteNotifiedRef.current = false;
     }, [message.id]);
 
     // Typing Effect
@@ -73,22 +72,11 @@ export function MessageBubble({ message, onEdit, onTypingComplete, onVersionChan
             return;
         }
 
-        // Tables are rendered instantly to prevent horizontal scroll resets while streaming.
-        if (hasMarkdownTable) {
-            setDisplayedContent(message.content);
-            setIsTyping(false);
-            if (!tableCompleteNotifiedRef.current && onTypingComplete) {
-                tableCompleteNotifiedRef.current = true;
-                onTypingComplete(message.id);
-            }
-            return;
-        }
-
         // Only start if we haven't finished typing (prevents restart glitch)
         if (typingIndex.current >= message.content.length) return;
 
         setIsTyping(true);
-        const speed = 10; // ms per char (faster is smoother)
+        const speed = 20; // ms per char (slightly slower so typing stays visible)
 
         const timer = setInterval(() => {
             if (typingIndex.current < message.content.length) {

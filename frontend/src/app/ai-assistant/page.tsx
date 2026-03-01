@@ -154,6 +154,7 @@ export default function AIAssistantPage() {
   const isUserScrolledUp = useRef<boolean>(false); // Track if user manually scrolled up
   const heroContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
   const placeholderMessages = [
     "Why is my dog scratching so much?",
@@ -283,7 +284,7 @@ export default function AIAssistantPage() {
     if (!finalContent.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: createMessageId(),
       type: 'user',
       content: finalContent,
       timestamp: new Date(),
@@ -345,7 +346,7 @@ export default function AIAssistantPage() {
 
               if (retryResponse.success && retryResponse.data) {
                 const aiResponse: Message = {
-                  id: (Date.now() + 1).toString(),
+                  id: createMessageId(),
                   type: 'ai',
                   content: retryResponse.data.response,
                   timestamp: new Date(),
@@ -370,7 +371,7 @@ export default function AIAssistantPage() {
                 errMsg = "Location request timed out. Please try again or move to an area with better signal.";
               }
               const errorResponse: Message = {
-                id: (Date.now() + 1).toString(),
+                id: createMessageId(),
                 type: 'ai',
                 content: errMsg,
                 timestamp: new Date(),
@@ -381,7 +382,7 @@ export default function AIAssistantPage() {
             }
           } else {
             const errorResponse: Message = {
-              id: (Date.now() + 1).toString(),
+              id: createMessageId(),
               type: 'ai',
               content: "Geolocation is not supported by your browser.",
               timestamp: new Date(),
@@ -393,7 +394,7 @@ export default function AIAssistantPage() {
         }
 
         const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
+          id: createMessageId(),
           type: 'ai',
           content: response.data.response,
           timestamp: new Date(),
@@ -411,7 +412,7 @@ export default function AIAssistantPage() {
       } else {
         // Fallback to error message
         const errorResponse: Message = {
-          id: (Date.now() + 1).toString(),
+          id: createMessageId(),
           type: 'ai',
           content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later or contact support.",
           timestamp: new Date()
@@ -422,7 +423,7 @@ export default function AIAssistantPage() {
       console.error('Error calling AI service:', error);
       // Fallback to error message
       const errorResponse: Message = {
-        id: (Date.now() + 1).toString(),
+        id: createMessageId(),
         type: 'ai',
         content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later or contact support.",
         timestamp: new Date()
@@ -515,7 +516,7 @@ export default function AIAssistantPage() {
 
       if (response.success && response.data) {
         const aiResponse: Message = {
-          id: Date.now().toString(),
+          id: createMessageId(),
           type: 'ai',
           content: response.data.response,
           timestamp: new Date(),
@@ -532,7 +533,7 @@ export default function AIAssistantPage() {
         });
       } else {
         const errorResponse: Message = {
-          id: Date.now().toString(),
+          id: createMessageId(),
           type: 'ai',
           content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
           timestamp: new Date()
@@ -542,7 +543,7 @@ export default function AIAssistantPage() {
     } catch (error) {
       console.error('Error regenerating AI response:', error);
       const errorResponse: Message = {
-        id: Date.now().toString(),
+        id: createMessageId(),
         type: 'ai',
         content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
         timestamp: new Date()
@@ -633,7 +634,7 @@ export default function AIAssistantPage() {
 
       if (response.success && response.data) {
         const aiResponse: Message = {
-          id: Date.now().toString(),
+          id: createMessageId(),
           type: 'ai',
           content: response.data.response,
           timestamp: new Date(),
@@ -650,7 +651,7 @@ export default function AIAssistantPage() {
         });
       } else {
         const errorResponse: Message = {
-          id: Date.now().toString(),
+          id: createMessageId(),
           type: 'ai',
           content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
           timestamp: new Date()
@@ -660,7 +661,7 @@ export default function AIAssistantPage() {
     } catch (error) {
       console.error('Error regenerating AI response:', error);
       const errorResponse: Message = {
-        id: Date.now().toString(),
+        id: createMessageId(),
         type: 'ai',
         content: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
         timestamp: new Date()
@@ -885,7 +886,7 @@ export default function AIAssistantPage() {
           className={`flex flex-col relative w-full bg-background overscroll-none ${messages.length > 1 ? 'overflow-y-auto chat-scrollbar' : 'overflow-hidden'}`}
         >
           {/* Top Navigation Bar (Minimal) */}
-          <header className={`sticky top-0 shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' : 'bg-transparent'}`}>
+          <header className={`sticky top-0 shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50' : 'bg-transparent'}`}>
             <div className="flex items-center justify-between h-14 px-4 md:px-6">
               <div className="flex items-center gap-1 md:gap-3">
                 <MobileMenuTrigger />
@@ -944,7 +945,7 @@ export default function AIAssistantPage() {
                     </p>
                   </div>
 
-                  <div className="mt-6 flex flex-col gap-3 px-2 w-full max-w-4xl mx-auto sm:hidden">
+                  <div className="mt-6 flex flex-col gap-3 px-2 w-full max-w-4xl mx-auto sm:hidden max-[380px]:max-h-[30vh] max-[380px]:overflow-y-auto max-[380px]:overscroll-contain max-[380px]:touch-pan-y max-[380px]:pr-1 custom-scrollbar">
                     {heroSuggestions.map((suggestion, index) => (
                       <Button
                         key={index}
@@ -1245,3 +1246,4 @@ export default function AIAssistantPage() {
     </SidebarProvider>
   );
 }
+
