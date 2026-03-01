@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, ShieldCheck, FileCheck2, BookOpen, Soup, Pill, ShoppingBag, Cross, GraduationCap, Scissors, Bath, HeartHandshake, Home, Megaphone, CalendarDays, Users2, MessageCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import NoSSR from "./NoSSR";
 import Link from "next/link";
@@ -117,6 +117,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
         {
           name: "Veterinary Care",
           href: "#",
+          icon: Cross,
           subItems: [
             {
               name: "Consultation",
@@ -136,6 +137,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
         {
           name: "Training & Behavior",
           href: "#training-behavior",
+          icon: GraduationCap,
           subItems: [
             { name: "Early Development", href: "/services/find-trainers?specialty=early-development" },
             { name: "Basic Training", href: "/services/find-trainers?specialty=basic-training" },
@@ -147,6 +149,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
         {
           name: "Grooming",
           href: "#grooming",
+          icon: Bath,
           subItems: [
             { name: "Complete Grooming", href: "/services/find-groomers?service=complete" },
             { name: "Bath & Brush", href: "/services/find-groomers?service=bath-brush" },
@@ -157,19 +160,37 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
         },
       ]
     },
-    { name: "Insurance", href: "#", type: "route" as const },
-    { name: "Shop", href: "#", type: "route" as const },
+    {
+      name: "Insurance",
+      href: "#",
+      type: "route" as const,
+      subItems: [
+        { name: "Compare Plans", href: "#", icon: ShieldCheck },
+        { name: "Claims Support", href: "#", icon: FileCheck2 },
+        { name: "Learn Insurance", href: "#", icon: BookOpen },
+      ]
+    },
+    {
+      name: "Shop",
+      href: "#",
+      type: "route" as const,
+      subItems: [
+        { name: "Pet Food", href: "#", icon: Soup },
+        { name: "Pet Pharmacy", href: "#", icon: Pill },
+        { name: "Pet Essentials", href: "#", icon: ShoppingBag },
+      ]
+    },
     {
       name: "Community",
       href: "#community",
       type: "anchor" as const,
       subItems: [
-        { name: "Pet Adoption", href: "/community/adoption" },
-        { name: "Lost & Found", href: "/community/lost-and-found" },
-        { name: "Fundraising", href: "/community/fundraising" },
-        { name: "Events & Meetups", href: "/community/events" },
-        { name: "NGOs & Rescues", href: "/community/ngos" },
-        { name: "Discussion Forums", href: "/community/discussion" },
+        { name: "Pet Adoption", href: "/community/adoption", icon: HeartHandshake },
+        { name: "Lost & Found", href: "/community/lost-and-found", icon: Home },
+        { name: "Fundraising", href: "/community/fundraising", icon: Megaphone },
+        { name: "Events & Meetups", href: "/community/events", icon: CalendarDays },
+        { name: "NGOs & Rescues", href: "/community/ngos", icon: Users2 },
+        { name: "Discussion Forums", href: "/community/discussion", icon: MessageCircle },
       ]
     },
     { name: "About", href: "/about", type: "route" as const },
@@ -224,19 +245,23 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       </button>
 
                       {/* Dropdown Content */}
-                      <div className="absolute top-full left-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 min-w-[220px]">
+                      <div className="absolute top-full left-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 w-max">
                         <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2">
                           {item.subItems.map((subItem: any) => {
                             if (subItem.subItems) {
                               return (
                                 <div key={subItem.name} className="relative group/nested">
                                   <div className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-foreground/90 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
-                                    {subItem.name}
+                                    <span className="flex items-center">
+                                      {subItem.icon && <subItem.icon className="w-4 h-4 mr-2 text-foreground/65" />}
+                                      {subItem.secondaryIcon && <subItem.secondaryIcon className="w-4 h-4 mr-3 text-foreground/65" />}
+                                      {subItem.name}
+                                    </span>
                                     <ChevronRight className="w-4 h-4 ml-2" />
                                   </div>
 
                                   {/* Nested Flyout */}
-                                  <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/nested:opacity-100 group-hover/nested:translate-x-0 group-hover/nested:pointer-events-auto transition-all duration-300 min-w-[190px] z-50">
+                                  <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/nested:opacity-100 group-hover/nested:translate-x-0 group-hover/nested:pointer-events-auto transition-all duration-300 w-max z-50">
                                     <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
                                       {/* Transparent bridge to prevent menu from closing on gap hover */}
                                       <div className="absolute top-0 -left-4 w-4 h-full" />
@@ -252,7 +277,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                               </div>
 
                                               {/* Super Nested Flyout (4th level) */}
-                                              <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/supernested:opacity-100 group-hover/supernested:translate-x-0 group-hover/supernested:pointer-events-auto transition-all duration-300 min-w-[200px] z-[60]">
+                                              <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/supernested:opacity-100 group-hover/supernested:translate-x-0 group-hover/supernested:pointer-events-auto transition-all duration-300 w-max z-[60]">
                                                 <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
                                                   <div className="absolute top-0 -left-4 w-4 h-full" />
                                                   {nestedItem.subItems.map((superNestedItem: any) => (
@@ -295,7 +320,11 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                 href={subItem.href}
                                 className="block px-4 py-2.5 text-sm font-medium text-foreground/90 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                               >
-                                {subItem.name}
+                                <span className="flex items-center">
+                                  {subItem.icon && <subItem.icon className="w-4 h-4 mr-2 text-foreground/65" />}
+                                  {subItem.secondaryIcon && <subItem.secondaryIcon className="w-4 h-4 mr-3 text-foreground/65" />}
+                                  {subItem.name}
+                                </span>
                               </Link>
                             );
                           })}
@@ -517,7 +546,14 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                       onClick={() => !subItem.subItems && setIsMenuOpen(false)}
                                       className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center"
                                     >
-                                      <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                      {subItem.icon ? (
+                                        <span className="flex items-center mr-3">
+                                          <subItem.icon className="w-3.5 h-3.5 text-muted-foreground/80" />
+                                          {subItem.secondaryIcon && <subItem.secondaryIcon className="w-3.5 h-3.5 ml-1.5 text-muted-foreground/80" />}
+                                        </span>
+                                      ) : (
+                                        <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                      )}
                                       {subItem.name}
                                     </Link>
 
