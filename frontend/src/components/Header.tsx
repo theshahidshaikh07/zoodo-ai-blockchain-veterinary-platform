@@ -13,13 +13,13 @@ import Image from "next/image";
 import petFoodSvg from "../assets/pet-food.svg";
 
 // wrap the svg path in a small component to behave like other icons
-const PetFoodIcon = () => (
+const PetFoodIcon = ({ className = "" }: { className?: string }) => (
   <Image
     src={petFoodSvg}
     alt="Pet Food"
     width={20}
     height={20}
-    className="mr-2 inline-block"
+    className={`inline-block opacity-60 ${className}`}
   />
 );
 
@@ -203,7 +203,12 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
   ];
 
   const handleSubmenuToggle = (name: string) => {
-    setOpenSubmenu(openSubmenu === name ? null : name);
+    // If any submenu starting with this name is open, close all (including nested)
+    if (openSubmenu?.startsWith(name)) {
+      setOpenSubmenu(null);
+    } else {
+      setOpenSubmenu(name);
+    }
   };
 
   return (
@@ -488,7 +493,15 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     className="border-b border-black/10 dark:border-white/10 last:border-0"
                   >
                     <div className="flex items-center justify-between py-3 group">
-                      {item.type === 'route' ? (
+                      {item.subItems ? (
+                        // For items with subItems, clicking text toggles the dropdown
+                        <button
+                          onClick={() => handleSubmenuToggle(item.name)}
+                          className="flex-1 text-base font-medium text-muted-foreground hover:text-foreground transition-colors text-left"
+                        >
+                          {item.name}
+                        </button>
+                      ) : item.type === 'route' ? (
                         <Link
                           href={item.href}
                           onClick={() => setIsMenuOpen(false)}
@@ -547,21 +560,38 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                   transition={{ delay: subIndex * 0.05 }}
                                 >
                                   <div className="flex items-center justify-between py-1 group/nested">
-                                    <Link
-                                      href={subItem.href}
-                                      onClick={() => !subItem.subItems && setIsMenuOpen(false)}
-                                      className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center"
-                                    >
-                                      {subItem.icon ? (
-                                        <span className="flex items-center mr-3">
-                                          <subItem.icon className="w-3.5 h-3.5 text-muted-foreground/80" />
-                                          {subItem.secondaryIcon && <subItem.secondaryIcon className="w-3.5 h-3.5 ml-1.5 text-muted-foreground/80" />}
-                                        </span>
-                                      ) : (
-                                        <ChevronRight className="w-3.5 h-3.5 mr-2" />
-                                      )}
-                                      {subItem.name}
-                                    </Link>
+                                    {subItem.subItems ? (
+                                      <button
+                                        onClick={() => setOpenSubmenu(openSubmenu === `${item.name}-${subItem.name}` ? item.name : `${item.name}-${subItem.name}`)}
+                                        className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center text-left"
+                                      >
+                                        {subItem.icon ? (
+                                          <span className="flex items-center mr-3">
+                                            <subItem.icon className="w-3.5 h-3.5 text-muted-foreground/80" />
+                                            {subItem.secondaryIcon && <subItem.secondaryIcon className="w-3.5 h-3.5 ml-1.5 text-muted-foreground/80" />}
+                                          </span>
+                                        ) : (
+                                          <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                        )}
+                                        {subItem.name}
+                                      </button>
+                                    ) : (
+                                      <Link
+                                        href={subItem.href}
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center"
+                                      >
+                                        {subItem.icon ? (
+                                          <span className="flex items-center mr-3">
+                                            <subItem.icon className="w-3.5 h-3.5 text-muted-foreground/80" />
+                                            {subItem.secondaryIcon && <subItem.secondaryIcon className="w-3.5 h-3.5 ml-1.5 text-muted-foreground/80" />}
+                                          </span>
+                                        ) : (
+                                          <ChevronRight className="w-3.5 h-3.5 mr-2" />
+                                        )}
+                                        {subItem.name}
+                                      </Link>
+                                    )}
 
                                     {subItem.subItems && (
                                       <button
