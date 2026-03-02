@@ -9,6 +9,20 @@ import NoSSR from "./NoSSR";
 import Link from "next/link";
 import Image from "next/image";
 
+// custom pet food svg imported from assets folder
+import petFoodSvg from "../assets/pet-food.svg";
+
+// wrap the svg path in a small component to behave like other icons
+const PetFoodIcon = () => (
+  <Image
+    src={petFoodSvg}
+    alt="Pet Food"
+    width={20}
+    height={20}
+    className="mr-2 inline-block"
+  />
+);
+
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, User, Settings, Plus, Minus, ChevronRight } from "lucide-react";
@@ -167,7 +181,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
       href: "#",
       type: "route" as const,
       subItems: [
-        { name: "Pet Food", href: "#", icon: Soup },
+        { name: "Pet Food", href: "#", icon: PetFoodIcon },
         { name: "Pet Pharmacy", href: "#", icon: Pill },
         { name: "Pet Essentials", href: "#", icon: ShoppingBag },
       ]
@@ -196,7 +210,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     <>
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-sm' : 'bg-transparent border-transparent'}`}>
         <div className="container mx-auto px-8 lg:px-20">
-          <div className="flex items-center justify-between h-20 md:h-22 lg:h-24 py-5 md:py-6 lg:py-7">
+          <div className="flex items-center justify-between h-16 py-3 md:py-4">
             {/* Logo */}
             <Link
               href="/"

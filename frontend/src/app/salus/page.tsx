@@ -149,7 +149,7 @@ export default function SalusPage() {
   const [isConsultationPopupOpen, setIsConsultationPopupOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [salusThemeMode, setSalusThemeMode] = useState<SalusThemeMode>('system');
+  const [salusThemeMode, setSalusThemeMode] = useState<SalusThemeMode>('light');
   const [systemPrefersDark, setSystemPrefersDark] = useState(false);
   const [isHeroScrolled, setIsHeroScrolled] = useState(false);
   const [debugLog, setDebugLog] = useState(""); // Debug state
