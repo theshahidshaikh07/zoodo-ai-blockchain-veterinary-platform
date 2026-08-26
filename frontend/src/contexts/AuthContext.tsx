@@ -254,7 +254,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('oauth_user_data', JSON.stringify(oauthObj));
-          localStorage.setItem('oauth_user_data', JSON.stringify(oauthObj));
+          localStorage.removeItem('oauth_user_data');
           window.dispatchEvent(new CustomEvent('zoodo_oauth_loaded', { detail: oauthObj }));
         }
 
@@ -404,9 +404,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     apiService.logout();
     setUser(null);
-    // Clear user data from localStorage
+    // Clear all user and oauth data from storage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
+      localStorage.removeItem('zoodo_user');
+      localStorage.removeItem('zoodo_profile');
+      localStorage.removeItem('zoodo_pets');
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('oauth_user_data');
+      sessionStorage.removeItem('oauth_user_data');
     }
     notificationService.success({
       title: 'Logged Out Successfully',

@@ -41,6 +41,9 @@ export default function LoginPage() {
     if (isAuthenticated && user) {
       const dashboardRoute = getDashboardRoute(user.userType);
       router.push(dashboardRoute);
+    } else if (typeof window !== 'undefined') {
+      localStorage.removeItem('oauth_user_data');
+      sessionStorage.removeItem('oauth_user_data');
     }
   }, [isAuthenticated, user, router]);
 

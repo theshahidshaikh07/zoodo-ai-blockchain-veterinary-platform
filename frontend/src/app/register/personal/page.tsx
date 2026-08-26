@@ -328,7 +328,9 @@ export default function PersonalRegistrationPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('oauth_user_data') || localStorage.getItem('oauth_user_data');
+      // Clear any legacy localStorage to prevent stale account autofill
+      localStorage.removeItem('oauth_user_data');
+      const saved = sessionStorage.getItem('oauth_user_data');
       if (saved) {
         try {
           applyOAuthData(JSON.parse(saved));
@@ -356,7 +358,7 @@ export default function PersonalRegistrationPage() {
       if (res && res.isNew && res.data) {
         applyOAuthData(res.data);
       } else {
-        const saved = sessionStorage.getItem('oauth_user_data') || localStorage.getItem('oauth_user_data');
+        const saved = sessionStorage.getItem('oauth_user_data');
         if (saved) {
           try {
             applyOAuthData(JSON.parse(saved));
@@ -397,6 +399,7 @@ export default function PersonalRegistrationPage() {
           localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem('zoodo_user', JSON.stringify(res.data.user));
           sessionStorage.removeItem('oauth_user_data');
+          localStorage.removeItem('oauth_user_data');
           setStep(2);
         } else {
           setError(res.message || 'Google registration failed.');
@@ -467,6 +470,8 @@ export default function PersonalRegistrationPage() {
       if (validPets.length > 0) {
         localStorage.setItem('zoodo_pets', JSON.stringify(validPets));
       }
+      sessionStorage.removeItem('oauth_user_data');
+      localStorage.removeItem('oauth_user_data');
       router.push('/dashboard/pet-owner');
     } catch (err: any) {
       setError(err?.message || 'Could not save pets.');

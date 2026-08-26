@@ -123,7 +123,9 @@ export default function BusinessRegistrationPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('oauth_user_data') || localStorage.getItem('oauth_user_data');
+      // Clear any legacy localStorage to prevent stale account autofill
+      localStorage.removeItem('oauth_user_data');
+      const saved = sessionStorage.getItem('oauth_user_data');
       if (saved) {
         try {
           applyOAuthData(JSON.parse(saved));
@@ -151,7 +153,7 @@ export default function BusinessRegistrationPage() {
       if (res && res.isNew && res.data) {
         applyOAuthData(res.data);
       } else {
-        const saved = sessionStorage.getItem('oauth_user_data') || localStorage.getItem('oauth_user_data');
+        const saved = sessionStorage.getItem('oauth_user_data');
         if (saved) {
           try {
             applyOAuthData(JSON.parse(saved));
@@ -237,6 +239,7 @@ export default function BusinessRegistrationPage() {
           localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem('zoodo_user', JSON.stringify(res.data.user));
           sessionStorage.removeItem('oauth_user_data');
+          localStorage.removeItem('oauth_user_data');
           router.push('/dashboard/business');
         } else {
           setError(res.message || 'Google registration failed.');
