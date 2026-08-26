@@ -80,6 +80,8 @@ export default function BusinessRegistrationPage() {
             available: res.data.available,
             message: res.data.message,
           });
+        } else {
+          setUsernameStatus({ checking: false, available: null, message: '' });
         }
       } catch {
         setUsernameStatus({ checking: false, available: null, message: '' });

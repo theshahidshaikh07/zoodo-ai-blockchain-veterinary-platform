@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     
     PORT: int = 8000
     HOST: str = "0.0.0.0"
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000"
+    ALLOWED_ORIGINS: str = "https://zoodo.dev,https://www.zoodo.dev,https://zoodo.vercel.app,http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000"
     
     # JWT
     JWT_SECRET: str = "zoodo-super-secret-production-grade-key-2026-secure-32chars"

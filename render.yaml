@@ -29,7 +29,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: ALLOWED_ORIGINS
-        value: https://zoodo.vercel.app,http://localhost:3000
+        value: https://zoodo.dev,https://www.zoodo.dev,https://zoodo.vercel.app,http://localhost:3000
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET

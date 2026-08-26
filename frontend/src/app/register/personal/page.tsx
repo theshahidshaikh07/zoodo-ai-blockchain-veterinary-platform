@@ -293,6 +293,8 @@ export default function PersonalRegistrationPage() {
             available: res.data.available,
             message: res.data.message,
           });
+        } else {
+          setUsernameStatus({ checking: false, available: null, message: '' });
         }
       } catch {
         setUsernameStatus({ checking: false, available: null, message: '' });
