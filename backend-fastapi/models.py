@@ -131,3 +131,18 @@ class OtpVerification(Base):
     is_used = Column(Boolean, default=False)
     attempts = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Appointment(Base):
+    __tablename__ = "appointments"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    owner_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    pet_id = Column(String(36), ForeignKey("pets.id"), nullable=True)
+    provider_id = Column(String(36), ForeignKey("users.id"), nullable=True)
+    appointment_date = Column(String(100), nullable=False)
+    type = Column(String(50), default="consultation")
+    status = Column(String(50), default="scheduled")
+    notes = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
