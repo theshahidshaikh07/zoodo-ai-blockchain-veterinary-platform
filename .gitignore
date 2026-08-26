@@ -51,3 +51,17 @@ Thumbs.db
 # Documentation Case Studies
 docs/PM_CASE_STUDY.md
 docs/NOTION_CASE_STUDY.md
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Research Papers / Large PDF assets
+Research Paper/
+"Research Paper"/
+**/Research Paper/
+

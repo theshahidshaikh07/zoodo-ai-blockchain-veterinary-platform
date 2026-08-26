@@ -10,10 +10,13 @@ export type UserType = 'pet_owner' | 'veterinarian' | 'trainer' | 'hospital' | '
  * @returns The dashboard route path
  */
 export function getDashboardRoute(userType: UserType | string): string {
+  if (!userType) return '/dashboard/pet-owner';
   // Normalize the userType to handle both backend format (PET_OWNER) and frontend format (pet_owner)
   const normalizedUserType = userType.toLowerCase();
   
   switch (normalizedUserType) {
+    case 'business':
+      return '/dashboard/business';
     case 'pet_owner':
       return '/dashboard/pet-owner';
     case 'veterinarian':
@@ -26,7 +29,7 @@ export function getDashboardRoute(userType: UserType | string): string {
     case 'admin':
       return '/dashboard/admin';
     default:
-      return '/dashboard';
+      return '/dashboard/pet-owner';
   }
 }
 

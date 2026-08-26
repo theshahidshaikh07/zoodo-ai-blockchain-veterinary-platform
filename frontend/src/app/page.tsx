@@ -1,10 +1,12 @@
 'use client';
+'use client';
 
 import { useEffect } from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import ServicesSection from '@/components/ServicesSection';
-
+import CareSection from '@/components/CareSection';
+import InsuranceSection from '@/components/InsuranceSection';
+import ShopSection from '@/components/ShopSection';
 import CommunitySection from '@/components/CommunitySection';
 import Footer from '@/components/Footer';
 
@@ -37,7 +39,7 @@ export default function HomePage() {
       <div className="fixed inset-0 bg-[image:var(--bg-subtle-mesh)] pointer-events-none opacity-90 z-0" />
       <div className="fixed inset-0 bg-[image:var(--bg-dot-pattern)] bg-[length:24px_24px] pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] z-0" />
       {/* Light mode: Subtle off-white tint for depth | Dark mode: Pure background */}
-      <div className="fixed inset-0 bg-slate-50/40 dark:bg-transparent pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[#f6f1e8]/40 dark:bg-transparent pointer-events-none z-0" />
 
 
       <div className="relative z-10">
@@ -48,15 +50,26 @@ export default function HomePage() {
             <HeroSection />
           </section>
 
-          {/* Services Section */}
-          <section id="services" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
-            <ServicesSection />
+          {/* Care Section — Vet, Training, Grooming */}
+          <section id="care" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
+            <CareSection />
+          </section>
+
+          {/* Insurance Section */}
+          <section id="insurance" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
+            <InsuranceSection />
+          </section>
+
+          {/* Shop Section */}
+          <section id="shop" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
+            <ShopSection />
           </section>
 
           {/* Community Section */}
           <section id="community" className="relative z-10 scroll-mt-20 md:scroll-mt-22 lg:scroll-mt-24">
             <CommunitySection />
           </section>
+
         </main>
         <Footer />
       </div>

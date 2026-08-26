@@ -11,7 +11,9 @@ import {
   ArrowRight,
   UserPlus,
   MessageCircle,
-  Star
+  Star,
+  Home,
+  Megaphone
 } from "lucide-react";
 import communityPets from "@/assets/community-pets.jpg";
 import pexelsKooldark1 from "@/assets/vets/rdj.png";
@@ -34,21 +36,21 @@ const CommunitySection = () => {
       color: "red-500"
     },
     {
-      icon: Gift,
-      title: "Donation Drives",
-      description: "Support local pet welfare organizations and rescue groups.",
+      icon: Home,
+      title: "Lost & Found",
+      description: "A fast, community-driven alert system to reunite pets with families.",
+      stats: "90% reunion rate"
+    },
+    {
+      icon: Megaphone,
+      title: "Fundraising",
+      description: "Support local pet welfare organizations and critical medical rescue cases.",
       stats: "$50K+ raised"
     },
     {
-      icon: Calendar,
-      title: "Community Events",
-      description: "Join vaccination drives, wellness camps, and meetups.",
-      stats: "200+ events monthly"
-    },
-    {
-      icon: Users,
-      title: "Pet Parent Network",
-      description: "Share experiences and get advice from fellow pet owners.",
+      icon: MessageCircle,
+      title: "Discussion Forums",
+      description: "Share stories, ask questions, and get advice from verified pet parents.",
       stats: "10K+ active members"
     }
   ];

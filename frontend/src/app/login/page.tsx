@@ -75,7 +75,7 @@ export default function LoginPage() {
           router.push(dashboardRoute);
         } catch (error) {
           console.error('Error parsing user data:', error);
-          router.push('/dashboard');
+          router.push(getDashboardRoute('pet_owner'));
         }
       } else {
         // Fallback: wait a moment and try again
@@ -88,10 +88,10 @@ export default function LoginPage() {
               router.push(dashboardRoute);
             } catch (error) {
               console.error('Error parsing user data:', error);
-              router.push('/dashboard');
+              router.push(getDashboardRoute('pet_owner'));
             }
           } else {
-            router.push('/dashboard');
+            router.push(getDashboardRoute('pet_owner'));
           }
         }, 200);
       }
@@ -107,7 +107,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative flex flex-col">
       {/* Header */}
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <div className="flex items-center">
@@ -225,7 +225,7 @@ export default function LoginPage() {
               <p className="text-sm text-muted-foreground">
                 Don&#39;t have an account?{' '}
                 <Link
-                  href="/role-selection"
+                  href="/register"
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
                   Sign up
@@ -250,8 +250,9 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
+                disabled={isLoading}
                 onClick={() => handleSocialLogin('google')}
-                className="w-full h-12 bg-background dark:bg-gray-900 border border-border hover:bg-accent hover:text-accent-foreground dark:hover:bg-gray-800 rounded-full transition-all duration-200"
+                className="w-full h-12 bg-background dark:bg-gray-900 border border-border hover:bg-accent hover:text-accent-foreground dark:hover:bg-gray-800 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

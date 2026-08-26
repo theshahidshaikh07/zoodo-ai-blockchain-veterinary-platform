@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Nunito } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const nunito = Nunito({
-  variable: "--font-nunito",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-});
 
 export const metadata: Metadata = {
   title: "Zoodo",
@@ -41,6 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap"
+          rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://use.typekit.net/ihj8ira.css" />
         <meta
           name="format-detection"
           content="telephone=no, date=no, email=no, address=no"
@@ -48,7 +43,7 @@ export default function RootLayout({
 
       </head>
       <body
-        className={`${inter.variable} ${nunito.variable} font-sans antialiased h-full min-h-screen bg-background`}
+        className="font-sans antialiased h-full min-h-screen bg-background"
         suppressHydrationWarning
       >
         <Providers>

@@ -29,13 +29,56 @@ public class UserController {
     @Autowired
     private com.zoodo.backend.service.FileStorageService fileStorageService;
 
+    @Autowired
+    private com.zoodo.backend.service.OtpService otpService;
+
+    @Autowired
+    private com.zoodo.backend.util.JwtUtil jwtUtil;
 
     // Public endpoints (no authentication required)
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
         try {
             User user = userService.registerUser(request);
-            return ResponseEntity.ok(new ApiResponse<>(true, "User registered successfully", user));
+            // Trigger 6-digit OTP code creation and send
+            otpService.generateAndSendOtp(user, com.zoodo.backend.model.OtpCode.OtpPurpose.EMAIL_VERIFICATION, user.getEmail());
+            return ResponseEntity.ok(new ApiResponse<>(true, "User registered successfully. Please verify using OTP.", user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> verifyOtp(@RequestBody java.util.Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            String code = body.get("code");
+            
+            User user = userService.getUserByEmail(email);
+            if (user == null) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "User not found", null));
+            }
+            
+            boolean isValid = otpService.verifyOtp(user, com.zoodo.backend.model.OtpCode.OtpPurpose.EMAIL_VERIFICATION, code);
+            if (!isValid) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid or expired OTP code", null));
+            }
+            
+            // Generate JWT session token
+            String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getUserType().name());
+            
+            return ResponseEntity.ok(new ApiResponse<>(true, "OTP verified successfully", java.util.Map.of(
+                "token", token,
+                "user", java.util.Map.of(
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "email", user.getEmail(),
+                    "firstName", user.getFirstName(),
+                    "lastName", user.getLastName(),
+                    "userType", user.getUserType().getValue(),
+                    "isVerified", user.getIsVerified()
+                )
+            )));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         }

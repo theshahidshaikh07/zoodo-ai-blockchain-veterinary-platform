@@ -12,7 +12,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (credentials: { usernameOrEmail: string; password: string }) => Promise<boolean>;
   loginAdmin: (credentials: { usernameOrEmail: string; password: string }) => Promise<boolean>;
-  loginWithGoogle: () => void;
+  loginWithGoogle: (roleOverride?: 'pet_owner' | 'business') => Promise<any>;
   handleGoogleOAuthCallback: () => Promise<boolean>;
   logout: () => void;
   register: (userData: any) => Promise<{ success: boolean; userType?: string; redirectTo?: string }>;
@@ -196,20 +196,98 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (roleOverride?: 'pet_owner' | 'business'): Promise<boolean> => {
+    if (isLoading) return false;
     try {
-      // Store the current page URL to redirect back after OAuth
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('oauth_redirect', window.location.pathname);
+      setIsLoading(true);
+      const { signInWithPopup } = await import('firebase/auth');
+      const { auth, googleProvider } = await import('@/lib/firebase');
+
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
+
+      if (!fbUser || !fbUser.email) {
+        throw new Error('No Google account selected');
       }
-      
-      apiService.initiateGoogleLogin();
-    } catch (error) {
-      console.error('Google login initiation failed:', error);
+
+      const names = (fbUser.displayName || 'Pet Parent').trim().split(' ');
+      const firstName = names[0] || 'Pet';
+      const lastName = names.slice(1).join(' ') || 'Parent';
+
+      // 1. Check if user already has an account in our DB
+      const checkRes = await apiService.checkEmail(fbUser.email);
+      if (checkRes.success && checkRes.data?.exists) {
+        // User exists -> perform instant direct handshake login
+        const res = await apiService.authenticateWithGoogle({
+          email: fbUser.email,
+          googleId: fbUser.uid,
+          firstName,
+          lastName,
+          profilePhotoUrl: fbUser.photoURL || undefined,
+          userType: checkRes.data.userType || roleOverride || 'pet_owner',
+        });
+
+        if (res.success && res.data) {
+          setUser(res.data.user);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+            localStorage.setItem('zoodo_user', JSON.stringify(res.data.user));
+            localStorage.setItem('jwt_token', res.data.token);
+          }
+          notificationService.loginSuccess(firstName);
+
+          const targetRoute = res.data.user.userType === 'business'
+            ? '/dashboard/business'
+            : '/dashboard/pet-owner';
+          router.push(targetRoute);
+          return { isNew: false, user: res.data.user };
+        }
+      } else {
+        // 2. User is new -> Store Google details in both storage mechanisms
+        const oauthObj = {
+          email: fbUser.email,
+          googleId: fbUser.uid,
+          firstName,
+          lastName,
+          profilePhotoUrl: fbUser.photoURL || undefined,
+        };
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('oauth_user_data', JSON.stringify(oauthObj));
+          localStorage.setItem('oauth_user_data', JSON.stringify(oauthObj));
+          window.dispatchEvent(new CustomEvent('zoodo_oauth_loaded', { detail: oauthObj }));
+        }
+
+        notificationService.info({
+          title: 'Complete Registration',
+          description: 'Pick your username handle to finish creating your Zoodo account.',
+        });
+
+        const targetReg = (roleOverride || 'pet_owner') === 'business'
+          ? '/register/business'
+          : '/register/personal';
+
+        if (typeof window !== 'undefined') {
+          if (window.location.pathname !== targetReg) {
+            window.location.href = targetReg;
+          }
+        }
+        return { isNew: true, data: oauthObj };
+      }
+      return false;
+    } catch (error: any) {
+      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+        // User voluntarily closed popup
+        return false;
+      }
+      console.error('Google login failed:', error);
       notificationService.error({
-        title: 'Google Login Failed',
-        description: 'Failed to initiate Google login. Please try again.',
+        title: 'Google Sign-In Failed',
+        description: error?.message || 'Could not complete Google sign-in',
       });
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 

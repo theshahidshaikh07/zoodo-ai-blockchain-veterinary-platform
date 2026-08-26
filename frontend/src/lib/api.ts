@@ -202,6 +202,69 @@ class ApiService {
     }
   }
 
+  // Username verification endpoint (Instagram style)
+  async checkUsername(username: string): Promise<ApiResponse<{ available: boolean; username: string; message: string; suggestions?: string[] }>> {
+    const clean = username.replace(/^@/, '').trim();
+    return this.request<{ available: boolean; username: string; message: string; suggestions?: string[] }>(
+      `/users/check-username?username=${encodeURIComponent(clean)}`
+    );
+  }
+
+  // Email verification check endpoint
+  async checkEmail(email: string): Promise<ApiResponse<{ exists: boolean; userType: string | null }>> {
+    return this.request<{ exists: boolean; userType: string | null }>(
+      `/users/check-email?email=${encodeURIComponent(email.trim())}`
+    );
+  }
+
+  // 6-digit OTP verification endpoint
+  async verifyOtp(email: string, code: string): Promise<ApiResponse<{ token: string; user: any }>> {
+    const res = await this.request<{ token: string; user: any }>('/users/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+
+    if (res.success && res.data?.token && typeof window !== 'undefined') {
+      localStorage.setItem('jwt_token', res.data.token);
+      if (res.data.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        localStorage.setItem('zoodo_user', JSON.stringify(res.data.user));
+      }
+    }
+    return res;
+  }
+
+  // OTP Resend endpoint
+  async resendOtp(email: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>('/users/resend-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Business Profile and Verification Endpoints
+  async getBusinessProfile(): Promise<ApiResponse<any>> {
+    return this.request('/business/profile');
+  }
+
+  async updateBusinessProfile(data: Record<string, any>): Promise<ApiResponse<any>> {
+    return this.request('/business/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getBusinessDocuments(): Promise<ApiResponse<any[]>> {
+    return this.request('/business/documents');
+  }
+
+  async uploadBusinessDocument(formData: FormData): Promise<ApiResponse<any>> {
+    return this.request('/business/documents/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
   // User endpoints
   async getUsers(): Promise<ApiResponse<User[]>> {
     return this.request<User[]>('/users');
@@ -258,7 +321,9 @@ class ApiService {
         body: form,
       });
     }
-    return this.request<User>('/register/pet-owner', {
+    const record = userData as Record<string, any>;
+    const endpoint = (record?.businessName || record?.userType === 'business') ? '/register/business' : '/register/personal';
+    return this.request<User>(endpoint, {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -367,10 +432,17 @@ class ApiService {
         body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
       });
 
-      // Store JWT token if login is successful
+      // Store JWT token and user profile if login is successful
       if (response.success && response.data) {
         if (typeof window !== 'undefined') {
-          localStorage.setItem('jwt_token', response.data);
+          const rawData = response.data as any;
+          const token = typeof rawData === 'string' ? rawData : rawData?.token;
+          if (token) {
+            localStorage.setItem('jwt_token', token);
+          }
+          if (rawData?.user) {
+            localStorage.setItem('user', JSON.stringify(rawData.user));
+          }
         }
       }
 
@@ -408,6 +480,32 @@ class ApiService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
     }
+  }
+
+  // Google OAuth / Firebase Handshake
+  async authenticateWithGoogle(payload: {
+    email: string;
+    googleId: string;
+    firstName: string;
+    lastName: string;
+    profilePhotoUrl?: string;
+    userType?: string;
+    businessName?: string;
+    categories?: string[];
+  }): Promise<ApiResponse<{ token: string; user: any }>> {
+    const res = await this.request<{ token: string; user: any }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (res.success && res.data?.token && typeof window !== 'undefined') {
+      localStorage.setItem('jwt_token', res.data.token);
+      if (res.data.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        localStorage.setItem('zoodo_user', JSON.stringify(res.data.user));
+      }
+    }
+    return res;
   }
 
   // Google OAuth methods

@@ -17,9 +17,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
-        heading: ["var(--font-nunito)", "sans-serif"],
-        accent: ["var(--font-nunito)", "sans-serif"],
+        sans: ["Parkinsans", "sans-serif"],
+        heading: ["fields", "serif"],
+        accent: ["Parkinsans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

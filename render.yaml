@@ -16,3 +16,27 @@ services:
         sync: false
       - key: SESSION_TTL
         value: 86400
+
+  - type: web
+    name: zoodo-core-api
+    env: python
+    region: singapore
+    plan: free
+    rootDir: backend-fastapi
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ALLOWED_ORIGINS
+        value: https://zoodo.vercel.app,http://localhost:3000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

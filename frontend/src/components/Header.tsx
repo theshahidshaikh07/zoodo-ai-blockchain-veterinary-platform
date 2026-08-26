@@ -103,7 +103,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
       const element = document.getElementById(targetId);
 
       if (element) {
-        const headerHeight = 80; // Exact header height (h-20)
+        const headerHeight = typeof window !== 'undefined' && window.innerWidth >= 1024 ? 80 : 64;
         const elementPosition = element.offsetTop - headerHeight;
 
         window.scrollTo({
@@ -213,9 +213,9 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
   return (
     <>
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-sm' : 'bg-transparent border-transparent'}`}>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 rounded-b-[2.5rem] md:rounded-b-[3.5rem] lg:rounded-b-[4rem] ${isScrolled ? 'bg-[#bde4e9]/95 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-md' : 'bg-transparent border-transparent shadow-none'}`}>
         <div className="container mx-auto px-8 lg:px-20">
-          <div className="flex items-center justify-between h-16 py-3 md:py-4">
+          <div className="flex items-center justify-between h-16 md:h-20 py-3 md:py-4">
             {/* Logo */}
             <Link
               href="/"
@@ -257,7 +257,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
 
                       {/* Dropdown Content */}
                       <div className="absolute top-full left-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 w-max">
-                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2">
+                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-tl-[0.375rem] rounded-tr-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem] shadow-xl p-2">
                           {item.subItems.map((subItem: any) => {
                             if (subItem.subItems) {
                               return (
@@ -272,10 +272,10 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                   </div>
 
                                   {/* Nested Flyout */}
-                                  <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/nested:opacity-100 group-hover/nested:translate-x-0 group-hover/nested:pointer-events-auto transition-all duration-300 w-max z-50">
-                                    <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
+                                  <div className="absolute top-[-8px] left-[calc(100%+16px)] opacity-0 translate-x-2 pointer-events-none group-hover/nested:opacity-100 group-hover/nested:translate-x-0 group-hover/nested:pointer-events-auto transition-all duration-300 w-max z-50">
+                                    <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-tl-[0.375rem] rounded-tr-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem] shadow-xl p-2 relative">
                                       {/* Transparent bridge to prevent menu from closing on gap hover */}
-                                      <div className="absolute top-0 -left-4 w-4 h-full" />
+                                      <div className="absolute top-0 -left-5 w-5 h-full" />
                                       {subItem.subItems.map((nestedItem: any) => {
                                         if (nestedItem.subItems) {
                                           return (
@@ -288,9 +288,9 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                                               </div>
 
                                               {/* Super Nested Flyout (4th level) */}
-                                              <div className="absolute top-[-8px] left-[calc(100%+12px)] opacity-0 translate-x-2 pointer-events-none group-hover/supernested:opacity-100 group-hover/supernested:translate-x-0 group-hover/supernested:pointer-events-auto transition-all duration-300 w-max z-[60]">
-                                                <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 relative">
-                                                  <div className="absolute top-0 -left-4 w-4 h-full" />
+                                              <div className="absolute top-[-8px] left-[calc(100%+16px)] opacity-0 translate-x-2 pointer-events-none group-hover/supernested:opacity-100 group-hover/supernested:translate-x-0 group-hover/supernested:pointer-events-auto transition-all duration-300 w-max z-[60]">
+                                                <div className="bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-tl-[0.375rem] rounded-tr-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem] shadow-xl p-2 relative">
+                                                  <div className="absolute top-0 -left-5 w-5 h-full" />
                                                   {nestedItem.subItems.map((superNestedItem: any) => (
                                                     <Link
                                                       key={superNestedItem.name}

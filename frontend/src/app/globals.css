@@ -1,7 +1,7 @@
 @layer base {
   :root {
-    --font-sans: var(--font-inter);
-    --font-heading: var(--font-figtree);
+    --font-sans: "Parkinsans", sans-serif;
+    --font-heading: "fields", serif;
   }
 
   h1,
@@ -20,8 +20,8 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    /* #F8FAFC Digital Ivory */
+    --background: 40 38% 95%;
+    /* #F6F1E8 Soft beige */
     --foreground: 222 47% 11%;
     /* #0F172A Carbon Navy */
     --card: 0 0% 100%;

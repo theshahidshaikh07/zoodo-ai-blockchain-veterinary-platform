@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-// Temporarily disabled due to memory issues
-// @RestController
-// @RequestMapping("/api/dashboard")
-// @Slf4j
-// @CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/dashboard")
+@Slf4j
+@CrossOrigin(origins = "*")
 public class DashboardController {
 
     @Autowired

@@ -100,6 +100,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public String loginUser(UserLoginRequest request) {
         // Find user by email or username
         User user = userRepository.findByEmail(request.getEmail())
