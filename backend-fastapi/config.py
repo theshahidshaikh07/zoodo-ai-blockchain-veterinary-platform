@@ -32,7 +32,35 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> List[str]:
-        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+        origins = []
+        for origin in self.ALLOWED_ORIGINS.split(","):
+            origin = origin.strip()
+            if not origin:
+                continue
+            origins.append(origin)
+            if not origin.startswith("http://") and not origin.startswith("https://"):
+                origins.append(f"https://{origin}")
+                origins.append(f"https://www.{origin}")
+                origins.append(f"http://{origin}")
+            elif origin.startswith("https://") and not origin.startswith("https://www."):
+                d = origin[len("https://"):]
+                origins.append(f"https://www.{d}")
+
+        always_allow = [
+            "https://zoodo.dev",
+            "https://www.zoodo.dev",
+            "http://zoodo.dev",
+            "http://www.zoodo.dev",
+            "https://zoodo.vercel.app",
+            "https://www.zoodo.vercel.app",
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3000",
+        ]
+        for a in always_allow:
+            if a not in origins:
+                origins.append(a)
+        return origins
 
     class Config:
         env_file = ".env"
