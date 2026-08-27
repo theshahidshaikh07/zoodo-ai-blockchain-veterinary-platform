@@ -34,14 +34,12 @@ export async function POST(req: Request) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
 
-        // 1. If an Audience ID is configured, add them directly to the Resend Audience
-        if (resendAudienceId) {
-          await resend.contacts.create({
-            email,
-            unsubscribed: false,
-            audienceId: resendAudienceId,
-          });
-        }
+        // 1. Add contact directly to Resend Audience table
+        await resend.contacts.create({
+          email,
+          unsubscribed: false,
+          ...(resendAudienceId ? { audienceId: resendAudienceId } : {}),
+        });
 
         // 2. Notify Zoodo admin about the new subscriber
         await resend.emails.send({
@@ -64,35 +62,6 @@ export async function POST(req: Request) {
             message: "You are already subscribed.",
           });
         }
-      }
-    }
-
-    // Fallback: If Brevo is configured, attempt Brevo
-    const apiKey = process.env.BREVO_API_KEY;
-    const listIdRaw = process.env.BREVO_LIST_ID;
-    const normalizedListId = listIdRaw?.trim().replace(/^#/, "");
-    const listId = normalizedListId ? Number(normalizedListId) : NaN;
-
-    if (apiKey && Number.isFinite(listId)) {
-      const response = await fetch("https://api.brevo.com/v3/contacts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": apiKey,
-        },
-        body: JSON.stringify({
-          email,
-          listIds: [listId],
-          updateEnabled: true,
-        }),
-        cache: "no-store",
-      });
-
-      if (response.ok) {
-        return NextResponse.json({
-          success: true,
-          message: "You are subscribed. Please check your inbox to confirm.",
-        });
       }
     }
 

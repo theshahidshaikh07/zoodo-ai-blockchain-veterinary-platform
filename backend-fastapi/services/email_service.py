@@ -91,19 +91,19 @@ def _send_http_resend(api_key: str, to_email: str, subject: str, html_content: s
 
 def _send_sync_email(to_email: str, subject: str, html_content: str, text_content: str) -> bool:
     """Internal email dispatcher with Resend HTTP API (Port 443) priority and direct SMTP fallback."""
-    # 1. Resend HTTP API (Port 443 - zero IP restrictions, built for cloud platforms)
+    # 1. Brevo HTTP API (Port 443 - Can send to ANY email address worldwide without domain verification)
+    brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
+    if brevo_key:
+        print(f"[*] Attempting email delivery to {to_email} via Brevo HTTP API (Port 443)...")
+        if _send_http_brevo(brevo_key, to_email, subject, html_content, text_content):
+            return True
+
+    # 2. Resend HTTP API (Port 443 - Zero IP restrictions)
     resend_key = (getattr(settings, "RESEND_API_KEY", "") or os.getenv("RESEND_API_KEY") or "").strip()
     if resend_key:
         print(f"[*] Attempting email delivery to {to_email} via Resend HTTP API (Port 443)...")
         if _send_http_resend(resend_key, to_email, subject, html_content, text_content):
             return True
-
-    # Brevo temporarily commented out per user request
-    # brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
-    # if brevo_key:
-    #     print(f"[*] Attempting email delivery to {to_email} via Brevo HTTP API (Port 443)...")
-    #     if _send_http_brevo(brevo_key, to_email, subject, html_content, text_content):
-    #         return True
 
     # 2. Fallback to direct SMTP (Works on localhost or paid cloud instances)
     user = (settings.SMTP_USER or os.getenv("SMTP_USER") or "").strip()
