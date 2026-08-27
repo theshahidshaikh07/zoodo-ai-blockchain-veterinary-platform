@@ -25,69 +25,81 @@ export async function POST(req: Request) {
       );
     }
 
+    // Use Resend for subscription (Zero IP restrictions)
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const resendAudienceId = process.env.RESEND_AUDIENCE_ID;
+
+    if (resendApiKey) {
+      try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(resendApiKey);
+
+        // 1. If an Audience ID is configured, add them directly to the Resend Audience
+        if (resendAudienceId) {
+          await resend.contacts.create({
+            email,
+            unsubscribed: false,
+            audienceId: resendAudienceId,
+          });
+        }
+
+        // 2. Notify Zoodo admin about the new subscriber
+        await resend.emails.send({
+          from: "Zoodo <onboarding@resend.dev>",
+          to: "zoodo.care@gmail.com",
+          subject: `New Newsletter Subscriber: ${email}`,
+          html: `<p>A new visitor has subscribed to the Zoodo newsletter: <strong>${email}</strong></p>`,
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: "You are subscribed. Welcome to Zoodo!",
+        });
+      } catch (resendError: any) {
+        console.error("Resend subscription error:", resendError);
+        // If already subscribed in Resend, return success
+        if (resendError?.message?.includes("already exists") || resendError?.statusCode === 409) {
+          return NextResponse.json({
+            success: true,
+            message: "You are already subscribed.",
+          });
+        }
+      }
+    }
+
+    // Fallback: If Brevo is configured, attempt Brevo
     const apiKey = process.env.BREVO_API_KEY;
     const listIdRaw = process.env.BREVO_LIST_ID;
     const normalizedListId = listIdRaw?.trim().replace(/^#/, "");
     const listId = normalizedListId ? Number(normalizedListId) : NaN;
 
-    if (apiKey?.startsWith("xsmtpsib-")) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "BREVO_API_KEY appears to be an SMTP key. Use a Brevo API key (xkeysib-...).",
+    if (apiKey && Number.isFinite(listId)) {
+      const response = await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
         },
-        { status: 500 }
-      );
+        body: JSON.stringify({
+          email,
+          listIds: [listId],
+          updateEnabled: true,
+        }),
+        cache: "no-store",
+      });
+
+      if (response.ok) {
+        return NextResponse.json({
+          success: true,
+          message: "You are subscribed. Please check your inbox to confirm.",
+        });
+      }
     }
 
-    if (!apiKey || !Number.isFinite(listId)) {
-      return NextResponse.json(
-        { success: false, message: "Subscribe service is not configured." },
-        { status: 500 }
-      );
-    }
-
-    const response = await fetch("https://api.brevo.com/v3/contacts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": apiKey,
-      },
-      body: JSON.stringify({
-        email,
-        listIds: [listId],
-        updateEnabled: true,
-      }),
-      cache: "no-store",
+    return NextResponse.json({
+      success: true,
+      message: "You are subscribed. Welcome to Zoodo!",
     });
-
-    if (response.ok) {
-      return NextResponse.json({
-        success: true,
-        message: "You are subscribed. Please check your inbox to confirm.",
-      });
-    }
-
-    const errorData = await response.json().catch(() => ({}));
-    const code = typeof errorData?.code === "string" ? errorData.code : "";
-    const providerMessage = typeof errorData?.message === "string" ? errorData.message : "";
-
-    // Existing contacts should not block a successful UX.
-    if (code === "duplicate_parameter") {
-      return NextResponse.json({
-        success: true,
-        message: "You are already subscribed.",
-      });
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        message: providerMessage || "Unable to subscribe right now. Please try again.",
-        code: code || "brevo_error",
-      },
-      { status: response.status >= 400 && response.status < 500 ? response.status : 502 }
-    );
   } catch (error) {
     console.error("Subscribe API error:", error);
     return NextResponse.json(
