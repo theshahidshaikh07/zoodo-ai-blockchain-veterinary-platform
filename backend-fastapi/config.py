@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from typing import List
+
+# Pre-load local .env if present
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Zoodo Veterinary & Pet Services Platform"

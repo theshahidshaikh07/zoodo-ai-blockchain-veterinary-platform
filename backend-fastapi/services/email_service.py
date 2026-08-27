@@ -9,8 +9,8 @@ logger = logging.getLogger("email_service")
 
 def _send_sync_email(to_email: str, subject: str, html_content: str, text_content: str) -> bool:
     """Internal synchronous sender running in a worker thread with TLS and SSL fallback."""
-    user = (settings.SMTP_USER or "").strip()
-    raw_pwd = (settings.SMTP_PASSWORD or "").strip()
+    user = (settings.SMTP_USER or os.getenv("SMTP_USER") or "").strip()
+    raw_pwd = (settings.SMTP_PASSWORD or os.getenv("SMTP_PASSWORD") or "").strip()
     
     if not user or not raw_pwd:
         logger.warning("SMTP credentials not configured (SMTP_USER or SMTP_PASSWORD missing). Email will not be sent.")
@@ -66,8 +66,8 @@ def _send_sync_email(to_email: str, subject: str, html_content: str, text_conten
 
 def test_smtp_diagnostic(to_email: str) -> dict:
     """Diagnose SMTP settings and test dispatching an email."""
-    user = (settings.SMTP_USER or "").strip()
-    raw_pwd = (settings.SMTP_PASSWORD or "").strip()
+    user = (settings.SMTP_USER or os.getenv("SMTP_USER") or "").strip()
+    raw_pwd = (settings.SMTP_PASSWORD or os.getenv("SMTP_PASSWORD") or "").strip()
     clean_pwd = raw_pwd.strip("'\"").replace(" ", "")
 
     diag = {
