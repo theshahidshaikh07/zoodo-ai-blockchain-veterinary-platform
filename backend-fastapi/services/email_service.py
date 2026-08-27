@@ -80,28 +80,32 @@ def _send_http_resend(api_key: str, to_email: str, subject: str, html_content: s
                 logger.info(f"[+] Resend HTTP Email sent successfully to {to_email}!")
                 print(f"[+] Email successfully delivered to {to_email} via Resend HTTP API (Port 443)!")
                 return True
+    except urllib.error.HTTPError as e_http:
+        err_body = e_http.read().decode("utf-8", errors="ignore")
+        logger.error(f"[!] Resend HTTP Error {e_http.code}: {err_body}")
+        print(f"[!] Resend HTTP Error {e_http.code}: {err_body}")
     except Exception as e:
         logger.error(f"[!] Resend HTTP Email failed: {e}")
         print(f"[!] Resend HTTP Email failed: {e}")
     return False
 
 def _send_sync_email(to_email: str, subject: str, html_content: str, text_content: str) -> bool:
-    """Internal email dispatcher with HTTP REST API (Port 443) priority and direct SMTP fallback."""
-    # 1. Check Brevo HTTP API (Port 443 - works 100% on Render Free Tier)
-    brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
-    if brevo_key:
-        print(f"[*] Attempting email delivery to {to_email} via Brevo HTTP API (Port 443)...")
-        if _send_http_brevo(brevo_key, to_email, subject, html_content, text_content):
-            return True
-
-    # 2. Check Resend HTTP API (Port 443)
+    """Internal email dispatcher with Resend HTTP API (Port 443) priority and direct SMTP fallback."""
+    # 1. Resend HTTP API (Port 443 - zero IP restrictions, built for cloud platforms)
     resend_key = (getattr(settings, "RESEND_API_KEY", "") or os.getenv("RESEND_API_KEY") or "").strip()
     if resend_key:
         print(f"[*] Attempting email delivery to {to_email} via Resend HTTP API (Port 443)...")
         if _send_http_resend(resend_key, to_email, subject, html_content, text_content):
             return True
 
-    # 3. Fallback to direct SMTP (Works on localhost or paid cloud instances)
+    # Brevo temporarily commented out per user request
+    # brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
+    # if brevo_key:
+    #     print(f"[*] Attempting email delivery to {to_email} via Brevo HTTP API (Port 443)...")
+    #     if _send_http_brevo(brevo_key, to_email, subject, html_content, text_content):
+    #         return True
+
+    # 2. Fallback to direct SMTP (Works on localhost or paid cloud instances)
     user = (settings.SMTP_USER or os.getenv("SMTP_USER") or "").strip()
     raw_pwd = (settings.SMTP_PASSWORD or os.getenv("SMTP_PASSWORD") or "").strip()
     
@@ -208,6 +212,7 @@ def test_smtp_diagnostic(to_email: str) -> dict:
         "This is a test verification message confirming that Gmail SMTP is operating correctly."
     )
     diag["email_dispatched"] = sent
+    diag["provider_used"] = "Resend (Port 443 HTTPS)" if resend_key else "SMTP"
     return diag
 
 def send_otp_email(to_email: str, recipient_name: str, otp_code: str) -> bool:
