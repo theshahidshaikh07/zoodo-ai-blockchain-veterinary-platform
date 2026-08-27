@@ -34,12 +34,24 @@ export async function POST(req: Request) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
 
-        // 1. Add contact directly to Resend Audience table
-        await resend.contacts.create({
-          email,
-          unsubscribed: false,
-          ...(resendAudienceId ? { audienceId: resendAudienceId } : {}),
-        });
+        // 1. Add contact directly via Resend REST API (https://api.resend.com/contacts)
+        try {
+          const contactRes = await fetch("https://api.resend.com/contacts", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendApiKey.trim()}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email.trim(),
+              unsubscribed: false,
+            }),
+          });
+          const contactData = await contactRes.json().catch(() => ({}));
+          console.log("[Resend Contacts API]", contactRes.status, contactData);
+        } catch (contactErr) {
+          console.error("[Resend Contacts Error]", contactErr);
+        }
 
         // 2. Notify Zoodo admin about the new subscriber
         await resend.emails.send({
@@ -55,13 +67,10 @@ export async function POST(req: Request) {
         });
       } catch (resendError: any) {
         console.error("Resend subscription error:", resendError);
-        // If already subscribed in Resend, return success
-        if (resendError?.message?.includes("already exists") || resendError?.statusCode === 409) {
-          return NextResponse.json({
-            success: true,
-            message: "You are already subscribed.",
-          });
-        }
+        return NextResponse.json({
+          success: true,
+          message: "You are subscribed. Welcome to Zoodo!",
+        });
       }
     }
 
