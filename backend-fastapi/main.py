@@ -15,6 +15,10 @@ def ensure_super_admin():
     """Ensure the Super Admin account exists in the database on boot."""
     db = SessionLocal()
     try:
+        if not settings.ADMIN_PASSWORD:
+            print("[*] ADMIN_PASSWORD not configured in environment. Skipping auto-seed.")
+            return
+
         admin_user = db.query(models.User).filter(
             (models.User.username == settings.ADMIN_USERNAME) | 
             (models.User.email == settings.ADMIN_EMAIL)

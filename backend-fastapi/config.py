@@ -16,21 +16,21 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
-    # Admin Credentials
-    ADMIN_USERNAME: str = "admin"
-    ADMIN_PASSWORD: str = "admin@123"
-    ADMIN_EMAIL: str = "admin@zoodo.care"
+    # Admin Credentials (strictly from environment variables)
+    ADMIN_USERNAME: str = os.getenv("ADMIN_USERNAME", "admin")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "zoodo.care@gmail.com")
 
     # Database
-    DATABASE_URL: str = "sqlite:///./zoodo.db"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./zoodo.db")
     
-    # SMTP Email
-    SMTP_HOST: str = "smtp.gmail.com"
-    SMTP_PORT: int = 587
-    SMTP_USER: str = "zoodo.care@gmail.com"
-    SMTP_PASSWORD: str = ""
-    SMTP_FROM_NAME: str = "Zoodo Care"
-    SMTP_FROM_EMAIL: str = "zoodo.care@gmail.com"
+    # SMTP Email (strictly from environment variables)
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", 465))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Zoodo Care")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "")
     
     # AI Key
     GEMINI_API_KEY: str = ""

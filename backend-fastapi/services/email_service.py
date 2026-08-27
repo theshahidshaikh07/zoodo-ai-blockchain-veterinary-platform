@@ -33,35 +33,35 @@ def _send_sync_email(to_email: str, subject: str, html_content: str, text_conten
     msg.attach(MIMEText(text_content, "plain", "utf-8"))
     msg.attach(MIMEText(html_content, "html", "utf-8"))
 
-    # Attempt 1: Port 587 with STARTTLS
+    # Attempt 1: Port 465 with direct SMTP_SSL (Fastest and immune to cloud port 587 blocking)
     try:
-        print(f"[*] Attempting email delivery to {to_email} via {settings.SMTP_HOST}:{settings.SMTP_PORT} (STARTTLS)...")
-        server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=12)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(user, clean_password)
-        server.sendmail(from_email, [to_email], msg.as_string())
-        server.quit()
-        logger.info(f"Email successfully sent to {to_email} with subject '{subject}'")
-        print(f"[+] Email successfully delivered to {to_email} via port {settings.SMTP_PORT}!")
+        print(f"[*] Attempting email delivery to {to_email} via {settings.SMTP_HOST}:465 (SSL)...")
+        ssl_server = smtplib.SMTP_SSL(settings.SMTP_HOST, 465, timeout=10)
+        ssl_server.ehlo()
+        ssl_server.login(user, clean_password)
+        ssl_server.sendmail(from_email, [to_email], msg.as_string())
+        ssl_server.quit()
+        logger.info(f"Email successfully sent to {to_email} via SSL port 465!")
+        print(f"[+] Email successfully delivered to {to_email} via SSL port 465!")
         return True
-    except Exception as e_starttls:
-        print(f"[!] Port {settings.SMTP_PORT} (STARTTLS) failed: {e_starttls}. Attempting SSL fallback (port 465)...")
+    except Exception as e_ssl:
+        print(f"[!] Port 465 (SSL) failed: {e_ssl}. Attempting fallback via port 587 (STARTTLS)...")
         
-        # Attempt 2: Port 465 with direct SMTP_SSL (frequently resolves cloud host port 587 blockages)
+        # Attempt 2: Port 587 with STARTTLS fallback
         try:
-            ssl_server = smtplib.SMTP_SSL(settings.SMTP_HOST, 465, timeout=12)
-            ssl_server.ehlo()
-            ssl_server.login(user, clean_password)
-            ssl_server.sendmail(from_email, [to_email], msg.as_string())
-            ssl_server.quit()
-            logger.info(f"Email successfully sent to {to_email} via SSL port 465!")
-            print(f"[+] Email successfully delivered to {to_email} via SSL port 465!")
+            server = smtplib.SMTP(settings.SMTP_HOST, 587, timeout=10)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(user, clean_password)
+            server.sendmail(from_email, [to_email], msg.as_string())
+            server.quit()
+            logger.info(f"Email successfully sent to {to_email} with subject '{subject}' via port 587")
+            print(f"[+] Email successfully delivered to {to_email} via port 587!")
             return True
-        except Exception as e_ssl:
-            logger.error(f"Failed to send email to {to_email}: STARTTLS error: {e_starttls} | SSL error: {e_ssl}")
-            print(f"[!] Email delivery completely failed for {to_email}: {e_ssl}")
+        except Exception as e_starttls:
+            logger.error(f"Failed to send email to {to_email}: SSL error: {e_ssl} | STARTTLS error: {e_starttls}")
+            print(f"[!] Email delivery completely failed for {to_email}: {e_starttls}")
             return False
 
 def test_smtp_diagnostic(to_email: str) -> dict:

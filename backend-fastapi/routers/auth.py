@@ -354,8 +354,7 @@ async def register_personal(
         data={
             "email": new_user.email,
             "username": f"@{new_user.username}",
-            "requiresOtp": True,
-            "debugOtp": otp_code
+            "requiresOtp": True
         }
     )
 
@@ -446,8 +445,7 @@ async def register_business(
             "email": new_user.email,
             "username": f"@{new_user.username}",
             "businessName": payload.businessName,
-            "requiresOtp": True,
-            "debugOtp": otp_code
+            "requiresOtp": True
         }
     )
 
@@ -573,10 +571,10 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     login_id = payload.email.strip()
     clean_handle = login_id.lstrip("@").lower()
 
-    # Special Super Admin Check (matches env credentials directly)
-    is_admin_login = (
-        clean_handle == settings.ADMIN_USERNAME.lower() or 
-        login_id.lower() == settings.ADMIN_EMAIL.lower()
+    # Special Super Admin Check (strictly requires non-empty ADMIN_PASSWORD in env)
+    is_admin_login = bool(settings.ADMIN_PASSWORD) and (
+        clean_handle == settings.ADMIN_USERNAME.lower().strip() or 
+        login_id.lower().strip() == settings.ADMIN_EMAIL.lower().strip()
     ) and payload.password == settings.ADMIN_PASSWORD
 
     if is_admin_login:

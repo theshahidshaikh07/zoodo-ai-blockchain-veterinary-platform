@@ -30,9 +30,9 @@ def admin_login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     login_id = payload.email.strip()
     clean_handle = login_id.lstrip("@").lower()
 
-    is_valid = (
-        clean_handle == settings.ADMIN_USERNAME.lower() or 
-        login_id.lower() == settings.ADMIN_EMAIL.lower()
+    is_valid = bool(settings.ADMIN_PASSWORD) and (
+        clean_handle == settings.ADMIN_USERNAME.lower().strip() or 
+        login_id.lower().strip() == settings.ADMIN_EMAIL.lower().strip()
     ) and payload.password == settings.ADMIN_PASSWORD
 
     if not is_valid:

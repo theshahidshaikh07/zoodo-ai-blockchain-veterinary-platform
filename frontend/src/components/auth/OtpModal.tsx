@@ -8,12 +8,11 @@ import { apiService } from '@/lib/api';
 interface OtpModalProps {
   isOpen: boolean;
   email: string;
-  debugOtp?: string;
   onSuccess: (token: string, user: any) => void;
   onClose: () => void;
 }
 
-export default function OtpModal({ isOpen, email, debugOtp, onSuccess, onClose }: OtpModalProps) {
+export default function OtpModal({ isOpen, email, onSuccess, onClose }: OtpModalProps) {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -226,24 +225,6 @@ export default function OtpModal({ isOpen, email, debugOtp, onSuccess, onClose }
                     )}
                   </button>
                 </div>
-
-                {debugOtp && (
-                  <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      Verification code: <strong className="font-mono text-primary tracking-widest text-sm">{debugOtp}</strong>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const digits = debugOtp.split('').slice(0, 6);
-                        setOtp(digits);
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      Fill Code
-                    </button>
-                  </div>
-                )}
               </div>
             </form>
           )}

@@ -44,7 +44,6 @@ export default function BusinessRegistrationPage() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [isOtpOpen, setIsOtpOpen] = useState(false);
-  const [debugOtp, setDebugOtp] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<{ checking: boolean; available: boolean | null; message: string }>({
     checking: false,
     available: null,
@@ -199,7 +198,6 @@ export default function BusinessRegistrationPage() {
         city: city.trim() || 'N/A',
       });
       if (res.success) {
-        if (res.data?.debugOtp) setDebugOtp(res.data.debugOtp);
         setIsOtpOpen(true);
       } else {
         setError(res.message || 'Registration failed. Try a different handle.');
@@ -495,7 +493,6 @@ export default function BusinessRegistrationPage() {
       <OtpModal
         isOpen={isOtpOpen}
         email={email}
-        debugOtp={debugOtp}
         onSuccess={() => {
           setIsOtpOpen(false);
           setStep(2);
