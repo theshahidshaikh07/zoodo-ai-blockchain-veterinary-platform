@@ -1,5 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
-const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000';
+const LOCAL_API_URL = 'http://127.0.0.1:8000/api/v1';
+const CLOUD_API_URL = 'https://zoodo-core-api.onrender.com/api/v1';
+const PRIMARY_API_URL = process.env.NEXT_PUBLIC_API_URL || LOCAL_API_URL;
+const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://127.0.0.1:8000';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -125,11 +127,22 @@ class ApiService {
     return null;
   }
 
+  private getBaseUrl(): string {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      if (host.includes('zoodo.dev') || host.includes('vercel.app')) {
+        return CLOUD_API_URL;
+      }
+    }
+    return PRIMARY_API_URL;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const baseUrl = this.getBaseUrl();
+    const url = `${baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {
       ...options.headers as Record<string, string>,
@@ -152,25 +165,23 @@ class ApiService {
     };
 
     try {
-      console.log('Making request to:', url);
-      console.log('Request options:', defaultOptions);
-      console.log('Body type:', typeof defaultOptions.body);
-      console.log('Body instanceof FormData:', defaultOptions.body instanceof FormData);
-
       const response = await fetch(url, defaultOptions);
 
       // Check if response is ok
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+          const errBody = await response.json();
+          return errBody;
+        } catch {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       }
 
       // Check if response has content
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        // Handle non-JSON responses
         const text = await response.text();
         if (text.trim() === '') {
-          // Empty response - return a default success response
           return {
             success: true,
             message: 'Request completed successfully',
@@ -180,17 +191,26 @@ class ApiService {
         throw new Error(`Expected JSON response but got: ${contentType}`);
       }
 
-      // Try to parse JSON
-      let data: ApiResponse<T>;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        console.error('Failed to parse JSON response:', parseError);
-        throw new Error('Invalid JSON response from server');
+      return await response.json();
+    } catch (error: any) {
+      // Automatic fallback to cloud Render backend if local host (127.0.0.1:8000) is unreachable
+      if (baseUrl !== CLOUD_API_URL) {
+        console.warn(`Local backend at ${baseUrl} unreachable. Retrying via live Cloud API...`);
+        try {
+          const fallbackUrl = `${CLOUD_API_URL}${endpoint}`;
+          const fallbackResponse = await fetch(fallbackUrl, defaultOptions);
+          if (fallbackResponse.ok) {
+            return await fallbackResponse.json();
+          } else {
+            try {
+              return await fallbackResponse.json();
+            } catch {}
+          }
+        } catch (fallbackError) {
+          console.error('Fallback cloud API also unreachable:', fallbackError);
+        }
       }
 
-      return data;
-    } catch (error) {
       console.error('API request failed:', error);
 
       // Return a structured error response
@@ -460,16 +480,23 @@ class ApiService {
   async loginAdmin(credentials: {
     usernameOrEmail: string;
     password: string;
-  }): Promise<ApiResponse<{ token: string }>> {
-    const response = await this.request<{ token: string }>('/admin/login', {
+  }): Promise<ApiResponse<{ token: string; user?: any }>> {
+    const response = await this.request<{ token: string; user?: any }>('/admin/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
+      body: JSON.stringify({
+        email: credentials.usernameOrEmail,
+        password: credentials.password
+      }),
     });
 
     // Store JWT token if login is successful
     if (response.success && response.data?.token) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('jwt_token', response.data.token);
+        if (response.data.user) {
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem('zoodo_user', JSON.stringify(response.data.user));
+        }
       }
     }
 
@@ -975,6 +1002,71 @@ class ApiService {
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
+  }
+
+  // ==========================================
+  // SUPER ADMIN COMMAND CENTER METHODS
+  // ==========================================
+  async getAdminOverview(): Promise<ApiResponse<{
+    counts: {
+      totalUsers: number;
+      totalBusinesses: number;
+      verifiedBusinesses: number;
+      pendingBusinesses: number;
+      totalPets: number;
+      totalAppointments: number;
+      totalOtps: number;
+    };
+    users: any[];
+    businesses: any[];
+    pets: any[];
+    appointments: any[];
+    otps: any[];
+  }>> {
+    return this.request<any>('/admin/overview');
+  }
+
+  async loginAdmin(credentials: {
+    usernameOrEmail: string;
+    password: string;
+  }): Promise<ApiResponse<{ token: string; user: any }>> {
+    const res = await this.request<{ token: string; user: any }>('/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
+    });
+    if (res.success && res.data?.token && typeof window !== 'undefined') {
+      localStorage.setItem('jwt_token', res.data.token);
+      if (res.data.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      }
+    }
+    return res;
+  }
+
+  async verifyBusiness(payload: { businessId: string; status: string; notes?: string }): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin/verify-business', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async verifyDocument(payload: { documentId: string; status: string; rejectReason?: string }): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin/verify-document', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteAdminUser(userId: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async adminClearDatabase(): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin/clear-db', {
+      method: 'POST',
+    });
   }
 
 }

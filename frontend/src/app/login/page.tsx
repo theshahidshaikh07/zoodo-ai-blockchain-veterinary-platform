@@ -31,10 +31,10 @@ export default function LoginPage() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const router = useRouter();
-  const { login, loginWithGoogle, isLoading, isAuthenticated, user } = useAuth();
-
-
+  const { login, loginAdmin, loginWithGoogle, isLoading, isAuthenticated, user } = useAuth();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -47,10 +47,9 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, router]);
 
-
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setErrorMessage('');
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -59,45 +58,49 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
     if (!formData.usernameOrEmail || !formData.password) {
+      setErrorMessage('Please enter both username/email and password.');
       return;
     }
 
-    const success = await login({
-      usernameOrEmail: formData.usernameOrEmail,
-      password: formData.password
-    });
+    const cleanId = formData.usernameOrEmail.trim().toLowerCase();
+    const isAdminAttempt = cleanId === 'admin' || cleanId === 'admin@zoodo.care';
+
+    let success = false;
+    if (isAdminAttempt) {
+      success = await loginAdmin({
+        usernameOrEmail: formData.usernameOrEmail.trim(),
+        password: formData.password
+      });
+      if (!success) {
+        success = await login({
+          usernameOrEmail: formData.usernameOrEmail.trim(),
+          password: formData.password
+        });
+      }
+    } else {
+      success = await login({
+        usernameOrEmail: formData.usernameOrEmail.trim(),
+        password: formData.password
+      });
+    }
 
     if (success) {
-      // Get user data from localStorage (set by AuthContext) and redirect immediately
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         try {
           const userData = JSON.parse(storedUser);
           const dashboardRoute = getDashboardRoute(userData.userType);
           router.push(dashboardRoute);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          router.push(getDashboardRoute('pet_owner'));
+        } catch {
+          router.push(isAdminAttempt ? '/dashboard/admin' : '/dashboard/pet-owner');
         }
       } else {
-        // Fallback: wait a moment and try again
-        setTimeout(() => {
-          const storedUser = localStorage.getItem('user');
-          if (storedUser) {
-            try {
-              const userData = JSON.parse(storedUser);
-              const dashboardRoute = getDashboardRoute(userData.userType);
-              router.push(dashboardRoute);
-            } catch (error) {
-              console.error('Error parsing user data:', error);
-              router.push(getDashboardRoute('pet_owner'));
-            }
-          } else {
-            router.push(getDashboardRoute('pet_owner'));
-          }
-        }, 200);
+        router.push(isAdminAttempt ? '/dashboard/admin' : '/dashboard/pet-owner');
       }
+    } else {
+      setErrorMessage('Invalid username or password. Please check your credentials.');
     }
   };
 
@@ -205,6 +208,12 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+
+            {errorMessage && (
+              <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm text-center">
+                {errorMessage}
+              </div>
+            )}
 
             {/* Continue Button */}
             <Button

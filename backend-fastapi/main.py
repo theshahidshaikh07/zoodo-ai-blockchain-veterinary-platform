@@ -4,10 +4,46 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from database import engine, Base
 import models
-from routers import auth, business, pets, appointments, ai
+from routers import auth, business, pets, appointments, ai, admin
+import security
+from database import SessionLocal
 
 # Initialize DB tables automatically on boot
 Base.metadata.create_all(bind=engine)
+
+def ensure_super_admin():
+    """Ensure the Super Admin account exists in the database on boot."""
+    db = SessionLocal()
+    try:
+        admin_user = db.query(models.User).filter(
+            (models.User.username == settings.ADMIN_USERNAME) | 
+            (models.User.email == settings.ADMIN_EMAIL)
+        ).first()
+        if not admin_user:
+            admin_user = models.User(
+                username=settings.ADMIN_USERNAME,
+                email=settings.ADMIN_EMAIL,
+                hashed_password=security.get_password_hash(settings.ADMIN_PASSWORD),
+                first_name="Super",
+                last_name="Admin",
+                user_type="admin",
+                is_verified=True,
+                is_active=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print(f"[*] Super Admin '{settings.ADMIN_USERNAME}' initialized successfully.")
+        else:
+            admin_user.user_type = "admin"
+            admin_user.is_verified = True
+            admin_user.hashed_password = security.get_password_hash(settings.ADMIN_PASSWORD)
+            db.commit()
+    except Exception as e:
+        print(f"[!] Super Admin auto-seed warning: {e}")
+    finally:
+        db.close()
+
+ensure_super_admin()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -33,6 +69,7 @@ app.include_router(business.router, prefix=settings.API_V1_STR)
 app.include_router(pets.router, prefix=settings.API_V1_STR)
 app.include_router(appointments.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
+app.include_router(admin.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

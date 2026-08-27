@@ -259,6 +259,7 @@ export default function PersonalRegistrationPage() {
   const [password, setPassword] = useState('');
   const [pets, setPets] = useState<PetData[]>([makePet()]);
   const [isOtpOpen, setIsOtpOpen] = useState(false);
+  const [debugOtp, setDebugOtp] = useState('');
 
   const [focused, setFocused] = useState<Record<string, boolean>>({});
   const ff = (name: string, v: boolean) => setFocused(p => ({ ...p, [name]: v }));
@@ -424,6 +425,7 @@ export default function PersonalRegistrationPage() {
         userType: 'pet_owner',
       });
       if (res.success) {
+        if (res.data?.debugOtp) setDebugOtp(res.data.debugOtp);
         setIsOtpOpen(true);
       } else {
         setError(res.message || 'Registration failed. Choose another username.');
@@ -657,6 +659,7 @@ export default function PersonalRegistrationPage() {
       <OtpModal
         isOpen={isOtpOpen}
         email={email}
+        debugOtp={debugOtp}
         onSuccess={() => {
           setIsOtpOpen(false);
           setStep(2);

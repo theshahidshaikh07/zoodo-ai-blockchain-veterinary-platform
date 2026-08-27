@@ -8,7 +8,7 @@ import {
   Home, Calendar, Store, ShieldCheck, BarChart2, Settings,
   LogOut, Upload, Check, Clock, AlertCircle, ChevronRight,
   Phone, MapPin, Globe, Star, Eye, Bell, CreditCard, Info,
-  Save, X, Building2
+  Save, X, Building2, CheckCircle2, Award
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiService } from '@/lib/api';
@@ -41,6 +41,7 @@ interface BusinessProfile {
   pan: string;
   bankAccount: string;
   upi: string;
+  verificationStatus?: string;
   notifBookings: boolean;
   notifReviews: boolean;
   notifVerification: boolean;
@@ -174,8 +175,25 @@ function Sidebar({ active, setActive, user, biz, onLogout }: {
           <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary shrink-0">
             {initials}
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{biz.businessName || `${user?.firstName}'s Business`}</p>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-medium text-foreground truncate">{biz.businessName || `${user?.firstName}'s Business`}</p>
+              {biz.verificationStatus === 'verified' && (
+                <span title="Verified Business (Official Green Tick)" className="text-emerald-500 shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </span>
+              )}
+              {biz.verificationStatus === 'rejected' && (
+                <span title="Verification Rejected by Admin" className="text-rose-500 shrink-0">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                </span>
+              )}
+              {(!biz.verificationStatus || biz.verificationStatus === 'pending' || biz.verificationStatus === 'under_review') && (
+                <span title="Verification Pending Review" className="text-amber-500 shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
           </div>
         </div>
@@ -205,34 +223,101 @@ function MobileNav({ active, setActive }: { active: Section; setActive: (s: Sect
 }
 
 // ─── Verification status banner ───────────────────────────
-function VerifBanner({ docs, setActive }: { docs: Doc[]; setActive: (s: Section) => void }) {
+function VerifBanner({ docs, setActive, verificationStatus }: { docs: Doc[]; setActive: (s: Section) => void; verificationStatus?: string }) {
+  const currentStatus = (verificationStatus || 'pending').toLowerCase();
+
+  // State 1: Officially Approved & Verified by Super Admin
+  if (currentStatus === 'verified') {
+    return (
+      <div className="mx-6 mt-5 rounded-2xl p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-center justify-between gap-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+              Verified Zoodo Provider
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                Official Green Tick ✓
+              </span>
+            </p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+              Your license and business credentials have been officially verified by Super Admin. Your listing features trust badges!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // State 2: Rejected by Super Admin
+  if (currentStatus === 'rejected') {
+    return (
+      <div className="mx-6 mt-5 rounded-2xl p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 flex items-center justify-between gap-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-rose-900 dark:text-rose-200 flex items-center gap-1.5">
+              Verification Rejected
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400">
+                Action Required ✕
+              </span>
+            </p>
+            <p className="text-xs text-rose-700 dark:text-rose-400 mt-0.5">
+              Your business documents were rejected by the Super Admin. Please review document feedback and re-upload valid proofs.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setActive('verification')}
+          className="shrink-0 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-all shadow-sm"
+        >
+          Review Docs
+        </button>
+      </div>
+    );
+  }
+
+  // State 3: Pending / Under Review by Super Admin
   const verified = docs.filter(d => d.status === 'verified').length;
   const total = docs.length;
   const needsAction = docs.some(d => d.status === 'needs_action');
-  const allVerified = verified === total && total > 0;
-
-  if (allVerified) return null;
 
   return (
-    <div className={`mx-6 mt-5 rounded-2xl p-4 flex items-center gap-3 ${
+    <div className={`mx-6 mt-5 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm border ${
       needsAction
-        ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-        : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'
+        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+        : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
     }`}>
-      <AlertCircle className={`w-5 h-5 shrink-0 ${needsAction ? 'text-red-500' : 'text-amber-500'}`} />
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold ${needsAction ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
-          {needsAction ? 'Action required — some documents need resubmission' : `Verification in progress — ${verified} of ${total} documents approved`}
-        </p>
-        <p className={`text-xs mt-0.5 ${needsAction ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
-          Your listing will go live once all required documents are verified.
-        </p>
+      <div className="flex items-center gap-3">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+          needsAction ? 'bg-red-500/20 text-red-600 dark:text-red-400' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+        }`}>
+          {needsAction ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+        </div>
+        <div>
+          <p className={`text-sm font-semibold flex items-center gap-2 ${needsAction ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
+            {needsAction ? 'Action required — some documents need resubmission' : 'Pending Admin Verification'}
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300">
+              {verified} of {total} documents approved
+            </span>
+          </p>
+          <p className={`text-xs mt-0.5 ${needsAction ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+            Your listing will receive the Official Green Tick badge once approved by Super Admin.
+          </p>
+        </div>
       </div>
-      <button onClick={() => setActive('verification')}
-        className={`text-xs font-medium shrink-0 px-3 py-1.5 rounded-full ${
-          needsAction ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40' : 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40'
-        } transition-all`}>
-        Fix now <ChevronRight className="inline w-3 h-3" />
+      <button
+        onClick={() => setActive('verification')}
+        className={`text-xs font-semibold shrink-0 px-3.5 py-1.5 rounded-xl transition-all ${
+          needsAction
+            ? 'bg-red-600 hover:bg-red-700 text-white'
+            : 'bg-amber-600 hover:bg-amber-700 text-white'
+        }`}
+      >
+        View docs
       </button>
     </div>
   );
@@ -749,7 +834,7 @@ export default function BusinessDashboard() {
 
       <main className="flex-1 overflow-y-auto pb-16 lg:pb-0 flex flex-col">
         {section !== 'bookings' && section !== 'analytics' && (
-          <VerifBanner docs={docs} setActive={setSection} />
+          <VerifBanner docs={docs} setActive={setSection} verificationStatus={biz.verificationStatus} />
         )}
         <div className="flex-1">
           {section === 'overview' && (

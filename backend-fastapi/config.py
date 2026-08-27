@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
+    # Admin Credentials
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "admin@123"
+    ADMIN_EMAIL: str = "admin@zoodo.care"
+
     # Database
     DATABASE_URL: str = "sqlite:///./zoodo.db"
     

@@ -8,38 +8,116 @@ from config import settings
 logger = logging.getLogger("email_service")
 
 def _send_sync_email(to_email: str, subject: str, html_content: str, text_content: str) -> bool:
-    """Internal synchronous sender running in a worker thread."""
-    if not settings.SMTP_PASSWORD or not settings.SMTP_USER:
-        logger.warning("SMTP credentials not configured. Email will not be sent.")
+    """Internal synchronous sender running in a worker thread with TLS and SSL fallback."""
+    user = (settings.SMTP_USER or "").strip()
+    raw_pwd = (settings.SMTP_PASSWORD or "").strip()
+    
+    if not user or not raw_pwd:
+        logger.warning("SMTP credentials not configured (SMTP_USER or SMTP_PASSWORD missing). Email will not be sent.")
+        print(f"[!] SMTP Warning: SMTP_USER='{user}', SMTP_PASSWORD set={bool(raw_pwd)}. Email skipped.")
         return False
 
-    # Normalize Google App Password by removing any spaces
-    clean_password = settings.SMTP_PASSWORD.replace(" ", "")
-    
+    # Normalize Google App Password (remove spaces, quotes)
+    clean_password = raw_pwd.strip("'\"").replace(" ", "")
+
+    # In Gmail SMTP, the From address MUST match the authenticated SMTP_USER
+    # or Gmail will reject the message (553 5.7.1 The from address does not match)
+    from_email = user if "@" in user else (settings.SMTP_FROM_EMAIL or user)
+    from_name = settings.SMTP_FROM_NAME or "Zoodo Care"
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"{settings.SMTP_FROM_NAME} <{settings.SMTP_FROM_EMAIL}>"
+    msg["From"] = f"{from_name} <{from_email}>"
     msg["To"] = to_email
 
     msg.attach(MIMEText(text_content, "plain", "utf-8"))
     msg.attach(MIMEText(html_content, "html", "utf-8"))
 
+    # Attempt 1: Port 587 with STARTTLS
     try:
-        server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15)
+        print(f"[*] Attempting email delivery to {to_email} via {settings.SMTP_HOST}:{settings.SMTP_PORT} (STARTTLS)...")
+        server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=12)
         server.ehlo()
         server.starttls()
         server.ehlo()
-        server.login(settings.SMTP_USER, clean_password)
-        server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())
+        server.login(user, clean_password)
+        server.sendmail(from_email, [to_email], msg.as_string())
         server.quit()
         logger.info(f"Email successfully sent to {to_email} with subject '{subject}'")
+        print(f"[+] Email successfully delivered to {to_email} via port {settings.SMTP_PORT}!")
         return True
-    except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {e}")
-        return False
+    except Exception as e_starttls:
+        print(f"[!] Port {settings.SMTP_PORT} (STARTTLS) failed: {e_starttls}. Attempting SSL fallback (port 465)...")
+        
+        # Attempt 2: Port 465 with direct SMTP_SSL (frequently resolves cloud host port 587 blockages)
+        try:
+            ssl_server = smtplib.SMTP_SSL(settings.SMTP_HOST, 465, timeout=12)
+            ssl_server.ehlo()
+            ssl_server.login(user, clean_password)
+            ssl_server.sendmail(from_email, [to_email], msg.as_string())
+            ssl_server.quit()
+            logger.info(f"Email successfully sent to {to_email} via SSL port 465!")
+            print(f"[+] Email successfully delivered to {to_email} via SSL port 465!")
+            return True
+        except Exception as e_ssl:
+            logger.error(f"Failed to send email to {to_email}: STARTTLS error: {e_starttls} | SSL error: {e_ssl}")
+            print(f"[!] Email delivery completely failed for {to_email}: {e_ssl}")
+            return False
 
-async def send_otp_email(to_email: str, recipient_name: str, otp_code: str) -> bool:
-    """Send branded 6-digit OTP verification email."""
+def test_smtp_diagnostic(to_email: str) -> dict:
+    """Diagnose SMTP settings and test dispatching an email."""
+    user = (settings.SMTP_USER or "").strip()
+    raw_pwd = (settings.SMTP_PASSWORD or "").strip()
+    clean_pwd = raw_pwd.strip("'\"").replace(" ", "")
+
+    diag = {
+        "smtp_host": settings.SMTP_HOST,
+        "smtp_port": settings.SMTP_PORT,
+        "smtp_user": user if user else "NOT_CONFIGURED",
+        "has_password": bool(raw_pwd),
+        "password_length": len(clean_pwd),
+        "recipient": to_email,
+        "results": {}
+    }
+
+    if not user or not raw_pwd:
+        diag["error"] = "SMTP_USER or SMTP_PASSWORD is not set in environment variables."
+        return diag
+
+    # Test Port 587
+    try:
+        s = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10)
+        s.ehlo()
+        s.starttls()
+        s.ehlo()
+        s.login(user, clean_pwd)
+        s.quit()
+        diag["results"]["port_587_starttls"] = "SUCCESS - Credentials Authenticated"
+    except Exception as e:
+        diag["results"]["port_587_starttls"] = f"FAILED: {str(e)}"
+
+    # Test Port 465
+    try:
+        s_ssl = smtplib.SMTP_SSL(settings.SMTP_HOST, 465, timeout=10)
+        s_ssl.ehlo()
+        s_ssl.login(user, clean_pwd)
+        s_ssl.quit()
+        diag["results"]["port_465_ssl"] = "SUCCESS - Credentials Authenticated"
+    except Exception as e:
+        diag["results"]["port_465_ssl"] = f"FAILED: {str(e)}"
+
+    # Attempt sending a live test message
+    sent = _send_sync_email(
+        to_email,
+        "Zoodo SMTP Connection Test",
+        "<p>This is a test verification message confirming that Gmail SMTP is operating correctly on your Render backend.</p>",
+        "This is a test verification message confirming that Gmail SMTP is operating correctly."
+    )
+    diag["email_dispatched"] = sent
+    return diag
+
+def send_otp_email(to_email: str, recipient_name: str, otp_code: str) -> bool:
+    """Send branded 6-digit OTP verification email synchronously in background worker."""
     subject = f"{otp_code} is your Zoodo verification code"
     
     text_content = f"""
@@ -153,9 +231,9 @@ zoodo.care@gmail.com
 </body>
 </html>"""
 
-    return await asyncio.to_thread(_send_sync_email, to_email, subject, html_content, text_content)
+    return _send_sync_email(to_email, subject, html_content, text_content)
 
-async def send_welcome_email(to_email: str, recipient_name: str, user_type: str = "pet_owner") -> bool:
+def send_welcome_email(to_email: str, recipient_name: str, user_type: str = "pet_owner") -> bool:
     """Send welcome email upon successful verification."""
     is_biz = user_type == "business"
     subject = f"Welcome to Zoodo, {recipient_name}! 🐾"
@@ -182,4 +260,4 @@ async def send_welcome_email(to_email: str, recipient_name: str, user_type: str 
 </body>
 </html>"""
 
-    return await asyncio.to_thread(_send_sync_email, to_email, subject, html_content, text_content)
+    return _send_sync_email(to_email, subject, html_content, text_content)

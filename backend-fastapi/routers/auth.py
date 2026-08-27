@@ -10,6 +10,7 @@ from database import get_db
 import models
 import schemas
 import security
+from config import settings
 from services import email_service
 
 logger = logging.getLogger("auth_router")
@@ -59,20 +60,85 @@ def format_user_dict(user: models.User) -> dict:
         "createdAt": user.created_at.isoformat() if user.created_at else None,
     }
 
+@router.get("/dev-db-view")
+def dev_db_view(db: Session = Depends(get_db)):
+    """Developer endpoint to view all users, pets, businesses, and recent OTPs in the cloud database."""
+    users = db.query(models.User).order_by(models.User.created_at.desc()).all()
+    pets = db.query(models.Pet).all()
+    businesses = db.query(models.BusinessProfile).all()
+    otps = db.query(models.OtpVerification).order_by(models.OtpVerification.created_at.desc()).limit(10).all()
+    
+    return {
+        "success": True,
+        "counts": {
+            "users": len(users),
+            "pets": len(pets),
+            "businesses": len(businesses),
+        },
+        "users": [
+            {
+                "id": u.id,
+                "email": u.email,
+                "username": u.username,
+                "name": f"{u.first_name} {u.last_name}",
+                "userType": u.user_type,
+                "isVerified": u.is_verified,
+                "googleId": u.google_id,
+                "createdAt": u.created_at.isoformat() if u.created_at else None,
+            }
+            for u in users
+        ],
+        "pets": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "species": p.species,
+                "ownerId": p.owner_id
+            }
+            for p in pets
+        ],
+        "recent_otps": [
+            {
+                "email": o.email,
+                "code": o.otp_code,
+                "purpose": o.purpose,
+                "used": o.is_used,
+                "expiresAt": o.expires_at.isoformat() if o.expires_at else None
+            }
+            for o in otps
+        ]
+    }
+
+@router.get("/test-smtp")
+def test_smtp(to: str = ""):
+    """
+    Real-time diagnostic endpoint for testing Gmail SMTP.
+    Visit: /api/v1/test-smtp?to=your_email@gmail.com
+    """
+    target = to.strip() if to else settings.SMTP_USER
+    return email_service.test_smtp_diagnostic(target)
+
 @router.get("/dev-clear-database")
 def dev_clear_database(db: Session = Depends(get_db)):
     """Developer endpoint to reset DB for testing."""
     try:
         from sqlalchemy import text
-        db.execute(text("PRAGMA foreign_keys = OFF;"))
+        try:
+            db.execute(text("PRAGMA foreign_keys = OFF;"))
+        except Exception:
+            pass
+        db.query(models.Appointment).delete()
         db.query(models.Pet).delete()
         db.query(models.BusinessDocument).delete()
         db.query(models.BusinessProfile).delete()
         db.query(models.OtpVerification).delete()
         db.query(models.User).delete()
-        db.execute(text("PRAGMA foreign_keys = ON;"))
+        try:
+            db.execute(text("PRAGMA foreign_keys = ON;"))
+        except Exception:
+            pass
         db.commit()
-        return {"success": True, "message": "Database zoodo.db cleared successfully!"}
+        return {"success": True, "message": "Database cleared successfully! All users, pets, and appointments reset."}
     except Exception as e:
         db.rollback()
         return {"success": False, "error": str(e)}
@@ -109,6 +175,16 @@ def check_username(username: str, db: Session = Depends(get_db)):
                 available=False,
                 username=username,
                 message=str(e)
+            )
+        )
+
+    if clean_handle.lower() in ("admin", "administrator", "root", "support", settings.ADMIN_USERNAME.lower()):
+        return schemas.ApiResponse(
+            success=True,
+            data=schemas.UsernameCheckResponse(
+                available=False,
+                username=username,
+                message="This handle is reserved and cannot be registered."
             )
         )
 
@@ -201,6 +277,13 @@ async def register_personal(
         )
 
     # Check username uniqueness
+    if payload.username.lower() in ("admin", "administrator", "root", "support", settings.ADMIN_USERNAME.lower()):
+        return schemas.ApiResponse(
+            success=False,
+            message="This username is reserved and cannot be registered.",
+            error="USERNAME_RESERVED"
+        )
+
     if db.query(models.User).filter(models.User.username == payload.username).first():
         return schemas.ApiResponse(
             success=False,
@@ -271,7 +354,8 @@ async def register_personal(
         data={
             "email": new_user.email,
             "username": f"@{new_user.username}",
-            "requiresOtp": True
+            "requiresOtp": True,
+            "debugOtp": otp_code
         }
     )
 
@@ -293,6 +377,13 @@ async def register_business(
         )
 
     # Check username uniqueness
+    if payload.username.lower() in ("admin", "administrator", "root", "support", settings.ADMIN_USERNAME.lower()):
+        return schemas.ApiResponse(
+            success=False,
+            message="This username is reserved and cannot be registered.",
+            error="USERNAME_RESERVED"
+        )
+
     if db.query(models.User).filter(models.User.username == payload.username).first():
         return schemas.ApiResponse(
             success=False,
@@ -355,7 +446,8 @@ async def register_business(
             "email": new_user.email,
             "username": f"@{new_user.username}",
             "businessName": payload.businessName,
-            "requiresOtp": True
+            "requiresOtp": True,
+            "debugOtp": otp_code
         }
     )
 
@@ -480,6 +572,46 @@ async def resend_otp(
 def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     login_id = payload.email.strip()
     clean_handle = login_id.lstrip("@").lower()
+
+    # Special Super Admin Check (matches env credentials directly)
+    is_admin_login = (
+        clean_handle == settings.ADMIN_USERNAME.lower() or 
+        login_id.lower() == settings.ADMIN_EMAIL.lower()
+    ) and payload.password == settings.ADMIN_PASSWORD
+
+    if is_admin_login:
+        admin_user = db.query(models.User).filter(
+            (models.User.username == settings.ADMIN_USERNAME) | 
+            (models.User.email == settings.ADMIN_EMAIL)
+        ).first()
+        if not admin_user:
+            admin_user = models.User(
+                username=settings.ADMIN_USERNAME,
+                email=settings.ADMIN_EMAIL,
+                hashed_password=security.get_password_hash(settings.ADMIN_PASSWORD),
+                first_name="Super",
+                last_name="Admin",
+                user_type="admin",
+                is_verified=True,
+                is_active=True
+            )
+            db.add(admin_user)
+            db.commit()
+            db.refresh(admin_user)
+        else:
+            admin_user.user_type = "admin"
+            admin_user.is_verified = True
+            db.commit()
+
+        token = security.create_access_token({"sub": admin_user.id, "email": admin_user.email, "userType": "admin"})
+        return schemas.ApiResponse(
+            success=True,
+            message="Welcome back, Administrator!",
+            data=schemas.AuthResponseData(
+                token=token,
+                user=format_user_dict(admin_user)
+            )
+        )
 
     # Find user by either email or username
     user = db.query(models.User).filter(

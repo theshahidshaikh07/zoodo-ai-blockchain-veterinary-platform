@@ -116,25 +116,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiService.loginUser(credentials);
       
       if (response.success) {
-        // Get user profile after successful login
-        const userResponse = await apiService.getCurrentUser();
-          if (userResponse.success && userResponse.data) {
-            setUser(userResponse.data);
-            // Store user data in localStorage for persistence
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('user', JSON.stringify(userResponse.data));
+        const rawData = response.data as any;
+        const immediateUser = rawData?.user;
+        if (immediateUser) {
+          setUser(immediateUser);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(immediateUser));
+            if (rawData?.token) {
+              localStorage.setItem('jwt_token', rawData.token);
             }
-            notificationService.loginSuccess(userResponse.data.firstName);
-            setIsLoading(false);
-            return true;
-          } else {
-            notificationService.error({
-              title: 'Profile Load Failed',
-              description: 'Failed to load user profile after login',
-            });
-            setIsLoading(false);
-            return false;
           }
+          notificationService.loginSuccess(immediateUser.firstName || 'User');
+          setIsLoading(false);
+          return true;
+        }
+
+        // Get user profile after successful login fallback
+        const userResponse = await apiService.getCurrentUser();
+        if (userResponse.success && userResponse.data) {
+          setUser(userResponse.data);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(userResponse.data));
+          }
+          notificationService.loginSuccess(userResponse.data.firstName);
+          setIsLoading(false);
+          return true;
+        } else {
+          notificationService.error({
+            title: 'Profile Load Failed',
+            description: 'Failed to load user profile after login',
+          });
+          setIsLoading(false);
+          return false;
+        }
       }
       
       // Handle specific error messages
@@ -160,23 +174,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiService.loginAdmin(credentials);
       
       if (response.success) {
-        // Get user profile after successful login
-        const userResponse = await apiService.getCurrentUser();
-          if (userResponse.success && userResponse.data) {
-            setUser(userResponse.data);
-            // Store user data in localStorage for persistence
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('user', JSON.stringify(userResponse.data));
+        const rawData = response.data as any;
+        const immediateUser = rawData?.user;
+        if (immediateUser) {
+          setUser(immediateUser);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(immediateUser));
+            if (rawData?.token) {
+              localStorage.setItem('jwt_token', rawData.token);
             }
-            notificationService.success({
-              title: 'Admin Login Successful!',
-              description: 'Welcome to the admin dashboard.',
-              type: 'login',
-            });
-            setIsLoading(false);
-            return true;
           }
+          notificationService.success({
+            title: 'Admin Login Successful!',
+            description: 'Welcome to the admin dashboard.',
+            type: 'login',
+          });
+          setIsLoading(false);
+          return true;
         }
+
+        // Get user profile fallback
+        const userResponse = await apiService.getCurrentUser();
+        if (userResponse.success && userResponse.data) {
+          setUser(userResponse.data);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(userResponse.data));
+          }
+          notificationService.success({
+            title: 'Admin Login Successful!',
+            description: 'Welcome to the admin dashboard.',
+            type: 'login',
+          });
+          setIsLoading(false);
+          return true;
+        }
+      }
         
         notificationService.error({
           title: 'Admin Login Failed',
