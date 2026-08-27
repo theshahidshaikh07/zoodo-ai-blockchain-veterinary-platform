@@ -34,9 +34,30 @@ export async function POST(req: Request) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
 
-        // 1. Add contact directly via Resend REST API (https://api.resend.com/contacts)
+        // 1. Auto-discover Audience ID from Resend if not set
+        let targetAudienceId = resendAudienceId;
+        if (!targetAudienceId) {
+          try {
+            const audRes = await fetch("https://api.resend.com/audiences", {
+              headers: { "Authorization": `Bearer ${resendApiKey.trim()}` }
+            });
+            const audData = await audRes.json().catch(() => ({}));
+            if (audData?.data && Array.isArray(audData.data) && audData.data.length > 0) {
+              targetAudienceId = audData.data[0].id;
+              console.log("[Resend] Automatically discovered Audience ID:", targetAudienceId);
+            }
+          } catch (e) {
+            console.error("[Resend] Could not auto-discover audience:", e);
+          }
+        }
+
+        // 2. Add contact to the Audience using both audience endpoint and global contacts
         try {
-          const contactRes = await fetch("https://api.resend.com/contacts", {
+          const url = targetAudienceId
+            ? `https://api.resend.com/audiences/${targetAudienceId}/contacts`
+            : "https://api.resend.com/contacts";
+
+          const contactRes = await fetch(url, {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${resendApiKey.trim()}`,
@@ -45,10 +66,11 @@ export async function POST(req: Request) {
             body: JSON.stringify({
               email: email.trim(),
               unsubscribed: false,
+              ...(targetAudienceId ? { audience_id: targetAudienceId } : {}),
             }),
           });
           const contactData = await contactRes.json().catch(() => ({}));
-          console.log("[Resend Contacts API]", contactRes.status, contactData);
+          console.log("[Resend Contacts Result]", contactRes.status, contactData);
         } catch (contactErr) {
           console.error("[Resend Contacts Error]", contactErr);
         }
