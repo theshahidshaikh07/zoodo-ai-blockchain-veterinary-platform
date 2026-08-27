@@ -34,45 +34,24 @@ export async function POST(req: Request) {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
 
-        // 1. Auto-discover Audience ID from Resend if not set
-        let targetAudienceId = resendAudienceId;
-        if (!targetAudienceId) {
-          try {
-            const audRes = await fetch("https://api.resend.com/audiences", {
-              headers: { "Authorization": `Bearer ${resendApiKey.trim()}` }
-            });
-            const audData = await audRes.json().catch(() => ({}));
-            if (audData?.data && Array.isArray(audData.data) && audData.data.length > 0) {
-              targetAudienceId = audData.data[0].id;
-              console.log("[Resend] Automatically discovered Audience ID:", targetAudienceId);
-            }
-          } catch (e) {
-            console.error("[Resend] Could not auto-discover audience:", e);
-          }
-        }
+        // 1. Create contact using official Resend SDK
+        const { data: contactData, error: contactError } = await resend.contacts.create({
+          email: email.trim(),
+          unsubscribed: false,
+        });
+        
+        console.log("[Resend contacts.create]", { contactData, contactError });
 
-        // 2. Add contact to the Audience using both audience endpoint and global contacts
-        try {
-          const url = targetAudienceId
-            ? `https://api.resend.com/audiences/${targetAudienceId}/contacts`
-            : "https://api.resend.com/contacts";
-
-          const contactRes = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${resendApiKey.trim()}`,
-              "Content-Type": "application/json",
+        if (contactError) {
+          console.error("[Resend Error]", contactError);
+          return NextResponse.json(
+            {
+              success: false,
+              message: contactError.message || "Resend could not create contact.",
+              error: contactError,
             },
-            body: JSON.stringify({
-              email: email.trim(),
-              unsubscribed: false,
-              ...(targetAudienceId ? { audience_id: targetAudienceId } : {}),
-            }),
-          });
-          const contactData = await contactRes.json().catch(() => ({}));
-          console.log("[Resend Contacts Result]", contactRes.status, contactData);
-        } catch (contactErr) {
-          console.error("[Resend Contacts Error]", contactErr);
+            { status: 400 }
+          );
         }
 
         // 2. Notify Zoodo admin about the new subscriber
@@ -86,13 +65,17 @@ export async function POST(req: Request) {
         return NextResponse.json({
           success: true,
           message: "You are subscribed. Welcome to Zoodo!",
+          contact: contactData,
         });
       } catch (resendError: any) {
         console.error("Resend subscription error:", resendError);
-        return NextResponse.json({
-          success: true,
-          message: "You are subscribed. Welcome to Zoodo!",
-        });
+        return NextResponse.json(
+          {
+            success: false,
+            message: resendError?.message || "Subscription service error.",
+          },
+          { status: 500 }
+        );
       }
     }
 
