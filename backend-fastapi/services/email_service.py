@@ -1,14 +1,107 @@
 import smtplib
 import asyncio
 import logging
+import json
+import os
+import urllib.request
+import urllib.error
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from config import settings
 
 logger = logging.getLogger("email_service")
 
+def _send_http_brevo(api_key: str, to_email: str, subject: str, html_content: str, text_content: str) -> bool:
+    """Send transactional email via Brevo HTTPS REST API (Port 443 - never blocked on cloud)."""
+    try:
+        url = "https://api.brevo.com/v3/smtp/email"
+        sender_email = (settings.SMTP_FROM_EMAIL or settings.SMTP_USER or os.getenv("SMTP_USER") or "zoodo.care@gmail.com").strip()
+        sender_name = (settings.SMTP_FROM_NAME or "Zoodo Care").strip()
+        payload = {
+            "sender": {"name": sender_name, "email": sender_email},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_content,
+            "textContent": text_content,
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={
+                "api-key": api_key.strip(),
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "Zoodo-Backend/2.0"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status in (200, 201, 202):
+                logger.info(f"[+] Brevo HTTP Email sent successfully to {to_email}!")
+                print(f"[+] Email successfully delivered to {to_email} via Brevo HTTP API (Port 443)!")
+                return True
+    except urllib.error.HTTPError as e_http:
+        err_body = e_http.read().decode("utf-8", errors="ignore")
+        logger.error(f"[!] Brevo HTTP Error {e_http.code}: {err_body}")
+        print(f"[!] Brevo HTTP Error {e_http.code}: {err_body}")
+    except Exception as e:
+        logger.error(f"[!] Brevo HTTP Email failed: {e}")
+        print(f"[!] Brevo HTTP Email failed: {e}")
+    return False
+
+def _send_http_resend(api_key: str, to_email: str, subject: str, html_content: str, text_content: str) -> bool:
+    """Send transactional email via Resend HTTPS REST API (Port 443 - never blocked on cloud)."""
+    try:
+        url = "https://api.resend.com/emails"
+        from_email = "onboarding@resend.dev"
+        if settings.SMTP_FROM_EMAIL and not settings.SMTP_FROM_EMAIL.endswith("@gmail.com"):
+            from_email = settings.SMTP_FROM_EMAIL
+        payload = {
+            "from": f"{settings.SMTP_FROM_NAME or 'Zoodo Care'} <{from_email}>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+            "text": text_content,
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={
+                "Authorization": f"Bearer {api_key.strip()}",
+                "Content-Type": "application/json",
+                "User-Agent": "Zoodo-Backend/2.0"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status in (200, 201, 202):
+                logger.info(f"[+] Resend HTTP Email sent successfully to {to_email}!")
+                print(f"[+] Email successfully delivered to {to_email} via Resend HTTP API (Port 443)!")
+                return True
+    except Exception as e:
+        logger.error(f"[!] Resend HTTP Email failed: {e}")
+        print(f"[!] Resend HTTP Email failed: {e}")
+    return False
+
 def _send_sync_email(to_email: str, subject: str, html_content: str, text_content: str) -> bool:
-    """Internal synchronous sender running in a worker thread with TLS and SSL fallback."""
+    """Internal email dispatcher with HTTP REST API (Port 443) priority and direct SMTP fallback."""
+    # 1. Check Brevo HTTP API (Port 443 - works 100% on Render Free Tier)
+    brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
+    if brevo_key:
+        print(f"[*] Attempting email delivery to {to_email} via Brevo HTTP API (Port 443)...")
+        if _send_http_brevo(brevo_key, to_email, subject, html_content, text_content):
+            return True
+
+    # 2. Check Resend HTTP API (Port 443)
+    resend_key = (getattr(settings, "RESEND_API_KEY", "") or os.getenv("RESEND_API_KEY") or "").strip()
+    if resend_key:
+        print(f"[*] Attempting email delivery to {to_email} via Resend HTTP API (Port 443)...")
+        if _send_http_resend(resend_key, to_email, subject, html_content, text_content):
+            return True
+
+    # 3. Fallback to direct SMTP (Works on localhost or paid cloud instances)
     user = (settings.SMTP_USER or os.getenv("SMTP_USER") or "").strip()
     raw_pwd = (settings.SMTP_PASSWORD or os.getenv("SMTP_PASSWORD") or "").strip()
     
@@ -17,11 +110,7 @@ def _send_sync_email(to_email: str, subject: str, html_content: str, text_conten
         print(f"[!] SMTP Warning: SMTP_USER='{user}', SMTP_PASSWORD set={bool(raw_pwd)}. Email skipped.")
         return False
 
-    # Normalize Google App Password (remove spaces, quotes)
     clean_password = raw_pwd.strip("'\"").replace(" ", "")
-
-    # In Gmail SMTP, the From address MUST match the authenticated SMTP_USER
-    # or Gmail will reject the message (553 5.7.1 The from address does not match)
     from_email = user if "@" in user else (settings.SMTP_FROM_EMAIL or user)
     from_name = settings.SMTP_FROM_NAME or "Zoodo Care"
 
@@ -33,7 +122,7 @@ def _send_sync_email(to_email: str, subject: str, html_content: str, text_conten
     msg.attach(MIMEText(text_content, "plain", "utf-8"))
     msg.attach(MIMEText(html_content, "html", "utf-8"))
 
-    # Attempt 1: Port 465 with direct SMTP_SSL (Fastest and immune to cloud port 587 blocking)
+    # Attempt 1: Port 465 with direct SMTP_SSL
     try:
         print(f"[*] Attempting email delivery to {to_email} via {settings.SMTP_HOST}:465 (SSL)...")
         ssl_server = smtplib.SMTP_SSL(settings.SMTP_HOST, 465, timeout=10)
@@ -70,18 +159,23 @@ def test_smtp_diagnostic(to_email: str) -> dict:
     raw_pwd = (settings.SMTP_PASSWORD or os.getenv("SMTP_PASSWORD") or "").strip()
     clean_pwd = raw_pwd.strip("'\"").replace(" ", "")
 
+    brevo_key = (getattr(settings, "BREVO_API_KEY", "") or os.getenv("BREVO_API_KEY") or "").strip()
+    resend_key = (getattr(settings, "RESEND_API_KEY", "") or os.getenv("RESEND_API_KEY") or "").strip()
+
     diag = {
         "smtp_host": settings.SMTP_HOST,
         "smtp_port": settings.SMTP_PORT,
         "smtp_user": user if user else "NOT_CONFIGURED",
         "has_password": bool(raw_pwd),
         "password_length": len(clean_pwd),
+        "brevo_api_configured": bool(brevo_key),
+        "resend_api_configured": bool(resend_key),
         "recipient": to_email,
         "results": {}
     }
 
-    if not user or not raw_pwd:
-        diag["error"] = "SMTP_USER or SMTP_PASSWORD is not set in environment variables."
+    if not user and not raw_pwd and not brevo_key and not resend_key:
+        diag["error"] = "No email credentials configured. Set BREVO_API_KEY or SMTP_USER/SMTP_PASSWORD."
         return diag
 
     # Test Port 587

@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Zoodo Care")
     SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "")
     
+    # HTTP REST Email Providers (bypasses cloud SMTP port blocks on Render/Vercel)
+    BREVO_API_KEY: str = os.getenv("BREVO_API_KEY", "")
+    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+    
     # AI Key
     GEMINI_API_KEY: str = ""
 
