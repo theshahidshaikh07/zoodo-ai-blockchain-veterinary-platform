@@ -206,7 +206,7 @@ const Footer = () => {
                     disabled={isSubscribing}
                   />
                 </div>
-                <Button variant="default" size="lg" type="submit" disabled={isSubscribing}>
+                <Button variant="default" size="lg" type="submit" disabled={isSubscribing} className="bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm">
                   {isSubscribing ? "Subscribing..." : "Subscribe"}
                 </Button>
               </form>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X, ShieldCheck, FileCheck2, BookOpen, Soup, Pill, ShoppingBag, Cross, GraduationCap, Scissors, Bath, HeartHandshake, Home, Megaphone, CalendarDays, Users2, MessageCircle } from "lucide-react";
+import { Moon, Sun, Menu, X, ShieldCheck, FileCheck2, BookOpen, Soup, Pill, ShoppingBag, Cross, GraduationCap, Scissors, Bath, HeartHandshake, Home, Megaphone, CalendarDays, Users2, MessageCircle, MapPin, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 import NoSSR from "./NoSSR";
 import Link from "next/link";
@@ -168,22 +168,31 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
     },
     {
       name: "Insurance",
-      href: "#",
+      href: "/services/insurance",
       type: "route" as const,
       subItems: [
-        { name: "Compare Plans", href: "#", icon: ShieldCheck },
-        { name: "Claims Support", href: "#", icon: FileCheck2 },
-        { name: "Learn Insurance", href: "#", icon: BookOpen },
+        { name: "Compare Plans", href: "/services/insurance/compare", icon: ShieldCheck },
+        { name: "Claims Support", href: "/services/insurance/claim", icon: FileCheck2 },
+        { name: "Learn Insurance", href: "/services/insurance", icon: BookOpen },
       ]
     },
     {
       name: "Shop",
+      href: "/services/shop",
+      type: "route" as const,
+      subItems: [
+        { name: "Pet Food", href: "/services/shop/food", icon: PetFoodIcon },
+        { name: "Pet Pharmacy", href: "/services/shop/pharma", icon: Pill },
+        { name: "Pet Essentials", href: "/services/shop/essentials", icon: ShoppingBag },
+      ]
+    },
+    {
+      name: "Travel",
       href: "#",
       type: "route" as const,
       subItems: [
-        { name: "Pet Food", href: "#", icon: PetFoodIcon },
-        { name: "Pet Pharmacy", href: "#", icon: Pill },
-        { name: "Pet Essentials", href: "#", icon: ShoppingBag },
+        { name: "Domestic", href: "/services/travel/domestic", icon: MapPin },
+        { name: "International", href: "/services/travel/international", icon: Globe },
       ]
     },
     {
@@ -435,7 +444,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                     <Button
                       variant="default"
                       size="sm"
-                      className="bg-primary hover:bg-primary/90 transition-all duration-300 text-sm font-medium px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] text-white"
+                      className="bg-slate-900 hover:bg-slate-800 transition-all duration-300 text-sm font-medium px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] text-white shadow-sm"
                       asChild
                     >
                       <Link href="/role-selection">Get Started</Link>
