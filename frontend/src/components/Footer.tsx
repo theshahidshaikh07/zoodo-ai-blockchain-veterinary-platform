@@ -1,18 +1,15 @@
 'use client';
 
-import { Heart, Mail, MapPin, Phone } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 import { FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 
-
 const Footer = () => {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
@@ -189,7 +186,7 @@ const Footer = () => {
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold text-slate-900">
-                  Stay updated with <span className="gradient-text">Zoodo</span>
+                  Stay updated with <span className="text-slate-900">Zoodo</span>
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400">
                   Get the latest updates on pet healthcare innovations, community events, and platform features.

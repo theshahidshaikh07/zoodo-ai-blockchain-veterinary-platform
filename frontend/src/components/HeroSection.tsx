@@ -3,16 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import {
-  Stethoscope,
-  Shield,
-  Heart,
-  Sparkles,
-  Zap as Lightning,
-  Users,
-  BadgeCheck,
-  PawPrint
-} from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import diversePets from "@/assets/transparent_diverse_petss.png";
 import Link from "next/link";
 import ConsultationPopup from "./ConsultationPopup";
@@ -63,23 +54,22 @@ const HeroSection = () => {
         <div className="container mx-auto px-8 lg:pl-20 lg:pr-10 relative z-10 pt-16 pb-2 lg:py-0">
           <div className="grid lg:grid-cols-2 gap-8 items-center w-full">
             {/* Left Content - Text */}
-            <div className="text-left space-y-12 lg:space-y-16 fade-up order-1 lg:order-1 max-w-2xl">
+            <div className="text-center lg:text-left flex flex-col items-center lg:items-start space-y-8 lg:space-y-10 fade-up order-1 lg:order-1">
               {/* Main Headline */}
-              <div className="space-y-10 lg:space-y-16 pt-20 lg:pt-20">
-                <h1 className="text-[2.75rem] lg:text-[5.25rem] font-bold font-heading leading-[0.95] text-slate-900 dark:text-white">
-                  Your Pet.<br />Our Priority.
+              <div className="space-y-5 lg:space-y-6 pt-16 lg:pt-16 w-full">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.5rem] 2xl:text-[5rem] font-bold font-heading leading-[0.98] tracking-[0.015em] text-slate-900 dark:text-white">
+                  <span className="block">Everything</span>
+                  <span className="block">Your Pet Needs.</span>
+                  <span className="block">In One Place.</span>
                 </h1>
-                <div className="flex items-center gap-4 pl-1">
-                  <div className="w-[3px] h-12 bg-primary rounded-full opacity-80" />
-                  <p className="text-lg lg:text-xl text-slate-600 font-medium leading-[1.4] max-w-sm">
-                    Everything your pet needs. <br />
-                    <span className="text-slate-900 font-bold">In one place.</span>
-                  </p>
-                </div>
+                
+                <p className="text-base lg:text-lg text-slate-600 font-medium leading-[1.5] max-w-lg mx-auto lg:mx-0">
+                  From vet care to insurance, training to grooming, shopping to travel, we've got you all covered.
+                </p>
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 transition-all duration-300">
+              <div className="flex flex-col sm:flex-row gap-4 transition-all duration-300 w-full sm:w-auto justify-center lg:justify-start">
                 <Button
                   size="xl"
                   className="w-full sm:w-[240px] px-0 py-5 rounded-tl-[99px] rounded-bl-[99px] rounded-br-[99px] rounded-tr-[30px] bg-slate-900 text-white hover:bg-slate-800 hover:text-white transition-all duration-300 text-lg font-semibold shadow-lg"
@@ -91,17 +81,19 @@ const HeroSection = () => {
                 </Button>
                 <Button
                   size="xl"
-                  className="w-full sm:w-[240px] px-0 py-5 rounded-tl-[30px] rounded-tr-[99px] rounded-bl-[99px] rounded-br-[99px] bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900 transition-all duration-300 text-lg font-semibold shadow-sm"
+                  className="w-full sm:w-[240px] px-0 py-5 rounded-tl-[30px] rounded-tr-[99px] rounded-bl-[99px] rounded-br-[99px] bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900 transition-all duration-300 text-lg font-semibold shadow-sm flex items-center justify-center gap-2 group"
                   onClick={(e) => {
                     e.preventDefault();
-                    setIsConsultationPopupOpen(true);
+                    document.getElementById('care')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  Get Instant Care
+                  <span>Explore More</span>
+                  <ArrowDown className="w-5 h-5 text-slate-700 group-hover:translate-y-0.5 transition-transform duration-300" />
                 </Button>
               </div>
             </div>
 
+            {/* Right Content - Hero Image */}
             <div className="relative fade-up order-2 lg:order-2 flex justify-end overflow-visible pointer-events-none">
               <div className="relative h-[420px] sm:h-[480px] lg:h-[650px] w-full lg:max-w-none max-w-[850px] -mt-36 lg:mt-0 lg:translate-x-20 pointer-events-none">
                 <Image

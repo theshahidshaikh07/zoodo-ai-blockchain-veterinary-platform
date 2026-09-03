@@ -23,21 +23,18 @@ const quickActions = [
     icon: Video,
     label: "Online Video Consultation",
     desc: "Talk to certified veterinarians instantly via secure video call",
-    actionText: "Book Online Consultation",
     href: "/services/find-vets?type=online",
   },
   {
     icon: Building2,
     label: "Veterinary Clinic Visit",
     desc: "Book priority appointments at top rated veterinary clinics & hospitals",
-    actionText: "Book Clinic Visit",
     href: "/services/find-hospitals",
   },
   {
     icon: Home,
     label: "Home Veterinary Visit",
     desc: "Certified doctors visit your doorstep for routine checkups & vaccines",
-    actionText: "Book Home Visit",
     href: "/services/find-vets?type=home",
   },
 ];
@@ -57,47 +54,33 @@ const VetCareSection = () => (
       </motion.div>
 
       {/* Main Bento Grid */}
-      <div className="grid lg:grid-cols-5 gap-5 lg:gap-6">
+      <div className="grid lg:grid-cols-5 gap-5 lg:gap-6 items-start">
         
         {/* Elite Minimal Image Hero Card */}
         <motion.div
           {...mp(0.05)}
-          className="lg:col-span-3 group relative overflow-hidden rounded-tl-[0.75rem] rounded-tr-[2.5rem] rounded-br-[2.5rem] rounded-bl-[2.5rem] min-h-[340px] lg:min-h-[440px] shadow-xs border border-slate-200/50 bg-slate-100"
+          className="lg:col-span-3 group relative overflow-hidden rounded-tl-[0.75rem] rounded-tr-[2.5rem] rounded-br-[2.5rem] rounded-bl-[2.5rem] min-h-[380px] lg:min-h-[460px] shadow-xs border border-slate-200/50 bg-slate-100"
         >
           <Image
             src={vetCareImg}
             alt="Veterinarian caring for a pet"
             fill
+            quality={95}
+            priority
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
             sizes="(max-width: 1024px) 100vw, 60vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/80 via-[#0f172a]/20 to-transparent" />
-          
-          <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-end">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-5">
-              <Link
-                href="/care/veterinary"
-                className="inline-flex items-center gap-2 w-fit px-6 py-3 bg-primary text-slate-900 text-sm font-semibold rounded-tl-[20px] rounded-tr-[99px] rounded-bl-[99px] rounded-br-[99px] hover:bg-primary/90 transition-colors duration-200 group/btn shadow-sm flex-shrink-0"
-              >
-                Explore Vet Care
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1 text-slate-900" />
-              </Link>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-sm">
-                Connect with top rated clinics, book home visits, or schedule instant video consultations.
-              </p>
-            </div>
-          </div>
         </motion.div>
 
-        {/* Right: 3 Action Cards (2 cols) */}
+        {/* Right: 3 Action Cards (2 cols) - Fixed Natural Positions */}
         <div className="lg:col-span-2 flex flex-col gap-4 lg:gap-5">
           {quickActions.map((action, i) => (
             <motion.div key={action.label} {...mp(0.1 + i * 0.08)}>
               <Link
                 href={action.href}
-                className="group/card flex flex-col justify-between bg-white rounded-tl-[2rem] rounded-tr-[0.5rem] rounded-br-[2rem] rounded-bl-[2rem] border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 overflow-hidden h-full"
+                className="group/card flex items-center justify-between p-5 lg:p-6 bg-white rounded-tl-[2rem] rounded-tr-[0.5rem] rounded-br-[2rem] rounded-bl-[2rem] border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200"
               >
-                <div className="p-5 lg:p-6 flex items-start gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0 pr-3">
                   <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
                     <action.icon className="w-5 h-5 text-primary" />
                   </div>
@@ -111,13 +94,21 @@ const VetCareSection = () => (
                   </div>
                 </div>
 
-                <div className="w-full bg-slate-900 group-hover/card:bg-slate-800 text-white py-3.5 lg:py-4 px-6 flex items-center justify-between transition-colors duration-200">
-                  <span className="text-xs lg:text-sm font-bold tracking-wide">{action.actionText}</span>
-                  <ArrowRight className="w-4 h-4 group-hover/card:translate-x-1 transition-transform text-primary" />
-                </div>
+                <ArrowRight className="w-4 h-4 text-slate-300 group-hover/card:text-primary group-hover/card:translate-x-1 transition-all duration-200 flex-shrink-0" />
               </Link>
             </motion.div>
           ))}
+
+          {/* Plain Middle 'Explore Vet Care' Text Link */}
+          <motion.div {...mp(0.35)} className="pt-2 flex justify-center">
+            <Link
+              href="/care/veterinary"
+              className="inline-flex items-center gap-2 text-base font-bold text-slate-900 group/link"
+            >
+              <span>Explore Vet Care</span>
+              <ArrowRight className="w-4 h-4 text-primary transition-transform duration-200 group-hover/link:translate-x-1" />
+            </Link>
+          </motion.div>
         </div>
       </div>
     </div>

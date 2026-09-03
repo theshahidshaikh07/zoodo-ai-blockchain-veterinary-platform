@@ -105,28 +105,30 @@ const CommunitySection = () => {
           </div>
         </motion.div>
 
-        {/* ── Separate Horizontal Row Cards ── */}
-        <div className="flex flex-col gap-3 lg:gap-3.5">
+        {/* ── Separate Horizontal Row Cards (Compact on mobile, Spacious on desktop) ── */}
+        <div className="flex flex-col gap-2.5 sm:gap-3 lg:gap-3.5">
           {communityFeatures.map((feature, i) => (
             <motion.div key={feature.title} {...mp(0.08 + i * 0.03)}>
               <Link
                 href={feature.href}
-                className="group/row flex flex-col md:flex-row md:items-center justify-between p-5 lg:p-6 bg-white rounded-tl-[1rem] rounded-tr-[1.75rem] rounded-br-[1.75rem] rounded-bl-[1.75rem] border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 gap-4"
+                className="group/row flex items-center justify-between p-3.5 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-tl-[1rem] sm:rounded-tr-[1.75rem] sm:rounded-br-[1.75rem] sm:rounded-bl-[1.75rem] border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 gap-3 sm:gap-4"
               >
-                <div className="flex items-center gap-4 min-w-[280px]">
-                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="w-5.5 h-5.5 text-primary" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                    <feature.icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-primary" />
                   </div>
-                  <h4 className="text-lg lg:text-xl font-bold text-slate-900">
-                    {feature.title}
-                  </h4>
+                  
+                  <div className="min-w-0 flex-1 md:flex md:items-center md:justify-between md:gap-4">
+                    <h4 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight md:min-w-[240px]">
+                      {feature.title}
+                    </h4>
+                    <p className="text-xs sm:text-sm lg:text-base text-slate-500 sm:text-slate-600 leading-snug sm:leading-relaxed max-w-2xl line-clamp-1 md:line-clamp-none mt-0.5 md:mt-0 md:flex-1">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
 
-                <p className="text-sm lg:text-base text-slate-600 leading-relaxed flex-1 max-w-2xl">
-                  {feature.description}
-                </p>
-
-                <ArrowRight className="w-6 h-6 stroke-[2.5] text-slate-400 group-hover/row:text-primary group-hover/row:translate-x-1.5 transition-all duration-200 flex-shrink-0" />
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-slate-400 group-hover/row:text-primary group-hover/row:translate-x-1 sm:group-hover/row:translate-x-1.5 transition-all duration-200 flex-shrink-0 ml-1 sm:ml-2" />
               </Link>
             </motion.div>
           ))}

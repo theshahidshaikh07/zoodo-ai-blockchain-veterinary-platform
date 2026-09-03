@@ -20,6 +20,7 @@ export default {
         sans: ["Parkinsans", "sans-serif"],
         heading: ["fields", "serif"],
         accent: ["Parkinsans", "sans-serif"],
+        slab: ["Roboto Slab", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
