@@ -262,16 +262,16 @@ export default function BusinessRegistrationPage() {
   };
 
   const inputClass =
-    'h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus-visible:ring-0 pt-4';
+    'h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 pt-4';
   const labelFloat = (name: string, val: string) =>
     `absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
       isFloated(name, val)
-        ? 'text-[10px] text-primary -top-1.5 px-1 bg-background'
+        ? 'text-[10px] text-primary -top-1.5 px-1 bg-white dark:bg-slate-950'
         : 'text-sm text-muted-foreground/70 top-3.5'
     }`;
 
   return (
-    <div className="h-screen overflow-hidden bg-background flex flex-col lg:flex-row">
+    <div className="fixed inset-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col lg:flex-row">
 
       {/* ─── Left panel ─── */}
       <div className="hidden lg:flex flex-col justify-between w-[42%] bg-[#bde4e9]/30 dark:bg-primary/5 px-14 py-12 shrink-0">
@@ -325,7 +325,7 @@ export default function BusinessRegistrationPage() {
             {step === 1 && (
               <form onSubmit={handleStep1Next} className="space-y-3.5">
                 <button type="button" disabled={isLoading} onClick={handleGoogleSignIn}
-                  className="w-full h-12 flex items-center justify-center gap-3 rounded-full border border-gray-300 dark:border-gray-600 bg-background hover:bg-accent text-sm font-medium text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="w-full h-12 flex items-center justify-center gap-3 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -337,7 +337,7 @@ export default function BusinessRegistrationPage() {
 
                 <div className="relative flex items-center">
                   <div className="flex-1 border-t border-border" />
-                  <span className="px-3 text-xs text-muted-foreground bg-background">or</span>
+                  <span className="px-3 text-xs text-muted-foreground bg-white dark:bg-slate-950">or</span>
                   <div className="flex-1 border-t border-border" />
                 </div>
 
@@ -358,7 +358,7 @@ export default function BusinessRegistrationPage() {
 
                 <div className="relative">
                   <Label htmlFor="username"
-                    className={`absolute transition-all duration-200 pointer-events-none z-10 ${isFloated('username', username) ? 'text-[10px] text-primary -top-1.5 px-1 bg-background left-4' : 'text-sm text-muted-foreground/70 top-3.5 left-9'}`}>
+                    className={`absolute transition-all duration-200 pointer-events-none z-10 ${isFloated('username', username) ? 'text-[10px] text-primary -top-1.5 px-1 bg-white dark:bg-slate-950 left-4' : 'text-sm text-muted-foreground/70 top-3.5 left-9'}`}>
                     Handle
                   </Label>
                   <span className="absolute left-4 top-3.5 text-sm text-muted-foreground pointer-events-none z-10">@</span>
@@ -403,20 +403,44 @@ export default function BusinessRegistrationPage() {
                 )}
 
                 {/* Terms checkbox */}
-                <label className="flex items-start gap-3 cursor-pointer select-none">
-                  <div
+                <div className="flex items-center justify-center pt-1">
+                  <label
                     onClick={() => setAgreedToTerms(!agreedToTerms)}
-                    className={`mt-0.5 w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-all ${agreedToTerms ? 'bg-primary border-primary' : 'border-gray-300 dark:border-gray-600'}`}
+                    className="inline-flex items-center justify-center gap-2.5 cursor-pointer select-none text-center"
                   >
-                    {agreedToTerms && <Check className="w-2.5 h-2.5 text-white" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground leading-relaxed">
-                    I agree to Zoodo's{' '}
-                    <Link href="/terms" className="text-foreground underline hover:text-primary">Terms of Service</Link>
-                    {' '}and{' '}
-                    <Link href="/privacy" className="text-foreground underline hover:text-primary">Privacy Policy</Link>
-                  </span>
-                </label>
+                    <div
+                      className={`w-4 h-4 rounded shrink-0 flex items-center justify-center border-2 transition-all ${
+                        agreedToTerms
+                          ? 'bg-primary border-primary shadow-sm'
+                          : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-900 hover:border-slate-600 dark:hover:border-slate-300'
+                      }`}
+                    >
+                      {agreedToTerms && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                    </div>
+                    <span className="text-xs text-muted-foreground leading-normal">
+                      I agree to Zoodo&apos;s{' '}
+                      <Link
+                        href="/terms-of-service"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-foreground underline hover:text-primary font-medium"
+                      >
+                        Terms of Service
+                      </Link>
+                      {' '}and{' '}
+                      <Link
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-foreground underline hover:text-primary font-medium"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </span>
+                  </label>
+                </div>
 
                 <Button type="submit"
                   className="w-full h-12 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all">

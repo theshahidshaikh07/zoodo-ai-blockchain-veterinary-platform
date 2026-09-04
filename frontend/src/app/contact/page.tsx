@@ -126,7 +126,7 @@ export default function ContactPage() {
                           value={formData.name}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-2 focus-visible:ring-primary shadow-inner text-sm"
+                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none shadow-inner text-sm"
                           placeholder="John Doe"
                         />
                       </div>
@@ -142,7 +142,7 @@ export default function ContactPage() {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-2 focus-visible:ring-primary shadow-inner text-sm"
+                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none shadow-inner text-sm"
                           placeholder="your@email.com"
                         />
                       </div>
@@ -158,7 +158,7 @@ export default function ContactPage() {
                           value={formData.subject}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-2 focus-visible:ring-primary shadow-inner text-sm"
+                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none shadow-inner text-sm"
                           placeholder="How can we help?"
                         />
                       </div>
@@ -174,7 +174,7 @@ export default function ContactPage() {
                           value={formData.message}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-2 focus-visible:ring-primary shadow-inner text-sm resize-none"
+                          className="w-full px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none shadow-inner text-sm resize-none"
                           placeholder="Tell us what's on your mind..."
                         />
                       </div>

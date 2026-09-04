@@ -259,7 +259,9 @@ function PetsSection({ pets, setPets }: { pets: any[]; setPets: (p: any[]) => vo
         weight: newPet.weight ? Number(newPet.weight) : undefined,
       } as any);
       if (res.success && res.data) {
-        setPets(prev => prev.map(p => p.id === tempId ? res.data : p));
+        const mapped = pets.map((p: any) => p.id === tempId ? res.data : p);
+        setPets(mapped);
+        localStorage.setItem('zoodo_pets', JSON.stringify(mapped));
       }
     } catch {}
 

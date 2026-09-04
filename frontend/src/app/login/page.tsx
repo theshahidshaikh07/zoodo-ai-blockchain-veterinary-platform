@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import {
   Eye,
   EyeOff,
-  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
@@ -27,75 +26,51 @@ export default function LoginPage() {
     usernameOrEmail: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
   const router = useRouter();
-  const { login, loginAdmin, loginWithGoogle, isLoading, isAuthenticated, user } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
+  const { theme } = useTheme();
 
-  // Redirect if already authenticated
+  // Clear legacy localStorage to prevent stale account autofill across sessions
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const dashboardRoute = getDashboardRoute(user.userType);
-      router.push(dashboardRoute);
-    } else if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       localStorage.removeItem('oauth_user_data');
       sessionStorage.removeItem('oauth_user_data');
     }
-  }, [isAuthenticated, user, router]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setErrorMessage('');
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    // Clear error message when user starts typing
+    if (errorMessage) {
+      setErrorMessage('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setErrorMessage('');
-    if (!formData.usernameOrEmail || !formData.password) {
-      setErrorMessage('Please enter both username/email and password.');
-      return;
-    }
 
-    const cleanId = formData.usernameOrEmail.trim().toLowerCase();
-    const isAdminAttempt = cleanId === 'admin' || cleanId === 'admin@zoodo.care';
-
-    let success = false;
-    if (isAdminAttempt) {
-      success = await loginAdmin({
-        usernameOrEmail: formData.usernameOrEmail.trim(),
-        password: formData.password
-      });
-      if (!success) {
-        success = await login({
-          usernameOrEmail: formData.usernameOrEmail.trim(),
-          password: formData.password
-        });
-      }
-    } else {
-      success = await login({
-        usernameOrEmail: formData.usernameOrEmail.trim(),
-        password: formData.password
-      });
-    }
+    const isAdminAttempt = formData.usernameOrEmail.toLowerCase().includes('admin');
+    const success = await login({
+      usernameOrEmail: formData.usernameOrEmail,
+      password: formData.password
+    });
+    setIsLoading(false);
 
     if (success) {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          const dashboardRoute = getDashboardRoute(userData.userType);
-          router.push(dashboardRoute);
-        } catch {
-          router.push(isAdminAttempt ? '/dashboard/admin' : '/dashboard/pet-owner');
-        }
+      const userRole = localStorage.getItem('user_role');
+      if (userRole) {
+        router.push(getDashboardRoute(userRole));
       } else {
         router.push(isAdminAttempt ? '/dashboard/admin' : '/dashboard/pet-owner');
       }
@@ -113,10 +88,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-slate-950 relative flex flex-col">
       {/* Header */}
-      <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
-        <div className="flex items-center">
+      <div className="relative z-10 flex items-center p-4 sm:p-6">
+        <Link href="/" className="flex items-center">
           <Image
             src="/logo-slate.png"
             alt="Zoodo"
@@ -125,12 +100,6 @@ export default function LoginPage() {
             className="h-3 md:h-4 lg:h-5 w-auto"
             priority
           />
-        </div>
-        <Link
-          href="/"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
         </Link>
       </div>
 
@@ -155,7 +124,7 @@ export default function LoginPage() {
               <Label
                 htmlFor="username"
                 className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isInputFocused || formData.usernameOrEmail
-                  ? 'text-xs text-primary -top-2 px-1 bg-background'
+                  ? 'text-xs text-primary -top-2 px-1 bg-white dark:bg-slate-950'
                   : 'text-sm text-muted-foreground/70 top-3'
                   }`}
               >
@@ -171,7 +140,7 @@ export default function LoginPage() {
                 onChange={handleInputChange}
                 onFocus={() => setIsInputFocused(true)}
                 onBlur={() => setIsInputFocused(false)}
-                className="h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus-visible:ring-0 pt-4"
+                className="h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 pt-4"
                 placeholder=""
               />
             </div>
@@ -181,7 +150,7 @@ export default function LoginPage() {
               <Label
                 htmlFor="password"
                 className={`absolute left-3 transition-all duration-200 pointer-events-none z-10 ${isPasswordFocused || formData.password
-                  ? 'text-xs text-primary -top-2 px-1 bg-background'
+                  ? 'text-xs text-primary -top-2 px-1 bg-white dark:bg-slate-950'
                   : 'text-sm text-muted-foreground/70 top-3'
                   }`}
               >
@@ -197,13 +166,13 @@ export default function LoginPage() {
                 onChange={handleInputChange}
                 onFocus={() => setIsPasswordFocused(true)}
                 onBlur={() => setIsPasswordFocused(false)}
-                className="h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus-visible:ring-0 pt-4 pr-12 [&::-webkit-credentials-auto-fill-button]:hidden [&::-webkit-contacts-auto-fill-button]:hidden [&::-webkit-reveal-password]:hidden [&::-ms-reveal-password]:hidden [&::-ms-credentials-auto-fill-button]:hidden"
+                className="h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 pt-4 pr-12 [&::-webkit-credentials-auto-fill-button]:hidden [&::-webkit-contacts-auto-fill-button]:hidden [&::-webkit-reveal-password]:hidden [&::-ms-reveal-password]:hidden [&::-ms-credentials-auto-fill-button]:hidden"
                 placeholder=""
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-background dark:bg-gray-900 rounded-full p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-20 bg-white dark:bg-gray-900 rounded-full p-1"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -251,7 +220,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 text-muted-foreground bg-background z-10 relative">
+                <span className="px-4 text-muted-foreground bg-white dark:bg-slate-950 z-10 relative">
                   OR
                 </span>
               </div>
@@ -264,7 +233,7 @@ export default function LoginPage() {
                 variant="outline"
                 disabled={isLoading}
                 onClick={() => handleSocialLogin('google')}
-                className="w-full h-12 bg-background dark:bg-gray-900 border border-border hover:bg-accent hover:text-accent-foreground dark:hover:bg-gray-800 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 bg-white dark:bg-gray-900 border border-border hover:bg-slate-50 hover:text-accent-foreground dark:hover:bg-gray-800 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

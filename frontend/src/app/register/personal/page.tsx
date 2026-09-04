@@ -8,6 +8,13 @@ import { Eye, EyeOff, Loader2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { apiService } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import OtpModal from '@/components/auth/OtpModal';
@@ -53,7 +60,7 @@ function makePet(): PetData {
 
 /* ── Shared atoms ── */
 const FieldBox = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`h-11 flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 overflow-hidden ${className}`}>
+  <div className={`h-11 flex items-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 overflow-hidden ${className}`}>
     {children}
   </div>
 );
@@ -75,16 +82,16 @@ interface PetCardProps {
 
 function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRemove, onAddPet }: PetCardProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden shadow-sm">
 
       {/* Card header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 bg-slate-50/50 dark:bg-slate-900/40">
+        <h3 className="font-heading text-sm font-semibold text-foreground tracking-wide">
           {pet.name || `Pet ${idx + 1}`}
-        </span>
+        </h3>
         {totalPets > 1 && (
           <button type="button" onClick={() => onRemove(pet.id)}
-            className="text-muted-foreground hover:text-red-500 transition-colors">
+            className="text-muted-foreground hover:text-red-500 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
             <X className="w-3.5 h-3.5" />
           </button>
         )}
@@ -100,13 +107,13 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
               placeholder="Pet's Name"
               value={pet.name}
               onChange={e => onUpdate(pet.id, 'name', e.target.value)}
-              className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none placeholder:text-muted-foreground/50"
+              className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none placeholder:text-muted-foreground/50"
             />
           </FieldBox>
-          <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="flex rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
             {(['male', 'female', 'unknown'] as const).map(g => (
               <button key={g} type="button" onClick={() => onUpdate(pet.id, 'gender', g)}
-                className={`px-3 h-11 text-xs capitalize transition-all border-r last:border-r-0 border-gray-200 dark:border-gray-700 ${
+                className={`px-3.5 h-11 text-xs capitalize transition-all border-r last:border-r-0 border-gray-200 dark:border-gray-700 ${
                   pet.gender === g
                     ? 'bg-primary/10 text-primary font-semibold'
                     : 'bg-white dark:bg-gray-950 text-muted-foreground hover:bg-gray-50 dark:hover:bg-gray-900'
@@ -119,28 +126,35 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
 
         {/* Species + Breed */}
         <div className="grid grid-cols-2 gap-2">
-          <FieldBox>
-            <select
-              value={pet.species}
-              onChange={e => onUpdate(pet.id, 'species', e.target.value)}
-              className={`w-full h-full bg-transparent text-sm px-3.5 outline-none appearance-none cursor-pointer ${
-                pet.species ? 'text-foreground' : 'text-muted-foreground/50'
-              }`}
-            >
-              <option value="" disabled>Pet Species</option>
-              {SPECIES_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </FieldBox>
+          <Select
+            value={pet.species || undefined}
+            onValueChange={val => onUpdate(pet.id, 'species', val)}
+          >
+            <SelectTrigger className="h-11 w-full rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 px-4 text-sm text-foreground font-normal shadow-none focus:ring-0 focus-visible:ring-0 focus:outline-none focus:border-primary hover:border-gray-300 dark:hover:border-gray-600 transition-all data-[placeholder]:text-muted-foreground/50">
+              <SelectValue placeholder="Pet Species" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 shadow-xl p-1.5 z-50 min-w-[10rem]">
+              {SPECIES_OPTIONS.map(s => (
+                <SelectItem
+                  key={s}
+                  value={s}
+                  className="rounded-xl text-sm cursor-pointer py-2 pl-8 pr-3 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-primary/10 focus:text-primary transition-colors"
+                >
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <FieldBox>
             {pet.species === 'Other'
               ? (
                 <input type="text" placeholder="Species name…" value={pet.customSpecies}
                   onChange={e => onUpdate(pet.id, 'customSpecies', e.target.value)}
-                  className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none placeholder:text-muted-foreground/50" />
+                  className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none placeholder:text-muted-foreground/50" />
               ) : (
                 <input type="text" placeholder="Breed (Optional)" value={pet.breed}
                   onChange={e => onUpdate(pet.id, 'breed', e.target.value)}
-                  className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none placeholder:text-muted-foreground/50" />
+                  className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none placeholder:text-muted-foreground/50" />
               )
             }
           </FieldBox>
@@ -151,7 +165,7 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
           <FieldBox>
             <input type="text" placeholder="Breed (Optional)" value={pet.breed}
               onChange={e => onUpdate(pet.id, 'breed', e.target.value)}
-              className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none placeholder:text-muted-foreground/50" />
+              className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none placeholder:text-muted-foreground/50" />
           </FieldBox>
         )}
 
@@ -162,7 +176,7 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
             value={pet.birthday}
             max={new Date().toISOString().split('T')[0]}
             onChange={e => onUpdateBirthday(pet.id, e.target.value)}
-            className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none"
+            className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none cursor-pointer"
           />
         </FieldBox>
 
@@ -172,29 +186,48 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
             <input type="number" min={0} placeholder="Pet Age"
               value={pet.age}
               onChange={e => onUpdate(pet.id, 'age', e.target.value)}
-              className="flex-1 h-full bg-transparent text-sm px-3.5 outline-none text-foreground placeholder:text-muted-foreground/50 w-0 min-w-0"
+              className="flex-1 h-full bg-transparent text-sm pl-4 pr-2 outline-none text-foreground placeholder:text-muted-foreground/50 w-0 min-w-0"
             />
-            <div className="border-l border-gray-200 dark:border-gray-700 shrink-0">
-              <select value={pet.ageUnit} onChange={e => onUpdate(pet.id, 'ageUnit', e.target.value)}
-                className="h-11 bg-transparent text-xs text-muted-foreground px-2 pr-5 outline-none appearance-none cursor-pointer">
-                <option value="Years">Years</option>
-                <option value="Months">Months</option>
-                <option value="Days">Days</option>
-              </select>
+            <div className="border-l border-gray-200 dark:border-gray-700 shrink-0 pr-1.5">
+              <Select
+                value={pet.ageUnit || 'Years'}
+                onValueChange={val => onUpdate(pet.id, 'ageUnit', val as 'Years' | 'Months' | 'Days')}
+              >
+                <SelectTrigger className="h-11 w-auto border-0 bg-transparent px-2.5 text-xs text-muted-foreground shadow-none focus:ring-0 focus-visible:ring-0 focus:outline-none gap-1.5 cursor-pointer rounded-none hover:text-foreground transition-colors">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 shadow-xl p-1 z-50 min-w-[6.5rem]">
+                  {(['Years', 'Months', 'Days'] as const).map(u => (
+                    <SelectItem key={u} value={u} className="rounded-lg text-xs cursor-pointer py-1.5 pl-7 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-primary/10 focus:text-primary transition-colors">
+                      {u}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </FieldBox>
           <FieldBox>
             <input type="number" min={0} step={0.1} placeholder="Pet Weight"
               value={pet.weight}
               onChange={e => onUpdate(pet.id, 'weight', e.target.value)}
-              className="flex-1 h-full bg-transparent text-sm px-3.5 outline-none text-foreground placeholder:text-muted-foreground/50 w-0 min-w-0"
+              className="flex-1 h-full bg-transparent text-sm pl-4 pr-2 outline-none text-foreground placeholder:text-muted-foreground/50 w-0 min-w-0"
             />
-            <div className="border-l border-gray-200 dark:border-gray-700 shrink-0">
-              <select value={pet.weightUnit} onChange={e => onUpdate(pet.id, 'weightUnit', e.target.value)}
-                className="h-11 bg-transparent text-xs text-muted-foreground px-2 pr-5 outline-none appearance-none cursor-pointer">
-                <option value="Kgs">Kgs</option>
-                <option value="Lbs">Lbs</option>
-              </select>
+            <div className="border-l border-gray-200 dark:border-gray-700 shrink-0 pr-1.5">
+              <Select
+                value={pet.weightUnit || 'Kgs'}
+                onValueChange={val => onUpdate(pet.id, 'weightUnit', val as 'Kgs' | 'Lbs')}
+              >
+                <SelectTrigger className="h-11 w-auto border-0 bg-transparent px-2.5 text-xs text-muted-foreground shadow-none focus:ring-0 focus-visible:ring-0 focus:outline-none gap-1.5 cursor-pointer rounded-none hover:text-foreground transition-colors">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 shadow-xl p-1 z-50 min-w-[5.5rem]">
+                  {(['Kgs', 'Lbs'] as const).map(u => (
+                    <SelectItem key={u} value={u} className="rounded-lg text-xs cursor-pointer py-1.5 pl-7 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-primary/10 focus:text-primary transition-colors">
+                      {u}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </FieldBox>
         </div>
@@ -203,7 +236,7 @@ function PetCard({ pet, idx, isLast, totalPets, onUpdate, onUpdateBirthday, onRe
         <FieldBox>
           <input type="text" placeholder="Microchip Number (Optional)" value={pet.microchip}
             onChange={e => onUpdate(pet.id, 'microchip', e.target.value)}
-            className="w-full h-full bg-transparent text-sm text-foreground px-3.5 outline-none placeholder:text-muted-foreground/50" />
+            className="w-full h-full bg-transparent text-sm text-foreground px-4 outline-none placeholder:text-muted-foreground/50" />
         </FieldBox>
 
         {/* Sterilized + Add Pet */}
@@ -265,7 +298,7 @@ export default function PersonalRegistrationPage() {
   const fl = (name: string, val: string) =>
     `absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
       focused[name] || !!val
-        ? 'text-[10px] text-primary -top-1.5 px-1 bg-background'
+        ? 'text-[10px] text-primary -top-1.5 px-1 bg-white dark:bg-slate-950'
         : 'text-sm text-muted-foreground/70 top-3.5'
     }`;
 
@@ -480,10 +513,10 @@ export default function PersonalRegistrationPage() {
     }
   };
 
-  const inp = 'h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus-visible:ring-0 pt-4 text-sm';
+  const inp = 'h-12 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-foreground placeholder-transparent focus:border-primary focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 pt-4 text-sm';
 
   return (
-    <div className="h-screen overflow-hidden bg-background flex flex-col lg:flex-row">
+    <div className="fixed inset-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col lg:flex-row">
 
       {/* Left panel */}
       <div className="hidden lg:flex flex-col justify-between w-[40%] bg-[#bde4e9]/30 dark:bg-primary/5 px-14 py-12 shrink-0">
@@ -518,7 +551,7 @@ export default function PersonalRegistrationPage() {
               {step === 1 && (
                 <form onSubmit={handleStep1} className="space-y-4">
                   <button type="button" disabled={isLoading} onClick={handleGoogleSignIn}
-                    className="w-full h-12 flex items-center justify-center gap-3 rounded-full border border-border bg-background hover:bg-accent text-sm font-medium text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    className="w-full h-12 flex items-center justify-center gap-3 rounded-full border border-border bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -529,7 +562,7 @@ export default function PersonalRegistrationPage() {
                   </button>
                   <div className="relative flex items-center">
                     <div className="flex-1 border-t border-border" />
-                    <span className="px-3 text-xs text-muted-foreground bg-background">or</span>
+                    <span className="px-3 text-xs text-muted-foreground bg-white dark:bg-slate-950">or</span>
                     <div className="flex-1 border-t border-border" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -548,7 +581,7 @@ export default function PersonalRegistrationPage() {
                   </div>
                   <div className="relative">
                     <Label htmlFor="username"
-                      className={`absolute transition-all duration-200 pointer-events-none z-10 ${focused['username'] || username ? 'text-[10px] text-primary -top-1.5 px-1 bg-background left-4' : 'text-sm text-muted-foreground/70 top-3.5 left-9'}`}>
+                      className={`absolute transition-all duration-200 pointer-events-none z-10 ${focused['username'] || username ? 'text-[10px] text-primary -top-1.5 px-1 bg-white dark:bg-slate-950 left-4' : 'text-sm text-muted-foreground/70 top-3.5 left-9'}`}>
                       Username
                     </Label>
                     <span className="absolute left-4 top-3.5 text-sm text-muted-foreground pointer-events-none z-10">@</span>
@@ -589,18 +622,44 @@ export default function PersonalRegistrationPage() {
                       </button>
                     </div>
                   )}
-                  <label className="flex items-start gap-3 cursor-pointer select-none">
-                    <div onClick={() => setAgreedToTerms(!agreedToTerms)}
-                      className={`mt-0.5 w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-all ${agreedToTerms ? 'bg-primary border-primary' : 'border-border'}`}>
-                      {agreedToTerms && <Check className="w-2.5 h-2.5 text-white" />}
-                    </div>
-                    <span className="text-xs text-muted-foreground leading-relaxed">
-                      I agree to Zoodo's{' '}
-                      <Link href="/terms" className="text-foreground underline hover:text-primary">Terms of Service</Link>
-                      {' '}and{' '}
-                      <Link href="/privacy" className="text-foreground underline hover:text-primary">Privacy Policy</Link>
-                    </span>
-                  </label>
+                  <div className="flex items-center justify-center pt-1">
+                    <label
+                      onClick={() => setAgreedToTerms(!agreedToTerms)}
+                      className="inline-flex items-center justify-center gap-2.5 cursor-pointer select-none text-center"
+                    >
+                      <div
+                        className={`w-4 h-4 rounded shrink-0 flex items-center justify-center border-2 transition-all ${
+                          agreedToTerms
+                            ? 'bg-primary border-primary shadow-sm'
+                            : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-900 hover:border-slate-600 dark:hover:border-slate-300'
+                        }`}
+                      >
+                        {agreedToTerms && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-xs text-muted-foreground leading-normal">
+                        I agree to Zoodo&apos;s{' '}
+                        <Link
+                          href="/terms-of-service"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="text-foreground underline hover:text-primary font-medium"
+                        >
+                          Terms of Service
+                        </Link>
+                        {' '}and{' '}
+                        <Link
+                          href="/privacy-policy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="text-foreground underline hover:text-primary font-medium"
+                        >
+                          Privacy Policy
+                        </Link>
+                      </span>
+                    </label>
+                  </div>
                   <Button type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all">
                     Continue
                   </Button>

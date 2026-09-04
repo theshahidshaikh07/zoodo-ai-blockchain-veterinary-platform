@@ -1,6 +1,7 @@
 const LOCAL_API_URL = 'http://127.0.0.1:8000/api/v1';
 const CLOUD_API_URL = 'https://zoodo-core-api.onrender.com/api/v1';
 const PRIMARY_API_URL = process.env.NEXT_PUBLIC_API_URL || LOCAL_API_URL;
+const API_BASE_URL = PRIMARY_API_URL;
 const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://127.0.0.1:8000';
 
 export interface ApiResponse<T> {
@@ -515,6 +516,7 @@ class ApiService {
     googleId: string;
     firstName: string;
     lastName: string;
+    username?: string;
     profilePhotoUrl?: string;
     userType?: string;
     businessName?: string;
@@ -695,6 +697,16 @@ class ApiService {
 
     const endpoint = `/admin/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return this.request(endpoint);
+  }
+
+  async getUsersAdmin(params?: {
+    page?: number;
+    size?: number;
+    userType?: string;
+    search?: string;
+    status?: string;
+  }) {
+    return this.getAllUsers(params);
   }
 
   async getUserDetails(userId: string): Promise<ApiResponse<any>> {
@@ -1024,23 +1036,6 @@ class ApiService {
     otps: any[];
   }>> {
     return this.request<any>('/admin/overview');
-  }
-
-  async loginAdmin(credentials: {
-    usernameOrEmail: string;
-    password: string;
-  }): Promise<ApiResponse<{ token: string; user: any }>> {
-    const res = await this.request<{ token: string; user: any }>('/admin/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: credentials.usernameOrEmail, password: credentials.password }),
-    });
-    if (res.success && res.data?.token && typeof window !== 'undefined') {
-      localStorage.setItem('jwt_token', res.data.token);
-      if (res.data.user) {
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-      }
-    }
-    return res;
   }
 
   async verifyBusiness(payload: { businessId: string; status: string; notes?: string }): Promise<ApiResponse<any>> {

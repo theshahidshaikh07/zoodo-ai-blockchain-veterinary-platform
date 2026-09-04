@@ -85,10 +85,11 @@ const Footer = () => {
       { name: "Terms of Service", href: "/terms-of-service" }
     ],
     professionals: [
-      { name: "For Veterinarians", href: "#vets" },
-      { name: "For Trainers", href: "#trainers" },
-      { name: "Certification", href: "#certification" },
-      { name: "Partner Program", href: "#partners" }
+      { name: "For Veterinarians", href: "/register/business" },
+      { name: "For Trainers", href: "/register/business" },
+      { name: "For Groomers & Spas", href: "/register/business" },
+      { name: "Partner Program", href: "/register/business" },
+      { name: "Business Registration", href: "/register/business" }
     ]
   };
 

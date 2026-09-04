@@ -447,7 +447,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       className="bg-slate-900 hover:bg-slate-800 transition-all duration-300 text-sm font-medium px-6 py-2 rounded-tl-[2rem] rounded-tr-[0.75rem] rounded-br-[2rem] rounded-bl-[2rem] text-white shadow-sm"
                       asChild
                     >
-                      <Link href="/role-selection">Get Started</Link>
+                      <Link href="/register/personal">Get Started</Link>
                     </Button>
                   </>
                 )}
@@ -770,7 +770,7 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
                       className="w-full text-sm h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                       asChild
                     >
-                      <Link href="/role-selection" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+                      <Link href="/register/personal" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
                     </Button>
                   </div>
                 )}

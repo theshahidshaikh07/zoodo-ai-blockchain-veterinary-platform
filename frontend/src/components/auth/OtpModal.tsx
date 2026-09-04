@@ -84,8 +84,9 @@ export default function OtpModal({ isOpen, email, onSuccess, onClose }: OtpModal
       const res = await apiService.verifyOtp(email, fullOtp);
       if (res.success && res.data) {
         setIsSuccess(true);
+        const authData = res.data;
         setTimeout(() => {
-          onSuccess(res.data.token, res.data.user);
+          onSuccess(authData.token, authData.user);
         }, 1200);
       } else {
         setError(res.message || 'Verification failed. Please try again.');

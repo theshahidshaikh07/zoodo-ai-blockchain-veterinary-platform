@@ -228,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
   };
 
-  const loginWithGoogle = async (roleOverride?: 'pet_owner' | 'business'): Promise<boolean> => {
+  const loginWithGoogle = async (roleOverride?: 'pet_owner' | 'business'): Promise<any> => {
     if (isLoading) return false;
     try {
       setIsLoading(true);

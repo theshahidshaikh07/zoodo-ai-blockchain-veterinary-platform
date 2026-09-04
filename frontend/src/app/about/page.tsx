@@ -238,7 +238,7 @@ const AboutUs: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
               <Button asChild variant="ghost" size="xl" className="w-full sm:w-auto rounded-full px-10 bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 text-white dark:text-black hover:text-white dark:hover:text-black text-lg transition-all duration-300 shadow-xl shadow-primary/10">
-                <Link href="/role-selection">
+                <Link href="/register/personal">
                   Get Started
                 </Link>
               </Button>
