@@ -34,23 +34,15 @@ const AboutUs: React.FC = () => {
         <section ref={heroRef} className={`relative transition-colors duration-500 scroll-fade-in ${heroVisible ? 'animate' : ''}`}>
           <div className="bg-[#bde4e9] dark:bg-primary/10 rounded-b-[4rem] lg:rounded-b-[6rem] overflow-hidden min-h-[90vh] flex items-center relative">
             <div className="pt-20 px-8 lg:px-20 max-w-7xl mx-auto w-full z-10">
-              <div className="max-w-5xl">
-                <h1 className="text-[3.5rem] md:text-[5rem] lg:text-[6.5rem] font-bold tracking-tighter text-slate-900 dark:text-white leading-[1.05] mb-12">
+              <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+                <h1 className="text-[3.5rem] md:text-[5rem] lg:text-[6.5rem] font-bold tracking-[0.015em] text-slate-900 dark:text-white leading-[1.05] mb-8">
                   Care without <br className="hidden md:block" />
-                  <span className="text-slate-500 dark:text-slate-400 tracking-tight">compromise.</span>
+                  <span className="text-slate-500 dark:text-slate-400 tracking-[0.015em]">compromise.</span>
                 </h1>
 
-                <div className="relative pl-6 md:pl-10 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-slate-900/10 dark:before:bg-white/10 before:rounded-full">
-                  <p className="text-lg md:text-2xl text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-3xl">
-                    When it comes to the pets we love, settling for <span className="text-slate-500 dark:text-slate-400">&quot;good enough&quot;</span> isn't an option. We eliminated the friction, anxiety, and endless searching to create a place where{" "}
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full text-slate-900 dark:text-white text-base md:text-xl font-bold tracking-tight shadow-sm align-baseline -translate-y-0.5 mx-1">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="opacity-40"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
-                      world-class care
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="opacity-40 rotate-180"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
-                    </span>
-                    {" "}feels entirely effortless.
-                  </p>
-                </div>
+                <p className="text-lg md:text-2xl text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-3xl mx-auto text-center">
+                  When it comes to the pets we love, settling for &quot;good enough&quot; isn&apos;t an option. We eliminated the friction, anxiety, and endless searching to create a place where world class care feels entirely effortless.
+                </p>
               </div>
             </div>
           </div>
@@ -68,7 +60,7 @@ const AboutUs: React.FC = () => {
                 {/* Main Card */}
                 <div className="relative bg-white dark:bg-slate-950 border-2 border-slate-900/10 dark:border-slate-800 p-8 md:p-14 lg:p-20 rounded-[2rem] md:rounded-[3rem] flex flex-col md:flex-row gap-8 lg:gap-16 items-center z-10 shadow-xl">
                   <div className="md:w-1/2 shrink-0">
-                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-normal leading-[1.1]">
+                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-[0.015em] leading-[1.1]">
                       Absolute Devotion.
                     </h2>
                   </div>
@@ -85,8 +77,8 @@ const AboutUs: React.FC = () => {
                 <div className="absolute inset-0 bg-slate-900 dark:bg-white rounded-[2rem] md:rounded-[3rem] -translate-x-4 translate-y-4 md:-translate-x-8 md:translate-y-8 transition-transform duration-300 group-hover:-translate-x-6 group-hover:translate-y-6" />
                 <div className="relative bg-white dark:bg-slate-950 border-2 border-slate-900/10 dark:border-slate-800 p-8 md:p-14 lg:p-20 rounded-[2rem] md:rounded-[3rem] flex flex-col md:flex-row gap-8 lg:gap-16 items-center z-10 shadow-xl">
                   <div className="md:w-1/2 shrink-0">
-                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-normal leading-[1.1]">
-                      A Sanctuary for Well-being.
+                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-[0.015em] leading-[1.1]">
+                      A Sanctuary for Wellbeing.
                     </h2>
                   </div>
                   <div className="md:w-1/2">
@@ -102,7 +94,7 @@ const AboutUs: React.FC = () => {
                 <div className="absolute inset-0 bg-slate-900 dark:bg-white rounded-[2rem] md:rounded-[3rem] translate-x-4 translate-y-4 md:translate-x-8 md:translate-y-8 transition-transform duration-300 group-hover:translate-x-6 group-hover:translate-y-6" />
                 <div className="relative bg-white dark:bg-slate-950 border-2 border-slate-900/10 dark:border-slate-800 p-8 md:p-14 lg:p-20 rounded-[2rem] md:rounded-[3rem] flex flex-col md:flex-row gap-8 lg:gap-16 items-center z-10 shadow-xl">
                   <div className="md:w-1/2 shrink-0">
-                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-normal leading-[1.1]">
+                    <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white tracking-[0.015em] leading-[1.1]">
                       Connected by Compassion.
                     </h2>
                   </div>
@@ -124,7 +116,7 @@ const AboutUs: React.FC = () => {
             <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-20">
               <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 lg:gap-12 items-end mb-16">
                 <div className="md:w-1/2">
-                  <h2 className="text-5xl md:text-[4rem] font-bold tracking-tighter text-slate-900 dark:text-white leading-[1.05]">
+                  <h2 className="text-5xl md:text-[4rem] font-bold tracking-[0.015em] text-slate-900 dark:text-white leading-[1.05]">
                     The people <br />
                     <span className="text-slate-500 dark:text-slate-400">behind the promise.</span>
                   </h2>
@@ -151,7 +143,6 @@ const AboutUs: React.FC = () => {
                     </div>
                     <div className="mt-8 text-center space-y-1.5">
                       <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white leading-none">Shahid Shaikh</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-bold tracking-[0.15em] uppercase text-[10px] sm:text-xs">Originator</p>
                       <div className="pt-5 flex justify-center gap-2">
                         <a href="mailto:theshahidshaikh7@gmail.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
                           <Mail className="w-5 h-5 stroke-[2.5]" />
@@ -178,7 +169,6 @@ const AboutUs: React.FC = () => {
                     </div>
                     <div className="mt-8 text-center space-y-1.5">
                       <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white leading-none">Aayushee Dhanokar</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-bold tracking-[0.15em] uppercase text-[10px] sm:text-xs">Catalyst</p>
                       <div className="pt-5 flex justify-center gap-2">
                         <a href="mailto:daayushee11@gmail.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
                           <Mail className="w-5 h-5 stroke-[2.5]" />
@@ -205,7 +195,6 @@ const AboutUs: React.FC = () => {
                     </div>
                     <div className="mt-8 text-center space-y-1.5">
                       <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white leading-none">Khushi Mishra</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-bold tracking-[0.15em] uppercase text-[10px] sm:text-xs">Catalyst</p>
                       <div className="pt-5 flex justify-center gap-2">
                         <a href="mailto:kmishra2026@gmail.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
                           <Mail className="w-5 h-5 stroke-[2.5]" />
@@ -230,11 +219,11 @@ const AboutUs: React.FC = () => {
         <section ref={missionRef} className={`py-32 scroll-fade-in ${missionVisible ? 'animate' : ''}`}>
           <div className="container mx-auto px-8 lg:px-20 text-center max-w-3xl">
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-slate-900 dark:text-white tracking-tight mb-8">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-slate-900 dark:text-white tracking-[0.015em] mb-8">
               Be part of the evolution.
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-400 font-medium mb-12">
-              Join thousands of forward-thinking pet parents who trust Zoodo for an elevated pet care experience.
+              Join thousands of forward thinking pet parents who trust Zoodo for an elevated pet care experience.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
               <Button asChild variant="ghost" size="xl" className="w-full sm:w-auto rounded-full px-10 bg-primary backdrop-blur-md border border-white/20 hover:bg-primary/90 text-white dark:text-black hover:text-white dark:hover:text-black text-lg transition-all duration-300 shadow-xl shadow-primary/10">

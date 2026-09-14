@@ -1,5 +1,6 @@
 @layer base {
   :root {
+    --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-sans: "Parkinsans", sans-serif;
     --font-heading: "fields", serif;
     --font-slab: "Roboto Slab", serif;
@@ -13,6 +14,22 @@
   h6 {
     @apply font-heading tracking-[0.015em];
   }
+}
+
+/* High-Legibility E-Commerce & Dashboard Typography (Flipkart / Amazon / Practo standard) */
+.dashboard-ui,
+.dashboard-ui * {
+  font-family: var(--font-ui), sans-serif !important;
+}
+
+.dashboard-ui h1,
+.dashboard-ui h2,
+.dashboard-ui h3,
+.dashboard-ui h4,
+.dashboard-ui h5,
+.dashboard-ui h6 {
+  font-family: var(--font-ui), sans-serif !important;
+  letter-spacing: -0.02em;
 }
 
 @tailwind base;
@@ -70,6 +87,24 @@
     --bg-subtle-mesh: none;
   }
 
+  /* Crisp Modern White Palette for Salus AI */
+  .salus-theme {
+    --background: 240 20% 98.5%; /* #FAFAFD - clean, bright modern white */
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%; /* #FFFFFF - pure crisp white */
+    --card-foreground: 215 16% 47%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 16% 47%;
+    --secondary: 240 10% 96%; /* #F4F4F7 */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 240 10% 96%;
+    --muted-foreground: 220 10% 46%;
+    --accent: 240 10% 96%;
+    --accent-foreground: 222 47% 11%;
+    --border: 220 13% 91%; /* #E4E7EC */
+    --input: 220 13% 91%;
+  }
+
   .dark {
     /* Premium "Rich Dark" background (Deep Blue-Black) instead of harsh Pure Black */
     /* Allows shadows to be visible and reduces eye strain */
@@ -112,6 +147,24 @@
     --bg-dot-pattern: none;
     --bg-grid-pattern: none;
     --bg-subtle-mesh: none;
+  }
+
+  .dark .salus-theme,
+  .salus-theme.dark {
+    --background: 230 15% 7%; /* #0e0f13 */
+    --foreground: 200 33% 98%;
+    --card: 230 15% 10%; /* #14151a */
+    --card-foreground: 200 10% 80%;
+    --popover: 230 15% 10%;
+    --popover-foreground: 200 33% 98%;
+    --secondary: 230 15% 12%;
+    --secondary-foreground: 200 33% 98%;
+    --muted: 230 15% 12%;
+    --muted-foreground: 220 10% 64%;
+    --accent: 230 15% 14%;
+    --accent-foreground: 200 33% 98%;
+    --border: 230 15% 16%;
+    --input: 230 15% 16%;
   }
 }
 

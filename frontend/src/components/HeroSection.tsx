@@ -60,10 +60,10 @@ const HeroSection = () => {
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.5rem] 2xl:text-[5rem] font-bold font-heading leading-[0.98] tracking-[0.015em] text-slate-900 dark:text-white">
                   <span className="block">Everything</span>
                   <span className="block">Your Pet Needs.</span>
-                  <span className="block">In One Place.</span>
+                  <span className="block text-slate-500 dark:text-slate-400">In One Place.</span>
                 </h1>
                 
-                <p className="text-base lg:text-lg text-slate-600 font-medium leading-[1.5] max-w-lg mx-auto lg:mx-0">
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-lg mx-auto lg:mx-0">
                   From vet care to insurance, training to grooming, shopping to travel, we've got you all covered.
                 </p>
               </div>

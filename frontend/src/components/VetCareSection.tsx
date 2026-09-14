@@ -23,19 +23,19 @@ const quickActions = [
     icon: Video,
     label: "Online Video Consultation",
     desc: "Talk to certified veterinarians instantly via secure video call",
-    href: "/services/find-vets?type=online",
+    href: "/services?cat=care&tab=veterinary&type=online",
   },
   {
     icon: Building2,
     label: "Veterinary Clinic Visit",
     desc: "Book priority appointments at top rated veterinary clinics & hospitals",
-    href: "/services/find-hospitals",
+    href: "/services?cat=care&tab=veterinary&type=clinic",
   },
   {
     icon: Home,
     label: "Home Veterinary Visit",
     desc: "Certified doctors visit your doorstep for routine checkups & vaccines",
-    href: "/services/find-vets?type=home",
+    href: "/services?cat=care&tab=veterinary&type=home",
   },
 ];
 

@@ -867,9 +867,9 @@ export default function SalusPage() {
           height: 0;
         }
       `}</style>
-      <div className="fixed inset-0 flex h-[100dvh] min-h-[100svh] w-full bg-background overflow-hidden">
+      <div className="salus-theme fixed inset-0 flex h-[100dvh] min-h-[100svh] w-full bg-background overflow-hidden text-foreground">
         {/* ChatGPT Style Sidebar */}
-        <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border/50 bg-secondary/30 backdrop-blur-xl border-t-0 shadow-none">
+        <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border/70 bg-white/95 dark:bg-card/95 backdrop-blur-xl border-t-0 shadow-none">
           <SidebarHeader className="p-3 transition-all duration-300 ease-in-out">
             {/* Top row: Logo + Toggle */}
             <div className="flex w-full items-center h-9 mb-4 group-data-[collapsible=icon]:mb-2 group-data-[collapsible=icon]:justify-center">
@@ -962,7 +962,7 @@ export default function SalusPage() {
           className={`flex flex-col relative w-full bg-background overscroll-none ${messages.length > 1 ? 'overflow-y-auto chat-scrollbar' : 'overflow-hidden'}`}
         >
           {/* Top Navigation Bar (Minimal) */}
-          <header className={`sticky top-0 shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50' : 'bg-transparent'}`}>
+          <header className={`sticky top-0 shrink-0 z-40 transition-all duration-300 ${isChatScrolled ? 'bg-white/80 dark:bg-background/80 backdrop-blur-xl border-b border-border/60' : 'bg-transparent'}`}>
             <div className="flex items-center justify-between h-14 px-4 md:px-6">
               <div className="flex items-center gap-1 md:gap-3">
                 <MobileMenuTrigger />
@@ -1025,8 +1025,8 @@ export default function SalusPage() {
                     {heroSuggestions.map((suggestion, index) => (
                       <Button
                         key={index}
-                        variant="outline"
-                        className="w-full justify-between h-auto py-3 px-5 rounded-xl bg-white/50 dark:bg-zinc-800/40 border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800/60 backdrop-blur-md transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground hover:border-black/20 dark:hover:border-white/20 active:scale-[0.98] animate-in fade-in slide-in-from-top-4"
+                        variant="ghost"
+                        className="w-full justify-between h-auto py-3 px-5 rounded-xl bg-white dark:bg-zinc-800/60 border border-slate-200/90 dark:border-white/10 hover:bg-slate-50 hover:border-primary/50 dark:hover:bg-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground active:scale-[0.98] animate-in fade-in slide-in-from-top-4"
                         style={{ animationDelay: `${500 + (index * 100)}ms` }}
                         onClick={() => handleSendMessage(suggestion.text)}
                       >
@@ -1044,7 +1044,7 @@ export default function SalusPage() {
                     style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
                   >
                     <div className="relative group">
-                      <div className="relative bg-white/80 dark:bg-zinc-900/60 backdrop-blur-3xl rounded-[32px] border border-white/20 ring-1 ring-black/[0.05] p-2 flex items-end gap-2 transition-all duration-300 sm:max-w-2xl sm:mx-auto sm:bg-white/70 sm:rounded-[28px] sm:p-4 sm:flex-col sm:items-stretch sm:gap-0 sm:ring-black/5 sm:dark:ring-white/5">
+                      <div className="relative bg-white dark:bg-zinc-900/90 backdrop-blur-3xl rounded-[32px] border border-slate-200/90 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-2 flex items-end gap-2 transition-all duration-300 sm:max-w-2xl sm:mx-auto sm:rounded-[28px] sm:p-4 sm:flex-col sm:items-stretch sm:gap-0">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1117,8 +1117,8 @@ export default function SalusPage() {
                     {heroSuggestions.map((suggestion, index) => (
                       <Button
                         key={index}
-                        variant="outline"
-                        className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white/50 dark:bg-zinc-800/40 border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800/60 backdrop-blur-md transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground hover:border-black/20 dark:hover:border-white/20 active:scale-[0.98] ${index === 3 || index === 4 ? 'hidden sm:flex' : ''} animate-in fade-in slide-in-from-top-4`}
+                        variant="ghost"
+                        className={`w-full sm:w-auto justify-between sm:justify-center h-auto py-3 px-5 rounded-xl sm:rounded-full bg-white dark:bg-zinc-800/60 border border-slate-200/90 dark:border-white/10 hover:bg-white hover:border-primary/50 dark:hover:bg-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all duration-200 text-sm font-medium text-foreground/90 hover:text-foreground active:scale-[0.98] ${index === 3 || index === 4 ? 'hidden sm:flex' : ''} animate-in fade-in slide-in-from-top-4`}
                         style={{ animationDelay: `${500 + (index * 100)}ms` }}
                         onClick={() => handleSendMessage(suggestion.text)}
                       >
@@ -1201,7 +1201,7 @@ export default function SalusPage() {
                         </div>
                       )}
 
-                      <div className="relative bg-white/80 dark:bg-zinc-900/60 backdrop-blur-3xl rounded-[32px] border border-white/20 ring-1 ring-black/[0.05] p-2 flex items-end gap-2 transition-all duration-300">
+                      <div className="relative bg-white dark:bg-zinc-900/90 backdrop-blur-3xl rounded-[32px] border border-slate-200/90 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-2 flex items-end gap-2 transition-all duration-300">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1257,61 +1257,71 @@ export default function SalusPage() {
       />
 
       <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-        <DialogContent className="w-[94vw] max-w-xl rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
-          <div className="p-4 md:p-6">
-            <DialogHeader className="space-y-2 text-left">
-              <DialogTitle className="text-xl font-bold">How To Use Salus AI</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Quick guidance for better results and safer decisions.
+        <DialogContent className="salus-theme w-[94vw] max-w-xl rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-0 shadow-2xl overflow-hidden">
+          <div className="p-5 md:p-6 border-b border-slate-100 dark:border-zinc-850">
+            <DialogHeader className="space-y-1 text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <HelpCircle className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Help & Guide
+                </span>
+              </div>
+              <DialogTitle className="text-xl font-bold text-foreground">How To Use Salus AI</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Quick tips for accurate pet health guidance and emergency medical care.
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="px-4 md:px-6 pb-4 md:pb-6 space-y-3 md:space-y-4 max-h-[62vh] sm:max-h-[70vh] overflow-y-auto">
-            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-2">
-              <h3 className="text-sm font-semibold">Ask Better Questions</h3>
-              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-outside pl-4">
-                <li>Include pet type, age, weight, and symptoms.</li>
-                <li>Share duration, severity, and what changed recently.</li>
-                <li>Use one clear question per prompt for best accuracy.</li>
+          <div className="p-5 md:p-6 space-y-3.5 max-h-[62vh] sm:max-h-[70vh] overflow-y-auto">
+            <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-850 bg-slate-50/70 dark:bg-zinc-900/60 p-4 space-y-1.5">
+              <h3 className="text-xs font-bold text-foreground">Ask Better Questions</h3>
+              <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside">
+                <li>Include pet type, breed, age, weight, and specific symptoms.</li>
+                <li>Share when symptoms started, severity, and any recent food/environment changes.</li>
+                <li>Ask one clear clinical question per message for optimal AI diagnosis accuracy.</li>
               </ul>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-2">
-              <h3 className="text-sm font-semibold">Safety First</h3>
-              <p className="text-sm text-muted-foreground">
-                Salus AI can help with guidance, but it is not a medical diagnosis. For urgent or worsening symptoms, contact a licensed veterinarian immediately.
+            <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-850 bg-slate-50/70 dark:bg-zinc-900/60 p-4 space-y-1.5">
+              <h3 className="text-xs font-bold text-foreground">Safety & Veterinary Disclaimer</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Salus AI provides informational pet triage and health guidance. It is not a substitute for clinical veterinary diagnosis. For critical or rapidly worsening symptoms, contact a licensed vet immediately.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-3">
-              <h3 className="text-sm font-semibold">Need Immediate Help?</h3>
+            <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-850 bg-slate-50/70 dark:bg-zinc-900/60 p-4 space-y-3">
+              <h3 className="text-xs font-bold text-foreground">Need Immediate Veterinary Attention?</h3>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
-                  className="sm:flex-1"
-                  onClick={() => window.open('https://www.google.com/maps/search/emergency+vet+clinic+near+me', '_blank')}
-                >
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Find Emergency Vet
-                </Button>
-                <Button
-                  variant="outline"
-                  className="sm:flex-1"
+                  className="sm:flex-1 rounded-full text-xs font-semibold h-10 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
                   onClick={() => {
                     setIsHelpOpen(false);
                     setIsConsultationPopupOpen(true);
                   }}
                 >
-                  <Video className="h-4 w-4 mr-2" />
-                  Start Instant Consultation
+                  <Video className="h-3.5 w-3.5 mr-1.5" />
+                  Instant Video Call
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="sm:flex-1 rounded-full text-xs font-semibold h-10 border border-slate-200 dark:border-zinc-800 bg-white hover:bg-slate-50 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 transition-colors shadow-none"
+                  asChild
+                >
+                  <Link href="/services?cat=care&tab=veterinary&type=emergency">
+                    <MapPin className="h-3.5 w-3.5 mr-1.5" />
+                    24/7 Emergency Clinic
+                  </Link>
                 </Button>
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4">
-              <p className="text-sm text-muted-foreground">
+            <div className="p-2 text-center">
+              <p className="text-xs text-muted-foreground">
                 Need support or want to report an issue?{" "}
-                <Link href="/contact" className="font-medium text-primary hover:underline" onClick={() => setIsHelpOpen(false)}>
+                <Link href="/contact" className="font-semibold text-primary hover:underline" onClick={() => setIsHelpOpen(false)}>
                   Contact Zoodo Support
                 </Link>
               </p>
@@ -1321,43 +1331,80 @@ export default function SalusPage() {
       </Dialog>
 
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="w-[94vw] max-w-md rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
-          <div className="p-4 md:p-6 space-y-4">
-            <DialogHeader className="space-y-2 text-left">
-              <DialogTitle className="text-xl font-bold">Settings</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Customize your Salus chat experience.
+        <DialogContent className="salus-theme w-[94vw] max-w-md rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 shadow-2xl overflow-hidden">
+          <div className="space-y-4">
+            <DialogHeader className="space-y-1.5 text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Preferences
+                </span>
+              </div>
+              <DialogTitle className="text-xl font-bold text-foreground">Settings</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Customize your Salus chat interface and experience.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="rounded-xl border border-border bg-background/70 p-3.5 md:p-4 space-y-3">
-              <p className="text-sm font-semibold">Appearance</p>
+            <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-850 bg-slate-50/70 dark:bg-zinc-900/60 p-4 space-y-3">
+              <p className="text-xs font-bold text-foreground uppercase tracking-wider">Theme Appearance</p>
               <div className="grid grid-cols-3 gap-2">
                 <Button
-                  variant={salusThemeMode === 'light' ? 'default' : 'outline'}
-                  className="justify-start"
+                  variant="ghost"
+                  className={`h-10 text-xs font-semibold rounded-xl transition-all border ${
+                    salusThemeMode === 'light'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary shadow-xs'
+                      : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-none'
+                  }`}
                   onClick={() => setSalusThemeMode('light')}
                 >
-                  <Sun className="h-4 w-4 mr-2" />
+                  <Sun className="h-3.5 w-3.5 mr-1.5" />
                   Light
                 </Button>
                 <Button
-                  variant={salusThemeMode === 'dark' ? 'default' : 'outline'}
-                  className="justify-start"
+                  variant="ghost"
+                  className={`h-10 text-xs font-semibold rounded-xl transition-all border ${
+                    salusThemeMode === 'dark'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary shadow-xs'
+                      : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-none'
+                  }`}
                   onClick={() => setSalusThemeMode('dark')}
                 >
-                  <Moon className="h-4 w-4 mr-2" />
+                  <Moon className="h-3.5 w-3.5 mr-1.5" />
                   Dark
                 </Button>
                 <Button
-                  variant={salusThemeMode === 'system' ? 'default' : 'outline'}
-                  className="justify-start"
+                  variant="ghost"
+                  className={`h-10 text-xs font-semibold rounded-xl transition-all border ${
+                    salusThemeMode === 'system'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary shadow-xs'
+                      : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-none'
+                  }`}
                   onClick={() => setSalusThemeMode('system')}
                 >
-                  <Monitor className="h-4 w-4 mr-2" />
+                  <Monitor className="h-3.5 w-3.5 mr-1.5" />
                   System
                 </Button>
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-850 bg-slate-50/70 dark:bg-zinc-900/60 p-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-foreground">Reset Session</p>
+                <p className="text-[11px] text-muted-foreground">Start a fresh consultation</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full text-xs font-semibold border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-red-600 hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-950/30 transition-colors shadow-none"
+                onClick={() => {
+                  window.location.reload();
+                }}
+              >
+                New Chat
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1365,5 +1412,3 @@ export default function SalusPage() {
     </SidebarProvider>
   );
 }
-
-

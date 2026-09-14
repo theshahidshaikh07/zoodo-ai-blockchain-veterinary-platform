@@ -21,7 +21,7 @@ const services = [
   },
   {
     title: "Clinic & Hospital",
-    description: "Discover top-rated pet clinics and hospitals with advanced medical facilities and expert care teams.",
+    description: "Discover top rated pet clinics and hospitals with advanced medical facilities and expert care teams.",
     image: serviceClinicHospital,
     color: "zoodo-blue",
     icon: Building2,

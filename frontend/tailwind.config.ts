@@ -17,6 +17,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        ui: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         sans: ["Parkinsans", "sans-serif"],
         heading: ["fields", "serif"],
         accent: ["Parkinsans", "sans-serif"],

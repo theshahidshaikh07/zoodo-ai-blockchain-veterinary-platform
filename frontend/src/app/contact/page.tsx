@@ -68,9 +68,9 @@ export default function ContactPage() {
                 {/* Left Side: Information */}
                 <div className="space-y-8 lg:space-y-12 w-full lg:pr-10">
                   <div className="space-y-5">
-                    <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold font-heading text-slate-900 dark:text-white leading-[1.1] tracking-tight whitespace-nowrap">
+                    <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold font-heading text-slate-900 dark:text-white leading-[1.1] tracking-[0.015em] whitespace-nowrap">
                       Let's start a <br />
-                      <span className="text-slate-500 dark:text-slate-400">conversation.</span>
+                      <span className="text-slate-500 dark:text-slate-400 tracking-[0.015em]">conversation.</span>
                     </h1>
 
                     <div className="flex items-center gap-4 pl-1">

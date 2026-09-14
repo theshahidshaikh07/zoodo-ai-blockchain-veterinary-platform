@@ -670,6 +670,10 @@ export default function PetOwnerDashboard() {
   const [pets, setPets] = useState<any[]>([]);
 
   useEffect(() => {
+    router.replace('/services?cat=activity&tab=appointments');
+  }, [router]);
+
+  useEffect(() => {
     // 1. Instant optimistic load from localStorage
     try {
       const rawUser = localStorage.getItem('zoodo_user') || localStorage.getItem('user');

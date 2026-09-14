@@ -13,12 +13,10 @@ import {
 import {
   Video,
   AlertTriangle,
-  Loader2,
-  XCircle,
   Calendar,
-  Zap,
   MapPin,
-  DollarSign
+  Clock,
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -59,51 +57,63 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md w-[90%] rounded-2xl">
+      <DialogContent className="salus-theme sm:max-w-md w-[92%] rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-7 shadow-2xl">
 
         {/* STEP 1: INITIAL WARNING */}
         {step === 'initial' && (
           <>
-            <DialogHeader className="text-left">
-              <DialogTitle className="flex items-center gap-3 text-xl">
-                <div className="relative flex h-2 w-2 items-center justify-center mt-1">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 animate-pulse" />
-                </div>
-                Instant Care
+            <DialogHeader className="text-left space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                </span>
+                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full">
+                  Instant Care
+                </span>
+              </div>
+              <DialogTitle className="text-xl font-bold text-foreground">
+                Urgent Video Consultation
               </DialogTitle>
-              <DialogDescription className="text-sm sm:text-base pt-1 sm:pt-2 ml-5">
-                For urgent pet medical needs.
+              <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                We’ll connect you immediately with the next available certified veterinarian for an urgent pet consultation.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-3 sm:space-y-6 py-1 sm:py-4">
-              <div className="bg-muted/40 p-2.5 sm:p-5 rounded-xl border border-border/50">
-                <p className="text-sm sm:text-base leading-snug sm:leading-relaxed font-semibold text-foreground">
-                  We’ll connect you immediately with the first available veterinarian for an urgent video consultation.
-                </p>
+            <div className="space-y-3 py-3">
+              <div className="bg-slate-50 dark:bg-zinc-900/70 p-4 rounded-2xl border border-slate-200/70 dark:border-zinc-850 space-y-2">
+                <div className="flex items-center gap-2 text-xs text-foreground font-semibold">
+                  <Clock className="w-4 h-4 text-primary shrink-0" />
+                  <span>Estimated Wait Time: ~2 to 4 minutes</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Licensed VCI Registered Veterinarians</span>
+                </div>
               </div>
 
-              <div className="text-center px-0 sm:px-4">
-                <p className="text-xs sm:text-sm text-muted-foreground leading-snug sm:leading-relaxed">
-                  For routine check-ups, please schedule a standard <span className="font-medium text-primary">Teleconsultation</span> instead. You can tap ‘Schedule Later’ to book at your convenience.
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground text-center leading-relaxed px-2">
+                For routine check-ups or vaccinations, please choose <strong>Schedule Later</strong> to pick your preferred doctor and time slot.
+              </p>
             </div>
 
             <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-2">
-              <Button variant="outline" className="w-full sm:flex-1" asChild>
-                <Link href="/services/find-vets?type=online">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Schedule Later
+              <Button
+                variant="ghost"
+                className="w-full sm:flex-1 rounded-full text-xs font-semibold h-10 border border-slate-200 dark:border-zinc-800 bg-white hover:bg-slate-50 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5 shadow-none"
+                asChild
+              >
+                <Link href="/services?cat=care&tab=veterinary&type=online">
+                  <Calendar className="w-3.5 h-3.5 mr-1" />
+                  <span>Schedule Later</span>
                 </Link>
               </Button>
               <Button
                 onClick={handleProceedToFee}
-                className="w-full sm:flex-1"
+                className="w-full sm:flex-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold h-10 shadow-xs flex items-center justify-center gap-1.5"
               >
-                <Video className="w-4 h-4 mr-2" />
-                Proceed
+                <Video className="w-3.5 h-3.5 mr-1" />
+                <span>Proceed</span>
               </Button>
             </DialogFooter>
           </>
@@ -112,34 +122,40 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
         {/* STEP 2: FEE CONFIRMATION */}
         {step === 'fee' && (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                Confirm Fee
+            <DialogHeader className="text-left space-y-1.5">
+              <DialogTitle className="text-xl font-bold text-foreground">
+                Consultation Fee
               </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Transparent pricing with no hidden charges.
+              </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
-              <div className="bg-muted/40 p-4 sm:p-6 rounded-xl border border-border/50 text-center">
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Consultation Fee</p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">$50</p>
+            <div className="space-y-4 py-3">
+              <div className="bg-slate-50 dark:bg-zinc-900/70 p-5 rounded-2xl border border-slate-200/70 dark:border-zinc-850 text-center">
+                <p className="text-xs font-medium text-muted-foreground mb-1">Standard Teleconsult Fee</p>
+                <p className="text-3xl font-extrabold text-foreground">₹499</p>
+                <span className="text-[11px] text-emerald-600 font-medium">Includes 3 days follow-up chat</span>
               </div>
 
-              <div className="text-center px-0 sm:px-4">
-                <p className="text-xs sm:text-sm text-muted-foreground leading-snug sm:leading-relaxed">
-                  You will be charged <span className="font-semibold text-foreground">$50</span>. Do you wish to proceed?
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                You will only be charged after the veterinarian joins the video room and reviews your pet.
+              </p>
             </div>
 
             <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-2">
-              <Button variant="outline" onClick={handleClose} className="w-full sm:flex-1">
+              <Button
+                variant="ghost"
+                onClick={handleClose}
+                className="w-full sm:flex-1 rounded-full text-xs font-semibold h-10 border border-slate-200 dark:border-zinc-800 bg-white hover:bg-slate-50 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 transition-colors shadow-none"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmFee}
-                className="w-full sm:flex-1"
+                className="w-full sm:flex-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold h-10 shadow-xs"
               >
-                Yes, Proceed
+                Connect Now
               </Button>
             </DialogFooter>
           </>
@@ -147,43 +163,54 @@ const ConsultationPopup = ({ isOpen, onClose }: ConsultationPopupProps) => {
 
         {/* STEP 3: SEARCHING */}
         {step === 'searching' && (
-          <div className="text-center py-12">
-            <div className="relative w-16 h-16 mx-auto mb-6">
-              <div className="absolute inset-0 border-4 border-muted/30 rounded-full"></div>
+          <div className="text-center py-10 space-y-4">
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 border-4 border-slate-100 dark:border-zinc-800 rounded-full"></div>
               <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
               <Video className="absolute inset-0 m-auto w-6 h-6 text-primary animate-pulse" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">Connecting to Vet Network...</h3>
-            <p className="text-muted-foreground animate-pulse">
-              Locating available emergency specialists nearby...
-            </p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-foreground">Connecting to Vet Network...</h3>
+              <p className="text-xs text-muted-foreground animate-pulse">
+                Locating nearest available emergency veterinarians...
+              </p>
+            </div>
           </div>
         )}
 
         {/* STEP 4: NO RESULTS */}
         {step === 'no-results' && (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <AlertTriangle className="w-6 h-6" />
-                No Veterinarians Available
+            <DialogHeader className="text-left space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <DialogTitle className="text-lg font-bold text-foreground">
+                All Telehealth Doctors Busy
               </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+                All online vets are currently in active consultations. If your pet has a critical emergency, please visit a nearby 24/7 hospital immediately.
+              </DialogDescription>
             </DialogHeader>
 
-            <div className="py-6 space-y-4">
-              <p className="text-center text-muted-foreground">
-                Sorry, but there are no veterinarians currently online to take your request.
-              </p>
-            </div>
-
-            <DialogFooter className="flex-col gap-2">
-              <Button variant="default" className="w-full" asChild>
-                <Link href="/services/find-hospitals">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Emergency Clinic Nearby
+            <div className="py-2 space-y-2">
+              <Button
+                className="w-full rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold h-10 shadow-xs"
+                asChild
+              >
+                <Link href="/services?cat=care&tab=veterinary&type=clinic">
+                  <MapPin className="w-3.5 h-3.5 mr-1.5" />
+                  Find Partner Hospital Nearby
                 </Link>
               </Button>
-            </DialogFooter>
+              <Button
+                variant="ghost"
+                onClick={handleClose}
+                className="w-full rounded-full text-xs font-semibold h-10 border border-slate-200 dark:border-zinc-800 bg-white hover:bg-slate-50 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 transition-colors shadow-none"
+              >
+                Close
+              </Button>
+            </div>
           </>
         )}
 

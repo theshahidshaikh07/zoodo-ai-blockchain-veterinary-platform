@@ -67,7 +67,7 @@ const InsuranceSection = () => (
       {/* ── Section Header ── */}
       <motion.div {...mp(0)} className="mb-10 lg:mb-12 max-w-none">
         <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-[0.015em] max-w-none">
-          Compare policies from top-rated pet insurance providers.
+          Compare policies from top rated pet insurance providers.
         </h2>
         <p className="text-base lg:text-lg text-slate-600 mt-2.5 max-w-none">
           A transparent marketplace to evaluate customizable coverage plans, zero copay options, and paperless cashless claims.

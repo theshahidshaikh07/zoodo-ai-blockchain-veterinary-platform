@@ -9,5 +9,9 @@ export default function SalusLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <div className="salus-theme min-h-screen bg-background text-foreground">
+      {children}
+    </div>
+  );
 }

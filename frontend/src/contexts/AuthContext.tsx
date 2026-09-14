@@ -13,7 +13,6 @@ interface AuthContextType {
   login: (credentials: { usernameOrEmail: string; password: string }) => Promise<boolean>;
   loginAdmin: (credentials: { usernameOrEmail: string; password: string }) => Promise<boolean>;
   loginWithGoogle: (roleOverride?: 'pet_owner' | 'business') => Promise<any>;
-  handleGoogleOAuthCallback: () => Promise<boolean>;
   logout: () => void;
   register: (userData: any) => Promise<{ success: boolean; userType?: string; redirectTo?: string }>;
   refreshUser: () => Promise<void>;
@@ -323,53 +322,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const handleGoogleOAuthCallback = async (): Promise<boolean> => {
-    try {
-      const response = await apiService.handleGoogleCallback();
-      
-      if (response.success && response.data) {
-        if (response.data.action === 'login') {
-          // User exists, login successful
-          const userResponse = await apiService.getCurrentUser();
-          if (userResponse.success && userResponse.data) {
-            setUser(userResponse.data);
-            notificationService.loginSuccess(userResponse.data.firstName);
-            return true;
-          }
-        } else if (response.data.action === 'register') {
-          // User doesn't exist, store OAuth data for registration
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('oauth_user_data', JSON.stringify({
-              email: response.data.email,
-              firstName: response.data.firstName,
-              lastName: response.data.lastName,
-              picture: response.data.picture
-            }));
-          }
-          notificationService.info({
-            title: 'Complete Registration',
-            description: 'Please complete your registration to continue.',
-            type: 'registration',
-          });
-          return false;
-        }
-      }
-      
-      notificationService.error({
-        title: 'OAuth Authentication Failed',
-        description: response.message || 'Unable to authenticate with Google',
-      });
-      return false;
-    } catch (error) {
-      console.error('OAuth callback handling failed:', error);
-      notificationService.error({
-        title: 'Authentication Failed',
-        description: 'An error occurred during authentication',
-      });
-      return false;
-    }
-  };
-
   const register = async (userData: any): Promise<{ success: boolean; userType?: string; redirectTo?: string }> => {
     try {
       setIsLoading(true);
@@ -472,7 +424,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     loginAdmin,
     loginWithGoogle,
-    handleGoogleOAuthCallback,
     logout,
     register,
     refreshUser,
