@@ -1176,6 +1176,7 @@ function ServicesPortalContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedDoctorForBooking, setSelectedDoctorForBooking] = useState<any>(null);
   const [selectedVetForPopup, setSelectedVetForPopup] = useState<any | null>(null);
+  const [previewImageVet, setPreviewImageVet] = useState<any | null>(null);
   const [isWaitlistNotified, setIsWaitlistNotified] = useState(false);
 
   // In-page filters matching Practo & MNC e-commerce exact UI
@@ -2882,7 +2883,10 @@ function ServicesPortalContent() {
                     >
                       {/* Desktop Left Column: Edge-to-Edge Doctor Portrait (Hidden on mobile) */}
                       <div 
-                        onClick={() => handleConsultClick(vet)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewImageVet(vet);
+                        }}
                         className="hidden sm:block relative sm:w-44 md:w-48 lg:w-56 xl:w-64 shrink-0 sm:min-h-full bg-slate-100 dark:bg-zinc-800 overflow-hidden sm:rounded-l-3xl cursor-pointer group/img"
                         title={vet.bookingMessage ? vet.bookingMessage.split('\n')[0] : `Book consultation with ${vet.name}`}
                       >
@@ -2902,15 +2906,18 @@ function ServicesPortalContent() {
                           {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
                           <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
                             <div 
-                              onClick={() => handleConsultClick(vet)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewImageVet(vet);
+                              }}
                               className="relative w-20 h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
                             >
                               <Image
                                 src={vet.image}
                                 alt={vet.name}
                                 fill
-                                className="object-cover object-top"
-                                sizes="80px"
+                                className="object-cover object-top scale-[1.4] origin-top transition-transform duration-300 active:scale-[1.45]"
+                                sizes="120px"
                               />
                             </div>
                             <div className="flex-1 min-w-0 space-y-1">
@@ -5053,6 +5060,46 @@ function ServicesPortalContent() {
           </div>
         </div>
       )}
+
+      {/* PURE FULL PROFILE IMAGE PREVIEW LIGHTBOX */}
+      <AnimatePresence>
+        {previewImageVet && (
+          <div
+            onClick={() => setPreviewImageVet(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-sm cursor-pointer select-none"
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setPreviewImageVet(null)}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              aria-label="Close preview"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Pure Full Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="relative w-full max-w-md h-[80vh] flex items-center justify-center pointer-events-none"
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={previewImageVet.image}
+                  alt={previewImageVet.name}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 640px) 100vw, 500px"
+                  priority
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
