@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import {
   Home as HomeIcon,
   AlertTriangle,
   Star,
+  ThumbsUp,
   Clock,
   ShieldCheck,
   Briefcase,
@@ -38,8 +39,10 @@ import {
   FileText,
   Plus,
   Check,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Users,
   ExternalLink,
   MapPin,
   X,
@@ -103,7 +106,7 @@ import vetAndrew from '@/assets/vets/andrew.png';
 import vetEmmaStone from '@/assets/vets/ema stone -.png';
 import vetWeeknd from '@/assets/vets/weekend.png';
 
-// Import hospital images from hospital section
+// Import all 12 hospital images from hospital directory
 import hospQueens from '@/assets/hospital/Queens mother hospital.jpeg';
 import hospPenn from '@/assets/hospital/pennvet.jpg';
 import hospBluePearl from '@/assets/hospital/bluepearl.jpg';
@@ -113,6 +116,9 @@ import hospClinton from '@/assets/hospital/clinton keith veterinary hospital.jpg
 import hospVetic from '@/assets/hospital/vetic.jpg';
 import hospAngell from '@/assets/hospital/Angell Animal Medical Center – Boston, Massachusetts, USA.jpg';
 import hospSchwarzman from '@/assets/hospital/Schwarzman Animal Medical Center Opens Surgical Care Facility in Lenox Hill, Manhattan.jpg';
+import hospHawkBridge from '@/assets/hospital/hawk bridge animal hospital.jpeg';
+import hospFalcon from '@/assets/hospital/abu dhabi falcon hospital.jpg';
+import hospMetro from '@/assets/hospital/hospital.jpg';
 
 // Dynamic Worldwide Geocoding & Location Hierarchy (Photon / OpenStreetMap API)
 export interface LocationItem {
@@ -153,7 +159,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'Stark Pet Skin & Hair Clinic',
+    clinicName: 'Stark Pet Clinic',
     clinicAddress: 'Malibu, Los Angeles, California, USA',
     consultModes: ['video', 'clinic'],
     symptoms: ['Skin Rash', 'Hair Fall', 'Itching', 'Ear Infection', 'Allergies'],
@@ -183,7 +189,7 @@ const ONLINE_VETS = [
     city: 'London',
     state: 'England',
     country: 'United Kingdom',
-    clinicName: 'Camden Animal Hospital',
+    clinicName: 'Camden Vet Hospital',
     clinicAddress: 'Camden, London, UK • Available Worldwide Online',
     consultModes: ['video'],
     symptoms: ['Limping', 'Joint Fracture', 'Cruciate Ligament', 'Hip Dysplasia', 'General Medicine'],
@@ -213,7 +219,7 @@ const ONLINE_VETS = [
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India',
-    clinicName: 'Crown Veterinary Specialty Clinic',
+    clinicName: 'Crown Vet Clinic',
     clinicAddress: 'Bandra West, Mumbai, Maharashtra, India',
     consultModes: ['video', 'clinic', 'home'],
     symptoms: ['General Checkup', 'Vaccination', 'Puppy Care', 'Fever', 'Digestive Health'],
@@ -243,7 +249,7 @@ const ONLINE_VETS = [
     city: 'Miami',
     state: 'Florida',
     country: 'USA',
-    clinicName: 'Miami Pet Wellness & Physio Hospital',
+    clinicName: 'Miami Pet Physio',
     clinicAddress: 'Brickell, Miami, Florida, USA',
     consultModes: ['video', 'clinic'],
     symptoms: ['Agility Training', 'Joint Rehab', 'Limping', 'Ligament Repair', 'Mobility'],
@@ -273,7 +279,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'Pacific Animal Eye Specialty Clinic',
+    clinicName: 'Pacific Eye Clinic',
     clinicAddress: 'Beverly Hills, Los Angeles, California, USA',
     consultModes: ['clinic'],
     symptoms: ['Corneal Ulcer', 'Cataract Check', 'Conjunctivitis', 'Vision Loss', 'Glaucoma'],
@@ -303,7 +309,7 @@ const ONLINE_VETS = [
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India',
-    clinicName: 'Juhu Super Specialty Pet Hospital',
+    clinicName: 'Juhu Pet Hospital',
     clinicAddress: 'Juhu, Mumbai, Maharashtra, India',
     consultModes: ['clinic'],
     symptoms: ['Complex Surgery', 'Second Opinion', 'Oncology', 'Geriatric Pet Care'],
@@ -333,7 +339,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'Silver Lake Feline & Pet Care Center',
+    clinicName: 'Silver Lake Pet Care',
     clinicAddress: 'Silver Lake, Los Angeles, California, USA',
     consultModes: ['video', 'home'],
     symptoms: ['Checkups', 'Vaccination', 'Feline Nutrition', 'Vomiting', 'Hairballs'],
@@ -363,7 +369,7 @@ const ONLINE_VETS = [
     city: 'New York',
     state: 'New York',
     country: 'USA',
-    clinicName: 'Manhattan Animal Medical Hospital',
+    clinicName: 'Manhattan Vet Center',
     clinicAddress: 'Manhattan, New York, NY, USA',
     consultModes: ['video', 'clinic'],
     symptoms: ['Acute Trauma', 'Spine Injury', 'Hip Dysplasia', 'Critical Care', 'Arthritis'],
@@ -393,7 +399,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'West Hollywood Pet Behavior Center',
+    clinicName: 'WeHo Pet Behavior',
     clinicAddress: 'West Hollywood, Los Angeles, California, USA',
     consultModes: ['video'],
     symptoms: ['Anxiety Relief', 'Noise Phobia', 'Separation Anxiety', 'Aggression Management'],
@@ -423,7 +429,7 @@ const ONLINE_VETS = [
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India',
-    clinicName: 'Worli Pet Heart & Diagnostic Clinic',
+    clinicName: 'Worli Heart Clinic',
     clinicAddress: 'Worli, Mumbai, Maharashtra, India',
     consultModes: ['video', 'clinic', 'home'],
     symptoms: ['Heart Murmur', 'Chronic Cough', 'Echocardiogram', 'Cardiomegaly', 'Hypertension'],
@@ -453,7 +459,7 @@ const ONLINE_VETS = [
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India',
-    clinicName: 'Galaxy Veterinary Hospital',
+    clinicName: 'Galaxy Vet Hospital',
     clinicAddress: 'Bandra, Mumbai, Maharashtra, India',
     consultModes: ['clinic'],
     symptoms: ['Bone Fractures', 'Joint Surgery', 'Knee Dislocation', 'Heavy Breed Mobility'],
@@ -483,7 +489,7 @@ const ONLINE_VETS = [
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India',
-    clinicName: 'PurePaws Clinical Nutrition Clinic',
+    clinicName: 'PurePaws Nutrition',
     clinicAddress: 'Andheri West, Mumbai, Maharashtra, India',
     consultModes: ['video', 'clinic'],
     symptoms: ['Diet Planning', 'Weight Loss', 'Renal Diet', 'Food Allergies', 'Gastroenterology'],
@@ -513,7 +519,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'Guardian Pet Emergency Center',
+    clinicName: 'Guardian Emergency',
     clinicAddress: 'Hollywood Hills, Los Angeles, California, USA',
     consultModes: ['video', 'clinic', 'home'],
     symptoms: ['Trauma Recovery', 'Severe Wounds', 'Critical Care', 'Pain Management', 'Sepsis'],
@@ -543,7 +549,7 @@ const ONLINE_VETS = [
     city: 'London',
     state: 'England',
     country: 'United Kingdom',
-    clinicName: 'Kensington 24/7 Animal Emergency Hospital',
+    clinicName: 'Kensington 24/7 Vet',
     clinicAddress: 'Kensington, London, England, UK',
     consultModes: ['clinic'],
     symptoms: ['Emergency Surgery', 'Toxin Ingestion', 'Gastric Torsion', 'Intensive Care'],
@@ -573,7 +579,7 @@ const ONLINE_VETS = [
     city: 'Nashville',
     state: 'Tennessee',
     country: 'USA',
-    clinicName: 'Green Hills Puppy & Kitten Wellness Clinic',
+    clinicName: 'Green Hills Pet Care',
     clinicAddress: 'Green Hills, Nashville, Tennessee, USA',
     consultModes: ['video', 'home'],
     symptoms: ['Puppy Vaccinations', 'Growth Check', 'Deworming', 'Teething Problems', 'Puppy Behavior'],
@@ -603,7 +609,7 @@ const ONLINE_VETS = [
     city: 'Paris',
     state: 'Île-de-France',
     country: 'France',
-    clinicName: 'Clinique Vétérinaire des Nouveaux Animaux',
+    clinicName: 'Clinique Marais Vet',
     clinicAddress: 'Le Marais, Paris, France • Available Worldwide Online',
     consultModes: ['video'],
     symptoms: ['Bird Feather Plucking', 'Beak Care', 'Parrot Respiratory Infection', 'Exotic Pet Health'],
@@ -633,7 +639,7 @@ const ONLINE_VETS = [
     city: 'Los Angeles',
     state: 'California',
     country: 'USA',
-    clinicName: 'Pasadena Veterinary Imaging & CT Center',
+    clinicName: 'Pasadena Pet Imaging',
     clinicAddress: 'Pasadena, Los Angeles, California, USA',
     consultModes: ['video', 'clinic'],
     symptoms: ['X-Ray Scan', 'CT & MRI Review', 'Tumor Screening', 'Internal Diagnostics'],
@@ -663,7 +669,7 @@ const ONLINE_VETS = [
     city: 'New York',
     state: 'New York',
     country: 'USA',
-    clinicName: 'Brooklyn Heights Pet Dermatology Clinic',
+    clinicName: 'Brooklyn Pet Derma',
     clinicAddress: 'Brooklyn Heights, New York, NY, USA',
     consultModes: ['video', 'clinic', 'home'],
     symptoms: ['Chronic Scratching', 'Paw Licking', 'Flea Allergy Dermatitis', 'Yeast Infection'],
@@ -693,7 +699,7 @@ const ONLINE_VETS = [
     city: 'New York',
     state: 'New York',
     country: 'USA',
-    clinicName: 'Queens Animal Dental & Oral Surgery Center',
+    clinicName: 'Queens Pet Dental',
     clinicAddress: 'Queens, New York, NY, USA',
     consultModes: ['video', 'clinic'],
     symptoms: ['Tartar Buildup', 'Gingivitis', 'Tooth Extraction', 'Broken Canine', 'Bad Breath'],
@@ -723,7 +729,7 @@ const ONLINE_VETS = [
     city: 'New York',
     state: 'New York',
     country: 'USA',
-    clinicName: 'Stacy Pet Oncology & Diagnostic Pathology Lab',
+    clinicName: 'Stacy Pet Pathology',
     clinicAddress: 'Upper West Side, New York, NY, USA',
     consultModes: ['clinic'],
     symptoms: ['Advanced Lab Tests', 'Blood Chemistry', 'Urinalysis', 'Biopsy Analysis', 'Lymphoma Check'],
@@ -753,7 +759,7 @@ const ONLINE_VETS = [
     city: 'Toronto',
     state: 'Ontario',
     country: 'Canada',
-    clinicName: 'Toronto 24-Hour Central Animal Hospital',
+    clinicName: 'Toronto 24/7 Vet',
     clinicAddress: 'Downtown Toronto, Ontario, Canada',
     consultModes: ['video'],
     symptoms: ['Late Night Fevers', 'Nocturnal Cough', 'Midnight Emergency', 'Seizure Management', 'Intoxication'],
@@ -765,169 +771,231 @@ const ONLINE_VETS = [
 const CLINICS = [
   {
     id: 101,
-    name: 'Crown Veterinary Specialty Clinic',
-    type: 'Multi-Specialty Animal Hospital & 24/7 ICU',
+    name: 'Crown Vet Clinic',
+    type: '24/7 Multi-Specialty Hospital',
     area: 'Bandra West, Mumbai, Maharashtra, India',
     city: 'Mumbai',
     country: 'India',
     distance: '1.8 km away',
     rating: 4.9,
     reviews: 1420,
-
-
     facilities: ['24/7 Emergency ICU', 'Digital X-Ray & Ultrasound', 'In-House Pathology Lab', 'Modular Operation Theater'],
-    doctorsOnDuty: 4,
+    doctorsOnDuty: 15,
     timing: 'Open 24 Hours',
-    fee: '₹800 (OPD)',
+    fee: '₹500 - ₹800',
     phone: '+91 22 6123 4400',
     isEmergency: true,
     image: hospVetic,
-    doctorIds: [3],
+    doctorIds: [3, 6, 17, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14],
   },
   {
     id: 102,
-    name: 'Stark Pet Skin & Hair Clinic',
-    type: 'Advanced Veterinary Healthcare & Research Facility',
+    name: 'Stark Pet Clinic',
+    type: 'Specialty Care & Dermatology',
     area: 'Malibu, Los Angeles, California, USA',
     city: 'Los Angeles',
     country: 'USA',
     distance: '2.5 km away',
     rating: 4.9,
     reviews: 1850,
-
-
-    facilities: ['Nano-Tech Laser Therapy', 'Allergy & Dermatology Lab', 'Advanced Surgery', 'Pharmacy Rx'],
-    doctorsOnDuty: 5,
+    facilities: ['Laser Therapy', 'Allergy & Skin Lab', 'Advanced Surgery', 'Pharmacy Rx'],
+    doctorsOnDuty: 4,
     timing: 'Open 24 Hours',
-    fee: '$95 (OPD)',
+    fee: '$80 - $130',
     phone: '+1 310 555 0199',
     isEmergency: true,
     image: hospClinton,
-    doctorIds: [1],
+    doctorIds: [1, 5, 7, 13],
   },
   {
     id: 103,
-    name: 'Camden Animal Hospital',
-    type: 'Small Animal Surgery & Emergency Hospital',
+    name: 'Camden Vet Hospital',
+    type: 'Surgery & Emergency Clinic',
     area: 'Camden, London, United Kingdom',
     city: 'London',
     country: 'United Kingdom',
     distance: '3.1 km away',
     rating: 4.9,
     reviews: 1150,
-
-
-    facilities: ['Orthopedic Theater', 'CT Imaging & Ultrasound', 'Inpatient Ward', 'Cat Friendly Clinic'],
+    facilities: ['Orthopedic Theater', 'CT Imaging & Ultrasound', 'Inpatient Ward', 'Cat Friendly Care'],
     doctorsOnDuty: 3,
     timing: '8:00 AM - 10:00 PM',
-    fee: '£65 (OPD)',
+    fee: '£50 - £85',
     phone: '+44 20 7946 0921',
     isEmergency: false,
     image: hospQueens,
-    doctorIds: [2],
+    doctorIds: [2, 14],
   },
   {
     id: 104,
-    name: 'Manhattan Animal Medical Hospital',
-    type: 'Critical Care, Trauma & Oncology Center',
+    name: 'Manhattan Vet Center',
+    type: 'Trauma & Oncology Center',
     area: 'Manhattan, New York, NY, USA',
     city: 'New York',
     country: 'USA',
     distance: '1.2 km away',
     rating: 4.9,
     reviews: 2100,
-
-
     facilities: ['24/7 Trauma ICU', 'Hyperbaric Oxygen', 'Oncology Suite', 'MRI & CT Scan'],
-    doctorsOnDuty: 6,
+    doctorsOnDuty: 11,
     timing: 'Open 24 Hours',
-    fee: '$110 (OPD)',
+    fee: '$90 - $140',
     phone: '+1 212 555 0184',
     isEmergency: true,
     image: hospSchwarzman,
-    doctorIds: [8],
+    doctorIds: [8, 18, 19, 20, 1, 4, 5, 7, 9, 13, 15],
   },
   {
     id: 105,
-    name: 'Pacific Animal Eye Specialty Clinic',
-    type: 'Microsurgery & Veterinary Ophthalmology',
+    name: 'Pacific Eye Clinic',
+    type: 'Eye & Microsurgery Care',
     area: 'Beverly Hills, Los Angeles, California, USA',
     city: 'Los Angeles',
     country: 'USA',
     distance: '3.8 km away',
     rating: 4.9,
     reviews: 940,
-
-
-    facilities: ['Ophthalmic Microsurgery', 'Phacoemulsification', 'Retinal Imaging', 'Corneal Cross-linking'],
+    facilities: ['Ophthalmic Surgery', 'Cataract Phaco', 'Retinal Imaging', 'Corneal Cross-linking'],
     doctorsOnDuty: 2,
     timing: '9:00 AM - 7:00 PM',
-    fee: '$95 (OPD)',
+    fee: '$75 - $110',
     phone: '+1 310 555 0142',
     isEmergency: false,
     image: hospAngell,
-    doctorIds: [5],
+    doctorIds: [5, 1, 9, 17],
   },
   {
     id: 106,
-    name: 'Juhu Super Specialty Pet Hospital',
-    type: 'Veterinary Oncology & Senior Pet Care',
+    name: 'Juhu Pet Hospital',
+    type: 'Oncology & Senior Care',
     area: 'Juhu, Mumbai, Maharashtra, India',
     city: 'Mumbai',
     country: 'India',
     distance: '2.9 km away',
     rating: 5.0,
     reviews: 3400,
-
-
     facilities: ['Chemotherapy Suite', 'Geriatric Rehab', 'Emergency Trauma', 'Blood Bank'],
     doctorsOnDuty: 5,
     timing: 'Open 24 Hours',
-    fee: '₹1,200 (OPD)',
+    fee: '₹800 - ₹1,400',
     phone: '+91 22 6234 8899',
     isEmergency: true,
     image: hospTownCountry,
-    doctorIds: [6],
+    doctorIds: [6, 3, 10, 12],
   },
   {
     id: 107,
-    name: 'PetCare Super Specialty Hospital',
-    type: 'Multi-Specialty Animal Hospital & 24/7 ICU',
+    name: 'PetCare Hospital',
+    type: '24/7 Multi-Specialty ICU',
     area: 'Indiranagar, Bangalore, Karnataka, India',
     city: 'Bangalore',
     country: 'India',
     distance: '2.4 km away',
     rating: 4.9,
     reviews: 890,
-
-
     facilities: ['24/7 Emergency ICU', 'Digital X-Ray & Ultrasound', 'In-House Pathology Lab', 'Modular Operation Theater'],
     doctorsOnDuty: 5,
     timing: 'Open 24 Hours',
-    fee: '₹600 (OPD)',
+    fee: '₹400 - ₹750',
     phone: '+91 80 4123 9988',
     isEmergency: true,
     image: hospPenn,
+    doctorIds: [11, 12, 3],
   },
   {
     id: 108,
-    name: 'Cessna Lifeline Veterinary Hospital',
-    type: 'Advanced Veterinary Healthcare Center',
+    name: 'Cessna Vet Hospital',
+    type: 'Advanced Vet Healthcare',
     area: 'Domlur, Bangalore, Karnataka, India',
     city: 'Bangalore',
     country: 'India',
     distance: '4.1 km away',
     rating: 4.8,
     reviews: 1240,
-
-
     facilities: ['Advanced Ortho Surgery', 'Dental Scaling & Polishing', 'Pet Pharmacy', 'Inpatient Ward'],
     doctorsOnDuty: 4,
     timing: '8:00 AM - 10:00 PM',
-    fee: '₹750 (OPD)',
+    fee: '₹600 - ₹950',
     phone: '+91 80 4567 1122',
     isEmergency: false,
     image: hospCascade,
+    doctorIds: [12, 11, 6],
+  },
+  {
+    id: 109,
+    name: 'BluePearl Pet Hospital',
+    type: 'Emergency & Critical Care',
+    area: 'Midtown Manhattan, New York, NY, USA',
+    city: 'New York',
+    country: 'USA',
+    distance: '1.6 km away',
+    rating: 4.9,
+    reviews: 1720,
+    facilities: ['24/7 Trauma ICU', 'Cardiac Diagnostics', 'Advanced Endoscopy', 'Pharmacy Rx'],
+    doctorsOnDuty: 5,
+    timing: 'Open 24 Hours',
+    fee: '$85 - $135',
+    phone: '+1 212 555 0192',
+    isEmergency: true,
+    image: hospBluePearl,
+    doctorIds: [8, 18, 19, 20],
+  },
+  {
+    id: 110,
+    name: 'Hawk Bridge Vet',
+    type: 'Orthopedics & Surgery',
+    area: 'Kensington, London, England, UK',
+    city: 'London',
+    country: 'United Kingdom',
+    distance: '2.7 km away',
+    rating: 4.9,
+    reviews: 1320,
+    facilities: ['Orthopedic Surgery', 'Spinal Therapy', 'Digital Radiography', 'Intensive Care'],
+    doctorsOnDuty: 3,
+    timing: 'Open 24 Hours',
+    fee: '£60 - £95',
+    phone: '+44 20 7946 0884',
+    isEmergency: true,
+    image: hospHawkBridge,
+    doctorIds: [14, 2],
+  },
+  {
+    id: 111,
+    name: 'Falcon & Exotic Vet',
+    type: 'Avian & Exotic Specialists',
+    area: 'Le Marais, Paris, Île-de-France, France',
+    city: 'Paris',
+    country: 'France',
+    distance: '3.4 km away',
+    rating: 4.9,
+    reviews: 920,
+    facilities: ['Avian Surgical Wing', 'Exotic Pet ICU', 'Micro Endoscopy', 'Beak & Feather Care'],
+    doctorsOnDuty: 2,
+    timing: '8:30 AM - 8:00 PM',
+    fee: '€65 - €105',
+    phone: '+33 1 42 68 55 00',
+    isEmergency: false,
+    image: hospFalcon,
+    doctorIds: [16],
+  },
+  {
+    id: 112,
+    name: 'Metro Vet Hospital',
+    type: '24/7 Trauma & Emergency',
+    area: 'Downtown Toronto, Ontario, Canada',
+    city: 'Toronto',
+    country: 'Canada',
+    distance: '2.1 km away',
+    rating: 4.8,
+    reviews: 1180,
+    facilities: ['24/7 Emergency Triage', 'Oxygen Chambers', 'Digital Fluoroscopy', 'Emergency Surgery'],
+    doctorsOnDuty: 4,
+    timing: 'Open 24 Hours',
+    fee: 'CA$70 - CA$115',
+    phone: '+1 416 555 0177',
+    isEmergency: true,
+    image: hospMetro,
+    doctorIds: [21],
   },
 ];
 
@@ -967,7 +1035,7 @@ const HOME_VISIT_VETS = [
 const EMERGENCY_CENTERS = [
   {
     id: 301,
-    name: 'National Pet Emergency Trauma Hospital',
+    name: 'National Pet Trauma Center',
     location: 'Central Ring Road • 1.2 km away',
     contact: '1800-PET-911',
     rating: 5.0,
@@ -976,7 +1044,7 @@ const EMERGENCY_CENTERS = [
   },
   {
     id: 302,
-    name: '24/7 Rapid Veterinary Emergency Response',
+    name: 'Rapid Vet Emergency 24/7',
     location: 'Metro Junction • 3.5 km away',
     contact: '1800-EMERGENCY',
     rating: 4.9,
@@ -998,7 +1066,7 @@ const MOCK_APPOINTMENTS = [
     status: 'Confirmed',
     pet: 'Bella (Golden Retriever)',
     fee: '₹499',
-    clinic: 'PetCare Super Specialty Hospital',
+    clinic: 'PetCare Hospital',
     isLiveNow: true,
   },
   {
@@ -1012,7 +1080,7 @@ const MOCK_APPOINTMENTS = [
     status: 'Scheduled',
     pet: 'Milo (British Shorthair)',
     fee: '₹599',
-    clinic: 'Paws & Fur Advanced Skin Clinic, Domlur',
+    clinic: 'Paws & Fur Skin Clinic',
     isLiveNow: false,
   },
   {
@@ -1026,7 +1094,7 @@ const MOCK_APPOINTMENTS = [
     status: 'Completed',
     pet: 'Milo',
     fee: '₹450',
-    clinic: 'The Cat Care Sanctuary',
+    clinic: 'Cat Care Sanctuary',
     isLiveNow: false,
     prescriptionId: 'RX-98214',
   },
@@ -1085,6 +1153,181 @@ const MOCK_VACCINES = [
     status: 'Due in 2 months',
   },
 ];
+
+function HospitalDoctorShelf({
+  hospital,
+  doctors,
+  onConsultClick,
+  onViewAllClick,
+}: {
+  hospital: (typeof CLINICS)[0];
+  doctors: typeof ONLINE_VETS;
+  onConsultClick: (doctor: (typeof ONLINE_VETS)[0]) => void;
+  onViewAllClick: () => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 6);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    const timer = setTimeout(checkScroll, 150);
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(timer);
+      el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll, doctors]);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const step = Math.max(280, el.clientWidth * 0.75);
+    el.scrollBy({
+      left: direction === 'left' ? -step : step,
+      behavior: 'smooth',
+    });
+  };
+
+  const totalDocs = doctors.length;
+  // If more than 10 doctors, render the first 10, then the "See all X doctors" card
+  const renderedDocs = totalDocs > 10 ? doctors.slice(0, 10) : doctors;
+  const showSeeAllCard = totalDocs > 10;
+
+  return (
+    <div className="relative group/shelf">
+      {/* Left Arrow Button (hidden on mobile, visible on sm+ when scrollable left) */}
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => handleScroll('left')}
+          aria-label="Scroll left"
+          className="hidden sm:flex absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.18)] border border-slate-200 dark:border-zinc-700 items-center justify-center text-slate-700 dark:text-zinc-200 hover:text-primary dark:hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+        >
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
+      )}
+
+      {/* Right Arrow Button (hidden on mobile, visible on sm+ when scrollable right) */}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => handleScroll('right')}
+          aria-label="Scroll right"
+          className="hidden sm:flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.18)] border border-slate-200 dark:border-zinc-700 items-center justify-center text-slate-700 dark:text-zinc-200 hover:text-primary dark:hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+        >
+          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
+      )}
+
+      {/* Scrollable Doctors Row */}
+      <div
+        ref={scrollRef}
+        className="flex items-stretch gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory py-1 px-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {renderedDocs.map((doc) => {
+          return (
+            <div
+              key={doc.id}
+              className="group/doc relative w-[265px] sm:w-[285px] shrink-0 snap-start p-3 rounded-2xl bg-white dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-750 hover:border-slate-300 dark:hover:border-zinc-600 hover:shadow-xs transition-all duration-200 flex flex-col justify-between gap-2.5"
+            >
+              <div className="flex items-start gap-2.5 min-w-0">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 bg-slate-200 dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 shadow-2xs">
+                  <Image
+                    src={doc.image}
+                    alt={doc.name}
+                    fill
+                    className="object-cover object-top transition-transform group-hover/doc:scale-105"
+                    sizes="44px"
+                  />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-800" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={`#doctor-${doc.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onConsultClick(doc);
+                    }}
+                    className="font-bold text-xs sm:text-[13px] text-slate-900 dark:text-white truncate block hover:text-primary transition-colors cursor-pointer"
+                    title={doc.name}
+                  >
+                    {doc.name}
+                  </a>
+                  <p className="text-[10.5px] font-medium text-slate-500 dark:text-zinc-400 truncate">
+                    {doc.specialization}
+                  </p>
+                  <p className="text-[10px] text-slate-400 dark:text-zinc-500">
+                    {doc.experience.toLowerCase().includes('experience')
+                      ? doc.experience
+                      : `${doc.experience} exp`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Mini-Card Row: Star Rating + Reviews + Book Slot Action */}
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/50 dark:border-zinc-700/50 gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {(() => {
+                    const satNum = Math.min(99, Math.max(90, Math.round(doc.rating * 20)));
+                    return (
+                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                        <ThumbsUp className="w-2.5 h-2.5 shrink-0" />
+                        <span>{satNum}%</span>
+                      </div>
+                    );
+                  })()}
+                  <span className="font-medium text-[10px] text-slate-500 dark:text-zinc-400 truncate hidden min-[360px]:inline">
+                    {doc.reviews.toLocaleString()} patient stories
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onConsultClick(doc)}
+                  className="h-7 px-2.5 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-white dark:bg-primary/20 dark:hover:bg-primary dark:text-primary dark:hover:text-primary-foreground border border-primary/20 text-[11px] font-semibold transition-all shadow-2xs hover:scale-102 shrink-0 cursor-pointer"
+                >
+                  Book Slot
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* 11th Card: See all X doctors Card (After 10 doctor cards) */}
+        {showSeeAllCard && (
+          <div
+            onClick={onViewAllClick}
+            className="w-[200px] sm:w-[220px] shrink-0 snap-start rounded-2xl border-2 border-dashed border-slate-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-800/40 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:border-primary/50 transition-all duration-200 flex flex-col items-center justify-center p-4 text-center group/seeall cursor-pointer select-none"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-2.5 group-hover/seeall:scale-110 group-hover/seeall:bg-primary group-hover/seeall:text-white transition-all duration-200 shadow-2xs">
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-zinc-100 group-hover/seeall:text-primary transition-colors block">
+              See all {totalDocs} doctors
+            </span>
+            <span className="text-[10.5px] font-medium text-slate-400 dark:text-zinc-500 mt-1 flex items-center gap-0.5 group-hover/seeall:text-primary transition-colors">
+              View full team <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ServicesPortalContent() {
   const router = useRouter();
@@ -1308,7 +1551,7 @@ function ServicesPortalContent() {
   // In-page filters matching Practo & MNC e-commerce exact UI
   const [consultTypeFilter, setConsultTypeFilter] = useState<'all' | 'video' | 'clinic' | 'home'>('all');
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
-  const [ratingFilter, setRatingFilter] = useState<'all' | '4' | '3'>('all');
+  const [ratingFilter, setRatingFilter] = useState<'all' | '10' | '70'>('all');
   const [experienceFilter, setExperienceFilter] = useState<'all' | '5' | '10' | '15'>('all');
   const [onlyOnlineFilter, setOnlyOnlineFilter] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'today'>('all');
@@ -1515,11 +1758,11 @@ function ServicesPortalContent() {
       result = result.filter((doc) => parseInt(doc.experience) >= 15);
     }
 
-    // Rating Filter — whole stars only (4★ & above, 3★ & above)
-    if (ratingFilter === '4') {
-      result = result.filter((doc) => doc.rating >= 4);
-    } else if (ratingFilter === '3') {
-      result = result.filter((doc) => doc.rating >= 3);
+    // Patient Stories Filter (10+ Patient Stories, 70+ Patient Stories)
+    if (ratingFilter === '10') {
+      result = result.filter((doc) => doc.reviews >= 10);
+    } else if (ratingFilter === '70') {
+      result = result.filter((doc) => doc.reviews >= 70);
     }
 
     // Availability
@@ -1573,8 +1816,13 @@ function ServicesPortalContent() {
     return result;
   }, [selectedLocation, consultTypeFilter, genderFilter, experienceFilter, ratingFilter, availabilityFilter, onlyOnlineFilter, speciesFilter, searchQuery, sortBy]);
 
-  // Matched hospitals for unified search and in-clinic care
+  // Matched hospitals & clinics for in-clinic mode
   const matchedHospitals = useMemo(() => {
+    // Hospital and clinic cards are strictly shown when in 'clinic' mode
+    if (consultTypeFilter !== 'clinic') {
+      return [];
+    }
+
     let result = [...CLINICS];
 
     // Filter by location if selected
@@ -1593,25 +1841,22 @@ function ServicesPortalContent() {
       );
     }
 
-    // If search query is present, match hospital name, type, facilities, or general terms
+    // If search query is present, match hospital/clinic name, type, area, city, or facilities
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      const isGeneralHospitalQuery = ['hospital', 'hospitals', 'clinic', 'clinics', 'icu', 'emergency', 'care', 'surgery', 'center'].some((term) => q.includes(term));
 
       result = result.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
           c.type.toLowerCase().includes(q) ||
           c.area.toLowerCase().includes(q) ||
-          c.facilities.some((f) => f.toLowerCase().includes(q)) ||
-          isGeneralHospitalQuery
+          c.city.toLowerCase().includes(q) ||
+          c.facilities.some((f) => f.toLowerCase().includes(q))
       );
       return result;
     }
 
-    // Hospital/clinic cards are ONLY shown when the user explicitly searches for one by name.
-    // They do NOT auto-appear from the in-clinic filter alone.
-    return [];
+    return result;
   }, [searchQuery, selectedLocation, consultTypeFilter]);
 
   // Total active filter count for notification badges (strictly filters, not search bar location or consult mode tabs)
@@ -1715,20 +1960,22 @@ function ServicesPortalContent() {
                 </div>
 
                 <div className="flex items-center gap-2 w-full">
-                  {/* Left: Circular Filter Button with active count badge */}
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileFilterOpen(true)}
-                    className="w-11 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 shrink-0 relative transition-all active:scale-95"
-                    aria-label="Filter doctors"
-                  >
-                    <SlidersHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-200" />
-                    {activeFilterCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </button>
+                  {/* Left: Circular Filter Button with active count badge (Doctor modes only) */}
+                  {consultTypeFilter !== 'clinic' && (
+                    <button
+                      type="button"
+                      onClick={() => setIsMobileFilterOpen(true)}
+                      className="w-11 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 shrink-0 relative transition-all active:scale-95"
+                      aria-label="Filter doctors"
+                    >
+                      <SlidersHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-200" />
+                      {activeFilterCount > 0 && (
+                        <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
 
                   {/* Middle: Integrated Search Bar with Location + Query (Matching MNC Single Bar Standard) */}
                   <div className={`relative flex-1 min-w-0 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center shadow-2xs transition-all focus-within:border-slate-400 dark:focus-within:border-zinc-600 ${isLocationDropdownOpen ? 'z-50' : ''}`}>
@@ -1755,7 +2002,11 @@ function ServicesPortalContent() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="doctors, hospitals, clinics, pet symptoms..."
+                        placeholder={
+                          consultTypeFilter === 'clinic'
+                            ? 'Search clinics, hospitals, pet care...'
+                            : 'Search doctors, specialties, pet symptoms...'
+                        }
                         className="w-full bg-transparent text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 outline-none focus:outline-none focus:ring-0 ring-0 font-normal truncate"
                       />
                       {searchQuery && (
@@ -1911,7 +2162,7 @@ function ServicesPortalContent() {
                     )}
                     {ratingFilter !== 'all' && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] font-medium shrink-0">
-                        <span>{ratingFilter}★ & above</span>
+                        <span>{ratingFilter}+ Patient Stories</span>
                         <button
                           type="button"
                           onClick={() => setRatingFilter('all')}
@@ -2097,7 +2348,11 @@ function ServicesPortalContent() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="doctors, hospitals, clinics, pet symptoms..."
+                      placeholder={
+                        consultTypeFilter === 'clinic'
+                          ? 'Search clinics, hospitals, pet emergency...'
+                          : 'Search doctors, specialties, pet symptoms...'
+                      }
                       className="w-full bg-transparent text-xs sm:text-[13px] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 outline-none truncate font-normal"
                     />
                     {searchQuery && (
@@ -2114,8 +2369,9 @@ function ServicesPortalContent() {
                 </div>
               </div>
 
-              {/* DESKTOP SINGLE UNIFIED FILTER BAR (Hidden on mobile, pristine single-line scroll on tablet) */}
-              <div className={`hidden sm:block relative ${openFilterDropdown ? 'z-30' : 'z-10'}`}>
+              {/* DESKTOP SINGLE UNIFIED FILTER BAR (Hidden on mobile and in clinic mode) */}
+              {consultTypeFilter !== 'clinic' && (
+                <div className={`hidden sm:block relative ${openFilterDropdown ? 'z-30' : 'z-10'}`}>
                 <div className="bg-white dark:bg-zinc-900 rounded-full border border-slate-200 dark:border-zinc-800 p-1 sm:p-1.5 shadow-2xs flex items-center gap-1 sm:gap-1.5 overflow-visible">
 
                   {/* 1. Gender Dropdown */}
@@ -2279,7 +2535,7 @@ function ServicesPortalContent() {
                     )}
                   </div>
 
-                  {/* 4. Minimum Rating Filter */}
+                  {/* 4. Patient Stories Filter */}
                   <div className="relative">
                     <button
                       type="button"
@@ -2291,7 +2547,7 @@ function ServicesPortalContent() {
                       }`}
                     >
                       <span>
-                        {ratingFilter === 'all' ? 'Rating' : `${ratingFilter}★ & above`}
+                        {ratingFilter === 'all' ? 'Patient Stories' : `${ratingFilter}+ Patient Stories`}
                       </span>
                       <ChevronDown
                         className={`w-3 h-3 transition-transform ${
@@ -2303,11 +2559,10 @@ function ServicesPortalContent() {
                     {openFilterDropdown === 'rating' && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-2 w-44 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                           {[
-                            { id: 'all', label: 'Any Rating' },
-                            { id: '4',   label: '4★ & above' },
-                            { id: '3',   label: '3★ & above' },
+                            { id: '10', label: '10+ Patient Stories' },
+                            { id: '70', label: '70+ Patient Stories' },
                           ].map((opt) => {
                             const isSelected = ratingFilter === opt.id;
                             return (
@@ -2421,6 +2676,7 @@ function ServicesPortalContent() {
                   )}
                 </div>
               </div>
+              )}
 
               {/* MOBILE FILTER BOTTOM SHEET MODAL (Framer Motion Spring Drawer) */}
               <AnimatePresence>
@@ -2511,16 +2767,16 @@ function ServicesPortalContent() {
                       </div>
                     </div>
 
-                    {/* Rating */}
+                    {/* Patient Stories */}
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Rating
+                        Patient Stories
                       </label>
                       <div className="grid grid-cols-3 gap-2">
                         {[
                           { id: 'all', label: 'Any' },
-                          { id: '4',   label: '4★ & above' },
-                          { id: '3',   label: '3★ & above' },
+                          { id: '10',  label: '10+ Stories' },
+                          { id: '70',  label: '70+ Stories' },
                         ].map((r) => {
                           const isSelected = ratingFilter === r.id;
                           return (
@@ -2682,24 +2938,49 @@ function ServicesPortalContent() {
             )}
           </AnimatePresence>
 
-              {/* MATCHED HOSPITAL CARDS (Unified Search or In-Clinic Browse) */}
-              {matchedHospitals.length > 0 && (
-                <div className="space-y-4 mb-2">
-                  <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-primary shrink-0" />
-                      <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                        Veterinary Hospitals & Clinics ({matchedHospitals.length})
-                      </h2>
+              {/* IN-CLINIC MODE: Dedicated Hospital & Clinic Cards (No doctor cards in this section) */}
+              {consultTypeFilter === 'clinic' ? (
+                <div className="space-y-4 pt-1">
+                  {matchedHospitals.length === 0 ? (
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 p-8 sm:p-12 text-center space-y-4 max-w-lg mx-auto my-6 shadow-xs">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+                        <Building2 className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <p className="text-base font-bold text-slate-800 dark:text-white">
+                          {searchQuery ? `No clinics found matching "${searchQuery}"` : 'No clinics available in this location'}
+                        </p>
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 leading-relaxed">
+                          {searchQuery 
+                            ? 'No clinic name available matching your search. If you are searching for a specific doctor, switch to Video Consult or Home Visit.'
+                            : 'Try selecting a different city or clearing your location filter to view all partner clinics.'}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setConsultTypeFilter('video')}
+                            className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Switch to Video Consult</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setSelectedLocation('All Locations');
+                          }}
+                          className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
+                        >
+                          Clear Search
+                        </button>
+                      </div>
                     </div>
-                    {searchQuery && (
-                      <span className="text-xs text-slate-500 dark:text-zinc-400">
-                        Matching &quot;{searchQuery}&quot;
-                      </span>
-                    )}
-                  </div>
-
-                  {matchedHospitals.map((hospital) => {
+                  ) : (
+                    matchedHospitals.map((hospital) => {
                     const doctorsAtThisHospital = ONLINE_VETS.filter(
                       (v) =>
                         (hospital.doctorIds && hospital.doctorIds.includes(v.id)) ||
@@ -2707,149 +2988,281 @@ function ServicesPortalContent() {
                         hospital.name.toLowerCase().includes(v.clinicName.toLowerCase())
                     );
 
+                    const hospitalDoctors =
+                      doctorsAtThisHospital.length > 0
+                        ? doctorsAtThisHospital
+                        : ONLINE_VETS.filter(
+                            (v) => v.city.toLowerCase() === hospital.city.toLowerCase()
+                          )
+                            .slice(0, 4)
+                            .concat(ONLINE_VETS.slice(0, 4));
+
                     return (
                       <div
                         key={hospital.id}
-                        className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 overflow-hidden shadow-xs hover:shadow-md transition-all p-4 sm:p-5 md:p-6"
+                        className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col"
                       >
-                        {/* Top Hospital Header */}
-                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                          <div className="flex items-start gap-4 min-w-0">
-                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-zinc-700 shadow-2xs">
-                              <Image
-                                src={hospital.image}
-                                alt={hospital.name}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                            </div>
+                        {/* Upper Section: Hospital Main Profile with Inset Image */}
+                        <div className="p-3.5 sm:p-4 md:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-5 min-w-0">
+                          {/* Desktop Left Image: Inset rounded-2xl (NOT attached to card corner) */}
+                          <div 
+                            onClick={() => setSearchQuery(hospital.name)}
+                            className="hidden sm:block relative sm:w-44 md:w-52 lg:w-56 aspect-[4/3] rounded-2xl overflow-hidden shrink-0 bg-slate-100 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/80 shadow-xs cursor-pointer group/img self-center"
+                          >
+                            <Image
+                              src={hospital.image}
+                              alt={hospital.name}
+                              fill
+                              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                              sizes="(min-width: 1024px) 224px, 208px"
+                            />
+                          </div>
 
-                            <div className="space-y-1.5 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10.5px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/50">
-                                  Partner Hospital
+                          {/* Left Info Column: Identity, Metadata, Location & Rating */}
+                          <div className="flex-1 min-w-0 space-y-2.5">
+                            {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
+                            <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                              <div 
+                                onClick={() => setSearchQuery(hospital.name)}
+                                className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
+                              >
+                                  <Image
+                                    src={hospital.image}
+                                    alt={hospital.name}
+                                    fill
+                                    className="object-cover transition-transform duration-300 active:scale-[1.05]"
+                                    sizes="120px"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-1">
+                                  <h3
+                                    onClick={() => setSearchQuery(hospital.name)}
+                                    className="text-[15px] font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer leading-snug break-words"
+                                  >
+                                    {hospital.name}
+                                  </h3>
+
+                                  <p className="text-xs font-medium text-slate-600 dark:text-zinc-300 line-clamp-1">
+                                    {hospital.type}
+                                  </p>
+
+                                  <div className="flex items-center gap-1.5 text-[11.5px] text-slate-500 dark:text-zinc-400 pt-0.5 flex-wrap">
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <MapPin className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
+                                      <span className="font-medium text-slate-700 dark:text-zinc-200 truncate">
+                                        {hospital.area.split(',')[0]}, {hospital.city}
+                                      </span>
+                                    </div>
+                                    <span className="text-slate-300 dark:text-zinc-600">·</span>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <Clock className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
+                                      <span className="text-slate-600 dark:text-zinc-300">
+                                        {hospital.timing.toLowerCase().includes('24') ? 'Open 24 Hours' : hospital.timing}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* DESKTOP ONLY: Hospital Name (Never cut off / no truncate) */}
+                              <div className="hidden sm:block">
+                                <h3
+                                  onClick={() => setSearchQuery(hospital.name)}
+                                  className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer tracking-tight leading-snug break-words"
+                                >
+                                  {hospital.name}
+                                </h3>
+                              </div>
+
+                              {/* DESKTOP ONLY: Subtitle Line */}
+                              <div className="hidden sm:block">
+                                <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-zinc-300 block">
+                                  {hospital.type}
                                 </span>
-                                {hospital.isEmergency && (
-                                  <span className="text-[10.5px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded-full border border-red-200/50 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    24/7 Emergency ICU
+                              </div>
+
+                              {/* DESKTOP ONLY: Location & Timings (Always real timing, never generic Open Today) */}
+                              <div className="hidden sm:flex items-center gap-2 text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 flex-wrap">
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
+                                  <span
+                                    onClick={() => {
+                                      const loc = hospital.area ? `${hospital.area.split(',')[0]}, ${hospital.city}` : hospital.city;
+                                      setSelectedLocation(loc);
+                                      setLocationSearchInput(loc);
+                                    }}
+                                    className="font-medium text-slate-700 dark:text-zinc-200 hover:text-primary hover:underline cursor-pointer"
+                                  >
+                                    {hospital.area.split(',')[0]}, {hospital.city}
+                                  </span>
+                                </div>
+
+                                <span className="text-slate-300 dark:text-zinc-600">·</span>
+
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
+                                  <span>
+                                    {hospital.timing.toLowerCase().includes('24') ? 'Open 24 Hours' : hospital.timing}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* DESKTOP ONLY: Facilities Pills Row */}
+                              <div className="hidden sm:flex items-center gap-1.5 flex-wrap pt-0.5">
+                                {hospital.facilities.slice(0, 3).map((fac, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100/90 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 border border-slate-200/70 dark:border-zinc-700/70 max-w-[150px] sm:max-w-[200px] truncate"
+                                    title={fac}
+                                  >
+                                    {fac}
+                                  </span>
+                                ))}
+                                {hospital.facilities.length > 3 && (
+                                  <span
+                                    className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10.5px] font-semibold bg-slate-100/60 dark:bg-zinc-800/50 text-slate-500 dark:text-zinc-400 border border-slate-200/60 dark:border-zinc-750"
+                                    title={hospital.facilities.slice(3).join(', ')}
+                                  >
+                                    +{hospital.facilities.length - 3} more
                                   </span>
                                 )}
                               </div>
 
-                              <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white truncate">
-                                {hospital.name}
-                              </h3>
-
-                              <p className="text-xs text-slate-600 dark:text-zinc-400">
-                                {hospital.type}
-                              </p>
-
-                              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-zinc-400 pt-0.5 flex-wrap">
-                                <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-zinc-300">
-                                  <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                                  {hospital.area}
+                              {/* DESKTOP ONLY: Rating Pill & Reviews (Separate section below facilities, matching Doctor card patient stories) */}
+                              <div className="hidden sm:flex items-center gap-2 pt-2.5 border-t border-slate-100 dark:border-zinc-800/80">
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-bold shrink-0 tracking-tight border bg-amber-400/15 text-amber-700 dark:text-amber-400 border-amber-400/30">
+                                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-500 text-amber-500 shrink-0" />
+                                  <span>{hospital.rating.toFixed(1)}</span>
+                                </div>
+                                <span className="text-[11.5px] sm:text-xs font-medium text-slate-600 dark:text-zinc-400 hover:text-primary hover:underline cursor-pointer">
+                                  <span className="font-semibold text-slate-800 dark:text-zinc-200">{hospital.reviews.toLocaleString()}</span> ratings
                                 </span>
-                                <span>•</span>
-                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                                  {hospital.timing}
-                                </span>
+                              </div>
+
+                              {/* MOBILE ONLY (< sm): Inset Rating & Fee Banner (Shifted above doctors) */}
+                              <div className="flex sm:hidden items-center justify-between py-2 px-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 w-full">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-amber-400/15 text-amber-700 dark:text-amber-400 border-amber-400/30">
+                                    <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500 shrink-0" />
+                                    <span>{hospital.rating.toFixed(1)}</span>
+                                  </div>
+                                  <span className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 truncate">
+                                    <span className="font-semibold text-slate-800 dark:text-zinc-200">{hospital.reviews.toLocaleString()}</span> ratings
+                                  </span>
+                                </div>
+
+                                <div className="flex items-baseline gap-1 text-right">
+                                  <span className="text-base font-bold text-slate-900 dark:text-white">{hospital.fee}</span>
+                                  <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-normal">fee</span>
+                                </div>
+                              </div>
+
+                              {/* MOBILE ONLY: Doctors Available at this Hospital Shelf (shifted to middle on mobile) */}
+                              {hospitalDoctors.length > 0 && (
+                                <div className="block sm:hidden pt-2 border-t border-slate-100 dark:border-zinc-800/80 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                                        Doctors Available at this Hospital
+                                      </span>
+                                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
+                                        {hospitalDoctors.length}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSearchQuery(hospital.name)}
+                                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5 cursor-pointer"
+                                    >
+                                      <span>View all</span>
+                                      <ChevronRight className="w-3 h-3" />
+                                    </button>
+                                  </div>
+
+                                  <HospitalDoctorShelf
+                                    hospital={hospital}
+                                    doctors={hospitalDoctors}
+                                    onConsultClick={handleConsultClick}
+                                    onViewAllClick={() => setSearchQuery(hospital.name)}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Right Action Column / Mobile Bottom Section */}
+                            <div className="shrink-0 flex flex-col sm:items-center sm:justify-center gap-2.5 sm:gap-2.5 sm:ml-auto w-full sm:w-38 md:w-42 lg:w-48 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-zinc-800/80">
+                              {/* DESKTOP/TABLET (sm+): Centered Fee */}
+                              <div className="hidden sm:block text-center w-full">
+                                <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                                  {hospital.fee}
+                                </div>
+                                <div className="text-[11.5px] text-slate-500 dark:text-zinc-400 font-normal">
+                                  Consultation fee
+                                </div>
+                              </div>
+
+                              {/* CTA Buttons */}
+                              <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 sm:gap-2.5 w-full">
+                                {/* Button 1: Call Hospital */}
+                                <a
+                                  href={`tel:${hospital.phone}`}
+                                  className="order-2 sm:order-1 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] sm:rounded-tr-[30px] bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-all duration-300 shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer border-0"
+                                >
+                                  <PhoneCall className="w-3.5 h-3.5" />
+                                  <span className="truncate font-semibold">Call Hospital</span>
+                                </a>
+
+                                {/* Button 2: View Details */}
+                                <button
+                                  type="button"
+                                  onClick={() => setSearchQuery(hospital.name)}
+                                  className="order-1 sm:order-2 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[30px] sm:rounded-tr-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] border border-slate-200 dark:border-zinc-750 bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition-all duration-300 shadow-2xs active:scale-[0.98] cursor-pointer"
+                                >
+                                  <span className="truncate font-semibold">View Details</span>
+                                </button>
                               </div>
                             </div>
                           </div>
 
-                          {/* Right Rating & Phone */}
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2.5 shrink-0">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                              <span>{hospital.rating.toFixed(1)}</span>
-                              <span className="text-amber-600/80 dark:text-amber-400/80 font-normal">({hospital.reviews})</span>
-                            </div>
-
-                            <a
-                              href={`tel:${hospital.phone}`}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-xs font-medium text-slate-800 dark:text-zinc-200 transition-colors shadow-2xs"
-                            >
-                              <PhoneCall className="w-3 h-3 text-emerald-600" />
-                              <span>{hospital.phone}</span>
-                            </a>
-                          </div>
-                        </div>
-
-                        {/* Facilities Badges */}
-                        <div className="flex items-center gap-1.5 flex-wrap pt-3 mt-3 border-t border-slate-100 dark:border-zinc-800">
-                          {hospital.facilities.map((fac, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[11px] font-normal px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-100 dark:border-zinc-750"
-                            >
-                              {fac}
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Doctors at this Hospital Section */}
-                        {doctorsAtThisHospital.length > 0 && (
-                          <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-zinc-800 space-y-2.5">
+                        {/* Lower Section: Affiliated Doctors practicing at this Hospital (Desktop only) */}
+                        {hospitalDoctors.length > 0 && (
+                          <div className="hidden sm:block p-3.5 sm:p-5 pt-3 sm:pt-4 border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-zinc-800/20 space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                                Doctors Available at this Hospital ({doctorsAtThisHospital.length})
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                                  Doctors Available at this Hospital
+                                </span>
+                                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
+                                  {hospitalDoctors.length}
+                                </span>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => setSearchQuery(hospital.name)}
-                                className="text-xs font-medium text-primary hover:underline"
+                                className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                               >
-                                View all doctors
+                                <span>View all doctors</span>
+                                <ChevronRight className="w-3 h-3" />
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                              {doctorsAtThisHospital.map((doc) => (
-                                <div
-                                  key={doc.id}
-                                  className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50/90 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-750 gap-3"
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-slate-200 dark:bg-zinc-700">
-                                      <Image
-                                        src={doc.image}
-                                        alt={doc.name}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                                        {doc.name}
-                                      </p>
-                                      <p className="text-[10.5px] text-slate-500 dark:text-zinc-400 truncate">
-                                        {doc.specialization}
-                                      </p>
-                                    </div>
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleConsultClick(doc)}
-                                    className="px-3 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-zinc-950 text-[11px] font-semibold shrink-0 hover:opacity-90 transition-opacity"
-                                  >
-                                    Book Slot
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
+                            {/* Scrollable Doctor Cards Carousel with Practo arrows */}
+                            <HospitalDoctorShelf
+                              hospital={hospital}
+                              doctors={hospitalDoctors}
+                              onConsultClick={handleConsultClick}
+                              onViewAllClick={() => setSearchQuery(hospital.name)}
+                            />
                           </div>
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              )}
-
-              {/* HORIZONTAL DOCTOR CARDS LIST (Photo covers whole left side) */}
-              <div className="space-y-4 pt-1">
+                  })
+                )}
+              </div>
+              ) : (
+                /* HORIZONTAL DOCTOR CARDS LIST (Video Consult & Home Visit) */
+                <div className="space-y-4 pt-1">
                 {filteredDoctors.length === 0 ? (
                   <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-12 text-center space-y-3">
                     <p className="text-base font-semibold text-slate-800 dark:text-white">
@@ -2961,14 +3374,19 @@ function ServicesPortalContent() {
                                 </span>
                               </div>
 
-                              {/* Star Rating + Reviews (Mobile) */}
+                              {/* Satisfaction Pill & Patient Stories (Mobile) */}
                               <div className="flex items-center gap-1.5 pt-0.5">
-                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-amber-400/15 text-amber-700 dark:text-amber-400 border-amber-400/30">
-                                  <Star className="w-2.5 h-2.5 shrink-0 fill-amber-500 text-amber-500" />
-                                  <span>{vet.rating.toFixed(1)}</span>
-                                </div>
+                                {(() => {
+                                  const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
+                                  return (
+                                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                      <ThumbsUp className="w-2.5 h-2.5 shrink-0" />
+                                      <span>{satNum}%</span>
+                                    </div>
+                                  );
+                                })()}
                                 <span className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 truncate">
-                                  <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> reviews
+                                  <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
                                 </span>
                               </div>
                             </div>
@@ -3041,27 +3459,57 @@ function ServicesPortalContent() {
 
                             <span className="text-slate-300 dark:text-zinc-600">·</span>
 
-                            <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-[13px]">
-                              <span
-                                onClick={() => setSearchQuery(vet.clinicName)}
-                                className="hover:text-primary hover:underline cursor-pointer truncate font-normal text-slate-600 dark:text-zinc-300"
-                              >
-                                {vet.clinicName}
-                              </span>
-                              <span className="text-slate-400 dark:text-zinc-500 font-normal text-xs shrink-0">
-                                +{vet.id % 2 === 0 ? '2' : '1'} more
-                              </span>
-                            </div>
+                            {(() => {
+                              const otherClinics = CLINICS.filter(
+                                (c) =>
+                                  c.name.toLowerCase() !== vet.clinicName.toLowerCase() &&
+                                  c.doctorIds &&
+                                  c.doctorIds.includes(vet.id)
+                              );
+                              const count = otherClinics.length > 0 ? otherClinics.length : (vet.id % 2 === 0 ? 2 : 1);
+                              const otherNames =
+                                otherClinics.length > 0
+                                  ? otherClinics.map((c) => c.name).join(', ')
+                                  : 'Partner Hospitals & Emergency Centers';
+
+                              return (
+                                <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-[13px]">
+                                  <span
+                                    onClick={() => setSearchQuery(vet.clinicName)}
+                                    className="hover:text-primary hover:underline cursor-pointer truncate font-normal text-slate-600 dark:text-zinc-300"
+                                    title={`Primary clinic: ${vet.clinicName}`}
+                                  >
+                                    {vet.clinicName}
+                                  </span>
+                                  <span
+                                    onClick={() => {
+                                      if (otherClinics.length > 0) {
+                                        setSearchQuery(otherClinics[0].name);
+                                      }
+                                    }}
+                                    className="text-slate-400 dark:text-zinc-500 font-normal text-xs shrink-0 hover:text-primary hover:underline cursor-pointer"
+                                    title={`Available at: ${otherNames} on scheduled days & timings`}
+                                  >
+                                    +{count} more
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
-                          {/* DESKTOP ONLY: Star Rating + Reviews */}
+                          {/* DESKTOP ONLY: Satisfaction Pill & Patient Stories */}
                           <div className="hidden sm:flex pt-2 sm:pt-2.5 border-t border-slate-100 dark:border-zinc-800/80 items-center gap-2 sm:gap-2.5">
-                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-bold shrink-0 tracking-tight border bg-amber-400/15 text-amber-700 dark:text-amber-400 border-amber-400/30">
-                              <Star className="w-2.5 h-2.5 shrink-0 fill-amber-500 text-amber-500" />
-                              <span>{vet.rating.toFixed(1)}</span>
-                            </div>
+                            {(() => {
+                              const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
+                              return (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                  <ThumbsUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                                  <span>{satNum}%</span>
+                                </div>
+                              );
+                            })()}
                             <span className="text-[11.5px] sm:text-xs font-medium text-slate-600 dark:text-zinc-400 hover:text-primary hover:underline cursor-pointer">
-                              <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> reviews
+                              <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
                             </span>
                           </div>
                         </div>
@@ -3158,6 +3606,7 @@ function ServicesPortalContent() {
                   ))
                 )}
               </div>
+            )}
             </div>
           )}
 
