@@ -7,15 +7,11 @@ import { useRouter } from 'next/navigation';
 import {
   Search,
   ShoppingCart,
-  Bell,
-  Menu,
   X,
   User,
   Calendar,
   Luggage,
   Package,
-  Shield,
-  Settings,
   LogOut,
   ChevronDown,
   ChevronsUpDown,
@@ -28,6 +24,17 @@ import {
   Plane,
   ShieldCheck,
   ShoppingBag,
+  Globe,
+  MapPin,
+  Navigation,
+  Loader2,
+  Settings,
+  Building2,
+  LayoutGrid,
+  Video,
+  Home,
+  SlidersHorizontal,
+  ArrowUpDown,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -97,16 +104,43 @@ const ZOODO_SERVICES = [
   },
 ];
 
+export const CONSULT_MODES = [
+  { id: 'video', label: 'Video Consult', icon: Video },
+  { id: 'clinic', label: 'In-Clinic Visit', icon: Building2 },
+  { id: 'home', label: 'Home Visit', icon: Home },
+] as const;
+
+export type ConsultModeId = 'all' | 'video' | 'clinic' | 'home';
+
 interface ServicesAppHeaderProps {
   activeCategory: string;
   activeTab: string;
   onSearchChange?: (query: string) => void;
   isMobileSidebarOpen?: boolean;
-  onToggleMobileSidebar: () => void;
+  onToggleMobileSidebar?: () => void;
   cartCount?: number;
   onOpenCart?: () => void;
   onNavigateTab?: (categoryId: string, tabId: string) => void;
+  activeConsultMode?: ConsultModeId;
+  onConsultModeChange?: (mode: ConsultModeId) => void;
+  searchQuery?: string;
+  setSearchQuery?: (q: string) => void;
+  selectedLocation?: string;
+  setSelectedLocation?: (loc: string) => void;
+  detectCurrentLocation?: () => void;
+  isDetectingLocation?: boolean;
+  availabilityFilter?: 'all' | 'today' | string;
+  setAvailabilityFilter?: (avail: any) => void;
+  speciesFilter?: string;
+  setSpeciesFilter?: (spec: any) => void;
+  onOpenFilter?: () => void;
+  onOpenSort?: () => void;
+  activeFilterCount?: number;
+  isSortActive?: boolean;
+  sortBy?: string;
+  onSortChange?: (sortId: string) => void;
 }
+
 
 export default function ServicesAppHeader({
   activeCategory,
@@ -117,11 +151,103 @@ export default function ServicesAppHeader({
   cartCount = 0,
   onOpenCart,
   onNavigateTab,
+  activeConsultMode = 'all',
+  onConsultModeChange,
+  searchQuery: externalSearchQuery,
+  setSearchQuery: externalSetSearchQuery,
+  selectedLocation: externalSelectedLocation,
+  setSelectedLocation: externalSetSelectedLocation,
+  detectCurrentLocation: externalDetectLocation,
+  isDetectingLocation: externalIsDetecting,
+  availabilityFilter = 'all',
+  setAvailabilityFilter,
+  speciesFilter = 'all',
+  setSpeciesFilter,
+  onOpenFilter,
+  onOpenSort,
+  activeFilterCount: externalFilterCount = 0,
+  isSortActive = false,
+  sortBy = 'relevance',
+  onSortChange,
 }: ServicesAppHeaderProps) {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Search input state
+  const [internalSearchQuery, setInternalSearchQuery] = useState('');
+  const queryValue = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
+  const handleQueryChange = (val: string) => {
+    if (externalSetSearchQuery) {
+      externalSetSearchQuery(val);
+    } else {
+      setInternalSearchQuery(val);
+    }
+    onSearchChange?.(val);
+  };
+
+  // Location selector state
+  const [internalLocation, setInternalLocation] = useState('All Locations');
+  const [locSearchInput, setLocSearchInput] = useState('');
+  const [isLocDropdownOpen, setIsLocDropdownOpen] = useState(false);
+  const [internalDetectingGps, setInternalDetectingGps] = useState(false);
   const [selectedPet, setSelectedPet] = useState('Bella 🐶');
+
+  const selectedLocation = externalSelectedLocation !== undefined ? externalSelectedLocation : internalLocation;
+  const isGpsDetecting = externalIsDetecting !== undefined ? externalIsDetecting : internalDetectingGps;
+
+  const handleSelectLocation = (loc: string) => {
+    if (externalSetSelectedLocation) {
+      externalSetSelectedLocation(loc);
+    } else {
+      setInternalLocation(loc);
+    }
+    setLocSearchInput('');
+    setIsLocDropdownOpen(false);
+  };
+
+  const handleTriggerGps = () => {
+    if (externalDetectLocation) {
+      externalDetectLocation();
+      setIsLocDropdownOpen(false);
+      return;
+    }
+
+    setInternalDetectingGps(true);
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const { latitude, longitude } = pos.coords;
+            const res = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              const city = data.city || data.locality || data.principalSubdivision;
+              const state = data.principalSubdivision || '';
+              const country = data.countryName || '';
+              const detected = [city, state, country].filter(Boolean).join(', ');
+              if (detected) {
+                handleSelectLocation(detected);
+                setInternalDetectingGps(false);
+                return;
+              }
+            }
+          } catch { }
+          handleSelectLocation('Mumbai, Maharashtra, India');
+          setInternalDetectingGps(false);
+        },
+        () => {
+          handleSelectLocation('Mumbai, Maharashtra, India');
+          setInternalDetectingGps(false);
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      handleSelectLocation('Mumbai, Maharashtra, India');
+      setInternalDetectingGps(false);
+    }
+  };
 
   const pets = [
     { name: 'Bella', type: 'Dog', breed: 'Golden Retriever', emoji: '🐶' },
@@ -130,54 +256,13 @@ export default function ServicesAppHeader({
 
   // Current active service module based on route state
   const currentService = (() => {
-    if (activeCategory === 'shopping') return ZOODO_SERVICES.find(s => s.id === 'shop')!;
-    if (activeCategory === 'travel') return ZOODO_SERVICES.find(s => s.id === 'travel')!;
-    if (activeCategory === 'insurance') return ZOODO_SERVICES.find(s => s.id === 'insurance')!;
-    if (activeTab === 'grooming') return ZOODO_SERVICES.find(s => s.id === 'groom')!;
-    if (activeTab === 'training') return ZOODO_SERVICES.find(s => s.id === 'train')!;
-    return ZOODO_SERVICES.find(s => s.id === 'vet')!;
+    if (activeCategory === 'shopping') return ZOODO_SERVICES.find((s) => s.id === 'shop')!;
+    if (activeCategory === 'travel') return ZOODO_SERVICES.find((s) => s.id === 'travel')!;
+    if (activeCategory === 'insurance') return ZOODO_SERVICES.find((s) => s.id === 'insurance')!;
+    if (activeTab === 'grooming') return ZOODO_SERVICES.find((s) => s.id === 'groom')!;
+    if (activeTab === 'training') return ZOODO_SERVICES.find((s) => s.id === 'train')!;
+    return ZOODO_SERVICES[0]; // Default: Vet Care
   })();
-
-  // Dynamic context-aware placeholder
-  const getSearchPlaceholder = () => {
-    switch (activeTab) {
-      case 'veterinary':
-        return 'Search doctors by name or symptom (e.g. Vomiting, Surgery)...';
-      case 'grooming':
-        return 'Search grooming packages, bath, haircut...';
-      case 'training':
-        return 'Search dog trainers, puppy obedience...';
-      case 'food':
-        return 'Search pet food brands, kibble, wet food...';
-      case 'pharmacy':
-        return 'Search pet medicines, prescriptions, vitamins...';
-      case 'essentials':
-        return 'Search accessories, collars, toys, beds...';
-      case 'taxi':
-        return 'Enter pickup location or clinic for pet taxi...';
-      case 'flight':
-        return 'Search domestic or international pet travel...';
-      case 'hotel':
-        return 'Search pet boarding, resorts, day care...';
-      case 'insurance':
-        return 'Search pet insurance plans & coverage...';
-      case 'community':
-        return 'Search discussions, pet tips, adoption...';
-      case 'appointments':
-        return 'Search upcoming doctor visits & consultations...';
-      case 'orders':
-        return 'Search your food & medicine orders...';
-      default:
-        return 'Search services...';
-    }
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSearchChange) {
-      onSearchChange(searchQuery);
-    }
-  };
 
   const handleMenuNav = (cat: string, tab: string) => {
     if (onNavigateTab) {
@@ -191,326 +276,398 @@ export default function ServicesAppHeader({
   const showCart = activeCategory === 'shopping' || cartCount > 0;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#bde4e9]/95 dark:bg-black/90 backdrop-blur-md border-none shadow-none transition-all">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-        {/* Left: App Switcher (Zoodo Logo + Exponent Superscript) */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="group flex items-center gap-1 py-1 px-1 focus:outline-none cursor-pointer select-none"
-                title="Switch Zoodo Service"
+    <header className="sticky top-0 z-50 w-full bg-[#bde4e9]/95 dark:bg-black/90 backdrop-blur-md border-b border-secondary/50 shadow-md transition-all rounded-b-[2.5rem] md:rounded-b-[3.5rem] lg:rounded-b-[4rem] overflow-hidden">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-8 md:px-10 lg:px-16">
+        {/* Top Row: App Switcher + Category Tabs + Profile Actions */}
+        <div className="h-16 sm:h-20 flex items-center justify-between gap-3">
+          {/* Left: App Switcher (Zoodo Logo + Service Tag) */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group flex items-center gap-1.5 py-1 px-1 focus:outline-none cursor-pointer select-none">
+                  <div className="flex items-center">
+                    <Image
+                      src="/logo-slate.png"
+                      alt="Zoodo"
+                      width={110}
+                      height={20}
+                      className="h-3.5 sm:h-4 w-auto object-contain pointer-events-none select-none dark:brightness-0 dark:invert"
+                      priority
+                    />
+                    <span className="ml-2 text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-800 dark:text-slate-200 uppercase select-none">
+                      {currentService.short}
+                    </span>
+                  </div>
+
+                  <ChevronsUpDown className="w-3 h-3 text-slate-600 group-hover:text-slate-950 dark:group-hover:text-white transition-colors ml-1" />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="start"
+                className="w-72 sm:w-76 p-1.5 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150"
               >
-                {/* Zoodo Logo + Mathematical Exponent (x²) Superscript */}
-                <div className="relative inline-flex items-start">
-                  <Image
-                    src="/pacifico-zoodo.png"
-                    alt="Zoodo"
-                    width={78}
-                    height={22}
-                    className="h-5 w-auto object-contain pointer-events-none select-none"
-                    priority
-                  />
-                  {/* Clean mathematical superscript (x²) - light and capital */}
-                  <span className="self-start -mt-1 ml-0.5 text-[9px] font-medium tracking-wider text-slate-700 dark:text-slate-300 uppercase select-none">
-                    {currentService.short}
-                  </span>
+                <div className="px-3.5 py-2.5 border-b border-slate-100 dark:border-zinc-850 mb-1">
+                  <p className="text-xs font-medium text-slate-800 dark:text-zinc-200 tracking-wide font-sans">
+                    Switch Portal
+                  </p>
                 </div>
 
-                <ChevronsUpDown className="w-3 h-3 text-slate-700/70 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors ml-1 -mt-0.5" />
-              </button>
-            </DropdownMenuTrigger>
+                <div className="space-y-0.5">
+                  {ZOODO_SERVICES.map((srv) => {
+                    const Icon = srv.icon;
+                    const isCurrent = srv.id === currentService.id;
 
-            <DropdownMenuContent
-              align="start"
-              className="w-72 sm:w-76 p-1.5 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl shadow-slate-950/15 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150"
-            >
-              <div className="px-3.5 py-2.5 border-b border-slate-100 dark:border-zinc-850 mb-1">
-                <p className="text-xs font-medium text-slate-800 dark:text-zinc-200 tracking-wide font-sans">
-                  Switch Portal
-                </p>
-              </div>
-
-              <div className="space-y-0.5">
-                {ZOODO_SERVICES.map((srv) => {
-                  const Icon = srv.icon;
-                  const isCurrent = srv.id === currentService.id;
-
-                  return (
-                    <DropdownMenuItem
-                      key={srv.id}
-                      onClick={() => handleMenuNav(srv.category, srv.tab)}
-                      className={`group flex items-center gap-3 px-2.5 py-2 rounded-xl cursor-pointer transition-all outline-none ${
-                        isCurrent
-                          ? 'bg-slate-100/90 dark:bg-zinc-850/90 text-slate-900 dark:text-white'
-                          : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-850/80'
-                      }`}
-                    >
-                      {/* Micro Icon Container */}
-                      <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                          isCurrent
-                            ? 'bg-primary/15 text-primary'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 group-hover:bg-slate-200/70 dark:group-hover:bg-zinc-700/70 group-hover:text-slate-900 dark:group-hover:text-white'
-                        }`}
+                    return (
+                      <DropdownMenuItem
+                        key={srv.id}
+                        onClick={() => handleMenuNav(srv.category, srv.tab)}
+                        className={`group flex items-center gap-3 px-2.5 py-2 rounded-xl cursor-pointer transition-all outline-none ${isCurrent
+                            ? 'bg-slate-100/90 dark:bg-zinc-850/90 text-slate-900 dark:text-white'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-850/80'
+                          }`}
                       >
-                        <Icon className="w-4 h-4" />
-                      </div>
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isCurrent
+                              ? 'bg-primary/15 text-primary'
+                              : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 group-hover:bg-slate-200/70 dark:group-hover:bg-zinc-700/70 group-hover:text-slate-900 dark:group-hover:text-white'
+                            }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </div>
 
-                      {/* Titles & Micro Subtitles */}
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[12.5px] font-medium tracking-tight truncate block">
-                          {srv.name}
-                        </span>
-                        <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate leading-none mt-0.5">
-                          {srv.subtitle}
-                        </p>
-                      </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[12.5px] font-medium tracking-tight truncate block">
+                            {srv.name}
+                          </span>
+                          <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate leading-none mt-0.5">
+                            {srv.subtitle}
+                          </p>
+                        </div>
 
-                      {/* Active Checkmark */}
-                      {isCurrent && (
-                        <Check className="w-4 h-4 text-primary shrink-0 ml-1" />
+                        {isCurrent && (
+                          <Check className="w-4 h-4 text-primary shrink-0 ml-1" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Center: Category Tabs — Airbnb style (icon + label inline, underline active) */}
+          {currentService.id === 'vet' && (
+            <div className="hidden md:flex items-center justify-center gap-8 lg:gap-10 h-full">
+              {CONSULT_MODES.map((mode) => {
+                const isActive = activeConsultMode === mode.id || (activeConsultMode === 'all' && mode.id === 'video');
+                const Icon = mode.icon;
+                return (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => onConsultModeChange?.(mode.id)}
+                    className="relative flex flex-col items-center justify-end pb-3 pt-3 cursor-pointer select-none group"
+                  >
+                    {/* Icon + Label row */}
+                    <div className="flex items-center gap-2">
+                      <Icon
+                        className={`w-5 h-5 shrink-0 transition-colors duration-150 ${isActive
+                            ? 'text-slate-900 dark:text-white'
+                            : 'text-slate-500 dark:text-zinc-400 group-hover:text-slate-800 dark:group-hover:text-white'
+                          }`}
+                      />
+                      <span
+                        className={`text-[13.5px] tracking-tight whitespace-nowrap transition-colors duration-150 ${isActive
+                            ? 'font-semibold text-slate-900 dark:text-white'
+                            : 'font-medium text-slate-500 dark:text-zinc-400 group-hover:text-slate-800 dark:group-hover:text-white'
+                          }`}
+                      >
+                        {mode.label}
+                      </span>
+                    </div>
+
+                    {/* Airbnb-style underline */}
+                    <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+                      {isActive ? (
+                        <motion.div
+                          layoutId="airbnbUnderline"
+                          className="h-[2px] w-full bg-slate-900 dark:bg-white rounded-full"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      ) : (
+                        <div className="h-[2px] w-full bg-transparent rounded-full group-hover:bg-slate-300/60 dark:group-hover:bg-zinc-600/60 transition-colors duration-150" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+
+          {/* Right Section: Direct Log In & Sign Up + Globe + Profile Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Active Pet Selector (when logged in) */}
+            {isAuthenticated && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 dark:bg-zinc-850 border border-white/80 dark:border-zinc-750 hover:bg-white text-xs font-semibold text-slate-800 dark:text-slate-200 transition-all shadow-2xs">
+                    <span>{selectedPet}</span>
+                    <ChevronDown className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-2xl border-slate-200 dark:border-zinc-800 p-1.5 bg-white dark:bg-zinc-950 shadow-lg">
+                  <DropdownMenuLabel className="text-[11px] text-muted-foreground font-semibold px-2 py-1">
+                    Active Pet
+                  </DropdownMenuLabel>
+                  {pets.map((p) => (
+                    <DropdownMenuItem
+                      key={p.name}
+                      onClick={() => setSelectedPet(`${p.name} ${p.emoji}`)}
+                      className="flex items-center justify-between text-xs py-2 px-2.5 rounded-xl cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">{p.emoji}</span>
+                        <span className="font-semibold text-foreground">{p.name}</span>
+                      </span>
+                      {selectedPet.startsWith(p.name) && (
+                        <Check className="w-3.5 h-3.5 text-primary" />
                       )}
                     </DropdownMenuItem>
-                  );
-                })}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-
-        {/* Right Section: Active Pet + Cart + Auth/Profile */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Active Pet Selector */}
-          {isAuthenticated && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 dark:bg-zinc-800/85 border border-white/70 dark:border-zinc-700 hover:bg-white text-xs font-semibold text-slate-800 dark:text-slate-200 transition-all shadow-2xs">
-                  <span>{selectedPet}</span>
-                  <ChevronDown className="w-3 h-3 text-slate-600 dark:text-slate-400" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-2xl border-slate-200 dark:border-zinc-800 p-1.5 bg-white dark:bg-zinc-950 shadow-lg">
-                <DropdownMenuLabel className="text-[11px] text-muted-foreground font-semibold px-2 py-1">
-                  Active Pet
-                </DropdownMenuLabel>
-                {pets.map((p) => (
+                  ))}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    key={p.name}
-                    onClick={() => setSelectedPet(`${p.name} ${p.emoji}`)}
-                    className="flex items-center justify-between text-xs py-2 px-2.5 rounded-xl cursor-pointer"
+                    onClick={() => handleMenuNav('activity', 'pets')}
+                    className="text-xs text-primary font-medium flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-xl"
                   >
-                    <span className="flex items-center gap-2">
-                      <span className="text-base">{p.emoji}</span>
-                      <span className="font-semibold text-foreground">{p.name}</span>
-                    </span>
-                    {selectedPet.startsWith(p.name) && (
-                      <Check className="w-3.5 h-3.5 text-primary" />
-                    )}
+                    <PawPrint className="w-3.5 h-3.5" />
+                    <span>Manage Pets</span>
                   </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'pets')}
-                  className="text-xs text-primary font-medium flex items-center gap-2 cursor-pointer px-2.5 py-1.5 rounded-xl"
-                >
-                  <PawPrint className="w-3.5 h-3.5" />
-                  <span>Manage Pets</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
-          {/* Shopping Cart Icon */}
-          {showCart && (
-            <button
-              onClick={onOpenCart}
-              className="relative p-2 rounded-full bg-white/80 dark:bg-zinc-800/80 border border-white/70 dark:border-zinc-700 text-slate-700 dark:text-slate-200 hover:bg-white transition-colors shadow-2xs"
-              aria-label="View Shopping Cart"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {cartCount > 0 && (
-                <span className="absolute 0 right-0 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          )}
-
-          {/* Notifications */}
-          {isAuthenticated && (
-            <button
-              className="relative p-2 rounded-full bg-white/80 dark:bg-zinc-800/80 border border-white/70 dark:border-zinc-700 text-slate-700 dark:text-slate-200 hover:bg-white transition-colors shadow-2xs"
-              aria-label="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
-            </button>
-          )}
-
-          {/* Auth State */}
-          {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-white/85 dark:bg-zinc-800/85 hover:bg-white border border-white/70 dark:border-zinc-700 transition-all focus:outline-none shadow-2xs">
-                  <div className="w-6 h-6 rounded-full bg-primary/15 text-primary font-bold text-xs flex items-center justify-center uppercase">
-                    {user?.firstName?.[0] || 'U'}
-                  </div>
-                  <span className="hidden sm:inline-block text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[90px] truncate">
-                    {user?.firstName}
+            {/* Shopping Cart Icon */}
+            {showCart && (
+              <button
+                onClick={onOpenCart}
+                className="relative p-2 rounded-full bg-white/80 dark:bg-zinc-850 hover:bg-white text-slate-700 dark:text-slate-200 transition-colors shadow-2xs"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {cartCount > 0 && (
+                  <span className="absolute 0 right-0 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount}
                   </span>
-                  <ChevronDown className="w-3 h-3 text-slate-600 dark:text-slate-400" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 mt-2 p-1.5 rounded-2xl border-slate-200 dark:border-zinc-800 shadow-xl bg-white dark:bg-zinc-950">
-                <div className="px-3 py-2 border-b border-slate-100 dark:border-zinc-800 mb-1">
-                  <p className="text-xs font-bold text-foreground truncate">
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {user?.email}
-                  </p>
-                </div>
+                )}
+              </button>
+            )}
 
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'appointments')}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium"
-                >
-                  <Calendar className="w-4 h-4 text-primary" />
-                  <span>My Appointments</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'bookings')}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium"
-                >
-                  <Luggage className="w-4 h-4 text-primary" />
-                  <span>Travel Bookings</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'orders')}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium"
-                >
-                  <Package className="w-4 h-4 text-primary" />
-                  <span>Orders & Refills</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'records')}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium"
-                >
-                  <FileText className="w-4 h-4 text-primary" />
-                  <span>Health Records</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => handleMenuNav('activity', 'pets')}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium"
-                >
-                  <PawPrint className="w-4 h-4 text-primary" />
-                  <span>My Pets</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/30 font-medium"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Log Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              {/* Desktop / Laptop: Direct Log In & Sign Up buttons */}
-              <div className="hidden sm:flex items-center gap-1.5 md:gap-2">
+            {/* Direct Login / Signup links for desktop */}
+            {!isAuthenticated && (
+              <div className="hidden lg:flex items-center gap-1.5">
                 <Link
                   href="/login"
-                  className="text-xs sm:text-sm font-medium px-3 py-1.5 text-slate-800 dark:text-slate-200 hover:text-primary transition-colors"
+                  className="text-xs sm:text-[13px] font-semibold px-3 py-1.5 text-slate-800 dark:text-slate-200 hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Log In
                 </Link>
                 <Link
                   href="/register/personal"
-                  className="text-xs sm:text-sm font-medium px-4 py-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full transition-all shadow-xs"
+                  className="text-xs sm:text-[13px] font-semibold px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full transition-all shadow-xs whitespace-nowrap"
                 >
                   Sign Up
                 </Link>
               </div>
+            )}
 
-              {/* Mobile View: Profile Icon with Guest Mode Popup */}
-              <div className="sm:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="flex items-center justify-center w-8 h-8 rounded-full bg-white/85 dark:bg-zinc-800/85 hover:bg-white dark:hover:bg-zinc-800 border border-white/70 dark:border-zinc-700 text-slate-700 dark:text-slate-200 transition-all focus:outline-none shadow-2xs group cursor-pointer"
-                      aria-label="Guest Profile"
-                      title="Guest Profile"
-                    >
-                      <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-zinc-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
-                        <User className="w-3.5 h-3.5" />
+            {/* Clean Profile Avatar Trigger (Sidebar Navigation & Account) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-300/80 dark:border-zinc-700 shadow-2xs hover:shadow-xs text-slate-700 dark:text-slate-200 transition-all focus:outline-none cursor-pointer shrink-0"
+                  aria-label="Account and navigation menu"
+                >
+                  {isAuthenticated ? (
+                    <span className="font-bold text-xs text-primary uppercase">
+                      {user?.firstName?.[0] || 'U'}
+                    </span>
+                  ) : (
+                    <User className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="w-72 mt-2 p-2 rounded-2xl border-slate-200 dark:border-zinc-800 shadow-2xl bg-white dark:bg-zinc-950 max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              >
+                {/* User / Guest Info Header */}
+                {isAuthenticated ? (
+                  <div className="px-3 py-2.5 bg-slate-50 dark:bg-zinc-900/80 rounded-xl mb-1.5 border border-slate-100 dark:border-zinc-800/80">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold text-sm flex items-center justify-center uppercase shrink-0">
+                        {user?.firstName?.[0] || 'U'}
                       </div>
-                    </button>
-                  </DropdownMenuTrigger>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {user?.firstName} {user?.lastName}
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2.5 bg-slate-50 dark:bg-zinc-900/80 rounded-xl mb-1.5 border border-slate-100 dark:border-zinc-800/80">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          Welcome to Zoodo
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        </span>
+                        <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+                          Sign in to manage appointments & pets
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2.5">
+                      <DropdownMenuItem asChild className="p-0">
+                        <Link
+                          href="/login"
+                          className="w-full py-1.5 text-center text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-zinc-700 rounded-lg hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                        >
+                          Log In
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="p-0">
+                        <Link
+                          href="/register/personal"
+                          className="w-full py-1.5 text-center text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 rounded-lg transition-colors shadow-xs"
+                        >
+                          Sign Up
+                        </Link>
+                      </DropdownMenuItem>
+                    </div>
+                  </div>
+                )}
 
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-56 p-2.5 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-xl bg-white dark:bg-zinc-950 z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+                {/* Section 1: Vet Care Navigation (Moved from Sidebar) */}
+                <div className="px-1 py-1">
+                  <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 px-2 py-1">
+                    Vet Care
+                  </DropdownMenuLabel>
+
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('care', 'find-vet')}
+                    className="flex items-center justify-between text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
                   >
-                    <div className="px-1 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-2">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-zinc-200">Guest Mode</span>
+                    <div className="flex items-center gap-2.5">
+                      <Search className="w-4 h-4 text-primary" />
+                      <span>Find Doctors</span>
                     </div>
+                  </DropdownMenuItem>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link
-                        href="/login"
-                        className="flex items-center justify-center py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-850 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200 text-xs font-medium transition-colors"
-                      >
-                        Log In
-                      </Link>
-
-                      <Link
-                        href="/register/personal"
-                        className="flex items-center justify-center py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium transition-colors shadow-xs"
-                      >
-                        Sign Up
-                      </Link>
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('care', 'appointments')}
+                    className="flex items-center justify-between text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      <span>Appointments</span>
                     </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </>
-          )}
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      Live
+                    </span>
+                  </DropdownMenuItem>
 
-          {/* Far Right: Animated Burger Menu Toggle (Matching Homepage Layout) */}
-          <button
-            onClick={onToggleMobileSidebar}
-            className="lg:hidden relative z-50 w-9 h-9 flex items-center justify-center text-slate-800 dark:text-slate-200 focus:outline-none rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
-            aria-label="Toggle navigation menu"
-          >
-            <div className="relative w-4 h-3.5">
-              <motion.span
-                animate={isMobileSidebarOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute top-0 left-0 w-full h-0.5 bg-current rounded-full origin-center"
-              />
-              <motion.span
-                animate={isMobileSidebarOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute top-[6px] left-0 w-full h-0.5 bg-current rounded-full"
-              />
-              <motion.span
-                animate={isMobileSidebarOpen ? { rotate: -45, y: -6, width: '100%' } : { rotate: 0, y: 0, width: '50%' }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute bottom-0 left-0 h-0.5 bg-current rounded-full origin-center"
-              />
-            </div>
-          </button>
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('care', 'medical-history')}
+                    className="flex items-center justify-between text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span>Medical History</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                      Rx
+                    </span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('care', 'pets')}
+                    className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <PawPrint className="w-4 h-4 text-primary" />
+                    <span>My Pets</span>
+                  </DropdownMenuItem>
+                </div>
+
+                {/* Section 2: Activity & Orders */}
+                <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-zinc-850" />
+                <div className="px-1 py-1">
+                  <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 px-2 py-1">
+                    Activity & Orders
+                  </DropdownMenuLabel>
+
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('activity', 'orders')}
+                    className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <Package className="w-4 h-4 text-primary" />
+                    <span>Orders & Refills</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('activity', 'bookings')}
+                    className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <Luggage className="w-4 h-4 text-primary" />
+                    <span>Travel Bookings</span>
+                  </DropdownMenuItem>
+                </div>
+
+                {/* Section 3: Account & Settings */}
+                <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-zinc-850" />
+                <div className="px-1 py-1">
+                  <DropdownMenuItem
+                    onClick={() => handleMenuNav('care', 'settings')}
+                    className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl cursor-pointer text-foreground font-medium hover:bg-slate-100 dark:hover:bg-zinc-850"
+                  >
+                    <Settings className="w-4 h-4 text-slate-500" />
+                    <span>Profile & Settings</span>
+                  </DropdownMenuItem>
+
+                  {isAuthenticated ? (
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="flex items-center gap-2.5 text-xs py-2 px-2.5 rounded-xl text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/30 font-medium"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Log Out</span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/register/business"
+                        className="flex items-center gap-2 text-xs font-medium py-2 px-2.5 rounded-xl cursor-pointer text-primary hover:bg-primary/10"
+                      >
+                        <Building2 className="w-4 h-4" />
+                        <span>Veterinarian & Clinic Portal</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+
       </div>
     </header>
   );

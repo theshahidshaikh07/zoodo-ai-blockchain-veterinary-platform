@@ -740,34 +740,34 @@ function GroomingContent() {
               </div>
 
               <div className="pt-6 pb-8 px-6 text-center">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-1">
                   {selectedGroomer.name}
                 </h3>
-                <p className="text-sm text-primary font-medium mb-1 uppercase tracking-wider">
-                  {selectedGroomer.specialization}
+                <p className="text-xs text-slate-500 dark:text-zinc-400 font-normal mb-5">
+                  {selectedGroomer.specialization} · {selectedGroomer.location}
                 </p>
-                <p className="text-xs text-muted-foreground mb-6">{selectedGroomer.location} · Est. {selectedGroomer.established}</p>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-4 sm:p-6 mb-6 shadow-sm">
-                  <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base font-medium italic leading-6 sm:leading-7 whitespace-pre-line">
-                    {selectedGroomer.bookingMessage}
+                <div className="bg-slate-50/80 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/80 rounded-2xl p-4 sm:p-5 mb-5 text-center">
+                  <p className="text-slate-700 dark:text-slate-300 text-sm font-normal italic leading-relaxed whitespace-pre-line">
+                    &ldquo;{selectedGroomer.bookingMessage}&rdquo;
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
+                  <button
+                    type="button"
                     onClick={() => setSelectedGroomer(null)}
-                    className="w-full border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                    className="w-full h-11 rounded-full border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
                   >
                     Close
-                  </Button>
-                  <Button
-                    className="w-full bg-primary hover:bg-primary/90"
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setSelectedGroomer(null)}
+                    className="w-full h-11 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-md active:scale-[0.98] cursor-pointer bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
                   >
                     Notify Me
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>

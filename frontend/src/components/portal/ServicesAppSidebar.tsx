@@ -27,6 +27,7 @@ import {
   X,
   Building2,
   Clock,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -48,8 +49,7 @@ export const VET_PORTAL_CATEGORIES: ServiceCategory[] = [
     id: 'care',
     label: 'Vet Care',
     tabs: [
-      { id: 'find-vet', label: 'Find Vet', icon: Stethoscope },
-      { id: 'find-hospital', label: 'Find Hospital', icon: Building2 },
+      { id: 'find-vet', label: 'Search', icon: Search },
       { id: 'appointments', label: 'Appointments', icon: Calendar, badge: 'Live' },
       { id: 'medical-history', label: 'Medical History', icon: FileText, badge: 'Rx' },
     ],
@@ -146,7 +146,6 @@ export default function ServicesAppSidebar({
     [
       'veterinary',
       'find-vet',
-      'find-hospital',
       'appointments',
       'medical-history',
       'records',

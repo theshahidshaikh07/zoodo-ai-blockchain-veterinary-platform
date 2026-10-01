@@ -97,7 +97,7 @@ export default function LoginPage() {
             alt="Zoodo"
             width={120}
             height={40}
-            className="h-3 md:h-4 lg:h-5 w-auto"
+            className="h-3 md:h-4 lg:h-5 w-auto dark:brightness-0 dark:invert"
             priority
           />
         </Link>

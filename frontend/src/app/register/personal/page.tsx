@@ -520,7 +520,7 @@ export default function PersonalRegistrationPage() {
 
       {/* Left panel */}
       <div className="hidden lg:flex flex-col justify-between w-[40%] bg-[#bde4e9]/30 dark:bg-primary/5 px-14 py-12 shrink-0">
-        <Link href="/"><Image src="/pacifico-zoodo.png" alt="Zoodo" width={130} height={44} className="h-7 w-auto" priority /></Link>
+        <Link href="/"><Image src="/logo-slate.png" alt="Zoodo" width={140} height={25} className="h-5 w-auto dark:brightness-0 dark:invert" priority /></Link>
         <div>
           <h2 className="text-4xl font-bold text-foreground leading-snug mb-4">Your pet's health,<br />all in one place.</h2>
           <p className="text-muted-foreground text-base leading-relaxed max-w-sm">Book vets, track health records, find groomers, adopt pets, and connect with a community that loves animals.</p>
@@ -531,7 +531,7 @@ export default function PersonalRegistrationPage() {
       {/* Right panel */}
       <div className="flex-1 h-full flex flex-col overflow-hidden">
         <div className="flex items-center justify-center py-5 shrink-0 lg:hidden">
-          <Link href="/"><Image src="/pacifico-zoodo.png" alt="Zoodo" width={110} height={36} className="h-6 w-auto" priority /></Link>
+          <Link href="/"><Image src="/logo-slate.png" alt="Zoodo" width={120} height={22} className="h-4.5 w-auto dark:brightness-0 dark:invert" priority /></Link>
         </div>
 
         <div className="flex-1 overflow-y-auto">

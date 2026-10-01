@@ -110,11 +110,11 @@ const Footer = () => {
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/pacifico-zoodo.png"
+                  src="/logo-slate.png"
                   alt="Zoodo"
-                  width={120}
-                  height={40}
-                  className="h-5 md:h-6 lg:h-7 w-auto"
+                  width={140}
+                  height={24}
+                  className="h-4 md:h-5 lg:h-5 w-auto dark:brightness-0 dark:invert"
                   priority
                 />
               </div>

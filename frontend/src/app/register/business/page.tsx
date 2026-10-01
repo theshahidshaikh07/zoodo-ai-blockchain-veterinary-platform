@@ -276,7 +276,7 @@ export default function BusinessRegistrationPage() {
       {/* ─── Left panel ─── */}
       <div className="hidden lg:flex flex-col justify-between w-[42%] bg-[#bde4e9]/30 dark:bg-primary/5 px-14 py-12 shrink-0">
         <Link href="/">
-          <Image src="/pacifico-zoodo.png" alt="Zoodo" width={130} height={44} className="h-7 w-auto" priority />
+          <Image src="/logo-slate.png" alt="Zoodo" width={140} height={25} className="h-5 w-auto dark:brightness-0 dark:invert" priority />
         </Link>
         <div>
           <h2 className="text-4xl font-bold text-foreground leading-snug mb-4">
@@ -296,11 +296,11 @@ export default function BusinessRegistrationPage() {
         <div className="flex items-center justify-center px-8 py-6 shrink-0 lg:hidden">
           <Link href="/">
             <Image
-              src="/pacifico-zoodo.png"
+              src="/logo-slate.png"
               alt="Zoodo"
-              width={110}
-              height={36}
-              className="h-6 w-auto"
+              width={120}
+              height={22}
+              className="h-4 w-auto dark:brightness-0 dark:invert"
               priority
             />
           </Link>

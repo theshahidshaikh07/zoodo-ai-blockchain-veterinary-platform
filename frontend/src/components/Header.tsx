@@ -236,11 +236,11 @@ const Header = ({ isScrolled: externalIsScrolled }: HeaderProps = {}) => {
             >
               <div className="relative group-hover:scale-105 transition-all duration-300">
                 <Image
-                  src="/pacifico-zoodo.png"
+                  src="/logo-slate.png"
                   alt="Zoodo"
-                  width={180}
-                  height={60}
-                  className="h-6 md:h-6 lg:h-7 w-auto"
+                  width={140}
+                  height={22}
+                  className="h-3.5 md:h-4.5 lg:h-5 w-auto dark:brightness-0 dark:invert"
                   priority
                 />
               </div>

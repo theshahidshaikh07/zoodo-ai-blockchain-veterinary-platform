@@ -154,7 +154,7 @@ function Sidebar({ active, setActive, user, biz, onLogout }: {
     <aside className="hidden lg:flex flex-col w-56 shrink-0 h-full bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-800">
       <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
         <Link href="/">
-          <Image src="/pacifico-zoodo.png" alt="Zoodo" width={100} height={32} className="h-6 w-auto" />
+          <Image src="/logo-slate.png" alt="Zoodo" width={110} height={20} className="h-4.5 w-auto dark:brightness-0 dark:invert" />
         </Link>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">

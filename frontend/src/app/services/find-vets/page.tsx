@@ -905,7 +905,7 @@ function FindVetsContent() {
               {/* Header with Image */}
               <div className="relative h-32 bg-primary/10">
                 <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
-                  <div className="relative w-32 h-32 rounded-full border-4 border-background overflow-hidden shadow-lg bg-card">
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
                     <Image
                       src={selectedVet.image}
                       alt={selectedVet.name}
@@ -916,35 +916,35 @@ function FindVetsContent() {
                 </div>
               </div>
 
-              <div className="pt-20 pb-8 px-6 text-center">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              <div className="pt-24 pb-6 px-6 text-center">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-1">
                   {selectedVet.name}
                 </h3>
-                <p className="text-sm text-primary font-medium mb-6 uppercase tracking-wider">
+                <p className="text-xs text-slate-500 dark:text-zinc-400 font-normal mb-5">
                   {selectedVet.hospital}
                 </p>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-3 sm:p-6 mb-6 relative shadow-sm">
-                  {/* Quote decorative icon could go here */}
-                  <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base font-medium italic leading-6 sm:leading-7 whitespace-pre-line">
-                    {selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}
+                <div className="bg-slate-50/80 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/80 rounded-2xl p-4 sm:p-5 mb-5 text-center">
+                  <p className="text-slate-700 dark:text-slate-300 text-sm font-normal italic leading-relaxed whitespace-pre-line">
+                    &ldquo;{selectedVet.bookingMessage || "Currently unavailable due to high demand in the multiverse."}&rdquo;
                   </p>
                 </div>
 
                 <div className="flex gap-3 grid grid-cols-2">
-                  <Button
-                    variant="outline"
+                  <button
+                    type="button"
                     onClick={() => setSelectedVet(null)}
-                    className="w-full border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                    className="w-full h-11 rounded-full border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold transition-all cursor-pointer active:scale-[0.98]"
                   >
                     Close
-                  </Button>
-                  <Button
-                    className="w-full bg-primary hover:bg-primary/90"
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setSelectedVet(null)}
+                    className="w-full h-11 rounded-full text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Notify Me
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
