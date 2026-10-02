@@ -1496,15 +1496,15 @@ function ServicesPortalContent() {
             const locType: 'city' | 'state' | 'country' = isCountry
               ? 'country'
               : isState
-              ? 'state'
-              : 'city';
+                ? 'state'
+                : 'city';
 
             const subtitleParts = [state, country].filter(Boolean);
             const displaySubtitle = isCountry
               ? 'Country • Worldwide Teleconsultation'
               : subtitleParts.length > 0
-              ? subtitleParts.join(', ')
-              : 'Global Location';
+                ? subtitleParts.join(', ')
+                : 'Global Location';
 
             items.push({
               id: `photon-${props.osm_id || idx}-${name}`,
@@ -1557,6 +1557,13 @@ function ServicesPortalContent() {
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'today'>('all');
   const [speciesFilter, setSpeciesFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'relevance' | 'fee_desc' | 'fee_asc' | 'rating_desc' | 'exp_desc'>('relevance');
+
+  // Hospital & Clinic specific filters & sorting
+  const [clinicEmergencyFilter, setClinicEmergencyFilter] = useState<'all' | '24_7' | 'emergency' | 'day'>('all');
+  const [clinicFacilityFilter, setClinicFacilityFilter] = useState<'all' | 'icu' | 'imaging' | 'surgery' | 'lab' | 'pharmacy'>('all');
+  const [clinicRatingFilter, setClinicRatingFilter] = useState<'all' | '4.9' | '4.8'>('all');
+  const [clinicDoctorsFilter, setClinicDoctorsFilter] = useState<'all' | '3' | '5' | '10'>('all');
+  const [clinicSortBy, setClinicSortBy] = useState<'relevance' | 'distance_asc' | 'rating_desc' | 'reviews_desc' | 'doctors_desc'>('relevance');
 
   // Appointments subtab
   const [appointmentsSubTab, setAppointmentsSubTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -1658,11 +1665,11 @@ function ServicesPortalContent() {
       pets.map((p) =>
         p.id === editingPetId
           ? {
-              ...p,
-              ...editPetData,
-              age: Number(editPetData.age) || p.age,
-              weight: Number(editPetData.weight) || p.weight,
-            }
+            ...p,
+            ...editPetData,
+            age: Number(editPetData.age) || p.age,
+            weight: Number(editPetData.weight) || p.weight,
+          }
           : p
       )
     );
@@ -1841,10 +1848,9 @@ function ServicesPortalContent() {
       );
     }
 
-    // If search query is present, match hospital/clinic name, type, area, city, or facilities
+    // Search query: match hospital name, type, area, city, or facilities
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-
       result = result.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
@@ -1853,21 +1859,112 @@ function ServicesPortalContent() {
           c.city.toLowerCase().includes(q) ||
           c.facilities.some((f) => f.toLowerCase().includes(q))
       );
-      return result;
+    }
+
+    // Emergency & Timing Filter
+    if (clinicEmergencyFilter === '24_7') {
+      result = result.filter((c) => c.timing.toLowerCase().includes('24') || c.isEmergency);
+    } else if (clinicEmergencyFilter === 'emergency') {
+      result = result.filter((c) => c.isEmergency);
+    } else if (clinicEmergencyFilter === 'day') {
+      result = result.filter((c) => !c.isEmergency);
+    }
+
+    // Facilities & Capabilities Filter
+    if (clinicFacilityFilter === 'icu') {
+      result = result.filter((c) =>
+        c.facilities.some((f) => /icu|emergency|trauma|critical/i.test(f))
+      );
+    } else if (clinicFacilityFilter === 'imaging') {
+      result = result.filter((c) =>
+        c.facilities.some((f) => /x-ray|ultrasound|ct|mri|radiography|fluoroscopy|retinal imaging/i.test(f))
+      );
+    } else if (clinicFacilityFilter === 'surgery') {
+      result = result.filter((c) =>
+        c.facilities.some((f) => /surgery|theater|theatre|orthopedic|operation/i.test(f))
+      );
+    } else if (clinicFacilityFilter === 'lab') {
+      result = result.filter((c) =>
+        c.facilities.some((f) => /lab|pathology|blood/i.test(f))
+      );
+    } else if (clinicFacilityFilter === 'pharmacy') {
+      result = result.filter((c) =>
+        c.facilities.some((f) => /pharmacy|rx/i.test(f))
+      );
+    }
+
+    // Minimum Rating Filter
+    if (clinicRatingFilter === '4.9') {
+      result = result.filter((c) => c.rating >= 4.9);
+    } else if (clinicRatingFilter === '4.8') {
+      result = result.filter((c) => c.rating >= 4.8);
+    }
+
+    // Doctors on Duty Filter
+    if (clinicDoctorsFilter === '3') {
+      result = result.filter((c) => c.doctorsOnDuty >= 3);
+    } else if (clinicDoctorsFilter === '5') {
+      result = result.filter((c) => c.doctorsOnDuty >= 5);
+    } else if (clinicDoctorsFilter === '10') {
+      result = result.filter((c) => c.doctorsOnDuty >= 10);
+    }
+
+    // Distance parsing helper
+    const parseDistanceKm = (str: string) => {
+      const match = str.match(/([0-9.]+)/);
+      return match ? parseFloat(match[1]) : 999;
+    };
+
+    // Sorting
+    if (clinicSortBy === 'distance_asc') {
+      result.sort((a, b) => parseDistanceKm(a.distance) - parseDistanceKm(b.distance));
+    } else if (clinicSortBy === 'rating_desc') {
+      result.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+    } else if (clinicSortBy === 'reviews_desc') {
+      result.sort((a, b) => b.reviews - a.reviews);
+    } else if (clinicSortBy === 'doctors_desc') {
+      result.sort((a, b) => b.doctorsOnDuty - a.doctorsOnDuty);
     }
 
     return result;
-  }, [searchQuery, selectedLocation, consultTypeFilter]);
+  }, [
+    consultTypeFilter,
+    selectedLocation,
+    searchQuery,
+    clinicEmergencyFilter,
+    clinicFacilityFilter,
+    clinicRatingFilter,
+    clinicDoctorsFilter,
+    clinicSortBy,
+  ]);
 
   // Total active filter count for notification badges (strictly filters, not search bar location or consult mode tabs)
   const activeFilterCount = useMemo(() => {
+    if (consultTypeFilter === 'clinic') {
+      return [
+        clinicEmergencyFilter !== 'all',
+        clinicFacilityFilter !== 'all',
+        clinicRatingFilter !== 'all',
+        clinicDoctorsFilter !== 'all',
+      ].filter(Boolean).length;
+    }
     return [
       genderFilter !== 'all',
       ratingFilter !== 'all',
       experienceFilter !== 'all',
       speciesFilter !== 'all',
     ].filter(Boolean).length;
-  }, [genderFilter, ratingFilter, experienceFilter, speciesFilter]);
+  }, [
+    consultTypeFilter,
+    clinicEmergencyFilter,
+    clinicFacilityFilter,
+    clinicRatingFilter,
+    clinicDoctorsFilter,
+    genderFilter,
+    ratingFilter,
+    experienceFilter,
+    speciesFilter,
+  ]);
 
   const handleConsultClick = (item: any) => {
     if (item?.bookingMessage) {
@@ -1946,11 +2043,10 @@ function ServicesPortalContent() {
                         key={mode.id}
                         type="button"
                         onClick={() => setConsultTypeFilter(mode.id as any)}
-                        className={`flex-1 h-full flex items-center justify-center gap-1.5 px-2 text-xs font-semibold transition-all cursor-pointer select-none ${
-                          isActive
+                        className={`flex-1 h-full flex items-center justify-center gap-1.5 px-2 text-xs font-semibold transition-all cursor-pointer select-none ${isActive
                             ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                             : 'bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                          }`}
                       >
                         <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-primary-foreground' : 'text-slate-500 dark:text-slate-400'}`} />
                         <span className="truncate">{mode.label}</span>
@@ -1960,22 +2056,20 @@ function ServicesPortalContent() {
                 </div>
 
                 <div className="flex items-center gap-2 w-full">
-                  {/* Left: Circular Filter Button with active count badge (Doctor modes only) */}
-                  {consultTypeFilter !== 'clinic' && (
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileFilterOpen(true)}
-                      className="w-11 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 shrink-0 relative transition-all active:scale-95"
-                      aria-label="Filter doctors"
-                    >
-                      <SlidersHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-200" />
-                      {activeFilterCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">
-                          {activeFilterCount}
-                        </span>
-                      )}
-                    </button>
-                  )}
+                  {/* Left: Circular Filter Button with active count badge (Doctor & Clinic modes) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileFilterOpen(true)}
+                    className="w-11 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 shrink-0 relative transition-all active:scale-95"
+                    aria-label={consultTypeFilter === 'clinic' ? 'Filter hospitals & clinics' : 'Filter doctors'}
+                  >
+                    <SlidersHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-200" />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
 
                   {/* Middle: Integrated Search Bar with Location + Query (Matching MNC Single Bar Standard) */}
                   <div className={`relative flex-1 min-w-0 h-11 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center shadow-2xs transition-all focus-within:border-slate-400 dark:focus-within:border-zinc-600 ${isLocationDropdownOpen ? 'z-50' : ''}`}>
@@ -2119,11 +2213,10 @@ function ServicesPortalContent() {
                   <button
                     type="button"
                     onClick={() => setIsMobileSortOpen(true)}
-                    className={`w-11 h-11 rounded-full border flex items-center justify-center shadow-2xs shrink-0 relative transition-all active:scale-95 ${
-                      sortBy !== 'relevance'
+                    className={`w-11 h-11 rounded-full border flex items-center justify-center shadow-2xs shrink-0 relative transition-all active:scale-95 ${sortBy !== 'relevance'
                         ? 'bg-primary text-primary-foreground border-primary shadow-xs shadow-primary/20'
                         : 'bg-white dark:bg-zinc-900 border-slate-200/90 dark:border-zinc-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800'
-                    }`}
+                      }`}
                     aria-label="Sort doctors"
                   >
                     <ArrowUpDown className="w-4 h-4" />
@@ -2134,7 +2227,7 @@ function ServicesPortalContent() {
 
                 {/* Quick Active Filter Chips Row on Mobile */}
                 {activeFilterCount > 0 && (
-                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                  <div className="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
 
                     {speciesFilter !== 'all' && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] font-medium shrink-0">
@@ -2369,313 +2462,607 @@ function ServicesPortalContent() {
                 </div>
               </div>
 
-              {/* DESKTOP SINGLE UNIFIED FILTER BAR (Hidden on mobile and in clinic mode) */}
-              {consultTypeFilter !== 'clinic' && (
-                <div className={`hidden sm:block relative ${openFilterDropdown ? 'z-30' : 'z-10'}`}>
-                <div className="bg-white dark:bg-zinc-900 rounded-full border border-slate-200 dark:border-zinc-800 p-1 sm:p-1.5 shadow-2xs flex items-center gap-1 sm:gap-1.5 overflow-visible">
+              {/* DESKTOP SINGLE UNIFIED FILTER BAR (Responsive for Doctor & In-Clinic modes) */}
+              {consultTypeFilter === 'clinic' ? (
+                /* IN-CLINIC / HOSPITALS DESKTOP FILTER BAR */
+                <div className={`hidden sm:block w-full mb-3 relative ${openFilterDropdown ? 'z-30' : 'z-10'}`}>
+                  <div className="w-full bg-white dark:bg-zinc-900 rounded-full border border-slate-200 dark:border-zinc-800 p-1 sm:p-1.5 shadow-2xs flex items-center gap-1 sm:gap-1.5 overflow-visible">
+                    {/* 1. Emergency & Hours Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('clinic-emergency')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${clinicEmergencyFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {clinicEmergencyFilter === '24_7'
+                            ? '24/7 Open'
+                            : clinicEmergencyFilter === 'emergency'
+                              ? 'Emergency Ready'
+                              : clinicEmergencyFilter === 'day'
+                                ? 'Day Clinic'
+                                : 'Emergency & Hours'}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${clinicEmergencyFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'clinic-emergency' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
 
-                  {/* 1. Gender Dropdown */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleFilterDropdown('gender')}
-                      className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${
-                        genderFilter !== 'all'
-                          ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                      }`}
-                    >
-                      <span>
-                        {genderFilter === 'all'
-                          ? 'Gender'
-                          : genderFilter === 'male'
-                          ? 'Male Doctor'
-                          : 'Female Doctor'}
-                      </span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${
-                          genderFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
-                        } ${openFilterDropdown === 'gender' ? 'rotate-180' : ''}`}
-                      />
-                    </button>
+                      {openFilterDropdown === 'clinic-emergency' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'All Hours' },
+                              { id: '24_7', label: '24/7 Open' },
+                              { id: 'emergency', label: 'Emergency Ready' },
+                              { id: 'day', label: 'Day Clinic' },
+                            ].map((opt) => {
+                              const isSelected = clinicEmergencyFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setClinicEmergencyFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
 
-                    {openFilterDropdown === 'gender' && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-2 w-44 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                          {[
-                            { id: 'all', label: 'All Doctors' },
-                            { id: 'female', label: 'Female Doctor' },
-                            { id: 'male', label: 'Male Doctor' },
-                          ].map((opt) => {
-                            const isSelected = genderFilter === opt.id;
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => {
-                                  setGenderFilter(opt.id as any);
-                                  setOpenFilterDropdown(null);
-                                }}
-                                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${
-                                  isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
-                                } font-normal`}
-                              >
-                                <span>{opt.label}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
+                    {/* 2. Facilities & Diagnostics Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('clinic-facilities')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${clinicFacilityFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {clinicFacilityFilter === 'icu'
+                            ? 'ICU / Critical Care'
+                            : clinicFacilityFilter === 'imaging'
+                              ? 'Digital X-Ray / CT'
+                              : clinicFacilityFilter === 'surgery'
+                                ? 'Advanced OT / Surgery'
+                                : clinicFacilityFilter === 'lab'
+                                  ? 'Pathology Lab'
+                                  : clinicFacilityFilter === 'pharmacy'
+                                    ? 'In-House Pharmacy'
+                                    : 'Key Facilities'}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${clinicFacilityFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'clinic-facilities' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'clinic-facilities' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'All Facilities' },
+                              { id: 'icu', label: 'ICU / Critical Care' },
+                              { id: 'imaging', label: 'Digital X-Ray / CT' },
+                              { id: 'surgery', label: 'Advanced OT / Surgery' },
+                              { id: 'lab', label: 'Pathology Lab' },
+                              { id: 'pharmacy', label: 'In-House Pharmacy' },
+                            ].map((opt) => {
+                              const isSelected = clinicFacilityFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setClinicFacilityFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 3. Rating Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('clinic-rating')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${clinicRatingFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>{clinicRatingFilter === 'all' ? 'Rating' : `${clinicRatingFilter}+ ★`}</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${clinicRatingFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'clinic-rating' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'clinic-rating' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-44 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'Any Rating' },
+                              { id: '4.8', label: '4.8+ ★' },
+                              { id: '4.9', label: '4.9+ ★' },
+                            ].map((opt) => {
+                              const isSelected = clinicRatingFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setClinicRatingFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 4. Doctors on Duty Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('clinic-doctors')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${clinicDoctorsFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {clinicDoctorsFilter === 'all' ? 'Doctors' : `${clinicDoctorsFilter}+ Doctors`}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${clinicDoctorsFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'clinic-doctors' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'clinic-doctors' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'Any Staffing' },
+                              { id: '3', label: '3+ Doctors on Duty' },
+                              { id: '5', label: '5+ Doctors on Duty' },
+                              { id: '10', label: '10+ Doctors on Duty' },
+                            ].map((opt) => {
+                              const isSelected = clinicDoctorsFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setClinicDoctorsFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="hidden sm:block w-px h-5 bg-slate-200 dark:bg-zinc-800 my-auto mx-0.5" />
+
+                    {/* 5. Sort By Dropdown */}
+                    <div className="relative ml-auto">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('clinic-sort')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer ${clinicSortBy !== 'relevance'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {clinicSortBy === 'distance_asc'
+                            ? 'Nearest Distance'
+                            : clinicSortBy === 'rating_desc'
+                              ? 'Highest Rated'
+                              : clinicSortBy === 'reviews_desc'
+                                ? 'Most Reviews'
+                                : clinicSortBy === 'doctors_desc'
+                                  ? 'Most Doctors'
+                                  : 'Sort: Relevance'}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${clinicSortBy !== 'relevance' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'clinic-sort' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'clinic-sort' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full right-0 mt-2 w-52 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'relevance', label: 'Relevance (Best Match)' },
+                              { id: 'distance_asc', label: 'Nearest Distance' },
+                              { id: 'rating_desc', label: 'Highest Rated' },
+                              { id: 'reviews_desc', label: 'Most Reviews' },
+                              { id: 'doctors_desc', label: 'Most Doctors on Duty' },
+                            ].map((opt) => {
+                              const isSelected = clinicSortBy === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setClinicSortBy(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Reset Filters button if any filter is active */}
+                    {(clinicEmergencyFilter !== 'all' ||
+                      clinicFacilityFilter !== 'all' ||
+                      clinicRatingFilter !== 'all' ||
+                      clinicDoctorsFilter !== 'all' ||
+                      searchQuery) && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('');
+                            setClinicEmergencyFilter('all');
+                            setClinicFacilityFilter('all');
+                            setClinicRatingFilter('all');
+                            setClinicDoctorsFilter('all');
+                            setClinicSortBy('relevance');
+                          }}
+                          className="h-8 px-2.5 rounded-full text-xs font-normal text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shrink-0 cursor-pointer"
+                          title="Reset all filters"
+                        >
+                          <span>Reset</span>
+                        </button>
+                      )}
                   </div>
-
-                  {/* 2. Experience Dropdown */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleFilterDropdown('experience')}
-                      className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${
-                        experienceFilter !== 'all'
-                          ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                      }`}
-                    >
-                      <span>{experienceFilter === 'all' ? 'Experience' : `${experienceFilter}+ Years`}</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${
-                          experienceFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
-                        } ${openFilterDropdown === 'experience' ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    {openFilterDropdown === 'experience' && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                          {[
-                            { id: 'all', label: 'Any Experience' },
-                            { id: '5', label: '5+ Years Practice' },
-                            { id: '10', label: '10+ Years Practice' },
-                            { id: '15', label: '15+ Years (Specialist)' },
-                          ].map((opt) => {
-                            const isSelected = experienceFilter === opt.id;
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => {
-                                  setExperienceFilter(opt.id as any);
-                                  setOpenFilterDropdown(null);
-                                }}
-                                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${
-                                  isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
-                                } font-normal`}
-                              >
-                                <span>{opt.label}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* 3. Species / Pet Dropdown */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleFilterDropdown('species')}
-                      className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${
-                        speciesFilter !== 'all'
-                          ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                      }`}
-                    >
-                      <span>{speciesFilter === 'all' ? 'Species' : speciesFilter}</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${
-                          speciesFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
-                        } ${openFilterDropdown === 'species' ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    {openFilterDropdown === 'species' && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                          {[
-                            { id: 'all', label: 'All Pet Species' },
-                            { id: 'Dogs', label: 'Dogs & Puppies' },
-                            { id: 'Cats', label: 'Cats & Kittens' },
-                            { id: 'Birds', label: 'Birds & Avian' },
-                          ].map((opt) => {
-                            const isSelected = speciesFilter === opt.id;
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => {
-                                  setSpeciesFilter(opt.id);
-                                  setOpenFilterDropdown(null);
-                                }}
-                                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${
-                                  isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
-                                } font-normal`}
-                              >
-                                <span>{opt.label}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* 4. Patient Stories Filter */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleFilterDropdown('rating')}
-                      className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${
-                        ratingFilter !== 'all'
-                          ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                      }`}
-                    >
-                      <span>
-                        {ratingFilter === 'all' ? 'Patient Stories' : `${ratingFilter}+ Patient Stories`}
-                      </span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${
-                          ratingFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
-                        } ${openFilterDropdown === 'rating' ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    {openFilterDropdown === 'rating' && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                          {[
-                            { id: '10', label: '10+ Patient Stories' },
-                            { id: '70', label: '70+ Patient Stories' },
-                          ].map((opt) => {
-                            const isSelected = ratingFilter === opt.id;
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => {
-                                  setRatingFilter(opt.id as any);
-                                  setOpenFilterDropdown(null);
-                                }}
-                                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${
-                                  isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
-                                } font-normal`}
-                              >
-                                <span>{opt.label}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Divider */}
-                  <div className="hidden sm:block w-px h-5 bg-slate-200 dark:bg-zinc-800 my-auto mx-0.5" />
-
-                  {/* 5. Sort By Dropdown */}
-                  <div className="relative ml-auto">
-                    <button
-                      type="button"
-                      onClick={() => toggleFilterDropdown('sort')}
-                      className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer ${
-                        sortBy !== 'relevance'
-                          ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                      }`}
-                    >
-                      <span>
-                        Sort:{' '}
-                        {sortBy === 'fee_desc'
-                          ? 'Fee: High to Low'
-                          : sortBy === 'fee_asc'
-                          ? 'Fee: Low to High'
-                          : sortBy === 'rating_desc'
-                          ? 'Highest Rated'
-                          : sortBy === 'exp_desc'
-                          ? 'Most Experienced'
-                          : 'Relevance'}
-                      </span>
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${
-                          sortBy !== 'relevance' ? 'text-primary-foreground' : 'text-slate-400'
-                        } ${openFilterDropdown === 'sort' ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    {openFilterDropdown === 'sort' && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
-                        <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                          {[
-                            { id: 'relevance', label: 'Relevance' },
-                            { id: 'rating_desc', label: 'Highest Rated' },
-                            { id: 'fee_asc', label: 'Fee: Low to High' },
-                            { id: 'fee_desc', label: 'Fee: High to Low' },
-                            { id: 'exp_desc', label: 'Most Experienced' },
-                          ].map((opt) => {
-                            const isSelected = sortBy === opt.id;
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => {
-                                  setSortBy(opt.id as any);
-                                  setOpenFilterDropdown(null);
-                                }}
-                                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${
-                                  isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
-                                } font-normal`}
-                              >
-                                <span>{opt.label}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Reset Filters button if any filter is active */}
-                  {(genderFilter !== 'all' ||
-                    ratingFilter !== 'all' ||
-                    experienceFilter !== 'all' ||
-                    speciesFilter !== 'all' ||
-                    searchQuery) && (
-                    <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setGenderFilter('all');
-                        setRatingFilter('all');
-                        setExperienceFilter('all');
-                        setSpeciesFilter('all');
-                      }}
-                      className="h-8 px-2.5 rounded-full text-xs font-normal text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shrink-0 cursor-pointer"
-                      title="Reset all filters"
-                    >
-                      <span>Reset</span>
-                    </button>
-                  )}
                 </div>
-              </div>
+              ) : (
+                /* DOCTORS DIRECTORY DESKTOP FILTER BAR */
+                <div className={`hidden sm:block w-full mb-3 relative ${openFilterDropdown ? 'z-30' : 'z-10'}`}>
+                  <div className="w-full bg-white dark:bg-zinc-900 rounded-full border border-slate-200 dark:border-zinc-800 p-1 sm:p-1.5 shadow-2xs flex items-center gap-1 sm:gap-1.5 overflow-visible">
+                    {/* 1. Gender Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('gender')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${genderFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {genderFilter === 'all'
+                            ? 'Gender'
+                            : genderFilter === 'male'
+                              ? 'Male Doctor'
+                              : 'Female Doctor'}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${genderFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'gender' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'gender' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-44 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'All Doctors' },
+                              { id: 'female', label: 'Female Doctor' },
+                              { id: 'male', label: 'Male Doctor' },
+                            ].map((opt) => {
+                              const isSelected = genderFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setGenderFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 2. Experience Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('experience')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${experienceFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>{experienceFilter === 'all' ? 'Experience' : `${experienceFilter}+ Years`}</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${experienceFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'experience' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'experience' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'Any Experience' },
+                              { id: '5', label: '5+ Years Practice' },
+                              { id: '10', label: '10+ Years Practice' },
+                              { id: '15', label: '15+ Years (Specialist)' },
+                            ].map((opt) => {
+                              const isSelected = experienceFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setExperienceFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 3. Species / Pet Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('species')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${speciesFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>{speciesFilter === 'all' ? 'Species' : speciesFilter}</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${speciesFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'species' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'species' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'all', label: 'All Pet Species' },
+                              { id: 'Dogs', label: 'Dogs & Puppies' },
+                              { id: 'Cats', label: 'Cats & Kittens' },
+                              { id: 'Birds', label: 'Birds & Avian' },
+                            ].map((opt) => {
+                              const isSelected = speciesFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSpeciesFilter(opt.id);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 4. Rating Filter */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('rating')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors cursor-pointer ${ratingFilter !== 'all'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {ratingFilter === 'all' ? 'Patient Stories' : `${ratingFilter}+ Patient Stories`}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${ratingFilter !== 'all' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'rating' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'rating' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: '10', label: '10+ Patient Stories' },
+                              { id: '70', label: '70+ Patient Stories' },
+                            ].map((opt) => {
+                              const isSelected = ratingFilter === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setRatingFilter(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="hidden sm:block w-px h-5 bg-slate-200 dark:bg-zinc-800 my-auto mx-0.5" />
+
+                    {/* 5. Sort By Dropdown */}
+                    <div className="relative ml-auto">
+                      <button
+                        type="button"
+                        onClick={() => toggleFilterDropdown('sort')}
+                        className={`h-8 px-3 rounded-full text-xs font-normal flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer ${sortBy !== 'relevance'
+                            ? 'bg-primary text-primary-foreground shadow-xs shadow-primary/20'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                          }`}
+                      >
+                        <span>
+                          {sortBy === 'fee_desc'
+                            ? 'Fee: High to Low'
+                            : sortBy === 'fee_asc'
+                              ? 'Fee: Low to High'
+                              : sortBy === 'rating_desc'
+                                ? 'Highest Rated'
+                                : sortBy === 'exp_desc'
+                                  ? 'Most Experienced'
+                                  : 'Sort: Relevance'}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${sortBy !== 'relevance' ? 'text-primary-foreground' : 'text-slate-400'
+                            } ${openFilterDropdown === 'sort' ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+
+                      {openFilterDropdown === 'sort' && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenFilterDropdown(null)} />
+                          <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-200 dark:border-zinc-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            {[
+                              { id: 'relevance', label: 'Relevance' },
+                              { id: 'rating_desc', label: 'Highest Rated' },
+                              { id: 'fee_asc', label: 'Fee: Low to High' },
+                              { id: 'fee_desc', label: 'Fee: High to Low' },
+                              { id: 'exp_desc', label: 'Most Experienced' },
+                            ].map((opt) => {
+                              const isSelected = sortBy === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSortBy(opt.id as any);
+                                    setOpenFilterDropdown(null);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-colors cursor-pointer ${isSelected ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 dark:text-slate-200'
+                                    } font-normal`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Reset Filters button if any filter is active */}
+                    {(genderFilter !== 'all' ||
+                      ratingFilter !== 'all' ||
+                      experienceFilter !== 'all' ||
+                      speciesFilter !== 'all' ||
+                      searchQuery) && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('');
+                            setGenderFilter('all');
+                            setRatingFilter('all');
+                            setExperienceFilter('all');
+                            setSpeciesFilter('all');
+                            setSortBy('relevance');
+                          }}
+                          className="h-8 px-2.5 rounded-full text-xs font-normal text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shrink-0 cursor-pointer"
+                          title="Reset all filters"
+                        >
+                          <span>Reset</span>
+                        </button>
+                      )}
+                  </div>
+                </div>
               )}
 
               {/* MOBILE FILTER BOTTOM SHEET MODAL (Framer Motion Spring Drawer) */}
@@ -2713,10 +3100,17 @@ function ServicesPortalContent() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setGenderFilter('all');
-                                  setRatingFilter('all');
-                                  setExperienceFilter('all');
-                                  setSpeciesFilter('all');
+                                  if (consultTypeFilter === 'clinic') {
+                                    setClinicEmergencyFilter('all');
+                                    setClinicFacilityFilter('all');
+                                    setClinicRatingFilter('all');
+                                    setClinicDoctorsFilter('all');
+                                  } else {
+                                    setGenderFilter('all');
+                                    setRatingFilter('all');
+                                    setExperienceFilter('all');
+                                    setSpeciesFilter('all');
+                                  }
                                 }}
                                 className="text-xs font-medium text-rose-500 hover:text-rose-600 cursor-pointer"
                               >
@@ -2735,208 +3129,338 @@ function ServicesPortalContent() {
                       </div>
 
                       {/* Scrollable Filter Options */}
-                  <div className="max-h-[60vh] overflow-y-auto p-5 space-y-5 no-scrollbar">
-                    {/* Species */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Pet Species
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          { id: 'all', label: 'All Pets' },
-                          { id: 'Dogs', label: 'Dogs & Puppies' },
-                          { id: 'Cats', label: 'Cats & Kittens' },
-                          { id: 'Birds', label: 'Birds & Avian' },
-                        ].map((s) => {
-                          const isSelected = speciesFilter === s.id;
-                          return (
-                            <button
-                              key={s.id}
-                              type="button"
-                              onClick={() => setSpeciesFilter(s.id)}
-                              className={`px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-primary text-primary-foreground font-medium shadow-xs shadow-primary/20'
-                                  : 'bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          );
-                        })}
+                      <div className="max-h-[60vh] overflow-y-auto p-5 space-y-5 no-scrollbar">
+                        {consultTypeFilter === 'clinic' ? (
+                          <>
+                            {/* Emergency & Hours */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Emergency & Hours
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  { id: 'all', label: 'All Hours' },
+                                  { id: '24_7', label: '24/7 Open' },
+                                  { id: 'emergency', label: 'Emergency Ready' },
+                                  { id: 'regular', label: 'Day Clinic' },
+                                ].map((item) => {
+                                  const isSelected = clinicEmergencyFilter === item.id;
+                                  return (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => setClinicEmergencyFilter(item.id as any)}
+                                      className={`py-2 px-3 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Diagnostic & Facilities */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Key Facilities & Diagnostics
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { id: 'all', label: 'All Facilities' },
+                                  { id: 'icu', label: 'ICU / Critical Care' },
+                                  { id: 'imaging', label: 'Digital X-Ray / CT' },
+                                  { id: 'surgery', label: 'Advanced OT / Surgery' },
+                                  { id: 'lab', label: 'Pathology Lab' },
+                                  { id: 'pharmacy', label: 'In-House Pharmacy' },
+                                ].map((item) => {
+                                  const isSelected = clinicFacilityFilter === item.id;
+                                  return (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => setClinicFacilityFilter(item.id as any)}
+                                      className={`px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Minimum Rating */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Minimum Rating
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { id: 'all', label: 'Any' },
+                                  { id: '4.8', label: '4.8+ ★' },
+                                  { id: '4.9', label: '4.9+ ★' },
+                                ].map((item) => {
+                                  const isSelected = clinicRatingFilter === item.id;
+                                  return (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => setClinicRatingFilter(item.id as any)}
+                                      className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Doctors on Duty */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Doctors On Duty
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { id: 'all', label: 'Any' },
+                                  { id: '3', label: '3+ Doctors' },
+                                  { id: '5', label: '5+ Doctors' },
+                                ].map((item) => {
+                                  const isSelected = clinicDoctorsFilter === item.id;
+                                  return (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => setClinicDoctorsFilter(item.id as any)}
+                                      className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Species */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Pet Species
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { id: 'all', label: 'All Pets' },
+                                  { id: 'Dogs', label: 'Dogs & Puppies' },
+                                  { id: 'Cats', label: 'Cats & Kittens' },
+                                  { id: 'Birds', label: 'Birds & Avian' },
+                                ].map((s) => {
+                                  const isSelected = speciesFilter === s.id;
+                                  return (
+                                    <button
+                                      key={s.id}
+                                      type="button"
+                                      onClick={() => setSpeciesFilter(s.id)}
+                                      className={`px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {s.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Patient Stories */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Patient Stories
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { id: 'all', label: 'Any' },
+                                  { id: '10', label: '10+ Stories' },
+                                  { id: '70', label: '70+ Stories' },
+                                ].map((r) => {
+                                  const isSelected = ratingFilter === r.id;
+                                  return (
+                                    <button
+                                      key={r.id}
+                                      type="button"
+                                      onClick={() => setRatingFilter(r.id as any)}
+                                      className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {r.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Doctor Gender */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Doctor Gender
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { id: 'all', label: 'All' },
+                                  { id: 'female', label: 'Female' },
+                                  { id: 'male', label: 'Male' },
+                                ].map((g) => {
+                                  const isSelected = genderFilter === g.id;
+                                  return (
+                                    <button
+                                      key={g.id}
+                                      type="button"
+                                      onClick={() => setGenderFilter(g.id as any)}
+                                      className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {g.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Experience */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                Experience
+                              </label>
+                              <div className="grid grid-cols-4 gap-2">
+                                {[
+                                  { id: 'all', label: 'Any' },
+                                  { id: '5', label: '5+ yrs' },
+                                  { id: '10', label: '10+ yrs' },
+                                  { id: '15', label: '15+ yrs' },
+                                ].map((e) => {
+                                  const isSelected = experienceFilter === e.id;
+                                  return (
+                                    <button
+                                      key={e.id}
+                                      type="button"
+                                      onClick={() => setExperienceFilter(e.id as any)}
+                                      className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${isSelected
+                                          ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
+                                          : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                      {e.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Patient Stories */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Patient Stories
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: 'all', label: 'Any' },
-                          { id: '10',  label: '10+ Stories' },
-                          { id: '70',  label: '70+ Stories' },
-                        ].map((r) => {
-                          const isSelected = ratingFilter === r.id;
-                          return (
-                            <button
-                              key={r.id}
-                              type="button"
-                              onClick={() => setRatingFilter(r.id as any)}
-                              className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
-                                  : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
-                              }`}
-                            >
-                              {r.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Doctor Gender */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Doctor Gender
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: 'all', label: 'All' },
-                          { id: 'female', label: 'Female' },
-                          { id: 'male', label: 'Male' },
-                        ].map((g) => {
-                          const isSelected = genderFilter === g.id;
-                          return (
-                            <button
-                              key={g.id}
-                              type="button"
-                              onClick={() => setGenderFilter(g.id as any)}
-                              className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
-                                  : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
-                              }`}
-                            >
-                              {g.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Experience */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Experience
-                      </label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {[
-                          { id: 'all', label: 'Any' },
-                          { id: '5', label: '5+ yrs' },
-                          { id: '10', label: '10+ yrs' },
-                          { id: '15', label: '15+ yrs' },
-                        ].map((e) => {
-                          const isSelected = experienceFilter === e.id;
-                          return (
-                            <button
-                              key={e.id}
-                              type="button"
-                              onClick={() => setExperienceFilter(e.id as any)}
-                              className={`py-2 rounded-xl border text-xs text-center transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-primary text-primary-foreground border-primary font-medium shadow-xs shadow-primary/20'
-                                  : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
-                              }`}
-                            >
-                              {e.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sticky Action Footer */}
-                  <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileFilterOpen(false)}
-                      className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm flex items-center justify-center gap-2 shadow-sm shadow-primary/25 active:scale-[0.99] transition-all cursor-pointer"
-                    >
-                      <span>Show {filteredDoctors.length} {filteredDoctors.length === 1 ? 'Doctor' : 'Doctors'}</span>
-                    </button>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
-          {/* MOBILE SORT BOTTOM SHEET MODAL (Framer Motion Spring Drawer) */}
-          <AnimatePresence>
-            {isMobileSortOpen && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setIsMobileSortOpen(false)}
-                  className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 sm:hidden"
-                />
-                <motion.div
-                  initial={{ y: '100%' }}
-                  animate={{ y: 0 }}
-                  exit={{ y: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                  className="fixed bottom-0 inset-x-0 bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-slate-200 dark:border-zinc-800 z-50 sm:hidden flex flex-col shadow-2xl overflow-hidden p-4 pb-6"
-                >
-                  <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-zinc-700 mx-auto mb-3" />
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800 mb-2">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Sort Doctors By</h3>
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileSortOpen(false)}
-                      className="p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-1">
-                    {[
-                      { id: 'relevance', label: 'Relevance (Best Match)' },
-                      { id: 'rating_desc', label: 'Highest Rated' },
-                      { id: 'fee_asc', label: 'Fee: Low to High' },
-                      { id: 'fee_desc', label: 'Fee: High to Low' },
-                      { id: 'exp_desc', label: 'Most Experienced' },
-                    ].map((opt) => {
-                      const isSelected = sortBy === opt.id;
-                      return (
+                      {/* Sticky Action Footer */}
+                      <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                         <button
-                          key={opt.id}
                           type="button"
-                          onClick={() => {
-                            setSortBy(opt.id as any);
-                            setIsMobileSortOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs transition-colors cursor-pointer ${
-                            isSelected
-                              ? 'bg-primary text-primary-foreground font-medium'
-                              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800/70'
-                          }`}
+                          onClick={() => setIsMobileFilterOpen(false)}
+                          className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm flex items-center justify-center gap-2 shadow-sm shadow-primary/25 active:scale-[0.99] transition-all cursor-pointer"
                         >
-                          <span>{opt.label}</span>
-                          {isSelected && <Check className="w-4 h-4 shrink-0" />}
+                          <span>
+                            Show {consultTypeFilter === 'clinic' ? matchedHospitals.length : filteredDoctors.length}{' '}
+                            {consultTypeFilter === 'clinic'
+                              ? matchedHospitals.length === 1
+                                ? 'Hospital'
+                                : 'Hospitals'
+                              : filteredDoctors.length === 1
+                                ? 'Doctor'
+                                : 'Doctors'}
+                          </span>
                         </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+
+              {/* MOBILE SORT BOTTOM SHEET MODAL (Framer Motion Spring Drawer) */}
+              <AnimatePresence>
+                {isMobileSortOpen && (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setIsMobileSortOpen(false)}
+                      className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 sm:hidden"
+                    />
+                    <motion.div
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '100%' }}
+                      transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                      className="fixed bottom-0 inset-x-0 bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-slate-200 dark:border-zinc-800 z-50 sm:hidden flex flex-col shadow-2xl overflow-hidden p-4 pb-6"
+                    >
+                      <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-zinc-700 mx-auto mb-3" />
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800 mb-2">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Sort Doctors By</h3>
+                        <button
+                          type="button"
+                          onClick={() => setIsMobileSortOpen(false)}
+                          className="p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-1">
+                        {[
+                          { id: 'relevance', label: 'Relevance (Best Match)' },
+                          { id: 'rating_desc', label: 'Highest Rated' },
+                          { id: 'fee_asc', label: 'Fee: Low to High' },
+                          { id: 'fee_desc', label: 'Fee: High to Low' },
+                          { id: 'exp_desc', label: 'Most Experienced' },
+                        ].map((opt) => {
+                          const isSelected = sortBy === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                setSortBy(opt.id as any);
+                                setIsMobileSortOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs transition-colors cursor-pointer ${isSelected
+                                  ? 'bg-primary text-primary-foreground font-medium'
+                                  : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800/70'
+                                }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <Check className="w-4 h-4 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
 
               {/* IN-CLINIC MODE: Dedicated Hospital & Clinic Cards (No doctor cards in this section) */}
               {consultTypeFilter === 'clinic' ? (
@@ -2951,7 +3475,7 @@ function ServicesPortalContent() {
                           {searchQuery ? `No clinics found matching "${searchQuery}"` : 'No clinics available in this location'}
                         </p>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 leading-relaxed">
-                          {searchQuery 
+                          {searchQuery
                             ? 'No clinic name available matching your search. If you are searching for a specific doctor, switch to Video Consult or Home Visit.'
                             : 'Try selecting a different city or clearing your location filter to view all partner clinics.'}
                         </p>
@@ -2981,51 +3505,51 @@ function ServicesPortalContent() {
                     </div>
                   ) : (
                     matchedHospitals.map((hospital) => {
-                    const doctorsAtThisHospital = ONLINE_VETS.filter(
-                      (v) =>
-                        (hospital.doctorIds && hospital.doctorIds.includes(v.id)) ||
-                        v.clinicName.toLowerCase().includes(hospital.name.toLowerCase()) ||
-                        hospital.name.toLowerCase().includes(v.clinicName.toLowerCase())
-                    );
+                      const doctorsAtThisHospital = ONLINE_VETS.filter(
+                        (v) =>
+                          (hospital.doctorIds && hospital.doctorIds.includes(v.id)) ||
+                          v.clinicName.toLowerCase().includes(hospital.name.toLowerCase()) ||
+                          hospital.name.toLowerCase().includes(v.clinicName.toLowerCase())
+                      );
 
-                    const hospitalDoctors =
-                      doctorsAtThisHospital.length > 0
-                        ? doctorsAtThisHospital
-                        : ONLINE_VETS.filter(
+                      const hospitalDoctors =
+                        doctorsAtThisHospital.length > 0
+                          ? doctorsAtThisHospital
+                          : ONLINE_VETS.filter(
                             (v) => v.city.toLowerCase() === hospital.city.toLowerCase()
                           )
                             .slice(0, 4)
                             .concat(ONLINE_VETS.slice(0, 4));
 
-                    return (
-                      <div
-                        key={hospital.id}
-                        className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col"
-                      >
-                        {/* Upper Section: Hospital Main Profile with Inset Image */}
-                        <div className="p-3.5 sm:p-4 md:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-5 min-w-0">
-                          {/* Desktop Left Image: Inset rounded-2xl (NOT attached to card corner) */}
-                          <div 
-                            onClick={() => setSearchQuery(hospital.name)}
-                            className="hidden sm:block relative sm:w-44 md:w-52 lg:w-56 aspect-[4/3] rounded-2xl overflow-hidden shrink-0 bg-slate-100 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/80 shadow-xs cursor-pointer group/img self-center"
-                          >
-                            <Image
-                              src={hospital.image}
-                              alt={hospital.name}
-                              fill
-                              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                              sizes="(min-width: 1024px) 224px, 208px"
-                            />
-                          </div>
+                      return (
+                        <div
+                          key={hospital.id}
+                          className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col"
+                        >
+                          {/* Upper Section: Hospital Main Profile with Inset Image */}
+                          <div className="p-3.5 sm:p-4 md:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-5 min-w-0">
+                            {/* Desktop Left Image: Inset rounded-2xl (NOT attached to card corner) */}
+                            <div
+                              onClick={() => setSearchQuery(hospital.name)}
+                              className="hidden sm:block relative sm:w-44 md:w-52 lg:w-56 aspect-[4/3] rounded-2xl overflow-hidden shrink-0 bg-slate-100 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/80 shadow-xs cursor-pointer group/img self-center"
+                            >
+                              <Image
+                                src={hospital.image}
+                                alt={hospital.name}
+                                fill
+                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                                sizes="(min-width: 1024px) 224px, 208px"
+                              />
+                            </div>
 
-                          {/* Left Info Column: Identity, Metadata, Location & Rating */}
-                          <div className="flex-1 min-w-0 space-y-2.5">
-                            {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
-                            <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
-                              <div 
-                                onClick={() => setSearchQuery(hospital.name)}
-                                className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
-                              >
+                            {/* Left Info Column: Identity, Metadata, Location & Rating */}
+                            <div className="flex-1 min-w-0 space-y-2.5">
+                              {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
+                              <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                                <div
+                                  onClick={() => setSearchQuery(hospital.name)}
+                                  className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
+                                >
                                   <Image
                                     src={hospital.image}
                                     alt={hospital.name}
@@ -3224,389 +3748,385 @@ function ServicesPortalContent() {
                             </div>
                           </div>
 
-                        {/* Lower Section: Affiliated Doctors practicing at this Hospital (Desktop only) */}
-                        {hospitalDoctors.length > 0 && (
-                          <div className="hidden sm:block p-3.5 sm:p-5 pt-3 sm:pt-4 border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-zinc-800/20 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                                  Doctors Available at this Hospital
-                                </span>
-                                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
-                                  {hospitalDoctors.length}
-                                </span>
+                          {/* Lower Section: Affiliated Doctors practicing at this Hospital (Desktop only) */}
+                          {hospitalDoctors.length > 0 && (
+                            <div className="hidden sm:block p-3.5 sm:p-5 pt-3 sm:pt-4 border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-zinc-800/20 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                                    Doctors Available at this Hospital
+                                  </span>
+                                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
+                                    {hospitalDoctors.length}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setSearchQuery(hospital.name)}
+                                  className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <span>View all doctors</span>
+                                  <ChevronRight className="w-3 h-3" />
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => setSearchQuery(hospital.name)}
-                                className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-                              >
-                                <span>View all doctors</span>
-                                <ChevronRight className="w-3 h-3" />
-                              </button>
-                            </div>
 
-                            {/* Scrollable Doctor Cards Carousel with Practo arrows */}
-                            <HospitalDoctorShelf
-                              hospital={hospital}
-                              doctors={hospitalDoctors}
-                              onConsultClick={handleConsultClick}
-                              onViewAllClick={() => setSearchQuery(hospital.name)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+                              {/* Scrollable Doctor Cards Carousel with Practo arrows */}
+                              <HospitalDoctorShelf
+                                hospital={hospital}
+                                doctors={hospitalDoctors}
+                                onConsultClick={handleConsultClick}
+                                onViewAllClick={() => setSearchQuery(hospital.name)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               ) : (
                 /* HORIZONTAL DOCTOR CARDS LIST (Video Consult & Home Visit) */
                 <div className="space-y-4 pt-1">
-                {filteredDoctors.length === 0 ? (
-                  <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-12 text-center space-y-3">
-                    <p className="text-base font-semibold text-slate-800 dark:text-white">
-                      No doctors found matching your criteria
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Try searching for a different specialty, adjusting your filters, or clearing search.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setConsultTypeFilter('all');
-                        setSpeciesFilter('all');
-                        setAvailabilityFilter('all');
-                        setGenderFilter('all');
-                        setRatingFilter('all');
-                        setExperienceFilter('all');
-                      }}
-                      className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
-                    >
-                      Clear All Filters
-                    </button>
-                  </div>
-                ) : (
-                  filteredDoctors.map((vet) => (
-                    <div
-                      key={vet.id}
-                      className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col sm:flex-row items-stretch"
-                    >
-                      {/* Desktop Left Column: Edge-to-Edge Doctor Portrait (Hidden on mobile) */}
-                      <div 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreviewImageVet(vet);
+                  {filteredDoctors.length === 0 ? (
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-12 text-center space-y-3">
+                      <p className="text-base font-semibold text-slate-800 dark:text-white">
+                        No doctors found matching your criteria
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Try searching for a different specialty, adjusting your filters, or clearing search.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchQuery('');
+                          setConsultTypeFilter('all');
+                          setSpeciesFilter('all');
+                          setAvailabilityFilter('all');
+                          setGenderFilter('all');
+                          setRatingFilter('all');
+                          setExperienceFilter('all');
                         }}
-                        className="hidden sm:block relative sm:w-44 md:w-48 lg:w-56 xl:w-64 shrink-0 sm:min-h-full bg-slate-100 dark:bg-zinc-800 overflow-hidden sm:rounded-l-3xl cursor-pointer group/img"
+                        className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
                       >
-                        <Image
-                          src={vet.image}
-                          alt={vet.name}
-                          fill
-                          className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                          sizes="256px"
-                        />
-                      </div>
+                        Clear All Filters
+                      </button>
+                    </div>
+                  ) : (
+                    filteredDoctors.map((vet) => (
+                      <div
+                        key={vet.id}
+                        className="group relative bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col sm:flex-row items-stretch"
+                      >
+                        {/* Desktop Left Column: Edge-to-Edge Doctor Portrait (Hidden on mobile) */}
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewImageVet(vet);
+                          }}
+                          className="hidden sm:block relative sm:w-44 md:w-48 lg:w-56 xl:w-64 shrink-0 sm:min-h-full bg-slate-100 dark:bg-zinc-800 overflow-hidden sm:rounded-l-3xl cursor-pointer group/img"
+                        >
+                          <Image
+                            src={vet.image}
+                            alt={vet.name}
+                            fill
+                            className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                            sizes="256px"
+                          />
+                        </div>
 
-                      {/* Content Column: Responsive Medical Directory Architecture */}
-                      <div className="flex-1 p-3.5 sm:p-4 md:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-3.5 md:gap-4 lg:gap-5 min-w-0">
-                        {/* Left Info Column: Identity, Metadata, Badges, Clinic & Patient Stories */}
-                        <div className="flex-1 min-w-0 space-y-2.5">
-                          {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
-                          <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
-                            <div 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setPreviewImageVet(vet);
-                              }}
-                              className="relative w-20 h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
-                            >
-                              <Image
-                                src={vet.image}
-                                alt={vet.name}
-                                fill
-                                className="object-cover object-top scale-[1.4] origin-top transition-transform duration-300 active:scale-[1.45]"
-                                sizes="120px"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0 space-y-1">
-                              {/* Doctor Name + Verified Icon Only (Saves space on mobile) */}
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <a
-                                  href={`#doctor-${vet.id}`}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleConsultClick(vet);
-                                  }}
-                                  className="text-[15px] font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer truncate"
-                                >
-                                  {vet.name}
-                                </a>
-                                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
-                                  <ShieldCheck className="w-2.5 h-2.5 text-teal-500" />
-                                </span>
+                        {/* Content Column: Responsive Medical Directory Architecture */}
+                        <div className="flex-1 p-3.5 sm:p-4 md:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-3.5 md:gap-4 lg:gap-5 min-w-0">
+                          {/* Left Info Column: Identity, Metadata, Badges, Clinic & Patient Stories */}
+                          <div className="flex-1 min-w-0 space-y-2.5">
+                            {/* MOBILE ONLY: Portrait Thumbnail + Identity Header */}
+                            <div className="flex sm:hidden items-start gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPreviewImageVet(vet);
+                                }}
+                                className="relative w-20 h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200/80 dark:border-zinc-700 shadow-xs cursor-pointer"
+                              >
+                                <Image
+                                  src={vet.image}
+                                  alt={vet.name}
+                                  fill
+                                  className="object-cover object-top scale-[1.4] origin-top transition-transform duration-300 active:scale-[1.45]"
+                                  sizes="120px"
+                                />
                               </div>
+                              <div className="flex-1 min-w-0 space-y-1">
+                                {/* Doctor Name + Verified Icon Only (Saves space on mobile) */}
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <a
+                                    href={`#doctor-${vet.id}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleConsultClick(vet);
+                                    }}
+                                    className="text-[15px] font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer truncate"
+                                  >
+                                    {vet.name}
+                                  </a>
+                                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
+                                    <ShieldCheck className="w-2.5 h-2.5 text-teal-500" />
+                                  </span>
+                                </div>
 
-                              {/* Specialization */}
+                                {/* Specialization */}
+                                <span
+                                  onClick={() => setSearchQuery(vet.specialization)}
+                                  className="text-xs font-medium text-slate-600 dark:text-zinc-300 hover:text-primary hover:underline cursor-pointer line-clamp-1 block"
+                                >
+                                  {vet.specialization}
+                                </span>
+
+                                {/* Experience */}
+                                <div className="flex items-center gap-1 text-[11.5px] text-slate-500 dark:text-zinc-400 pt-0.5">
+                                  <Briefcase className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
+                                  <span className="font-medium text-slate-700 dark:text-zinc-200 truncate">
+                                    {vet.experience.toLowerCase().includes('experience')
+                                      ? vet.experience.replace(/overall/i, '').trim()
+                                      : `${vet.experience} experience`}
+                                  </span>
+                                </div>
+
+                                {/* Speaks: Languages (Placed below Experience) */}
+                                <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-zinc-400">
+                                  <MessageSquare className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
+                                  <span className="truncate">
+                                    Speaks: <span className="font-medium text-slate-700 dark:text-zinc-200">{vet.languages.join(', ')}</span>
+                                  </span>
+                                </div>
+
+                                {/* Satisfaction Pill & Patient Stories (Mobile) */}
+                                <div className="flex items-center gap-1.5 pt-0.5">
+                                  {(() => {
+                                    const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
+                                    return (
+                                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                        <ThumbsUp className="w-2.5 h-2.5 shrink-0" />
+                                        <span>{satNum}%</span>
+                                      </div>
+                                    );
+                                  })()}
+                                  <span className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 truncate">
+                                    <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* DESKTOP ONLY: Doctor Name + Verified Badge */}
+                            <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                              <a
+                                href={`#doctor-${vet.id}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleConsultClick(vet);
+                                }}
+                                className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer tracking-tight block"
+                              >
+                                {vet.name}
+                              </a>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
+                                <ShieldCheck className="w-3 h-3 text-teal-500 shrink-0" />
+                                <span>Verified</span>
+                              </span>
+                            </div>
+
+                            {/* DESKTOP ONLY: Specialization Line (Secondary Weight: 14px font-medium) */}
+                            <div className="hidden sm:block">
                               <span
                                 onClick={() => setSearchQuery(vet.specialization)}
-                                className="text-xs font-medium text-slate-600 dark:text-zinc-300 hover:text-primary hover:underline cursor-pointer line-clamp-1 block"
+                                className="text-xs sm:text-sm font-medium text-slate-600 dark:text-zinc-300 hover:text-primary hover:underline cursor-pointer block"
                               >
                                 {vet.specialization}
                               </span>
+                            </div>
 
-                              {/* Experience */}
-                              <div className="flex items-center gap-1 text-[11.5px] text-slate-500 dark:text-zinc-400 pt-0.5">
-                                <Briefcase className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
-                                <span className="font-medium text-slate-700 dark:text-zinc-200 truncate">
-                                  {vet.experience.toLowerCase().includes('experience') 
-                                    ? vet.experience.replace(/overall/i, '').trim() 
+                            {/* DESKTOP ONLY: Full Experience · Speaks Languages (On mobile both are in the header) */}
+                            <div className="hidden sm:flex items-center gap-2 text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 flex-wrap">
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <Briefcase className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
+                                <span className="font-medium text-slate-700 dark:text-zinc-200">
+                                  {vet.experience.toLowerCase().includes('experience')
+                                    ? vet.experience.replace(/overall/i, '').trim()
                                     : `${vet.experience} experience`}
                                 </span>
                               </div>
 
-                              {/* Speaks: Languages (Placed below Experience) */}
-                              <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-zinc-400">
-                                <MessageSquare className="w-3 h-3 text-slate-400 dark:text-zinc-500 shrink-0" />
-                                <span className="truncate">
+                              <span className="text-slate-300 dark:text-zinc-600">·</span>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <MessageSquare className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
+                                <span>
                                   Speaks: <span className="font-medium text-slate-700 dark:text-zinc-200">{vet.languages.join(', ')}</span>
                                 </span>
                               </div>
+                            </div>
 
-                              {/* Satisfaction Pill & Patient Stories (Mobile) */}
-                              <div className="flex items-center gap-1.5 pt-0.5">
-                                {(() => {
-                                  const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
-                                  return (
-                                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-                                      <ThumbsUp className="w-2.5 h-2.5 shrink-0" />
-                                      <span>{satNum}%</span>
-                                    </div>
-                                  );
-                                })()}
-                                <span className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 truncate">
-                                  <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
+                            {/* Next Line: Dominant Location & Clinic (14px font-semibold Location + 13px Clinic) */}
+                            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-400 pt-0.5 flex-wrap">
+                              <div className="flex items-center gap-1 shrink-0">
+                                <MapPin className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
+                                <span
+                                  onClick={() => {
+                                    const loc = (vet as any).area ? `${(vet as any).area}, ${vet.city}` : vet.city;
+                                    setSelectedLocation(loc);
+                                    setLocationSearchInput(loc);
+                                  }}
+                                  className="font-semibold text-slate-800 dark:text-slate-100 hover:text-primary hover:underline cursor-pointer"
+                                >
+                                  {(vet as any).area ? `${(vet as any).area}, ` : ''}{vet.city}
                                 </span>
                               </div>
+
+                              <span className="text-slate-300 dark:text-zinc-600">·</span>
+
+                              {(() => {
+                                const otherClinics = CLINICS.filter(
+                                  (c) =>
+                                    c.name.toLowerCase() !== vet.clinicName.toLowerCase() &&
+                                    c.doctorIds &&
+                                    c.doctorIds.includes(vet.id)
+                                );
+                                const count = otherClinics.length > 0 ? otherClinics.length : (vet.id % 2 === 0 ? 2 : 1);
+                                const otherNames =
+                                  otherClinics.length > 0
+                                    ? otherClinics.map((c) => c.name).join(', ')
+                                    : 'Partner Hospitals & Emergency Centers';
+
+                                return (
+                                  <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-[13px]">
+                                    <span
+                                      onClick={() => setSearchQuery(vet.clinicName)}
+                                      className="hover:text-primary hover:underline cursor-pointer truncate font-normal text-slate-600 dark:text-zinc-300"
+                                      title={`Primary clinic: ${vet.clinicName}`}
+                                    >
+                                      {vet.clinicName}
+                                    </span>
+                                    <span
+                                      onClick={() => {
+                                        if (otherClinics.length > 0) {
+                                          setSearchQuery(otherClinics[0].name);
+                                        }
+                                      }}
+                                      className="text-slate-400 dark:text-zinc-500 font-normal text-xs shrink-0 hover:text-primary hover:underline cursor-pointer"
+                                      title={`Available at: ${otherNames} on scheduled days & timings`}
+                                    >
+                                      +{count} more
+                                    </span>
+                                  </div>
+                                );
+                              })()}
                             </div>
-                          </div>
 
-                          {/* DESKTOP ONLY: Doctor Name + Verified Badge */}
-                          <div className="hidden sm:flex items-center gap-2 flex-wrap">
-                            <a
-                              href={`#doctor-${vet.id}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleConsultClick(vet);
-                              }}
-                              className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white hover:text-primary transition-colors cursor-pointer tracking-tight block"
-                            >
-                              {vet.name}
-                            </a>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
-                              <ShieldCheck className="w-3 h-3 text-teal-500 shrink-0" />
-                              <span>Verified</span>
-                            </span>
-                          </div>
-
-                          {/* DESKTOP ONLY: Specialization Line (Secondary Weight: 14px font-medium) */}
-                          <div className="hidden sm:block">
-                            <span
-                              onClick={() => setSearchQuery(vet.specialization)}
-                              className="text-xs sm:text-sm font-medium text-slate-600 dark:text-zinc-300 hover:text-primary hover:underline cursor-pointer block"
-                            >
-                              {vet.specialization}
-                            </span>
-                          </div>
-
-                          {/* DESKTOP ONLY: Full Experience · Speaks Languages (On mobile both are in the header) */}
-                          <div className="hidden sm:flex items-center gap-2 text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 flex-wrap">
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <Briefcase className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
-                              <span className="font-medium text-slate-700 dark:text-zinc-200">
-                                {vet.experience.toLowerCase().includes('experience') 
-                                  ? vet.experience.replace(/overall/i, '').trim() 
-                                  : `${vet.experience} experience`}
+                            {/* DESKTOP ONLY: Satisfaction Pill & Patient Stories */}
+                            <div className="hidden sm:flex pt-2 sm:pt-2.5 border-t border-slate-100 dark:border-zinc-800/80 items-center gap-2 sm:gap-2.5">
+                              {(() => {
+                                const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
+                                return (
+                                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                    <ThumbsUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                                    <span>{satNum}%</span>
+                                  </div>
+                                );
+                              })()}
+                              <span className="text-[11.5px] sm:text-xs font-medium text-slate-600 dark:text-zinc-400 hover:text-primary hover:underline cursor-pointer">
+                                <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
                               </span>
                             </div>
-
-                            <span className="text-slate-300 dark:text-zinc-600">·</span>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <MessageSquare className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
-                              <span>
-                                Speaks: <span className="font-medium text-slate-700 dark:text-zinc-200">{vet.languages.join(', ')}</span>
-                              </span>
-                            </div>
                           </div>
 
-                          {/* Next Line: Dominant Location & Clinic (14px font-semibold Location + 13px Clinic) */}
-                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-400 pt-0.5 flex-wrap">
-                            <div className="flex items-center gap-1 shrink-0">
-                              <MapPin className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
-                              <span
-                                onClick={() => {
-                                  const loc = (vet as any).area ? `${(vet as any).area}, ${vet.city}` : vet.city;
-                                  setSelectedLocation(loc);
-                                  setLocationSearchInput(loc);
-                                }}
-                                className="font-semibold text-slate-800 dark:text-slate-100 hover:text-primary hover:underline cursor-pointer"
-                              >
-                                {(vet as any).area ? `${(vet as any).area}, ` : ''}{vet.city}
-                              </span>
-                            </div>
-
-                            <span className="text-slate-300 dark:text-zinc-600">·</span>
-
+                          {/* Right Action Column / Mobile Bottom Section */}
+                          <div className="shrink-0 flex flex-col sm:items-center sm:justify-center gap-2.5 sm:gap-2.5 sm:ml-auto w-full sm:w-38 md:w-42 lg:w-48 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-zinc-800/80">
+                            {/* MOBILE ONLY (< sm): Cohesive Inset Availability & Fee Banner */}
                             {(() => {
-                              const otherClinics = CLINICS.filter(
-                                (c) =>
-                                  c.name.toLowerCase() !== vet.clinicName.toLowerCase() &&
-                                  c.doctorIds &&
-                                  c.doctorIds.includes(vet.id)
-                              );
-                              const count = otherClinics.length > 0 ? otherClinics.length : (vet.id % 2 === 0 ? 2 : 1);
-                              const otherNames =
-                                otherClinics.length > 0
-                                  ? otherClinics.map((c) => c.name).join(', ')
-                                  : 'Partner Hospitals & Emergency Centers';
+                              const mod = (vet.id || 1) % 3;
+                              let label = 'Available today';
+                              let isToday = true;
+
+                              if (mod === 1) {
+                                label = 'Available today';
+                                isToday = true;
+                              } else if (mod === 2) {
+                                label = 'Available tomorrow';
+                                isToday = false;
+                              } else {
+                                const dates = ['Wed, 16 Sep', 'Thu, 17 Sep', 'Fri, 18 Sep', 'Sat, 19 Sep', 'Mon, 21 Sep'];
+                                const dateStr = dates[(vet.id || 0) % dates.length];
+                                label = `Available on ${dateStr}`;
+                                isToday = false;
+                              }
 
                               return (
-                                <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-[13px]">
-                                  <span
-                                    onClick={() => setSearchQuery(vet.clinicName)}
-                                    className="hover:text-primary hover:underline cursor-pointer truncate font-normal text-slate-600 dark:text-zinc-300"
-                                    title={`Primary clinic: ${vet.clinicName}`}
-                                  >
-                                    {vet.clinicName}
-                                  </span>
-                                  <span
-                                    onClick={() => {
-                                      if (otherClinics.length > 0) {
-                                        setSearchQuery(otherClinics[0].name);
-                                      }
-                                    }}
-                                    className="text-slate-400 dark:text-zinc-500 font-normal text-xs shrink-0 hover:text-primary hover:underline cursor-pointer"
-                                    title={`Available at: ${otherNames} on scheduled days & timings`}
-                                  >
-                                    +{count} more
-                                  </span>
-                                </div>
-                              );
-                            })()}
-                          </div>
+                                <>
+                                  <div className="flex sm:hidden items-center justify-between py-2 px-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 w-full">
+                                    <div className={`flex items-center gap-1.5 text-xs ${isToday
+                                        ? 'font-semibold text-emerald-600 dark:text-emerald-400'
+                                        : 'font-medium text-slate-600 dark:text-zinc-300'
+                                      }`}>
+                                      <Calendar className={`w-3.5 h-3.5 shrink-0 ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'
+                                        }`} />
+                                      <span>{label}</span>
+                                    </div>
 
-                          {/* DESKTOP ONLY: Satisfaction Pill & Patient Stories */}
-                          <div className="hidden sm:flex pt-2 sm:pt-2.5 border-t border-slate-100 dark:border-zinc-800/80 items-center gap-2 sm:gap-2.5">
-                            {(() => {
-                              const satNum = Math.min(99, Math.max(90, Math.round(vet.rating * 20)));
-                              return (
-                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-bold shrink-0 tracking-tight border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-                                  <ThumbsUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
-                                  <span>{satNum}%</span>
-                                </div>
-                              );
-                            })()}
-                            <span className="text-[11.5px] sm:text-xs font-medium text-slate-600 dark:text-zinc-400 hover:text-primary hover:underline cursor-pointer">
-                              <span className="font-semibold text-slate-800 dark:text-zinc-200">{vet.reviews.toLocaleString()}</span> patient stories
-                            </span>
-                          </div>
-                        </div>
+                                    <div className="flex items-baseline gap-1 text-right">
+                                      <span className="text-base font-bold text-slate-900 dark:text-white">{vet.fee}</span>
+                                      <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-normal">fee</span>
+                                    </div>
+                                  </div>
 
-                        {/* Right Action Column / Mobile Bottom Section */}
-                        <div className="shrink-0 flex flex-col sm:items-center sm:justify-center gap-2.5 sm:gap-2.5 sm:ml-auto w-full sm:w-38 md:w-42 lg:w-48 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-zinc-800/80">
-                          {/* MOBILE ONLY (< sm): Cohesive Inset Availability & Fee Banner */}
-                          {(() => {
-                            const mod = (vet.id || 1) % 3;
-                            let label = 'Available today';
-                            let isToday = true;
-
-                            if (mod === 1) {
-                              label = 'Available today';
-                              isToday = true;
-                            } else if (mod === 2) {
-                              label = 'Available tomorrow';
-                              isToday = false;
-                            } else {
-                              const dates = ['Wed, 16 Sep', 'Thu, 17 Sep', 'Fri, 18 Sep', 'Sat, 19 Sep', 'Mon, 21 Sep'];
-                              const dateStr = dates[(vet.id || 0) % dates.length];
-                              label = `Available on ${dateStr}`;
-                              isToday = false;
-                            }
-
-                            return (
-                              <>
-                                <div className="flex sm:hidden items-center justify-between py-2 px-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 w-full">
-                                  <div className={`flex items-center gap-1.5 text-xs ${
-                                    isToday 
-                                      ? 'font-semibold text-emerald-600 dark:text-emerald-400' 
-                                      : 'font-medium text-slate-600 dark:text-zinc-300'
-                                  }`}>
-                                    <Calendar className={`w-3.5 h-3.5 shrink-0 ${
-                                      isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'
-                                    }`} />
+                                  {/* DESKTOP/TABLET (sm+): Centered Availability Indicator */}
+                                  <div className={`hidden sm:flex items-center justify-center gap-1.5 text-xs text-center self-center ${isToday
+                                      ? 'font-semibold text-emerald-600 dark:text-emerald-400'
+                                      : 'font-medium text-slate-700 dark:text-zinc-300'
+                                    }`}>
+                                    <Calendar className={`w-3.5 h-3.5 shrink-0 ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-zinc-400'
+                                      }`} />
                                     <span>{label}</span>
                                   </div>
+                                </>
+                              );
+                            })()}
 
-                                  <div className="flex items-baseline gap-1 text-right">
-                                    <span className="text-base font-bold text-slate-900 dark:text-white">{vet.fee}</span>
-                                    <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-normal">fee</span>
-                                  </div>
-                                </div>
-
-                                {/* DESKTOP/TABLET (sm+): Centered Availability Indicator */}
-                                <div className={`hidden sm:flex items-center justify-center gap-1.5 text-xs text-center self-center ${
-                                  isToday 
-                                    ? 'font-semibold text-emerald-600 dark:text-emerald-400' 
-                                    : 'font-medium text-slate-700 dark:text-zinc-300'
-                                }`}>
-                                  <Calendar className={`w-3.5 h-3.5 shrink-0 ${
-                                    isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-zinc-400'
-                                  }`} />
-                                  <span>{label}</span>
-                                </div>
-                              </>
-                            );
-                          })()}
-
-                          {/* DESKTOP/TABLET (sm+): Centered Fee */}
-                          <div className="hidden sm:block text-center w-full">
-                            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                              {vet.fee}
+                            {/* DESKTOP/TABLET (sm+): Centered Fee */}
+                            <div className="hidden sm:block text-center w-full">
+                              <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                                {vet.fee}
+                              </div>
+                              <div className="text-[11.5px] text-slate-500 dark:text-zinc-400 font-normal">
+                                Consultation fee
+                              </div>
                             </div>
-                            <div className="text-[11.5px] text-slate-500 dark:text-zinc-400 font-normal">
-                              Consultation fee
+
+                            {/* CTA Buttons: Side-by-side on Mobile (< sm), Vertically Stacked on Tablet & Desktop (sm+) */}
+                            <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 sm:gap-2.5 w-full">
+                              {/* Button 1: View Profile (Mobile: Left Col | Desktop: Bottom) */}
+                              <button
+                                type="button"
+                                onClick={() => handleConsultClick(vet)}
+                                className="order-1 sm:order-2 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[30px] sm:rounded-tr-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] border border-slate-200 dark:border-zinc-700 bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition-all duration-300 shadow-2xs active:scale-[0.98] cursor-pointer"
+                              >
+                                <span className="truncate font-semibold">View Profile</span>
+                              </button>
+
+                              {/* Button 2: Book Appointment (Mobile: Right Col | Desktop: Top) */}
+                              <button
+                                type="button"
+                                onClick={() => handleConsultClick(vet)}
+                                className="order-2 sm:order-1 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] sm:rounded-tr-[30px] bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer border-0"
+                              >
+                                <span className="truncate font-semibold">Book Appointment</span>
+                              </button>
                             </div>
-                          </div>
-
-                          {/* CTA Buttons: Side-by-side on Mobile (< sm), Vertically Stacked on Tablet & Desktop (sm+) */}
-                          <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 sm:gap-2.5 w-full">
-                            {/* Button 1: View Profile (Mobile: Left Col | Desktop: Bottom) */}
-                            <button
-                              type="button"
-                              onClick={() => handleConsultClick(vet)}
-                              className="order-1 sm:order-2 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[30px] sm:rounded-tr-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] border border-slate-200 dark:border-zinc-700 bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition-all duration-300 shadow-2xs active:scale-[0.98] cursor-pointer"
-                            >
-                              <span className="truncate font-semibold">View Profile</span>
-                            </button>
-
-                            {/* Button 2: Book Appointment (Mobile: Right Col | Desktop: Top) */}
-                            <button
-                              type="button"
-                              onClick={() => handleConsultClick(vet)}
-                              className="order-2 sm:order-1 w-full h-9 sm:h-10 px-2 sm:px-4 rounded-xl sm:rounded-tl-[99px] sm:rounded-bl-[99px] sm:rounded-br-[99px] sm:rounded-tr-[30px] bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer border-0"
-                            >
-                              <span className="truncate font-semibold">Book Appointment</span>
-                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -3638,22 +4158,20 @@ function ServicesPortalContent() {
               <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
                 <button
                   onClick={() => setAppointmentsSubTab('upcoming')}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${
-                    appointmentsSubTab === 'upcoming'
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${appointmentsSubTab === 'upcoming'
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   <span>Upcoming Consultations</span>
                   <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/20">2</span>
                 </button>
                 <button
                   onClick={() => setAppointmentsSubTab('past')}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${
-                    appointmentsSubTab === 'past'
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${appointmentsSubTab === 'past'
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   <span>Completed History</span>
                   <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/20">1</span>
@@ -3671,11 +4189,10 @@ function ServicesPortalContent() {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${
-                              apt.isLiveNow
+                            className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${apt.isLiveNow
                                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60'
                                 : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'
-                            }`}
+                              }`}
                           >
                             {apt.isLiveNow && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
                             {apt.isLiveNow ? 'Consultation Ready' : apt.status}
@@ -3822,21 +4339,19 @@ function ServicesPortalContent() {
               <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
                 <button
                   onClick={() => setRecordsSubTab('prescriptions')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    recordsSubTab === 'prescriptions'
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${recordsSubTab === 'prescriptions'
                       ? 'bg-primary text-primary-foreground'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   Digital Prescriptions (Rx)
                 </button>
                 <button
                   onClick={() => setRecordsSubTab('vaccines')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    recordsSubTab === 'vaccines'
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${recordsSubTab === 'vaccines'
                       ? 'bg-primary text-primary-foreground'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   Vaccination Tracker
                 </button>
@@ -3906,11 +4421,10 @@ function ServicesPortalContent() {
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-bold text-slate-900 dark:text-white">{vac.name}</h3>
                           <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                              vac.status === 'Up to Date'
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${vac.status === 'Up to Date'
                                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
                                 : 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
-                            }`}
+                              }`}
                           >
                             {vac.status}
                           </span>
@@ -3992,11 +4506,10 @@ function ServicesPortalContent() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm text-slate-900 dark:text-white">Profile Completion</h3>
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                        profileCompletion.percentage === 100
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${profileCompletion.percentage === 100
                           ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60'
                           : 'bg-primary/10 text-primary border border-primary/20'
-                      }`}>
+                        }`}>
                         {profileCompletion.percentage}% Complete
                       </span>
                     </div>
@@ -4021,40 +4534,36 @@ function ServicesPortalContent() {
 
                 {/* Checklist Pills */}
                 <div className="flex items-center gap-2 pt-1 flex-wrap">
-                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${
-                    profileCompletion.checks.hasAccount
+                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${profileCompletion.checks.hasAccount
                       ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60'
                       : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400'
-                  }`}>
+                    }`}>
                     {profileCompletion.checks.hasAccount ? <Check className="w-3 h-3 text-emerald-600" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />}
                     Account Details
                   </div>
 
-                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${
-                    profileCompletion.checks.hasPhone
+                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${profileCompletion.checks.hasPhone
                       ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60'
                       : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400'
-                  }`}>
+                    }`}>
                     {profileCompletion.checks.hasPhone ? <Check className="w-3 h-3 text-emerald-600" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />}
                     Phone (Optional)
                   </div>
 
-                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${
-                    profileCompletion.checks.hasAddress
+                  <div className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors ${profileCompletion.checks.hasAddress
                       ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60'
                       : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400'
-                  }`}>
+                    }`}>
                     {profileCompletion.checks.hasAddress ? <Check className="w-3 h-3 text-emerald-600" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />}
                     Address (Optional)
                   </div>
 
                   <button
                     onClick={() => handleSelectTab('care', 'pets')}
-                    className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer hover:opacity-85 ${
-                      profileCompletion.checks.hasPet
+                    className={`text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer hover:opacity-85 ${profileCompletion.checks.hasPet
                         ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60'
                         : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400'
-                    }`}
+                      }`}
                   >
                     {profileCompletion.checks.hasPet ? <Check className="w-3 h-3 text-emerald-600" /> : <Plus className="w-3 h-3 text-primary" />}
                     {pets.length > 0 ? `${pets.length} Pet${pets.length > 1 ? 's' : ''} Added` : 'Register Pet'}
@@ -5308,11 +5817,10 @@ function ServicesPortalContent() {
                   type="button"
                   onClick={() => setIsWaitlistNotified(!isWaitlistNotified)}
                   style={{ fontFamily: 'var(--font-sans), Parkinsans, sans-serif' }}
-                  className={`w-full h-11 rounded-full text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] cursor-pointer ${
-                    isWaitlistNotified
+                  className={`w-full h-11 rounded-full text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] cursor-pointer ${isWaitlistNotified
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                       : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                  }`}
+                    }`}
                 >
                   {isWaitlistNotified ? '✓ On Waitlist' : 'Notify Me'}
                 </button>
