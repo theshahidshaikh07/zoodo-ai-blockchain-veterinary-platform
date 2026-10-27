@@ -530,17 +530,17 @@ export default function PersonalRegistrationPage() {
 
       {/* Right panel */}
       <div className="flex-1 h-full flex flex-col overflow-hidden">
-        <div className="flex items-center justify-center py-5 shrink-0 lg:hidden">
-          <Link href="/"><Image src="/logo-slate.png" alt="Zoodo" width={120} height={22} className="h-4.5 w-auto dark:brightness-0 dark:invert" priority /></Link>
+        <div className="flex items-center px-5 py-4 shrink-0 lg:hidden">
+          <Link href="/"><Image src="/logo-slate.png" alt="Zoodo" width={120} height={22} className="h-3.5 w-auto dark:brightness-0 dark:invert" priority /></Link>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="min-h-full flex items-start lg:items-center justify-center px-6 sm:px-10 lg:px-14 py-8">
+          <div className="min-h-full flex items-start lg:items-center justify-center px-5 sm:px-10 lg:px-14 py-4 sm:py-8">
             <div className="w-full max-w-[400px]">
 
-              <div className="text-center mb-7">
-                <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
-                <p className="text-sm text-muted-foreground">
+              <div className="text-center mb-5 sm:mb-7">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1">Create your account</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {step === 1 ? 'Free — no credit card needed.' : 'For Pet Parents'}
                 </p>
               </div>

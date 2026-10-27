@@ -293,28 +293,29 @@ export default function BusinessRegistrationPage() {
       <div className="flex-1 h-full flex flex-col overflow-hidden">
 
         {/* Top bar — logo only */}
-        <div className="flex items-center justify-center px-8 py-6 shrink-0 lg:hidden">
+        <div className="flex items-center px-5 py-4 shrink-0 lg:hidden">
           <Link href="/">
             <Image
               src="/logo-slate.png"
               alt="Zoodo"
               width={120}
               height={22}
-              className="h-4 w-auto dark:brightness-0 dark:invert"
+              className="h-3.5 w-auto dark:brightness-0 dark:invert"
               priority
             />
           </Link>
         </div>
 
         {/* Centred form */}
-        <div className="flex-1 flex items-center justify-center px-8 sm:px-12 lg:px-16 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          <div className="min-h-full flex items-start lg:items-center justify-center px-5 sm:px-12 lg:px-16 py-4 sm:py-8">
           <div className="w-full max-w-[360px]">
 
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-foreground mb-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                 {step === 1 ? 'Create a business account' : 'Your business details'}
               </h1>
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
                 {step === 1 ? 'Free to join — get listed and start growing.' : 'Help customers find the right service.'}
               </p>
             </div>
@@ -510,6 +511,7 @@ export default function BusinessRegistrationPage() {
               </form>
             )}
 
+          </div>
           </div>
         </div>
 

@@ -88,9 +88,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 relative flex flex-col">
+    <div className="fixed inset-0 overflow-y-auto bg-white dark:bg-slate-950 flex flex-col">
       {/* Header */}
-      <div className="relative z-10 flex items-center p-4 sm:p-6">
+      <div className="relative z-10 flex items-center p-4 sm:p-6 shrink-0">
         <Link href="/" className="flex items-center">
           <Image
             src="/logo-slate.png"
@@ -104,20 +104,20 @@ export default function LoginPage() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-md w-full space-y-8">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-5 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="max-w-md w-full space-y-5 sm:space-y-8">
           {/* Title */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Welcome back
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
               Sign in to your account
             </p>
           </div>
 
           {/* Login Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
             {/* Username Input with Floating Label */}
             <div className="relative">
@@ -227,7 +227,7 @@ export default function LoginPage() {
             </div>
 
             {/* Social Login Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               <Button
                 type="button"
                 variant="outline"
