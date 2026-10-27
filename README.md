@@ -2,7 +2,7 @@
 
 # 🐾 Zoodo - AI & Blockchain-Powered Veterinary Platform 
 
-#### 🌐 Live Demo — [https://zoodo.dev](https://zoodo.dev)
+#### 🌐 Live Demo — [https://zoodo.vercel.app](https://zoodo.vercel.app)
 
 A comprehensive digital ecosystem for pet healthcare that unites pet owners, veterinarians, trainers, and welfare communities under a single, intelligent system.
 
